@@ -1,0 +1,3 @@
+[submodule "Runic2D/vendor/spdlog"]
+	path = Runic2D/vendor/spdlog
+	url = https://github.com/gabime/spdlog

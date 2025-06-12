@@ -27,9 +27,15 @@
     <ClInclude Include="src\Runic2D\EntryPoint.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Log.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Runic2D\Application.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Log.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>

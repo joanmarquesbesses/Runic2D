@@ -11,12 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Runic2D\Log.h" />
     <ClInclude Include="src\Runic2D.h" />
     <ClInclude Include="src\Runic2D\Application.h" />
     <ClInclude Include="src\Runic2D\Core.h" />
     <ClInclude Include="src\Runic2D\EntryPoint.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Runic2D\Log.cpp" />
     <ClCompile Include="src\Runic2D\Application.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -67,6 +69,9 @@
       <PreprocessorDefinitions>RUNIC2D_PLATFORM_WINDOWS;RUNIC2D_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)Runic2D\vendor\spdlog\include;</AdditionalIncludeDirectories>
+      <AdditionalOptions> /utf-8
+ %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -82,6 +87,9 @@
       <PreprocessorDefinitions>RUNIC2D_PLATFORM_WINDOWS;RUNIC2D_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)Runic2D\vendor\spdlog\include;</AdditionalIncludeDirectories>
+      <AdditionalOptions> /utf-8
+ %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
