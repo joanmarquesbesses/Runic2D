@@ -2,9 +2,6 @@
 
 #include "Runic2D/Core.h"
 
-#include <string>
-#include <functional>
-
 namespace Runic2D
 {
 	// Events in Runic2D are currently blocking, meaning when an event occurs, it

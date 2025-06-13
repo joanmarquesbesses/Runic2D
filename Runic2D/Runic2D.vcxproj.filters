@@ -9,6 +9,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\R2Dpch.h" />
     <ClInclude Include="src\Runic2D.h" />
     <ClInclude Include="src\Runic2D\Application.h">
       <Filter>Runic2D</Filter>
@@ -36,6 +37,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\R2Dpch.cpp" />
     <ClCompile Include="src\Runic2D\Application.cpp">
       <Filter>Runic2D</Filter>
     </ClCompile>

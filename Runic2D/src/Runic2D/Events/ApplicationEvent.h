@@ -2,8 +2,6 @@
 
 #include "Event.h"
 
-#include <sstream>
-
 namespace Runic2D {
 
 	class RUNIC2D_API WindowResizeEvent : public Event

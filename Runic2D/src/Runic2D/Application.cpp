@@ -1,3 +1,4 @@
+#include "R2Dpch.h"
 #include "Application.h"
 
 #include "Runic2D/Events/ApplicationEvent.h"

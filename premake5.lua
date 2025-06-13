@@ -19,6 +19,9 @@ project "Runic2D"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
+	pchheader "R2Dpch.h"
+	pchsource "Runic2D/src/R2Dpch.cpp"
+
 	files
 	{
 		"%{prj.name}/src/**.h",
