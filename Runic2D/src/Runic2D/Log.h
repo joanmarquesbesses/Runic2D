@@ -4,6 +4,7 @@
 
 #include "Core.h"
 #include "spdlog/spdlog.h"
+#include "spdlog/fmt/ostr.h" // for spdlog's custom formatting support
 
 namespace Runic2D
 {

@@ -4,6 +4,9 @@
     <Filter Include="Runic2D">
       <UniqueIdentifier>{DC6BD4C4-484B-5360-5163-DE36BDC1B9C1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Runic2D\Events">
+      <UniqueIdentifier>{40A856E6-2C76-4AEC-150A-BB1201772651}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Runic2D.h" />
@@ -15,6 +18,18 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\EntryPoint.h">
       <Filter>Runic2D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Events\ApplicationEvent.h">
+      <Filter>Runic2D\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Events\Event.h">
+      <Filter>Runic2D\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Events\KeyEvent.h">
+      <Filter>Runic2D\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Events\MouseEvent.h">
+      <Filter>Runic2D\Events</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Log.h">
       <Filter>Runic2D</Filter>
