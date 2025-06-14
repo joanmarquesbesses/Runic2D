@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Runic2D/Log.h"
+
 #ifdef RUNIC2D_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif // RUNIC_PLATFORM_WINDOWS

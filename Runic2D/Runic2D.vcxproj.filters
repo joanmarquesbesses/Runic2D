@@ -35,6 +35,10 @@
     <ClInclude Include="src\Runic2D\Log.h">
       <Filter>Runic2D</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Window.h">
+      <Filter>Runic2D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\R2Dpch.cpp" />
@@ -44,5 +48,6 @@
     <ClCompile Include="src\Runic2D\Log.cpp">
       <Filter>Runic2D</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
 </Project>

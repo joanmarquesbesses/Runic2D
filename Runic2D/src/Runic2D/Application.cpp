@@ -2,11 +2,15 @@
 #include "Application.h"
 
 #include "Runic2D/Events/ApplicationEvent.h"
-#include "Runic2D/Log.h"
+
+#include <GLFW/glfw3.h>
 
 namespace Runic2D {
 	Application::Application()
 	{
+		R2D_CORE_INFO("Runic2D Engine Initialized");
+
+		m_Window = std::unique_ptr<Window>(Window::Create());
 	}
 
 	Application::~Application()
@@ -15,14 +19,10 @@ namespace Runic2D {
 
 	void Application::Run()
 	{
-		WindowResizeEvent e(1280, 720);
-		if (e.IsInCategory(EventCategoryApplication)) {
-			RUNIC2D_TRACE(e);
+		while (m_Running) {
+			glClearColor(1.0f, 1.0f, 0.5f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			m_Window->OnUpdate();
 		}
-		if (e.IsInCategory(EventCategoryInput)) {
-			RUNIC2D_TRACE(e);
-		}
-
-		while (true);
 	}
 }

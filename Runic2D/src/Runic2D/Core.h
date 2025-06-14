@@ -10,4 +10,13 @@
 	#error Runic2D only supports Windows!
 #endif // HZ_PLATFORM_WINDOWS
 
+#ifdef RUNIC2D_ENABLE_ASSERTS
+	#define R2D_ASSERT(x, ...) { if(!(x)) { R2D_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define R2D_CORE_ASSERT(x, ...) { if(!(x)) { R2D_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#else
+	#define R2D_ASSERT(x, ...)
+	#define R2D_CORE_ASSERT(x, ...)
+#endif // RUNIC2D_ENABLE_ASSERTS
+
+
 #define BIT(x) (1 << x)

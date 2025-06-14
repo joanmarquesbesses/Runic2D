@@ -11,6 +11,12 @@ workspace "Runic2D"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+-- Include directories relative to root folder (solution directory)
+IncludeDir = {}
+IncludeDir["GLFW"] = "Runic2D/vendor/GLFW/include"
+
+include "Runic2D/vendor/GLFW"
+
 project "Runic2D"
 	location "Runic2D"
 	kind "SharedLib"
@@ -31,7 +37,14 @@ project "Runic2D"
 	includedirs
 	{
 		"%{prj.name}/src",
-		"%{prj.name}/vendor/spdlog/include"
+		"%{prj.name}/vendor/spdlog/include",
+		"%{IncludeDir.GLFW}"
+	}
+
+	links
+	{
+		"GLFW",
+		"opengl32.lib"
 	}
 
 	filter "system:windows"
@@ -62,6 +75,9 @@ project "Runic2D"
 		optimize "On"
 
 	filter { "system:windows", "configurations:Debug" }
+		buildoptions "/utf-8"
+
+	filter { "system:windows", "configurations:Release" }
 		buildoptions "/utf-8"
 
 
@@ -113,4 +129,7 @@ project "SandBox"
 		optimize "On"
 
 	filter { "system:windows", "configurations:Debug" }
+		buildoptions "/utf-8"
+
+	filter { "system:windows", "configurations:Release" }
 		buildoptions "/utf-8"
