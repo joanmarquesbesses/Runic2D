@@ -154,6 +154,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\R2Dpch.h" />
     <ClInclude Include="src\Runic2D.h" />
     <ClInclude Include="src\Runic2D\Application.h" />
@@ -165,15 +166,14 @@
     <ClInclude Include="src\Runic2D\Events\MouseEvent.h" />
     <ClInclude Include="src\Runic2D\Log.h" />
     <ClInclude Include="src\Runic2D\Window.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\R2Dpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Application.cpp" />
     <ClCompile Include="src\Runic2D\Log.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">
