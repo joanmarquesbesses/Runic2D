@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Core.h"
-#include "Events/Event.h"
-#include "Runic2D/Events/ApplicationEvent.h"
 
 #include "Window.h"
+#include "Runic2D/LayerStack.h"
+#include "Runic2D/Events/ApplicationEvent.h"
 
 namespace Runic2D
 {
@@ -17,6 +17,9 @@ namespace Runic2D
 		void Run();
 
 		void OnEvent(Event& e);
+
+		void PushLayer(Layer* layer);
+		void PushOverlay(Layer* overlay);
 	private:
 		bool OnWindowClose(WindowCloseEvent& e)
 		{
@@ -26,6 +29,7 @@ namespace Runic2D
 
 		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
+		LayerStack m_LayerStack;
 	};
 
 	//  To be defined in the client

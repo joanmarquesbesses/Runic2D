@@ -48,6 +48,8 @@ namespace Runic2D
 		}
 
 		virtual std::string ToString() const { return GetName(); }
+
+		inline bool Handled() const { return m_Handled; }
 	protected:
 		bool m_Handled = false; // We can use this to check if the event has been handled and 
 								// prevent further processing of the event.

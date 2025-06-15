@@ -1,7 +1,7 @@
 #include "R2Dpch.h"
 #include "Application.h"
 
-#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 namespace Runic2D {
 
@@ -19,13 +19,14 @@ namespace Runic2D {
 	{
 	}
 
-	void Application::Run()
+	void Application::PushLayer(Layer* layer)
 	{
-		while (m_Running) {
-			glClearColor(1.0f, 1.0f, 0.5f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			m_Window->OnUpdate();
-		}
+		m_LayerStack.PushLayer(layer);
+	}
+
+	void Application::PushOverlay(Layer* overlay)
+	{
+		m_LayerStack.PushOverlay(overlay);
 	}
 
 	void Application::OnEvent(Event& e)
@@ -33,6 +34,25 @@ namespace Runic2D {
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(R2D_BIND_EVENT_FN(OnWindowClose));
 
-		R2D_CORE_TRACE("Event: {0}", e);
+		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
+			(*--it)->OnEvent(e);
+			if (e.Handled())
+				break;
+		}
 	}
+
+	void Application::Run()
+	{
+		while (m_Running) {
+			glClearColor(1.0f, 1.0f, 0.5f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			for (Layer* layer : m_LayerStack) {
+				layer->OnUpdate();
+			}
+
+			m_Window->OnUpdate();
+		}
+	}
+
 }

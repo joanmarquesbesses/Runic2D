@@ -41,6 +41,12 @@
     <ClInclude Include="src\Runic2D\Events\MouseEvent.h">
       <Filter>Runic2D\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Layer.h">
+      <Filter>Runic2D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\LayerStack.h">
+      <Filter>Runic2D</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Log.h">
       <Filter>Runic2D</Filter>
     </ClInclude>
@@ -54,6 +60,12 @@
     </ClCompile>
     <ClCompile Include="src\R2Dpch.cpp" />
     <ClCompile Include="src\Runic2D\Application.cpp">
+      <Filter>Runic2D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Layer.cpp">
+      <Filter>Runic2D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\LayerStack.cpp">
       <Filter>Runic2D</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Log.cpp">

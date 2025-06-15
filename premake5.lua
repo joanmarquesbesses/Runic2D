@@ -14,8 +14,10 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["GLFW"] = "Runic2D/vendor/GLFW/include"
+IncludeDir["Glad"] = "Runic2D/vendor/Glad/include"
 
 include "Runic2D/vendor/Premake/glfw.lua"
+include "Runic2D/vendor/Premake/Glad.lua"
 
 project "Runic2D"
 	location "Runic2D"
@@ -38,12 +40,14 @@ project "Runic2D"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}"
 	}
 
 	links
 	{
 		"GLFW",
+		"Glad",
 		"opengl32.lib"
 	}
 
@@ -55,7 +59,8 @@ project "Runic2D"
 		defines
 		{
 			"RUNIC2D_PLATFORM_WINDOWS",
-			"RUNIC2D_BUILD_DLL"
+			"RUNIC2D_BUILD_DLL",
+			"GLFW_INCLUDE_NONE" -- Prevent GLFW from including OpenGL headers
 		}
 
 		postbuildcommands {
@@ -64,14 +69,17 @@ project "Runic2D"
 
 	filter "configurations:Debug"
 		defines "RUNIC2D_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "RUNIC2D_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "RUNIC2D_DIST"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter { "system:windows", "configurations:Debug" }
@@ -118,14 +126,17 @@ project "SandBox"
 
 	filter "configurations:Debug"
 		defines "RUNIC2D_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "RUNIC2D_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "RUNIC2D_DIST"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter { "system:windows", "configurations:Debug" }
