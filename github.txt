@@ -1,0 +1,8 @@
+# Runic2D
+
+## Clonación
+
+Este proyecto usa submódulos (GLFW y spdlog). Para clonar correctamente:
+
+```bash
+git clone --recurse-submodules https://github.com/tu_usuario/tu_repo.git

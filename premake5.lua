@@ -15,7 +15,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["GLFW"] = "Runic2D/vendor/GLFW/include"
 
-include "Runic2D/vendor/GLFW"
+include "Runic2D/vendor/Premake/glfw.lua"
 
 project "Runic2D"
 	location "Runic2D"
