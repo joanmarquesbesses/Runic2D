@@ -4,3 +4,6 @@
 [submodule "Runic2D/vendor/GLFW"]
 	path = Runic2D/vendor/GLFW
 	url = https://github.com/glfw/glfw
+[submodule "Runic2D/vendor/imgui"]
+	path = Runic2D/vendor/imgui
+	url = https://github.com/ocornut/imgui

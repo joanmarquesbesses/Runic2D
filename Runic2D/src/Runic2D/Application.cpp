@@ -7,8 +7,12 @@ namespace Runic2D {
 
 #define R2D_BIND_EVENT_FN(fn) std::bind(&Application::fn, this, std::placeholders::_1)
 
+	Application* Application::s_Instance = nullptr;
+
 	Application::Application()
 	{
+		R2D_CORE_ASSERT(!s_Instance, "Application already exists!");
+		s_Instance = this;
 		R2D_CORE_INFO("Runic2D Engine Initialized");
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
@@ -22,11 +26,13 @@ namespace Runic2D {
 	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
+		layer->OnAttach();
 	}
 
 	void Application::PushOverlay(Layer* overlay)
 	{
 		m_LayerStack.PushOverlay(overlay);
+		overlay->OnAttach();
 	}
 
 	void Application::OnEvent(Event& e)

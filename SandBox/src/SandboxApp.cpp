@@ -27,6 +27,7 @@ public:
 	{
 		// Constructor for SandboxApp, can be used to initialize the application.
 		PushLayer(new ExampleLayer()); // Adding an instance of ExampleLayer to the application.
+		PushOverlay(new Runic2D::ImGuiLayer()); // Adding ImGuiLayer for GUI rendering.
 	}
 
 	virtual ~SandboxApp()

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Runic2D/Core.h"
 #include "Runic2D/Events/Event.h"
 
 namespace Runic2D {

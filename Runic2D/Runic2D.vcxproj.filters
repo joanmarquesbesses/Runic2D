@@ -4,6 +4,9 @@
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Platform\OpenGL">
+      <UniqueIdentifier>{1E7D2C1D-8A08-9AE1-9319-1DD6FF23F6E1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
     </Filter>
@@ -13,8 +16,14 @@
     <Filter Include="Runic2D\Events">
       <UniqueIdentifier>{40A856E6-2C76-4AEC-150A-BB1201772651}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Runic2D\ImGui">
+      <UniqueIdentifier>{06564D45-7216-C97B-3B51-12F9A7D00D58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
@@ -41,6 +50,9 @@
     <ClInclude Include="src\Runic2D\Events\MouseEvent.h">
       <Filter>Runic2D\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\ImGui\ImGuiLayer.h">
+      <Filter>Runic2D\ImGui</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Layer.h">
       <Filter>Runic2D</Filter>
     </ClInclude>
@@ -55,12 +67,18 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\R2Dpch.cpp" />
     <ClCompile Include="src\Runic2D\Application.cpp">
       <Filter>Runic2D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\ImGui\ImGuiLayer.cpp">
+      <Filter>Runic2D\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Layer.cpp">
       <Filter>Runic2D</Filter>

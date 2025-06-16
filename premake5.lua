@@ -15,9 +15,11 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["GLFW"] = "Runic2D/vendor/GLFW/include"
 IncludeDir["Glad"] = "Runic2D/vendor/Glad/include"
+IncludeDir["ImGui"] = "Runic2D/vendor/imgui"
 
 include "Runic2D/vendor/Premake/glfw.lua"
 include "Runic2D/vendor/Premake/Glad.lua"
+include "Runic2D/vendor/Premake/imgui.lua"
 
 project "Runic2D"
 	location "Runic2D"
@@ -41,13 +43,15 @@ project "Runic2D"
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.Glad}"
+		"%{IncludeDir.Glad}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links
 	{
 		"GLFW",
 		"Glad",
+		"ImGui",
 		"opengl32.lib"
 	}
 
