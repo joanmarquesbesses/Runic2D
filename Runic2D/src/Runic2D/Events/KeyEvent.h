@@ -54,4 +54,20 @@ namespace Runic2D {
 			return ss.str();
 		}
 	};
+
+	class RUNIC2D_API KeyTypedEvent : public KeyEvent
+	{
+	public:
+		KeyTypedEvent(int keyCode)
+			: KeyEvent(keyCode) {}
+
+		EVENT_CLASS_TYPE(KeyTyped)
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "KeyTypedEvent: " << m_KeyCode;
+			return ss.str();
+		}
+	};
 }
