@@ -148,7 +148,6 @@ namespace Runic2D
 		int imguiKey = GLFWToImGuiKey(e.GetKeyCode()); // Convert GLFW keycode to ImGui keycode
 		io.AddKeyEvent((ImGuiKey)imguiKey, true); // Add key event to ImGui
 
-		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		io.AddKeyEvent(ImGuiKey_ModCtrl,
 			glfwGetKey((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
 			glfwGetKey((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS);
