@@ -65,6 +65,8 @@
     <ClInclude Include="src\Runic2D\Window.h">
       <Filter>Runic2D</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Input.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp">
@@ -89,5 +91,6 @@
     <ClCompile Include="src\Runic2D\Log.cpp">
       <Filter>Runic2D</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
 </Project>

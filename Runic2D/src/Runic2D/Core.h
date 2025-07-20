@@ -8,7 +8,7 @@
 	#endif // DEBUG
 #else
 	#error Runic2D only supports Windows!
-#endif // HZ_PLATFORM_WINDOWS
+#endif // RUNIC2D_PLATFORM_WINDOWS
 
 #ifdef RUNIC2D_DEBUG
 	#define R2D_ENABLE_ASSERTS

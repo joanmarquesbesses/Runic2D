@@ -154,6 +154,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Runic2D\Input.h" />
     <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\R2Dpch.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="src\Runic2D\LayerStack.h" />
     <ClInclude Include="src\Runic2D\Log.h" />
     <ClInclude Include="src\Runic2D\Window.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp" />
@@ -182,6 +184,7 @@
     <ClCompile Include="src\Runic2D\Layer.cpp" />
     <ClCompile Include="src\Runic2D\LayerStack.cpp" />
     <ClCompile Include="src\Runic2D\Log.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">

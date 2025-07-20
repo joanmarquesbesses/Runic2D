@@ -3,6 +3,8 @@
 
 #include <glad/glad.h>
 
+#include "Input.h"
+
 namespace Runic2D {
 
 #define R2D_BIND_EVENT_FN(fn) std::bind(&Application::fn, this, std::placeholders::_1)
@@ -56,6 +58,9 @@ namespace Runic2D {
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
 			}
+
+			auto [x, y] = Input::GetMousePosition();
+			R2D_CORE_TRACE("Mouse Position: ({0}, {1})", x, y);
 
 			m_Window->OnUpdate();
 		}
