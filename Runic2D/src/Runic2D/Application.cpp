@@ -59,9 +59,6 @@ namespace Runic2D {
 				layer->OnUpdate();
 			}
 
-			auto [x, y] = Input::GetMousePosition();
-			R2D_CORE_TRACE("Mouse Position: ({0}, {1})", x, y);
-
 			m_Window->OnUpdate();
 		}
 	}

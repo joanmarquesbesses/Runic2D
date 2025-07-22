@@ -7,3 +7,6 @@
 [submodule "Runic2D/vendor/imgui"]
 	path = Runic2D/vendor/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "Runic2D\\vendor\\glm"]
+	path = Runic2D\\vendor\\glm
+	url = https://github.com/g-truc/glm

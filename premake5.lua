@@ -16,6 +16,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "Runic2D/vendor/GLFW/include"
 IncludeDir["Glad"] = "Runic2D/vendor/Glad/include"
 IncludeDir["ImGui"] = "Runic2D/vendor/imgui"
+IncludeDir["glm"] = "Runic2D/vendor/glm"
 
 group "Dependencies"
 	include "Runic2D/vendor/Premake/glfw.lua"
@@ -38,7 +39,9 @@ project "Runic2D"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/vendor/glm/glm/**.hpp",
+		"%{prj.name}/vendor/glm/glm/**.inl",
 	}
 
 	includedirs
@@ -47,7 +50,8 @@ project "Runic2D"
 		"%{prj.name}/vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}"
 	}
 
 	links
@@ -113,7 +117,8 @@ project "SandBox"
 	includedirs
 	{
 		"Runic2D/vendor/spdlog/include",
-		"Runic2D/src"
+		"Runic2D/src",
+		"%{IncludeDir.glm}"
 	}
 
 	links

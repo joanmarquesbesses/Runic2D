@@ -11,12 +11,21 @@ public:
 
 	void OnUpdate() override
 	{
-		R2D_INFO("ExampleLayer::OnUpdate - This method is called every frame to update the layer.");
+		//R2D_INFO("ExampleLayer::OnUpdate - This method is called every frame to update the layer.");
+
+		if (Runic2D::Input::IsKeyPressed(R2D_KEY_P))
+		{
+			R2D_TRACE("ExampleLayer::OnUpdate - Key 'P' is pressed.");
+		}
 	}
 
 	void OnEvent(Runic2D::Event& event) override
 	{
-		R2D_TRACE("ExampleLayer::OnEvent - Event received: {0}", event);
+		if (event.GetEventType() == Runic2D::EventType::KeyPressed)
+		{
+			auto& keyEvent = static_cast<Runic2D::KeyPressedEvent&>(event);
+			R2D_TRACE("ExampleLayer::OnEvent - Key pressed: {0}", (char)keyEvent.GetKeyCode());
+		}
 	}
 };
 
