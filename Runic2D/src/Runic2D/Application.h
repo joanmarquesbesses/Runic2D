@@ -5,6 +5,7 @@
 #include "Window.h"
 #include "Runic2D/LayerStack.h"
 #include "Runic2D/Events/ApplicationEvent.h"
+#include "ImGui/ImGuiLayer.h"
 
 namespace Runic2D
 {
@@ -31,6 +32,7 @@ namespace Runic2D
 		}
 
 		std::unique_ptr<Window> m_Window;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 	private:

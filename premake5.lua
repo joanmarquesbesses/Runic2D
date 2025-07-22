@@ -118,6 +118,7 @@ project "SandBox"
 	{
 		"Runic2D/vendor/spdlog/include",
 		"Runic2D/src",
+		"Runic2D/vendor",
 		"%{IncludeDir.glm}"
 	}
 

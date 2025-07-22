@@ -3,6 +3,8 @@ project "ImGui"
 	kind "StaticLib"
 	language "C++"
 
+	defines { "IMGUI_API=__declspec(dllexport)" }
+
 	targetdir ("%{prj.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{prj.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 

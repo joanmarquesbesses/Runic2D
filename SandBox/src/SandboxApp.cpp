@@ -1,5 +1,7 @@
 #include <Runic2D.h>
 
+#include "imgui/imgui.h"
+
 class ExampleLayer : public Runic2D::Layer
 {
 public:
@@ -27,6 +29,14 @@ public:
 			R2D_TRACE("ExampleLayer::OnEvent - Key pressed: {0}", (char)keyEvent.GetKeyCode());
 		}
 	}
+
+	void OnImGuiRender() override
+	{
+		// This method can be used to render ImGui elements for this layer.
+		ImGui::Begin("Example Layer");
+		ImGui::Text("Hello from ExampleLayer!");
+		ImGui::End();
+	}
 };
 
 class SandboxApp : public Runic2D::Application
@@ -36,7 +46,6 @@ public:
 	{
 		// Constructor for SandboxApp, can be used to initialize the application.
 		PushLayer(new ExampleLayer()); // Adding an instance of ExampleLayer to the application.
-		PushOverlay(new Runic2D::ImGuiLayer()); // Adding ImGuiLayer for GUI rendering.
 	}
 
 	virtual ~SandboxApp()

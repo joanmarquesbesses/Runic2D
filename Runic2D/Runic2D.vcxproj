@@ -154,7 +154,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\R2Dpch.h" />
@@ -594,13 +593,13 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\R2Dpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Application.cpp" />
+    <ClCompile Include="src\Runic2D\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Runic2D\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Runic2D\Layer.cpp" />
     <ClCompile Include="src\Runic2D\LayerStack.cpp" />

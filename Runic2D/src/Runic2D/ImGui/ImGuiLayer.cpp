@@ -1,7 +1,8 @@
 #include "R2Dpch.h"
 #include "ImGuiLayer.h"
 
-#include "Platform/OpenGL/ImGuiOpenGLRenderer.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "backends/imgui_impl_glfw.h"
 
 
 #include "Runic2D/Application.h"
@@ -26,90 +27,76 @@ namespace Runic2D
 
 	void ImGuiLayer::OnAttach()
 	{
-		// Code to attach the ImGui layer, such as initializing ImGui context
+		// Code to attach the ImGui layer, such as initializing ImGui context and setting up styles
+		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGui::StyleColorsDark();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-		ImGuiIO& io = ImGui::GetIO();	 // Initialize ImGui IO
-		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors; // Enable mouse cursors
-		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos; // Enable setting mouse position
+		//Style setup
+		ImGui::StyleColorsDark(); // Set ImGui style to dark
 
-		ImGui_ImplOpenGL3_Init("#version 460"); // Initialize OpenGL renderer for ImGui
+		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+		ImGuiStyle& style = ImGui::GetStyle();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
+
+		Application& app = Application::Get();
+		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
+
+		//Set up ImGui for GLFW and OpenGL
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init("#version 330 core");
 	}
 
 	void ImGuiLayer::OnDetach()
 	{
 		// Code to detach the ImGui layer, such as shutting down ImGui context
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 	}
 
-	void ImGuiLayer::OnUpdate()
+	void ImGuiLayer::OnImGuiRender()
 	{
-		ImGuiIO& io = ImGui::GetIO(); // Get ImGui IO instance
-		Application& app = Application::Get(); // Get the application instance
-		io.DisplaySize = ImVec2((float)Application::Get().GetWindow().GetWidth(), (float)Application::Get().GetWindow().GetHeight()); // Set display size for ImGui
-
-		float time = (float)glfwGetTime(); // Get current time for ImGui
-		io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f / 60.0f); // Calculate delta time
-		m_Time = time; // Update the time for the next frame
-
-		ImGui_ImplOpenGL3_NewFrame(); // Start a new ImGui frame
-		ImGui::NewFrame(); // Begin a new ImGui frame
-
+		// This function is called to render ImGui elements
 		static bool showDemoWindow = true;
-		if (showDemoWindow)
-			ImGui::ShowDemoWindow(&showDemoWindow); // Show ImGui demo window
+		ImGui::ShowDemoWindow(&showDemoWindow);
+
+	}
+
+	void ImGuiLayer::Begin()
+	{
+		// Start a new ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		m_Time = (float)glfwGetTime();
+	}
+
+	void ImGuiLayer::End()
+	{
+		// End the ImGui frame and render it
+		ImGuiIO& io = ImGui::GetIO();
+		Application& app = Application::Get();
+		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
 		ImGui::Render(); // Render ImGui frame
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); // Render ImGui draw data using OpenGL
-	}
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-	void ImGuiLayer::OnEvent(Event& event)
-	{
-		EventDispatcher dispatcher(event); // Create an event dispatcher for the current event
-		dispatcher.Dispatch<MouseButtonPressedEvent>(RUNIC2D_BIND_EVENT_FN(ImGuiLayer::OnMouseButtonPressedEvent));
-		dispatcher.Dispatch<MouseButtonReleasedEvent>(RUNIC2D_BIND_EVENT_FN(ImGuiLayer::OnMouseButtonReleasedEvent));
-		dispatcher.Dispatch<MouseMovedEvent>(RUNIC2D_BIND_EVENT_FN(ImGuiLayer::OnMouseMovedEvent));
-		dispatcher.Dispatch<MouseScrolledEvent>(RUNIC2D_BIND_EVENT_FN(ImGuiLayer::OnMouseScrolledEvent));
-		dispatcher.Dispatch<KeyPressedEvent>(RUNIC2D_BIND_EVENT_FN(ImGuiLayer::OnKeyPressedEvent));
-		dispatcher.Dispatch<KeyReleasedEvent>(RUNIC2D_BIND_EVENT_FN(ImGuiLayer::OnKeyReleasedEvent));
-		dispatcher.Dispatch<KeyTypedEvent>(RUNIC2D_BIND_EVENT_FN(ImGuiLayer::OnKeyTypedEvent));
-		dispatcher.Dispatch<WindowResizeEvent>(RUNIC2D_BIND_EVENT_FN(ImGuiLayer::OnWindowResizeEvent));
-	}
-
-	bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		if (e.GetMouseButton() >= 0 && e.GetMouseButton() < IM_ARRAYSIZE(io.MouseDown))
+		// Update platform windows if viewports are enabled
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-			io.MouseDown[e.GetMouseButton()] = true; // Set mouse button state to pressed
+			GLFWwindow* backupCurrentContext = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backupCurrentContext);
 		}
-
-		return false;
-	}
-
-	bool ImGuiLayer::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		if (e.GetMouseButton() >= 0 && e.GetMouseButton() < IM_ARRAYSIZE(io.MouseDown))
-		{
-			io.MouseDown[e.GetMouseButton()] = false; // Set mouse button state to released
-		}
-		return false;
-	}
-
-	bool ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.MousePos = ImVec2(e.GetX(), e.GetY()); // Update mouse position in ImGui IO
-
-		return false;
-	}
-
-	bool ImGuiLayer::OnMouseScrolledEvent(MouseScrolledEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.AddMouseWheelEvent(e.GetXOffset(), e.GetYOffset()); // Add mouse wheel scroll event to ImGui IO
-		return false;
 	}
 
 	// Helper function to map GLFW keycodes to ImGui keycodes  
@@ -142,58 +129,4 @@ namespace Runic2D
 		}
 	}
 
-	bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		int imguiKey = GLFWToImGuiKey(e.GetKeyCode()); // Convert GLFW keycode to ImGui keycode
-		io.AddKeyEvent((ImGuiKey)imguiKey, true); // Add key event to ImGui
-
-		io.AddKeyEvent(ImGuiKey_ModCtrl,
-			glfwGetKey((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
-			glfwGetKey((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS);
-
-		io.AddKeyEvent(ImGuiKey_ModShift,
-			glfwGetKey((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-			glfwGetKey((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS);
-
-		io.AddKeyEvent(ImGuiKey_ModAlt,
-			glfwGetKey((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), GLFW_KEY_LEFT_ALT) == GLFW_PRESS ||
-			glfwGetKey((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), GLFW_KEY_RIGHT_ALT) == GLFW_PRESS);
-
-		return false;
-	}
-
-	bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
-	{
-        ImGuiIO& io = ImGui::GetIO();  
-        int imguiKey = GLFWToImGuiKey(e.GetKeyCode()); // Convert GLFW keycode to ImGui keycode  
-        io.AddKeyEvent((ImGuiKey)imguiKey, false); // Add key release event to ImGui  
-
-		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		io.AddKeyEvent(ImGuiKey_LeftCtrl, glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS);
-		io.AddKeyEvent(ImGuiKey_RightCtrl, glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS);
-
-		return false;
-	}
-
-	bool ImGuiLayer::OnKeyTypedEvent(KeyTypedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		int keyCode = e.GetKeyCode();
-		if (keyCode > 0 && keyCode < 0x10000) // Check if key code is valid
-		{
-			io.AddInputCharacter((unsigned short)keyCode); // Add character input to ImGui IO
-		}
-		return false;
-	}
-
-	bool ImGuiLayer::OnWindowResizeEvent(WindowResizeEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2((float)e.GetWidth(), (float)e.GetHeight()); // Update display size in ImGui IO
-		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f); // Set framebuffer scale for high DPI displays
-		glViewport(0, 0, e.GetWidth(), e.GetHeight()); // Update OpenGL viewport size
-
-		return false;
-	}
 } // namespace Runic2D
