@@ -26,9 +26,10 @@ group ""
 
 project "Runic2D"
 	location "Runic2D"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
-	staticruntime "off"
+	cppdialect "C++20"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -63,7 +64,6 @@ project "Runic2D"
 	}
 
 	filter "system:windows"
-		cppdialect "C++20"
 		systemversion "latest"
 
 		defines
@@ -73,24 +73,20 @@ project "Runic2D"
 			"GLFW_INCLUDE_NONE" -- Prevent GLFW from including OpenGL headers
 		}
 
-		postbuildcommands {
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/SandBox/\"")
-		}
-
 	filter "configurations:Debug"
 		defines "RUNIC2D_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "RUNIC2D_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "RUNIC2D_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter { "system:windows", "configurations:Debug" }
 		buildoptions "/utf-8"
@@ -103,7 +99,8 @@ project "SandBox"
 	location "SandBox"
 	kind "ConsoleApp"
 	language "C++"
-	staticruntime "off"
+	cppdialect "C++20"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -128,7 +125,6 @@ project "SandBox"
 	}
 
 	filter "system:windows"
-		cppdialect "C++20"
 		systemversion "latest"
 
 		defines
@@ -139,17 +135,17 @@ project "SandBox"
 	filter "configurations:Debug"
 		defines "RUNIC2D_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "RUNIC2D_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "RUNIC2D_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter { "system:windows", "configurations:Debug" }
 		buildoptions "/utf-8"

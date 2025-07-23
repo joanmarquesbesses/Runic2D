@@ -2,6 +2,7 @@ project "ImGui"
 	location "%{wks.location}/Runic2D/vendor/imgui"
 	kind "StaticLib"
 	language "C++"
+	staticruntime "on"
 
 	defines { "IMGUI_API=__declspec(dllexport)" }
 

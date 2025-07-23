@@ -1,11 +1,15 @@
 #pragma once
 
 #ifdef RUNIC2D_PLATFORM_WINDOWS
+#if RUNIC2D_DYNAMIC_LINK
 	#ifdef RUNIC2D_BUILD_DLL
 		#define RUNIC2D_API __declspec(dllexport)
-    #else
+	#else
 		#define RUNIC2D_API __declspec(dllimport)
 	#endif // DEBUG
+#else
+	#define RUNIC2D_API
+#endif
 #else
 	#error Runic2D only supports Windows!
 #endif // RUNIC2D_PLATFORM_WINDOWS

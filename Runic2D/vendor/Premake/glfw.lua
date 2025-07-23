@@ -2,6 +2,7 @@ project "GLFW"
 	location "%{wks.location}/Runic2D/vendor/GLFW"
 	kind "StaticLib"
 	language "C"
+	staticruntime "on"
 
 	targetdir ("%{prj.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{prj.location}/bin-int/" .. outputdir .. "/%{prj.name}")
@@ -33,7 +34,6 @@ project "GLFW"
 
 	filter "system:windows"
 		systemversion "latest"
-		staticruntime "On" --staticly linking the runtime libraries
 
 		files
 		{
