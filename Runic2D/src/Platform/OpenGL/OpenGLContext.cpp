@@ -18,6 +18,10 @@ namespace Runic2D
 		glfwMakeContextCurrent(m_WindowHandle);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		R2D_CORE_ASSERT(status, "Failed to initialize Glad!");
+
+		R2D_CORE_INFO("  Vendor {0}", (const char*)glGetString(GL_VERSION));
+		R2D_CORE_INFO("  Renderer {0}", (const char*)glGetString(GL_RENDERER));
+		R2D_CORE_INFO("  GLSL Version {0}", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
 	}
 
 	void OpenGLContext::SwapBuffers()

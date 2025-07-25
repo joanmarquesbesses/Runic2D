@@ -165,6 +165,7 @@
     <ClInclude Include="src\Runic2D\Log.h" />
     <ClInclude Include="src\Runic2D\MouseButtonCodes.h" />
     <ClInclude Include="src\Runic2D\Renderer\GraphicsContext.h" />
+    <ClInclude Include="src\Runic2D\Renderer\Shader.h" />
     <ClInclude Include="src\Runic2D\Window.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
@@ -598,6 +599,7 @@
     <ClCompile Include="src\Runic2D\Layer.cpp" />
     <ClCompile Include="src\Runic2D\LayerStack.cpp" />
     <ClCompile Include="src\Runic2D\Log.cpp" />
+    <ClCompile Include="src\Runic2D\Renderer\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">

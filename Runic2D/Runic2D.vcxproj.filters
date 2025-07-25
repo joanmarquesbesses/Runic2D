@@ -1355,6 +1355,7 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
+    <ClInclude Include="src\Runic2D\Renderer\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
@@ -1385,5 +1386,6 @@
       <Filter>src\Runic2D</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
+    <ClCompile Include="src\Runic2D\Renderer\Shader.cpp" />
   </ItemGroup>
 </Project>

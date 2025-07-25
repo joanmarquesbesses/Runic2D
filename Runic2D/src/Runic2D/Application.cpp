@@ -22,6 +22,56 @@ namespace Runic2D {
 		
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
+
+		// Vertex and index data
+		float vertices[3 * 3] = {
+			-0.5f, -0.5f, 0.0f,
+			 0.5f, -0.5f, 0.0f,
+			 0.0f,  0.5f, 0.0f
+		};
+
+		unsigned int indices[3] = { 0, 1, 2 };
+
+		// Create Vertex Array Object (VAO)
+		glCreateVertexArrays(1, &m_VertexArray);
+
+		// Create and fill Vertex Buffer Object (VBO)
+		glCreateBuffers(1, &m_VertexBuffer);
+		glNamedBufferData(m_VertexBuffer, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+		// Link VBO to VAO
+		glVertexArrayVertexBuffer(m_VertexArray, 0, m_VertexBuffer, 0, 3 * sizeof(float));
+		glEnableVertexArrayAttrib(m_VertexArray, 0);
+		glVertexArrayAttribFormat(m_VertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
+		glVertexArrayAttribBinding(m_VertexArray, 0, 0); // Attribute 0 uses binding index 0
+
+		// Create and fill Index Buffer Object (IBO/EBO)
+		glCreateBuffers(1, &m_IndexBuffer);
+		glNamedBufferData(m_IndexBuffer, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		// Link IBO to VAO
+		glVertexArrayElementBuffer(m_VertexArray, m_IndexBuffer);
+
+		std::string vertexSrc = R"(
+			#version 450 core
+			layout(location = 0) in vec3 a_Position;
+			out vec3 v_Position;
+			void main() {
+				v_Position = a_Position;
+				gl_Position = vec4(a_Position, 1.0);
+			}
+		)";
+
+		std::string fragmentSrc = R"(
+			#version 450 core
+			out vec4 color;
+			in vec3 v_Position;
+			void main() {
+				color = vec4(v_Position * 0.5 + 0.5, 1.0); // Red color
+			}
+		)";
+
+		m_Shader.reset(new Shader(vertexSrc, fragmentSrc));
 	}
 
 	Application::~Application()
@@ -55,8 +105,12 @@ namespace Runic2D {
 	void Application::Run()
 	{
 		while (m_Running) {
-			glClearColor(1.0f, 1.0f, 0.5f, 1.0f);
+			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			m_Shader->Bind();
+			glBindVertexArray(m_VertexArray);
+			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
