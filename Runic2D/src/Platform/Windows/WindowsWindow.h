@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Runic2D/Window.h"
+#include "Runic2D/Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>
 
@@ -29,6 +30,8 @@ namespace Runic2D {
 
 	private:
 		GLFWwindow* m_Window;
+		GraphicsContext* m_Context;
+
 		struct WindowData
 		{
 			std::string Title;
