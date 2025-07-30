@@ -30,27 +30,23 @@ namespace Runic2D {
 			 0.0f,  0.5f, 0.0f
 		};
 
-		unsigned int indices[3] = { 0, 1, 2 };
+		uint32_t indices[3] = { 0, 1, 2 };
 
 		// Create Vertex Array Object (VAO)
-		glCreateVertexArrays(1, &m_VertexArray);
-
-		// Create and fill Vertex Buffer Object (VBO)
-		glCreateBuffers(1, &m_VertexBuffer);
-		glNamedBufferData(m_VertexBuffer, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		glGenVertexArrays(1, &m_VertexArray);
+		glBindVertexArray(m_VertexArray);
 
 		// Link VBO to VAO
-		glVertexArrayVertexBuffer(m_VertexArray, 0, m_VertexBuffer, 0, 3 * sizeof(float));
+		m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+
 		glEnableVertexArrayAttrib(m_VertexArray, 0);
-		glVertexArrayAttribFormat(m_VertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_VertexArray, 0, 0); // Attribute 0 uses binding index 0
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 
 		// Create and fill Index Buffer Object (IBO/EBO)
-		glCreateBuffers(1, &m_IndexBuffer);
-		glNamedBufferData(m_IndexBuffer, sizeof(indices), indices, GL_STATIC_DRAW);
+		m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
 		// Link IBO to VAO
-		glVertexArrayElementBuffer(m_VertexArray, m_IndexBuffer);
+		glVertexArrayElementBuffer(m_VertexArray, 2);
 
 		std::string vertexSrc = R"(
 			#version 450 core
@@ -110,7 +106,7 @@ namespace Runic2D {
 
 			m_Shader->Bind();
 			glBindVertexArray(m_VertexArray);
-			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
 
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
