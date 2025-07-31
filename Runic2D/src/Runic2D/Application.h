@@ -10,6 +10,7 @@
 
 #include "Runic2D/Renderer/Shader.h"
 #include "Runic2D/Renderer/Buffer.h"
+#include "Runic2D/Renderer/VertexArray.h"
 
 namespace Runic2D
 {
@@ -41,10 +42,9 @@ namespace Runic2D
 		LayerStack m_LayerStack;
 
 		//drawing triangle
-		unsigned int m_VertexArray;
-		std::unique_ptr<Shader> m_Shader;
-		std::unique_ptr<VertexBuffer> m_VertexBuffer;
-		std::unique_ptr<IndexBuffer> m_IndexBuffer;
+		std::shared_ptr<Shader> m_Shader;
+		std::shared_ptr<VertexArray> m_VertexArray;
+		std::shared_ptr<VertexArray> m_SquareVA;
 	private:
 		static Application* s_Instance;
 	};
