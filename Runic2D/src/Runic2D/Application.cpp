@@ -13,6 +13,7 @@ namespace Runic2D {
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application()
+		: m_Camera(-1.6f, 1.6f, -0.9f, 0.9f)
 	{
 		R2D_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
@@ -83,21 +84,21 @@ namespace Runic2D {
 			#version 450 core
 			layout(location = 0) in vec3 a_Position;
 			layout(location = 1) in vec4 a_Color;
+			uniform mat4 u_ViewProjection;
 			out vec3 v_Position;
 			out vec4 v_Color; 
 			void main() {
 				v_Position = a_Position;
-				gl_Position = vec4(a_Position, 1.0);
 				v_Color = a_Color;
-
+				gl_Position = u_ViewProjection * vec4(a_Position, 1);
 			}
 		)";
 
 		std::string fragmentSrc = R"(
 			#version 450 core
-			out vec4 color;
 			in vec3 v_Position;
 			in vec4 v_Color;
+			out vec4 color;
 			void main() {
 				color = v_Color;
 			}
@@ -140,11 +141,13 @@ namespace Runic2D {
 			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 			RenderCommand::Clear();
 
-			Renderer::BeginScene();
+			m_Camera.SetPosition({ 0.5f, 0.5f, 0.0f });
+			m_Camera.SetRotation(45.0f);
 
-			m_Shader->Bind();
-			Renderer::Submit(m_SquareVA);
-			Renderer::Submit(m_VertexArray);
+			Renderer::BeginScene(m_Camera);
+
+			Renderer::Submit(m_Shader, m_SquareVA);
+			Renderer::Submit(m_Shader, m_VertexArray);
 
 			Renderer::EndScene();
 

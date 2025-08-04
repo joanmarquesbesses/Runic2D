@@ -2,17 +2,28 @@
 
 #include "RenderCommand.h"
 
+#include "OrthographicCamera.h"
+
+#include "Shader.h"
+
 namespace Runic2D {
 
 	class Renderer
 	{
 	public:
-		static void BeginScene();
+		static void BeginScene(OrthographicCamera& Camera);
 		static void EndScene();
 
-		static void Submit(const std::shared_ptr<class VertexArray>& vertexArray);
+		static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<class VertexArray>& vertexArray);
 
 		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+	private:
+		struct SceneData
+		{
+			glm::mat4 ViewProjectionMatrix;
+		};
+
+		static SceneData* s_SceneData;
 	};
 
 } // namespace Runic2D

@@ -1364,6 +1364,7 @@
     <ClInclude Include="src\Runic2D\Renderer\RendererAPI.h" />
     <ClInclude Include="src\Runic2D\Renderer\RenderCommand.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
+    <ClInclude Include="src\Runic2D\Renderer\OrthographicCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
@@ -1403,5 +1404,6 @@
     <ClCompile Include="src\Runic2D\Renderer\RendererAPI.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
+    <ClCompile Include="src\Runic2D\Renderer\OrthographicCamera.cpp" />
   </ItemGroup>
 </Project>

@@ -12,6 +12,8 @@
 #include "Runic2D/Renderer/Buffer.h"
 #include "Runic2D/Renderer/VertexArray.h"
 
+#include "Runic2D/Renderer/OrthographicCamera.h"
+
 namespace Runic2D
 {
 	class RUNIC2D_API Application
@@ -45,6 +47,8 @@ namespace Runic2D
 		std::shared_ptr<Shader> m_Shader;
 		std::shared_ptr<VertexArray> m_VertexArray;
 		std::shared_ptr<VertexArray> m_SquareVA;
+
+		OrthographicCamera m_Camera;
 	private:
 		static Application* s_Instance;
 	};
