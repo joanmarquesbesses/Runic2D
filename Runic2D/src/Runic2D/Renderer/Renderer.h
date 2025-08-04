@@ -1,22 +1,18 @@
 #pragma once
 
-namespace Runic2D {
+#include "RenderCommand.h"
 
-	enum class RendererAPI
-	{
-		None = 0,
-		OpenGL = 1,
-		Vulkan = 2,
-		DirectX = 3
-	};
+namespace Runic2D {
 
 	class Renderer
 	{
 	public:
-		static RendererAPI GetAPI() { return s_RendererAPI; }
-		static void SetAPI(RendererAPI api) { s_RendererAPI = api; }
-	private:
-		static RendererAPI s_RendererAPI;
+		static void BeginScene();
+		static void EndScene();
+
+		static void Submit(const std::shared_ptr<class VertexArray>& vertexArray);
+
+		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 	};
 
 } // namespace Runic2D
