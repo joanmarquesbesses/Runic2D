@@ -6,6 +6,8 @@
 
 #include "Input.h"
 
+#include <GLFW/glfw3.h>
+
 namespace Runic2D {
 
 #define R2D_BIND_EVENT_FN(fn) std::bind(&Application::fn, this, std::placeholders::_1)
@@ -20,6 +22,7 @@ namespace Runic2D {
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(R2D_BIND_EVENT_FN(OnEvent));
+		m_Window->SetVSync(true);
 		
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -56,9 +59,13 @@ namespace Runic2D {
 	void Application::Run()
 	{
 		while (m_Running) {
+
+			float time = (float)glfwGetTime(); //TODO: Platform class
+			Timestep timestep = time - m_LastFrameTime;
+			m_LastFrameTime = time; 
 			
 			for (Layer* layer : m_LayerStack) {
-				layer->OnUpdate();
+				layer->OnUpdate(timestep);
 			}
 
 			m_ImGuiLayer->Begin();

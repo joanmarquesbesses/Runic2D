@@ -6,6 +6,8 @@
 #include "Runic2D/Layer.h"
 #include "Runic2D/Log.h"
 
+#include "Runic2D/Core/Timestep.h"
+
 #include "Runic2D/Input.h"
 #include "Runic2D/KeyCodes.h"
 #include "Runic2D/MouseButtonCodes.h"

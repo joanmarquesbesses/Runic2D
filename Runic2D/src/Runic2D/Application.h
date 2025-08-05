@@ -6,13 +6,9 @@
 #include "Runic2D/LayerStack.h"
 #include "Runic2D/Events/ApplicationEvent.h"
 
+#include "Runic2D/Core/Timestep.h"
+
 #include "ImGui/ImGuiLayer.h"
-
-#include "Runic2D/Renderer/Shader.h"
-#include "Runic2D/Renderer/Buffer.h"
-#include "Runic2D/Renderer/VertexArray.h"
-
-#include "Runic2D/Renderer/OrthographicCamera.h"
 
 namespace Runic2D
 {
@@ -42,7 +38,7 @@ namespace Runic2D
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
-
+		float m_LastFrameTime = 0.0f;
 	private:
 		static Application* s_Instance;
 	};

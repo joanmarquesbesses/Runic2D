@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Runic2D/Core/Timestep.h"
 #include "Runic2D/Events/Event.h"
 
 namespace Runic2D {
@@ -13,7 +14,7 @@ namespace Runic2D {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate() {}
+		virtual void OnUpdate(Timestep ts) {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 

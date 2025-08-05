@@ -91,25 +91,27 @@ public:
 		m_Shader.reset(new Runic2D::Shader(vertexSrc, fragmentSrc));
 	}
 
-	void OnUpdate() override
+	void OnUpdate(Runic2D::Timestep ts) override
 	{
+		R2D_TRACE("deltatime: {0}s ({1}ms)", ts.GetSeconds(), ts.GetMilliseconds());
+
 		if (Runic2D::Input::IsKeyPressed(R2D_KEY_LEFT))
-			m_CameraPosition.x -= m_CameraMoveSpeed;
+			m_CameraPosition.x -= m_CameraMoveSpeed * ts;
 
 		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_RIGHT))
-			m_CameraPosition.x += m_CameraMoveSpeed;
+			m_CameraPosition.x += m_CameraMoveSpeed * ts;
 
 		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_UP))
-			m_CameraPosition.y += m_CameraMoveSpeed;
+			m_CameraPosition.y += m_CameraMoveSpeed * ts;
 
 		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_DOWN))
-			m_CameraPosition.y -= m_CameraMoveSpeed;
+			m_CameraPosition.y -= m_CameraMoveSpeed * ts;
 
 		if (Runic2D::Input::IsKeyPressed(R2D_KEY_A))
-			m_CameraRotation -= m_CameraSpeed;
+			m_CameraRotation -= m_CameraSpeed * ts;
 
 		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_D))
-			m_CameraRotation += m_CameraSpeed;
+			m_CameraRotation += m_CameraSpeed * ts;
 
 		Runic2D::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		Runic2D::RenderCommand::Clear();
@@ -145,9 +147,9 @@ private:
 
 	Runic2D::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition; // Camera position for the orthographic camera
-	float m_CameraMoveSpeed = 0.1f; // Speed of camera movement
+	float m_CameraMoveSpeed = 5.0f; // Speed of camera movement
 	float m_CameraRotation = 0.0f; // Camera rotation angle in degrees
-	float m_CameraSpeed = 2.0f; // Speed of camera movement
+	float m_CameraSpeed = 180.0f; // Speed of camera movement
 };
 
 class SandboxApp : public Runic2D::Application
