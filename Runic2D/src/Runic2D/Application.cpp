@@ -22,7 +22,6 @@ namespace Runic2D {
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(R2D_BIND_EVENT_FN(OnEvent));
-		m_Window->SetVSync(true);
 		
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
