@@ -13,7 +13,6 @@ namespace Runic2D {
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application()
-		: m_Camera(-1.6f, 1.6f, -0.9f, 0.9f)
 	{
 		R2D_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
@@ -24,87 +23,6 @@ namespace Runic2D {
 		
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
-
-		m_VertexArray.reset(VertexArray::Create());
-
-		// Vertex and index data
-		float vertices[3 * 7] = {
-			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f, // Vertex 1: Position (x, y, z) and Color (r, g, b, a)
-			 0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f, // Vertex 2: Position (x, y, z) and Color (r, g, b, a)
-			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f  // Vertex 3: Position (x, y, z) and Color (r, g, b, a)
-		};
-
-		std::shared_ptr<VertexBuffer> m_VertexBuffer;
-		m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-
-		BufferLayout layout = {
-			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float4, "a_Color" }
-		};
-		m_VertexBuffer->SetLayout(layout);
-
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);		
-
-		uint32_t indices[3] = { 0, 1, 2 };
-
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
-		m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));;
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
-
-		m_SquareVA.reset(VertexArray::Create());
-
-		float squareVertices[4 * 7] = {
-			-0.5f, -0.5f, 0.0f, 0.2f, 0.2f, 0.8f, 1.0f, // Bottom Left
-			 0.5f, -0.5f, 0.0f, 0.5f, 0.3f, 0.3f, 1.0f, // Bottom Right
-			 0.5f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f, // Top Right
-			-0.5f,  0.5f, 0.0f, 0.3f, 0.2f, 0.5f, 1.0f // Top Left
-		};
-
-		std::shared_ptr<VertexBuffer> squareVB;
-		squareVB.reset(VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
-
-		BufferLayout squareLayout = {
-			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float4, "a_Color" }
-		};
-		squareVB->SetLayout(squareLayout);
-
-		m_SquareVA->AddVertexBuffer(squareVB);
-
-		uint32_t squareIndices[6] = {
-			0, 1, 2, // First Triangle
-			2, 3, 0  // Second Triangle
-		};
-
-		std::shared_ptr<IndexBuffer> squareIB;
-		squareIB.reset(IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
-		m_SquareVA->SetIndexBuffer(squareIB);
-
-		std::string vertexSrc = R"(
-			#version 450 core
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
-			uniform mat4 u_ViewProjection;
-			out vec3 v_Position;
-			out vec4 v_Color; 
-			void main() {
-				v_Position = a_Position;
-				v_Color = a_Color;
-				gl_Position = u_ViewProjection * vec4(a_Position, 1);
-			}
-		)";
-
-		std::string fragmentSrc = R"(
-			#version 450 core
-			in vec3 v_Position;
-			in vec4 v_Color;
-			out vec4 color;
-			void main() {
-				color = v_Color;
-			}
-		)";
-
-		m_Shader.reset(new Shader(vertexSrc, fragmentSrc));
 	}
 
 	Application::~Application()
@@ -138,19 +56,7 @@ namespace Runic2D {
 	void Application::Run()
 	{
 		while (m_Running) {
-			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
-			RenderCommand::Clear();
-
-			m_Camera.SetPosition({ 0.5f, 0.5f, 0.0f });
-			m_Camera.SetRotation(45.0f);
-
-			Renderer::BeginScene(m_Camera);
-
-			Renderer::Submit(m_Shader, m_SquareVA);
-			Renderer::Submit(m_Shader, m_VertexArray);
-
-			Renderer::EndScene();
-
+			
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
 			}
