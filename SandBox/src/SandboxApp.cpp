@@ -1,7 +1,10 @@
 #include <Runic2D.h>
 
+#include "Platform/OpenGL/OpenGLShader.h"
+
 #include "imgui/imgui.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class ExampleLayer : public Runic2D::Layer
 {
@@ -88,15 +91,21 @@ public:
 
 		std::string fragmentSrc = R"(
 			#version 450 core
+
 			in vec3 v_Position;
 			in vec4 v_Color;
+
+			uniform vec3 u_Color; // Uniform color variable
+
 			out vec4 color;
-			void main() {
-				color = v_Color;
+
+			void main() 
+			{
+				color = vec4(u_Color, 1.0f);
 			}
 		)";
 
-		m_Shader.reset(new Runic2D::Shader(vertexSrc, fragmentSrc));
+		m_Shader.reset(Runic2D::Shader::Create(vertexSrc, fragmentSrc));
 	}
 
 	void OnUpdate(Runic2D::Timestep ts) override
@@ -141,6 +150,9 @@ public:
 
 		Runic2D::Renderer::BeginScene(m_Camera);
 
+		std::dynamic_pointer_cast<Runic2D::OpenGLShader>(m_Shader)->Bind();
+		std::dynamic_pointer_cast<Runic2D::OpenGLShader>(m_Shader)->UploadUniformFloat3("u_Color", m_SquareColor);
+
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_SquarePosition);
 
 		Runic2D::Renderer::Submit(m_Shader, m_SquareVA, transform);
@@ -158,7 +170,14 @@ public:
 
 	void OnImGuiRender() override
 	{
+		ImGui::Begin("Settings");
 
+		ImGui::Text("Camera Position: (%.2f, %.2f)", m_CameraPosition.x, m_CameraPosition.y);
+		ImGui::Text("Camera Rotation: %.2f degrees", m_CameraRotation);
+		ImGui::Text("Square Position: (%.2f, %.2f)", m_SquarePosition.x, m_SquarePosition.y);
+		ImGui::ColorEdit3("Square Color", glm::value_ptr(m_SquareColor));
+
+		ImGui::End();
 	}
 
 private:
@@ -175,6 +194,8 @@ private:
 
 	glm::vec3 m_SquarePosition; // Position of the square
 	float m_SquareMoveSpeed = 1.0f; // Speed of square movement
+
+	glm::vec3 m_SquareColor = { 0.2f, 0.8f, 0.2f }; // Color of the square
 };
 
 class SandboxApp : public Runic2D::Application
