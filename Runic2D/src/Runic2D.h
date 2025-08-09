@@ -21,6 +21,7 @@
 #include "Runic2D/Renderer/Buffer.h"
 #include "Runic2D/Renderer/VertexArray.h"
 #include "Runic2D/Renderer/Shader.h"
+#include "Runic2D/Renderer/Texture.h"
 
 #include "Runic2D/Renderer/OrthographicCamera.h"
 // --------

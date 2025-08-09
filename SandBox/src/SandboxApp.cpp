@@ -13,40 +13,13 @@ public:
 		: Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f),
 		m_SquarePosition(0.0f)
 	{
-		// Constructor for ExampleLayer, can be used to initialize the layer.
-		m_VertexArray.reset(Runic2D::VertexArray::Create());
-
-		// Vertex and index data
-		float vertices[3 * 7] = {
-			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f, // Vertex 1: Position (x, y, z) and Color (r, g, b, a)
-			 0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f, // Vertex 2: Position (x, y, z) and Color (r, g, b, a)
-			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f  // Vertex 3: Position (x, y, z) and Color (r, g, b, a)
-		};
-
-		Runic2D::Ref<Runic2D::VertexBuffer> m_VertexBuffer;
-		m_VertexBuffer.reset(Runic2D::VertexBuffer::Create(vertices, sizeof(vertices)));
-
-		Runic2D::BufferLayout layout = {
-			{ Runic2D::ShaderDataType::Float3, "a_Position" },
-			{ Runic2D::ShaderDataType::Float4, "a_Color" }
-		};
-		m_VertexBuffer->SetLayout(layout);
-
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-
-		uint32_t indices[3] = { 0, 1, 2 };
-
-		Runic2D::Ref<Runic2D::IndexBuffer> m_IndexBuffer;
-		m_IndexBuffer.reset(Runic2D::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));;
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
-
 		m_SquareVA.reset(Runic2D::VertexArray::Create());
 
-		float squareVertices[4 * 7] = {
-			-0.5f, -0.5f, 0.0f, 0.2f, 0.2f, 0.8f, 1.0f, // Bottom Left
-			 0.5f, -0.5f, 0.0f, 0.5f, 0.3f, 0.3f, 1.0f, // Bottom Right
-			 0.5f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f, // Top Right
-			-0.5f,  0.5f, 0.0f, 0.3f, 0.2f, 0.5f, 1.0f // Top Left
+		float squareVertices[5 * 4] = {
+			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
 
 		Runic2D::Ref<Runic2D::VertexBuffer> squareVB;
@@ -54,7 +27,7 @@ public:
 
 		Runic2D::BufferLayout squareLayout = {
 			{ Runic2D::ShaderDataType::Float3, "a_Position" },
-			{ Runic2D::ShaderDataType::Float4, "a_Color" }
+			{ Runic2D::ShaderDataType::Float2, "a_TexCoord" }
 		};
 		squareVB->SetLayout(squareLayout);
 
@@ -69,48 +42,49 @@ public:
 		squareIB.reset(Runic2D::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
 		m_SquareVA->SetIndexBuffer(squareIB);
 
-		std::string vertexSrc = R"(
+		std::string texturevertexSrc = R"(
 			#version 450 core
 
 			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
+			layout(location = 1) in vec2 a_TexCoord;
 
 			uniform mat4 u_ViewProjection;
 			uniform mat4 u_Transform;
 
-			out vec3 v_Position;
-			out vec4 v_Color; 
+			out vec2 v_TexCoord; 
 
 			void main() 
 			{
-				v_Position = a_Position;
-				v_Color = a_Color;
+				v_TexCoord = a_TexCoord;
 				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1);
 			}
 		)";
 
-		std::string fragmentSrc = R"(
+		std::string texturefragmentSrc = R"(
 			#version 450 core
 
-			in vec3 v_Position;
-			in vec4 v_Color;
+			layout(location = 0) out vec4 color;
 
-			uniform vec3 u_Color; // Uniform color variable
+			in vec2 v_TexCoord;
 
-			out vec4 color;
+			uniform sampler2D u_Texture; 
 
 			void main() 
 			{
-				color = vec4(u_Color, 1.0f);
+				color = texture(u_Texture,v_TexCoord);
 			}
 		)";
 
-		m_Shader.reset(Runic2D::Shader::Create(vertexSrc, fragmentSrc));
+		m_TextureShader.reset(Runic2D::Shader::Create(texturevertexSrc, texturefragmentSrc));
+
+		m_Texture = Runic2D::Texture2D::Create("assets/textures/Check.png");
+		std::dynamic_pointer_cast<Runic2D::OpenGLShader>(m_TextureShader)->Bind();
+		std::dynamic_pointer_cast<Runic2D::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
 	}
 
 	void OnUpdate(Runic2D::Timestep ts) override
 	{
-		R2D_TRACE("deltatime: {0}s ({1}ms)", ts.GetSeconds(), ts.GetMilliseconds());
+		//R2D_TRACE("deltatime: {0}s ({1}ms)", ts.GetSeconds(), ts.GetMilliseconds());
 
 		if (Runic2D::Input::IsKeyPressed(R2D_KEY_LEFT))
 			m_CameraPosition.x -= m_CameraMoveSpeed * ts;
@@ -150,13 +124,12 @@ public:
 
 		Runic2D::Renderer::BeginScene(m_Camera);
 
-		std::dynamic_pointer_cast<Runic2D::OpenGLShader>(m_Shader)->Bind();
-		std::dynamic_pointer_cast<Runic2D::OpenGLShader>(m_Shader)->UploadUniformFloat3("u_Color", m_SquareColor);
+		std::dynamic_pointer_cast<Runic2D::OpenGLShader>(m_TextureShader)->Bind();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_SquarePosition);
 
-		Runic2D::Renderer::Submit(m_Shader, m_SquareVA, transform);
-		Runic2D::Renderer::Submit(m_Shader, m_VertexArray);
+		m_Texture->Bind(); // Bind the texture before submitting the square
+		Runic2D::Renderer::Submit(m_TextureShader, m_SquareVA, transform);
 
 		Runic2D::Renderer::EndScene();
 
@@ -182,9 +155,11 @@ public:
 
 private:
 	//drawing triangle
-	Runic2D::Ref<Runic2D::Shader> m_Shader;
+	Runic2D::Ref<Runic2D::Shader> m_Shader, m_TextureShader;
 	Runic2D::Ref<Runic2D::VertexArray> m_VertexArray;
 	Runic2D::Ref<Runic2D::VertexArray> m_SquareVA;
+
+	Runic2D::Ref<Runic2D::Texture2D> m_Texture; // Texture for the square
 
 	Runic2D::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition; // Camera position for the orthographic camera

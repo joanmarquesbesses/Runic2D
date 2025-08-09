@@ -17,6 +17,8 @@ IncludeDir["GLFW"] = "Runic2D/vendor/GLFW/include"
 IncludeDir["Glad"] = "Runic2D/vendor/Glad/include"
 IncludeDir["ImGui"] = "Runic2D/vendor/imgui"
 IncludeDir["glm"] = "Runic2D/vendor/glm"
+IncludeDir["stb_image"] = "Runic2D/vendor/stb_image"
+-- Include the vendor libraries
 
 group "Dependencies"
 	include "Runic2D/vendor/Premake/glfw.lua"
@@ -41,8 +43,10 @@ project "Runic2D"
 	{
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/vendor/stb_image/**.h",
+		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
-		"%{prj.name}/vendor/glm/glm/**.inl",
+		"%{prj.name}/vendor/glm/glm/**.inl"
 	}
 
 	includedirs
@@ -52,7 +56,8 @@ project "Runic2D"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb_image}"
 	}
 
 	links
