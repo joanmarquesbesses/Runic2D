@@ -20,7 +20,7 @@ namespace Runic2D {
 		virtual void SetClearColor(const glm::vec4& color) = 0;
 		virtual void Clear() = 0;
 	
-		virtual void DrawIndexed(const std::shared_ptr<class VertexArray>& vertexArray) = 0;
+		virtual void DrawIndexed(const Ref<class VertexArray>& vertexArray) = 0;
 
 		inline static API GetAPI() { return s_API; }
 	private:

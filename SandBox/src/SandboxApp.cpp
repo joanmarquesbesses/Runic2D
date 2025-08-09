@@ -23,7 +23,7 @@ public:
 			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f  // Vertex 3: Position (x, y, z) and Color (r, g, b, a)
 		};
 
-		std::shared_ptr<Runic2D::VertexBuffer> m_VertexBuffer;
+		Runic2D::Ref<Runic2D::VertexBuffer> m_VertexBuffer;
 		m_VertexBuffer.reset(Runic2D::VertexBuffer::Create(vertices, sizeof(vertices)));
 
 		Runic2D::BufferLayout layout = {
@@ -36,7 +36,7 @@ public:
 
 		uint32_t indices[3] = { 0, 1, 2 };
 
-		std::shared_ptr<Runic2D::IndexBuffer> m_IndexBuffer;
+		Runic2D::Ref<Runic2D::IndexBuffer> m_IndexBuffer;
 		m_IndexBuffer.reset(Runic2D::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));;
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
@@ -49,7 +49,7 @@ public:
 			-0.5f,  0.5f, 0.0f, 0.3f, 0.2f, 0.5f, 1.0f // Top Left
 		};
 
-		std::shared_ptr<Runic2D::VertexBuffer> squareVB;
+		Runic2D::Ref<Runic2D::VertexBuffer> squareVB;
 		squareVB.reset(Runic2D::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
 
 		Runic2D::BufferLayout squareLayout = {
@@ -65,7 +65,7 @@ public:
 			2, 3, 0  // Second Triangle
 		};
 
-		std::shared_ptr<Runic2D::IndexBuffer> squareIB;
+		Runic2D::Ref<Runic2D::IndexBuffer> squareIB;
 		squareIB.reset(Runic2D::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
 		m_SquareVA->SetIndexBuffer(squareIB);
 
@@ -182,9 +182,9 @@ public:
 
 private:
 	//drawing triangle
-	std::shared_ptr<Runic2D::Shader> m_Shader;
-	std::shared_ptr<Runic2D::VertexArray> m_VertexArray;
-	std::shared_ptr<Runic2D::VertexArray> m_SquareVA;
+	Runic2D::Ref<Runic2D::Shader> m_Shader;
+	Runic2D::Ref<Runic2D::VertexArray> m_VertexArray;
+	Runic2D::Ref<Runic2D::VertexArray> m_SquareVA;
 
 	Runic2D::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition; // Camera position for the orthographic camera

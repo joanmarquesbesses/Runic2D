@@ -11,6 +11,6 @@ namespace Runic2D
 
 		virtual void Clear() override;
 
-		virtual void DrawIndexed(const std::shared_ptr<class VertexArray>& vertexArray) override;
+		virtual void DrawIndexed(const Ref<class VertexArray>& vertexArray) override;
 	};
 }

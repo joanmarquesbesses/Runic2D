@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #ifdef RUNIC2D_PLATFORM_WINDOWS
 #if RUNIC2D_DYNAMIC_LINK
 	#ifdef RUNIC2D_BUILD_DLL
@@ -30,3 +32,13 @@
 #define BIT(x) (1 << x)
 
 #define RUNIC2D_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+
+namespace Runic2D{
+
+	template<typename T>
+	using Scope = std::unique_ptr<T>;
+
+	template<typename T>
+	using Ref = std::shared_ptr<T>;
+
+} // namespace Runic2D
