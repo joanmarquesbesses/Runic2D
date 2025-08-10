@@ -11,6 +11,8 @@ namespace Runic2D {
 	class Renderer
 	{
 	public:
+		static void Init();
+
 		static void BeginScene(OrthographicCamera& Camera);
 		static void EndScene();
 
