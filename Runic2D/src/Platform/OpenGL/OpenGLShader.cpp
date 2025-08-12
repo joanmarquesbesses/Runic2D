@@ -23,14 +23,18 @@ namespace Runic2D
 		std::string shaderSource = ReadFile(filepath);
 		auto shaderSources = PreProcess(shaderSource);
 		Compile(shaderSources);
+
+		m_Name = filepath.substr(filepath.find_last_of("/\\") + 1);
+		m_Name = m_Name.substr(0, m_Name.find_last_of('.')); // Remove file extension
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& vertexSrc, const std::string& fragmntSrc) 
+	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmntSrc) 
 	{
 		std::unordered_map<GLenum, std::string> shaderSources;
 		shaderSources[GL_VERTEX_SHADER] = vertexSrc;
 		shaderSources[GL_FRAGMENT_SHADER] = fragmntSrc;
 		Compile(shaderSources);
+		m_Name = name;
 	}
 
 	OpenGLShader::~OpenGLShader() {
@@ -40,7 +44,7 @@ namespace Runic2D
 	std::string OpenGLShader::ReadFile(const std::string& filepath)
 	{
 		std::string result;
-		std::ifstream in(filepath, std::ios::in, std::ios::binary);
+		std::ifstream in(filepath, std::ios::in | std::ios::binary);
 		if (in) {
 			in.seekg(0, std::ios::end);
 			result.resize(in.tellg());
@@ -80,7 +84,9 @@ namespace Runic2D
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		GLuint program = glCreateProgram();
-		std::vector<GLuint> glShaderIDs(shaderSources.size());
+		R2D_CORE_ASSERT(shaderSources.size() <= 2, "Only support 2 shaders for now!");
+		std::array<GLuint, 2> glShaderIDs;
+		int glShaderIDIndex = 0;
 		for (auto& kv : shaderSources) {
 			GLenum type = kv.first;
 			const std::string& source = kv.second;
@@ -118,7 +124,7 @@ namespace Runic2D
 
 			// Attach the shader to the program
 			glAttachShader(program, shader);
-			glShaderIDs.push_back(shader);
+			glShaderIDs[glShaderIDIndex++] = shader; // Store the shader ID for later deletion
 		}
 
 		// Link the program

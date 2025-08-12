@@ -2,9 +2,12 @@
 
 #include "Platform/OpenGL/OpenGLShader.h"
 
+
 #include "imgui/imgui.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+
 
 class ExampleLayer : public Runic2D::Layer
 {
@@ -42,7 +45,7 @@ public:
 		squareIB.reset(Runic2D::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
 		m_SquareVA->SetIndexBuffer(squareIB);
 
-		m_TextureShader.reset(Runic2D::Shader::Create("assets/shaders/Texture.glsl"));
+		auto m_TextureShader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
 
 		m_Texture = Runic2D::Texture2D::Create("assets/textures/Check.png");
 		std::dynamic_pointer_cast<Runic2D::OpenGLShader>(m_TextureShader)->Bind();
@@ -91,6 +94,7 @@ public:
 
 		Runic2D::Renderer::BeginScene(m_Camera);
 
+		auto m_TextureShader = m_ShaderLibrary.Get("Texture");
 		std::dynamic_pointer_cast<Runic2D::OpenGLShader>(m_TextureShader)->Bind();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_SquarePosition);
@@ -122,7 +126,7 @@ public:
 
 private:
 	//drawing triangle
-	Runic2D::Ref<Runic2D::Shader> m_Shader, m_TextureShader;
+	Runic2D::ShaderLibrary m_ShaderLibrary; // Shader library to manage shaders
 	Runic2D::Ref<Runic2D::VertexArray> m_VertexArray;
 	Runic2D::Ref<Runic2D::VertexArray> m_SquareVA;
 
