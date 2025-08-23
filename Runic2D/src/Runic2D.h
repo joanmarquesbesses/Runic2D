@@ -12,6 +12,8 @@
 #include "Runic2D/KeyCodes.h"
 #include "Runic2D/MouseButtonCodes.h"
 
+#include "Runic2D/OrthographicCameraController.h"
+
 #include "Runic2D/ImGui/ImGuiLayer.h"
 
 // Renderer

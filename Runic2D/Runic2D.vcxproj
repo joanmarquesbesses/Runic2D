@@ -170,6 +170,7 @@
     <ClInclude Include="src\Runic2D\LayerStack.h" />
     <ClInclude Include="src\Runic2D\Log.h" />
     <ClInclude Include="src\Runic2D\MouseButtonCodes.h" />
+    <ClInclude Include="src\Runic2D\OrthographicCameraController.h" />
     <ClInclude Include="src\Runic2D\Renderer\Buffer.h" />
     <ClInclude Include="src\Runic2D\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Runic2D\Renderer\OrthographicCamera.h" />
@@ -620,6 +621,7 @@
     <ClCompile Include="src\Runic2D\Log.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\OrthographicCamera.cpp" />
+    <ClCompile Include="src\Runic2D\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\RendererAPI.cpp" />

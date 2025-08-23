@@ -13,7 +13,7 @@ class ExampleLayer : public Runic2D::Layer
 {
 public:
 	ExampleLayer()
-		: Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f),
+		: Layer("Example"), m_CameraController(1280.0f/720.0f, true),
 		m_SquarePosition(0.0f)
 	{
 		m_SquareVA.reset(Runic2D::VertexArray::Create());
@@ -54,26 +54,10 @@ public:
 
 	void OnUpdate(Runic2D::Timestep ts) override
 	{
-		//R2D_TRACE("deltatime: {0}s ({1}ms)", ts.GetSeconds(), ts.GetMilliseconds());
+		//update
+		m_CameraController.OnUpdate(ts);
 
-		if (Runic2D::Input::IsKeyPressed(R2D_KEY_LEFT))
-			m_CameraPosition.x -= m_CameraMoveSpeed * ts;
-
-		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_RIGHT))
-			m_CameraPosition.x += m_CameraMoveSpeed * ts;
-
-		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_UP))
-			m_CameraPosition.y += m_CameraMoveSpeed * ts;
-
-		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_DOWN))
-			m_CameraPosition.y -= m_CameraMoveSpeed * ts;
-
-		if (Runic2D::Input::IsKeyPressed(R2D_KEY_A))
-			m_CameraRotation -= m_CameraSpeed * ts;
-
-		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_D))
-			m_CameraRotation += m_CameraSpeed * ts;
-
+		//render
 		if (Runic2D::Input::IsKeyPressed(R2D_KEY_J))
 			m_SquarePosition.x -= m_SquareMoveSpeed * ts;
 
@@ -89,10 +73,7 @@ public:
 		Runic2D::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		Runic2D::RenderCommand::Clear();
 
-		m_Camera.SetPosition(m_CameraPosition);
-		m_Camera.SetRotation(m_CameraRotation);
-
-		Runic2D::Renderer::BeginScene(m_Camera);
+		Runic2D::Renderer::BeginScene(m_CameraController.GetCamera());
 
 		auto m_TextureShader = m_ShaderLibrary.Get("Texture");
 		std::dynamic_pointer_cast<Runic2D::OpenGLShader>(m_TextureShader)->Bind();
@@ -106,20 +87,16 @@ public:
 
 	}
 
-	void OnEvent(Runic2D::Event& event) override
+	void OnEvent(Runic2D::Event& e) override
 	{
-		/*Runic2D::EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<Runic2D::KeyPressedEvent>(RUNIC2D_BIND_EVENT_FN(ExampleLayer::OnKeyPressedEvent));*/
+		m_CameraController.OnEvent(e);
 	}
 
 	void OnImGuiRender() override
 	{
 		ImGui::Begin("Settings");
 
-		ImGui::Text("Camera Position: (%.2f, %.2f)", m_CameraPosition.x, m_CameraPosition.y);
-		ImGui::Text("Camera Rotation: %.2f degrees", m_CameraRotation);
 		ImGui::Text("Square Position: (%.2f, %.2f)", m_SquarePosition.x, m_SquarePosition.y);
-		ImGui::ColorEdit3("Square Color", glm::value_ptr(m_SquareColor));
 
 		ImGui::End();
 	}
@@ -132,16 +109,10 @@ private:
 
 	Runic2D::Ref<Runic2D::Texture2D> m_Texture; // Texture for the square
 
-	Runic2D::OrthographicCamera m_Camera;
-	glm::vec3 m_CameraPosition; // Camera position for the orthographic camera
-	float m_CameraMoveSpeed = 5.0f; // Speed of camera movement
-	float m_CameraRotation = 0.0f; // Camera rotation angle in degrees
-	float m_CameraSpeed = 180.0f; // Speed of camera movement
+	Runic2D::OrthographicCameraController m_CameraController; // Orthographic camera for 2D rendering
 
 	glm::vec3 m_SquarePosition; // Position of the square
 	float m_SquareMoveSpeed = 1.0f; // Speed of square movement
-
-	glm::vec3 m_SquareColor = { 0.2f, 0.8f, 0.2f }; // Color of the square
 };
 
 class SandboxApp : public Runic2D::Application
