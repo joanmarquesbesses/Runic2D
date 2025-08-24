@@ -45,10 +45,24 @@ namespace Runic2D {
 		overlay->OnAttach();
 	}
 
+	bool Application::OnWindowResize(WindowResizeEvent& e)
+	{
+		if (e.GetWidth() == 0 || e.GetHeight() == 0) {
+			m_Minimized = true;
+			return false;
+		}
+
+		m_Minimized = false;
+		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+
+		return false;
+	}
+
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(R2D_BIND_EVENT_FN(OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(R2D_BIND_EVENT_FN(OnWindowResize));
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
 			(*--it)->OnEvent(e);
@@ -63,10 +77,12 @@ namespace Runic2D {
 
 			float time = (float)glfwGetTime(); //TODO: Platform class
 			Timestep timestep = time - m_LastFrameTime;
-			m_LastFrameTime = time; 
-			
-			for (Layer* layer : m_LayerStack) {
-				layer->OnUpdate(timestep);
+			m_LastFrameTime = time;
+
+			if (!m_Minimized) {
+				for (Layer* layer : m_LayerStack) {
+					layer->OnUpdate(timestep);
+				}
 			}
 
 			m_ImGuiLayer->Begin();

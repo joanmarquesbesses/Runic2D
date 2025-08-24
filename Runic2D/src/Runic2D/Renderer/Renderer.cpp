@@ -13,6 +13,12 @@ namespace Runic2D
 		RenderCommand::Init();
 	}
 
+	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
+	{
+		RenderCommand::SetViewport(0, 0, width, height);
+		s_SceneData->ViewProjectionMatrix = glm::mat4(1.0f);
+	}
+
 	void Renderer::BeginScene(OrthographicCamera& Camera)
 	{
 		s_SceneData->ViewProjectionMatrix = Camera.GetViewProjectionMatrix();

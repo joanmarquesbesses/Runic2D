@@ -16,8 +16,8 @@ namespace Runic2D {
 		void OnUpdate(Timestep ts);
 		void OnEvent(Event& e);
 
-		void SetZoomLevel(float level) { m_ZoomLevel = level; RecalculateView(); }
 		float GetZoomLevel() const { return m_ZoomLevel; }
+		void SetZoomLevel(float level) { m_ZoomLevel = level; RecalculateView(); }
 
 		const OrthographicCamera& GetCamera() const { return m_Camera; }
 		OrthographicCamera& GetCamera() { return m_Camera; }
