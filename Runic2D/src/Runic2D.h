@@ -18,6 +18,7 @@
 
 // Renderer
 #include "Runic2D/Renderer/Renderer.h"
+#include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Renderer/RenderCommand.h"
 
 #include "Runic2D/Renderer/Buffer.h"
@@ -27,6 +28,3 @@
 
 #include "Runic2D/Renderer/OrthographicCamera.h"
 // --------
-
-// Entry Point
-#include "Runic2D/Core/EntryPoint.h"

@@ -1,13 +1,13 @@
 #include <Runic2D.h>
+#include <Runic2D/Core/EntryPoint.h>
 
 #include "Platform/OpenGL/OpenGLShader.h"
-
 
 #include "imgui/imgui.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
+#include "Sandbox2D.h"
 
 class ExampleLayer : public Runic2D::Layer
 {
@@ -16,7 +16,7 @@ public:
 		: Layer("Example"), m_CameraController(1280.0f/720.0f, true),
 		m_SquarePosition(0.0f)
 	{
-		m_SquareVA.reset(Runic2D::VertexArray::Create());
+		m_SquareVA = Runic2D::VertexArray::Create();
 
 		float squareVertices[5 * 4] = {
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -104,7 +104,6 @@ public:
 private:
 	//drawing triangle
 	Runic2D::ShaderLibrary m_ShaderLibrary; // Shader library to manage shaders
-	Runic2D::Ref<Runic2D::VertexArray> m_VertexArray;
 	Runic2D::Ref<Runic2D::VertexArray> m_SquareVA;
 
 	Runic2D::Ref<Runic2D::Texture2D> m_Texture; // Texture for the square
@@ -121,7 +120,8 @@ public:
 	SandboxApp()
 	{
 		// Constructor for SandboxApp, can be used to initialize the application.
-		PushLayer(new ExampleLayer()); // Adding an instance of ExampleLayer to the application.
+		//PushLayer(new ExampleLayer()); // Adding an instance of ExampleLayer to the application.
+		PushLayer(new Sandbox2D());
 	}
 
 	virtual ~SandboxApp()
