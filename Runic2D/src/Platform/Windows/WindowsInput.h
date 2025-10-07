@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runic2D/Input.h"
+#include "Runic2D/Core/Input.h"
 
 namespace Runic2D
 {

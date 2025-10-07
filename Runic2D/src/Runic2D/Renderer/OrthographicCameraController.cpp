@@ -1,8 +1,8 @@
 #include "R2Dpch.h"
 #include "OrthographicCameraController.h"
 
-#include "Runic2D/Input.h"
-#include "Runic2D/KeyCodes.h"
+#include "Runic2D/Core/Input.h"
+#include "Runic2D/Core/KeyCodes.h"
 
 
 namespace Runic2D {

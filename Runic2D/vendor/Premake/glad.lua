@@ -2,6 +2,7 @@ project "Glad"
 	location "%{wks.location}/Runic2D/vendor/GLAD"
 	kind "StaticLib"
 	language "C"
+	staticruntime "on"
 
 	targetdir ("%{prj.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{prj.location}/bin-int/" .. outputdir .. "/%{prj.name}")

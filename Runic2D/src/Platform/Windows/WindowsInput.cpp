@@ -1,7 +1,7 @@
 #include "R2Dpch.h"
 #include "WindowsInput.h"
 
-#include "Runic2D/Application.h"
+#include "Runic2D/Core/Application.h"
 #include <GLFW/glfw3.h>
 
 namespace Runic2D

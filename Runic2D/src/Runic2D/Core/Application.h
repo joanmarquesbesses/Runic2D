@@ -3,12 +3,12 @@
 #include "Core.h"
 
 #include "Window.h"
-#include "Runic2D/LayerStack.h"
+#include "Runic2D/Core/LayerStack.h"
 #include "Runic2D/Events/ApplicationEvent.h"
 
 #include "Runic2D/Core/Timestep.h"
 
-#include "ImGui/ImGuiLayer.h"
+#include "Runic2D/ImGui/ImGuiLayer.h"
 
 namespace Runic2D
 {

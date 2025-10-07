@@ -2,7 +2,7 @@
 
 #include "R2Dpch.h"
 
-#include "Runic2D/Core.h"
+#include "Runic2D/Core/Core.h"
 #include "Runic2D/Events/Event.h"
 
 namespace Runic2D {

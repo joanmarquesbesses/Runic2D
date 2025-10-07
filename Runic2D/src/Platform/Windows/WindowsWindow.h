@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runic2D/Window.h"
+#include "Runic2D/Core/Window.h"
 #include "Runic2D/Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>

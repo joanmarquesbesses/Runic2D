@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Runic2D/Core.h"
+#include "Runic2D/Core/Core.h"
 
 namespace Runic2D
 {

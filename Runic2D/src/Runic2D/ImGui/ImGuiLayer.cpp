@@ -5,7 +5,7 @@
 #include "backends/imgui_impl_glfw.h"
 
 
-#include "Runic2D/Application.h"
+#include "Runic2D/Core/Application.h"
 
 //Temporary includes for ImGui
 #include <GLFW/glfw3.h>

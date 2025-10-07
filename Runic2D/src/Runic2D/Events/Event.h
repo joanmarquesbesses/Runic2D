@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runic2D/Core.h"
+#include "Runic2D/Core/Core.h"
 
 namespace Runic2D
 {
@@ -77,7 +77,7 @@ namespace Runic2D
 		Event& m_Event;
 	};
 
-	inline inline std::string format_as(const Event& e) {
+	inline std::string format_as(const Event& e) {
 		return e.ToString();
 	}
 }

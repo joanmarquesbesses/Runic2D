@@ -1,18 +1,18 @@
 #pragma once
 
 // For use in Runic2D applications
-#include "Runic2D/Application.h"
+#include "Runic2D/Core/Application.h"
 
-#include "Runic2D/Layer.h"
-#include "Runic2D/Log.h"
+#include "Runic2D/Core/Layer.h"
+#include "Runic2D/Core/Log.h"
 
 #include "Runic2D/Core/Timestep.h"
 
-#include "Runic2D/Input.h"
-#include "Runic2D/KeyCodes.h"
-#include "Runic2D/MouseButtonCodes.h"
+#include "Runic2D/Core/Input.h"
+#include "Runic2D/Core/KeyCodes.h"
+#include "Runic2D/Core/MouseButtonCodes.h"
 
-#include "Runic2D/OrthographicCameraController.h"
+#include "Runic2D/Renderer/OrthographicCameraController.h"
 
 #include "Runic2D/ImGui/ImGuiLayer.h"
 
@@ -29,4 +29,4 @@
 // --------
 
 // Entry Point
-#include "Runic2D/EntryPoint.h"
+#include "Runic2D/Core/EntryPoint.h"

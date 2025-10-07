@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "Runic2D/Log.h"
+#include "Runic2D/Core/Log.h"
 
 #ifdef RUNIC2D_PLATFORM_WINDOWS
 	#include <Windows.h>
