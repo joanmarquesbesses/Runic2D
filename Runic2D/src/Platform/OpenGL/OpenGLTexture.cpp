@@ -7,6 +7,22 @@
 
 namespace Runic2D {
 
+	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height)
+		: m_Width(width), m_Height(height)
+	{
+		m_InternalFormat = GL_RGBA8;
+		m_DataFormat = GL_RGBA;
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, width, height);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
 		: m_Path(path)
 	{
@@ -27,6 +43,9 @@ namespace Runic2D {
 			internalFormat = GL_RGB8;
 			dataFormat = GL_RGB;
 		}
+
+		m_InternalFormat = internalFormat;
+		m_DataFormat = dataFormat;
 
 		R2D_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
 
@@ -71,5 +90,12 @@ namespace Runic2D {
 	void OpenGLTexture2D::Unbind() const
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	void OpenGLTexture2D::SetData(void* data, uint32_t size)
+	{
+		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
+		R2D_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
+		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 }
