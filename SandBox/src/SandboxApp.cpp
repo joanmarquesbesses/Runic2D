@@ -120,7 +120,7 @@ public:
 	SandboxApp()
 	{
 		// Constructor for SandboxApp, can be used to initialize the application.
-		//PushLayer(new ExampleLayer()); // Adding an instance of ExampleLayer to the application.
+		PushLayer(new ExampleLayer()); // Adding an instance of ExampleLayer to the application.
 		PushLayer(new Sandbox2D());
 	}
 
