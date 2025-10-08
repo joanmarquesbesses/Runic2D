@@ -172,6 +172,11 @@ namespace Runic2D
 		glUseProgram(0);
 	}
 
+	void OpenGLShader::SetInt(const std::string& name, int value)
+	{
+		UploadUniformInt(name, value);
+	}
+
 	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
 	{
 		UploadUniformFloat3(name, value);
