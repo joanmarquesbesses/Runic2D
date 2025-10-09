@@ -150,6 +150,9 @@
     <ClInclude Include="src\Runic2D\Renderer\Renderer.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Renderer\Renderer2D.h">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\RendererAPI.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
@@ -1479,6 +1482,9 @@
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\Renderer.cpp">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Renderer\Renderer2D.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\RendererAPI.cpp">

@@ -62,14 +62,6 @@ namespace Runic2D
 		ImGui::DestroyContext();
 	}
 
-	void ImGuiLayer::OnImGuiRender()
-	{
-		// This function is called to render ImGui elements
-		static bool showDemoWindow = true;
-		ImGui::ShowDemoWindow(&showDemoWindow);
-
-	}
-
 	void ImGuiLayer::Begin()
 	{
 		// Start a new ImGui frame
