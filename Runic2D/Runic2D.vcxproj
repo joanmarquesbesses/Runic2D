@@ -166,6 +166,7 @@
     <ClInclude Include="src\Runic2D\Core\MouseButtonCodes.h" />
     <ClInclude Include="src\Runic2D\Core\Timestep.h" />
     <ClInclude Include="src\Runic2D\Core\Window.h" />
+    <ClInclude Include="src\Runic2D\Debug\Instrumentor.h" />
     <ClInclude Include="src\Runic2D\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Runic2D\Events\Event.h" />
     <ClInclude Include="src\Runic2D\Events\KeyEvent.h" />
