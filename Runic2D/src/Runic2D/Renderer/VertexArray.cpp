@@ -8,7 +8,6 @@ namespace Runic2D {
 
 	Ref<VertexArray> Runic2D::VertexArray::Create()
 	{
-
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None:    R2D_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;

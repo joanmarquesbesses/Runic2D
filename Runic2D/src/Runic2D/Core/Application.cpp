@@ -16,6 +16,8 @@ namespace Runic2D {
 
 	Application::Application()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		R2D_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 		R2D_CORE_INFO("Runic2D Engine Initialized");
@@ -31,22 +33,31 @@ namespace Runic2D {
 
 	Application::~Application()
 	{
+		R2D_PROFILE_FUNCTION();
+
+		Renderer::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)
 	{
+		R2D_PROFILE_FUNCTION();
+
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
 
 	void Application::PushOverlay(Layer* overlay)
 	{
+		R2D_PROFILE_FUNCTION();
+
 		m_LayerStack.PushOverlay(overlay);
 		overlay->OnAttach();
 	}
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
+		R2D_PROFILE_FUNCTION();
+
 		if (e.GetWidth() == 0 || e.GetHeight() == 0) {
 			m_Minimized = true;
 			return false;
@@ -60,6 +71,8 @@ namespace Runic2D {
 
 	void Application::OnEvent(Event& e)
 	{
+		R2D_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(R2D_BIND_EVENT_FN(OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(R2D_BIND_EVENT_FN(OnWindowResize));
@@ -73,23 +86,33 @@ namespace Runic2D {
 
 	void Application::Run()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		while (m_Running) {
+
+			R2D_PROFILE_SCOPE("RunLoop");
 
 			float time = (float)glfwGetTime(); //TODO: Platform class
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
 			if (!m_Minimized) {
-				for (Layer* layer : m_LayerStack) {
-					layer->OnUpdate(timestep);
+				{
+					R2D_PROFILE_SCOPE("LayerStack OnUpdate");
+					for (Layer* layer : m_LayerStack) {
+						layer->OnUpdate(timestep);
+					}
 				}
-			}
 
-			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack) {
-				layer->OnImGuiRender();
+				m_ImGuiLayer->Begin();
+				{
+					R2D_PROFILE_SCOPE("LayerStack OnImGuiRender");
+					for (Layer* layer : m_LayerStack) {
+						layer->OnImGuiRender();
+					}
+				}
+				m_ImGuiLayer->End();
 			}
-			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();
 		}

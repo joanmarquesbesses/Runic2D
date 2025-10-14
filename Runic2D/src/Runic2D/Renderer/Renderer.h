@@ -20,6 +20,8 @@ namespace Runic2D {
 		static void Submit(const Ref<Shader>& shader, const Ref<class VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
 
 		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+
+		static void Shutdown();
 	private:
 		struct SceneData
 		{

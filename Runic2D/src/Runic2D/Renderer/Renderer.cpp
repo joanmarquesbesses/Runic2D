@@ -11,6 +11,8 @@ namespace Runic2D
 
 	void Renderer::Init()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		RenderCommand::Init();
 		Renderer2D::Init();
 	}
@@ -38,5 +40,13 @@ namespace Runic2D
 
 		vertexArray->Bind();
 		RenderCommand::DrawIndexed(vertexArray);
+	}
+
+	void Renderer::Shutdown()
+	{
+		R2D_PROFILE_FUNCTION();
+
+		Renderer2D::Shutdown();
+		delete s_SceneData;
 	}
 }

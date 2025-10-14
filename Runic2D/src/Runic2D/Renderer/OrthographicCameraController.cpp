@@ -16,17 +16,25 @@ namespace Runic2D {
 
 	void OrthographicCameraController::OnUpdate(Timestep ts)
 	{
-		if (Input::IsKeyPressed(R2D_KEY_A))
-			m_CameraPosition.x -= m_CameraMoveSpeed * ts;
+		R2D_PROFILE_FUNCTION();
 
-		else if (Input::IsKeyPressed(R2D_KEY_D))
-			m_CameraPosition.x += m_CameraMoveSpeed * ts;
+		if (Input::IsKeyPressed(R2D_KEY_A)) {
+			m_CameraPosition.x -= cos(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
+			m_CameraPosition.y -= sin(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
+		}
+		else if (Input::IsKeyPressed(R2D_KEY_D)) {
+			m_CameraPosition.x += cos(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
+			m_CameraPosition.y += sin(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
+		}
 
-		else if (Input::IsKeyPressed(R2D_KEY_W))
-			m_CameraPosition.y += m_CameraMoveSpeed * ts;
-
-		else if (Input::IsKeyPressed(R2D_KEY_S))
-			m_CameraPosition.y -= m_CameraMoveSpeed * ts;
+		if (Input::IsKeyPressed(R2D_KEY_W)) {
+			m_CameraPosition.x += -sin(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
+			m_CameraPosition.y += cos(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
+		}
+		else if (Input::IsKeyPressed(R2D_KEY_S)) {
+			m_CameraPosition.x -= -sin(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
+			m_CameraPosition.y -= cos(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
+		}
 
 		if (m_Rotation) 
 		{
@@ -35,6 +43,11 @@ namespace Runic2D {
 
 			else if (Input::IsKeyPressed(R2D_KEY_Q))
 				m_CameraRotation += m_CameraRotationSpeed * ts;
+
+			if (m_CameraRotation > 180.0f)
+				m_CameraRotation -= 360.0f;
+			else if (m_CameraRotation <= -180.0f)
+				m_CameraRotation += 360.0f;
 
 			m_Camera.SetRotation(m_CameraRotation);
 		}
@@ -46,6 +59,8 @@ namespace Runic2D {
 
 	void OrthographicCameraController::OnEvent(Event& e)
 	{
+		R2D_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<MouseScrolledEvent>(RUNIC2D_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
 		dispatcher.Dispatch<WindowResizeEvent>(RUNIC2D_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
@@ -62,6 +77,7 @@ namespace Runic2D {
 
 	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
+		R2D_PROFILE_FUNCTION();
 
 		m_ZoomLevel -= e.GetYOffset() * 0.25f;
 		m_ZoomLevel = std::max(m_ZoomLevel, 0.25f); // Prevent zooming out too far
@@ -72,6 +88,8 @@ namespace Runic2D {
 
 	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
 	{
+		R2D_PROFILE_FUNCTION();
+
 		m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
 		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
 		return false;

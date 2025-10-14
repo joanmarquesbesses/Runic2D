@@ -11,22 +11,22 @@ Sandbox2D::Sandbox2D() : Layer("Sandbox2D"), m_CameraController(1280.0f / 720.0f
 
 void Sandbox2D::OnAttach()
 {
+	R2D_PROFILE_FUNCTION();
+
 	m_Texture = Runic2D::Texture2D::Create("assets/textures/Check.png");
 }
 
 void Sandbox2D::OnDetach()
 {
+	R2D_PROFILE_FUNCTION();
+
 }
 
 void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 {
 	R2D_PROFILE_FUNCTION();
 
-		//update
-	{
-		R2D_PROFILE_SCOPE("CameraController::OnUpdate")
-		m_CameraController.OnUpdate(ts);
-	}
+	m_CameraController.OnUpdate(ts);
 
 	//render
 	{

@@ -10,44 +10,54 @@
 
 namespace Runic2D {
 
-	static bool s_GLFWInitialized = false;
+	static uint8_t s_GLFWWindowCount = 0;
 
-	Window* Window::Create(const WindowProps& props)
+	Scope<Window> Window::Create(const WindowProps& props)
 	{
-		return new WindowsWindow(props);
+		return CreateScope<WindowsWindow>(props);
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
+		R2D_PROFILE_FUNCTION();
+
 		Init(props);
 	}
 
 	WindowsWindow::~WindowsWindow()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		Shutdown();
 	}
 
 	void WindowsWindow::Init(const WindowProps& props)
 	{
+		R2D_PROFILE_FUNCTION();
+
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
 		R2D_CORE_INFO("Creating window {0} ({1}, {2})", m_Data.Title, m_Data.Width, m_Data.Height);
 
-		if (!s_GLFWInitialized)
+		if (s_GLFWWindowCount == 0)
 		{
+			R2D_PROFILE_SCOPE("glfwInit");
 			int success = glfwInit();
 			R2D_CORE_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback([](int error, const char* description) {
 				R2D_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 				});
-			s_GLFWInitialized = true;
 		}
 
-		m_Window = glfwCreateWindow((int)m_Data.Width, (int)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		{
+			R2D_PROFILE_SCOPE("glfwCreateWindow");
+			m_Window = glfwCreateWindow((int)m_Data.Width, (int)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
+			++s_GLFWWindowCount;
+		}
 
-		m_Context = new OpenGLContext(m_Window);
+		m_Context = CreateScope<OpenGLContext>(m_Window);
 		m_Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
@@ -136,17 +146,29 @@ namespace Runic2D {
 
 	void WindowsWindow::Shutdown()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		glfwDestroyWindow(m_Window);
+		--s_GLFWWindowCount;
+
+		if (s_GLFWWindowCount == 0)
+		{
+			glfwTerminate();
+		}
 	}
 
 	void WindowsWindow::OnUpdate()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		glfwPollEvents();
 		m_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
 	{
+		R2D_PROFILE_FUNCTION();
+
 		m_Data.VSync = enabled;
 		if (enabled)
 			glfwSwapInterval(1);

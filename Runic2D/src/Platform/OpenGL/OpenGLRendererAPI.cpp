@@ -7,6 +7,8 @@ namespace Runic2D {
 
 	void OpenGLRendererAPI::Init()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

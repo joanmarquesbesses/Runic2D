@@ -27,6 +27,8 @@ namespace Runic2D
 
 	void ImGuiLayer::OnAttach()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		// Code to attach the ImGui layer, such as initializing ImGui context and setting up styles
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -56,6 +58,8 @@ namespace Runic2D
 
 	void ImGuiLayer::OnDetach()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		// Code to detach the ImGui layer, such as shutting down ImGui context
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -64,6 +68,8 @@ namespace Runic2D
 
 	void ImGuiLayer::Begin()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		// Start a new ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -73,6 +79,8 @@ namespace Runic2D
 
 	void ImGuiLayer::End()
 	{
+		R2D_PROFILE_FUNCTION();
+
 		// End the ImGui frame and render it
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
@@ -96,28 +104,28 @@ namespace Runic2D
 	{
 		switch (glfwKey)
 		{
-		case GLFW_KEY_TAB: return ImGuiKey_Tab;
-		case GLFW_KEY_LEFT: return ImGuiKey_LeftArrow;
-		case GLFW_KEY_RIGHT: return ImGuiKey_RightArrow;
-		case GLFW_KEY_UP: return ImGuiKey_UpArrow;
-		case GLFW_KEY_DOWN: return ImGuiKey_DownArrow;
-		case GLFW_KEY_PAGE_UP: return ImGuiKey_PageUp;
-		case GLFW_KEY_PAGE_DOWN: return ImGuiKey_PageDown;
-		case GLFW_KEY_HOME: return ImGuiKey_Home;
-		case GLFW_KEY_END: return ImGuiKey_End;
-		case GLFW_KEY_INSERT: return ImGuiKey_Insert;
-		case GLFW_KEY_DELETE: return ImGuiKey_Delete;
-		case GLFW_KEY_BACKSPACE: return ImGuiKey_Backspace;
-		case GLFW_KEY_SPACE: return ImGuiKey_Space;
-		case GLFW_KEY_ENTER: return ImGuiKey_Enter;
-		case GLFW_KEY_ESCAPE: return ImGuiKey_Escape;
-		case GLFW_KEY_A: return ImGuiKey_A;
-		case GLFW_KEY_C: return ImGuiKey_C;
-		case GLFW_KEY_V: return ImGuiKey_V;
-		case GLFW_KEY_X: return ImGuiKey_X;
-		case GLFW_KEY_Y: return ImGuiKey_Y;
-		case GLFW_KEY_Z: return ImGuiKey_Z;
-		default: return ImGuiKey_None;
+			case GLFW_KEY_TAB: return ImGuiKey_Tab;
+			case GLFW_KEY_LEFT: return ImGuiKey_LeftArrow;
+			case GLFW_KEY_RIGHT: return ImGuiKey_RightArrow;
+			case GLFW_KEY_UP: return ImGuiKey_UpArrow;
+			case GLFW_KEY_DOWN: return ImGuiKey_DownArrow;
+			case GLFW_KEY_PAGE_UP: return ImGuiKey_PageUp;
+			case GLFW_KEY_PAGE_DOWN: return ImGuiKey_PageDown;
+			case GLFW_KEY_HOME: return ImGuiKey_Home;
+			case GLFW_KEY_END: return ImGuiKey_End;
+			case GLFW_KEY_INSERT: return ImGuiKey_Insert;
+			case GLFW_KEY_DELETE: return ImGuiKey_Delete;
+			case GLFW_KEY_BACKSPACE: return ImGuiKey_Backspace;
+			case GLFW_KEY_SPACE: return ImGuiKey_Space;
+			case GLFW_KEY_ENTER: return ImGuiKey_Enter;
+			case GLFW_KEY_ESCAPE: return ImGuiKey_Escape;
+			case GLFW_KEY_A: return ImGuiKey_A;
+			case GLFW_KEY_C: return ImGuiKey_C;
+			case GLFW_KEY_V: return ImGuiKey_V;
+			case GLFW_KEY_X: return ImGuiKey_X;
+			case GLFW_KEY_Y: return ImGuiKey_Y;
+			case GLFW_KEY_Z: return ImGuiKey_Z;
+			default: return ImGuiKey_None;
 		}
 	}
 
