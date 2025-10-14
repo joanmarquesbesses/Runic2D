@@ -39,9 +39,9 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 		R2D_PROFILE_SCOPE("Renderer Draw")
 		Runic2D::Renderer2D::BeginScene(m_CameraController.GetCamera());
 
-		Runic2D::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, m_Texture);
+		Runic2D::Renderer2D::DrawRotatedQuad({ 0.5f, -0.5f }, { 0.5f, 1.0f }, glm::radians(-45.0f), m_SquareColor);
 		Runic2D::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, m_SquareColor);
-		Runic2D::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 1.0f }, m_SquareColor);
+		Runic2D::Renderer2D::DrawRotatedQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, glm::radians(-45.0f), m_Texture, 10.0f, glm::vec4(1.0f, 0.7f, 0.7f, 1.0f));
 
 		Runic2D::Renderer2D::EndScene();
 	}

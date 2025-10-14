@@ -124,7 +124,7 @@ namespace Runic2D
     };
 }
 
-#define R2D_PROFILE 1
+#define R2D_PROFILE 0
 #if R2D_PROFILE 
     #define R2D_PROFILE_BEGIN_SESSION(name, filepath) ::Runic2D::Instrumentor::Get().BeginSession(name, filepath)
     #define R2D_PROFILE_END_SESSION() ::Runic2D::Instrumentor::Get().EndSession()
