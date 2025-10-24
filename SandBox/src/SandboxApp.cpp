@@ -25,8 +25,7 @@ public:
 			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
 
-		Runic2D::Ref<Runic2D::VertexBuffer> squareVB;
-		squareVB.reset(Runic2D::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+		Runic2D::Ref<Runic2D::VertexBuffer> squareVB = Runic2D::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
 
 		Runic2D::BufferLayout squareLayout = {
 			{ Runic2D::ShaderDataType::Float3, "a_Position" },
@@ -41,8 +40,7 @@ public:
 			2, 3, 0  // Second Triangle
 		};
 
-		Runic2D::Ref<Runic2D::IndexBuffer> squareIB;
-		squareIB.reset(Runic2D::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+		Runic2D::Ref<Runic2D::IndexBuffer> squareIB = Runic2D::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
 		m_SquareVA->SetIndexBuffer(squareIB);
 
 		auto m_TextureShader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");

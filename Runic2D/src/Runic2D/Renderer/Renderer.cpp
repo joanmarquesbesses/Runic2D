@@ -45,7 +45,7 @@ namespace Runic2D
 	void Renderer::Shutdown()
 	{
 		R2D_PROFILE_FUNCTION();
-
+		
 		Renderer2D::Shutdown();
 		delete s_SceneData;
 	}

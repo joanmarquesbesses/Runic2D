@@ -96,6 +96,15 @@ namespace Runic2D {
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
+			m_FrameTimeAccumulator += timestep.GetSeconds();
+			m_FrameCount++;
+
+			if (m_FrameTimeAccumulator >= 1.0f) { 
+				m_AverageFPS = m_FrameCount / m_FrameTimeAccumulator;
+				m_FrameTimeAccumulator = 0.0f; 
+				m_FrameCount = 0;              
+			}
+
 			if (!m_Minimized) {
 				{
 					R2D_PROFILE_SCOPE("LayerStack OnUpdate");
