@@ -19,6 +19,9 @@
     <Filter Include="src\Runic2D\Core">
       <UniqueIdentifier>{2B001899-17F9-36EB-402B-1C702C8316F7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Debug">
+      <UniqueIdentifier>{A96024BC-1577-2252-5EEE-AD73CA43F3D9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Events">
       <UniqueIdentifier>{77C83A44-63AC-FB99-CC0C-F6ECB80FE61B}</UniqueIdentifier>
     </Filter>
@@ -116,6 +119,9 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\Core\Window.h">
       <Filter>src\Runic2D\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Debug\Instrumentor.h">
+      <Filter>src\Runic2D\Debug</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Events\ApplicationEvent.h">
       <Filter>src\Runic2D\Events</Filter>
@@ -1422,7 +1428,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Debug\Instrumentor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">

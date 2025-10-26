@@ -16,6 +16,14 @@ void Sandbox2D::OnAttach()
 	m_Texture = Runic2D::Texture2D::Create("assets/textures/Check.png");
 	m_RunicTexture = Runic2D::Texture2D::Create("assets/textures/icon.png");
 
+	//init particle
+	m_Particle.ColorBegin = { 254.0f / 255.0f, 212.0f / 255.0f, 123.0f / 255.0f, 1.0f };
+	m_Particle.ColorEnd = { 254.0f / 255.0f, 109.0f / 255.0f, 41.0f / 255.0f, 1.0f };
+	m_Particle.SizeBegin = 0.5f, m_Particle.SizeVariation = 0.3f, m_Particle.SizeEnd = 0.0f;
+	m_Particle.LifeTime = 1.0f;
+	m_Particle.Velocity = { 0.0f, 0.0f };
+	m_Particle.VelocityVariation = { 3.0f, 1.0f };
+	m_Particle.Position = { 0.0f, 0.0f };
 }
 
 void Sandbox2D::OnDetach()
@@ -46,8 +54,8 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 
 		Runic2D::Renderer2D::BeginScene(m_CameraController.GetCamera());
 
-		Runic2D::Renderer2D::DrawRotatedQuad({ 0.5f, -0.5f , -0.1}, { 0.5f, 1.0f }, rotation, m_SquareColor);
-		Runic2D::Renderer2D::DrawRotatedQuad({ 1.0f, 1.0f }, { 0.8f, 0.8f }, -rotation, m_SquareColor);
+		Runic2D::Renderer2D::DrawRotatedQuad({ 0.5f, -0.5f , -0.1}, { 0.5f, 1.0f }, glm::radians(rotation), m_SquareColor);
+		Runic2D::Renderer2D::DrawRotatedQuad({ 1.0f, 1.0f }, { 0.8f, 0.8f }, glm::radians(-rotation), m_SquareColor);
 		Runic2D::Renderer2D::DrawQuad({ -1.0f, 1.0f }, { 1.0f, 1.0f }, m_Texture);
 		Runic2D::Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 0.8f, 0.8f }, m_RunicTexture, 1.0f);
 		Runic2D::Renderer2D::DrawQuad({ 0.0f, 1.0f }, { 0.8f, 0.8f }, m_RunicTexture, 10.0f);
@@ -64,6 +72,25 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 		}
 		Runic2D::Renderer2D::EndScene();
 	}
+
+	if(Runic2D::Input::IsMouseButtonPressed(R2D_MOUSE_BUTTON_LEFT))
+	{
+		auto [x, y] = Runic2D::Input::GetMousePosition();
+		auto width = Runic2D::Application::Get().GetWindow().GetWidth();
+		auto height = Runic2D::Application::Get().GetWindow().GetHeight();
+
+		auto bounds = m_CameraController.GetBounds();
+		auto camPos = m_CameraController.GetCamera().GetPosition();
+		x = (x / width) * bounds.GetWidth() - bounds.GetWidth() * 0.5f;
+		y = bounds.GetHeight() * 0.5f - (y / height) * bounds.GetHeight();
+		m_Particle.Position = { x + camPos.x, y + camPos.y };
+		for (int i = 0; i < 5; i++)
+			m_ParticleSystem.Emit(m_Particle);
+	}
+
+	m_ParticleSystem.OnUpdate(ts);
+	m_ParticleSystem.OnRender(m_CameraController.GetCamera());
+
 }
 
 void Sandbox2D::OnImGuiRender()

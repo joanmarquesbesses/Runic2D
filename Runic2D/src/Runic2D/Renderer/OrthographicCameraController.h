@@ -8,6 +8,15 @@
 
 namespace Runic2D {
 
+	struct OrthographicCameraBounds
+	{
+		float Left, Right;
+		float Bottom, Top;
+
+		float GetWidth() const { return Right - Left; }
+		float GetHeight() const { return Top - Bottom; }
+	};
+
 	class OrthographicCameraController
 	{
 	public:
@@ -17,13 +26,13 @@ namespace Runic2D {
 		void OnEvent(Event& e);
 
 		float GetZoomLevel() const { return m_ZoomLevel; }
-		void SetZoomLevel(float level) { m_ZoomLevel = level; RecalculateView(); }
+		void SetZoomLevel(float level) { m_ZoomLevel = level; }
 
 		const OrthographicCamera& GetCamera() const { return m_Camera; }
 		OrthographicCamera& GetCamera() { return m_Camera; }
 
+		const OrthographicCameraBounds& GetBounds() const { return m_Bounds; }
 	private:
-		void RecalculateView();
 
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
@@ -33,6 +42,7 @@ namespace Runic2D {
 		float m_ZoomLevel = 1.0f;
 		bool m_Rotation;
 
+		OrthographicCameraBounds m_Bounds;
 		OrthographicCamera m_Camera;
 
 		glm::vec3 m_CameraPosition = { 0.0f, 0.0f, 0.0f };
