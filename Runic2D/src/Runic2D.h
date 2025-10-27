@@ -24,6 +24,7 @@
 #include "Runic2D/Renderer/Buffer.h"
 #include "Runic2D/Renderer/VertexArray.h"
 #include "Runic2D/Renderer/Shader.h"
+#include "Runic2D/Renderer/FrameBuffer.h"
 #include "Runic2D/Renderer/Texture.h"
 #include "Runic2D/Renderer/SubTexture2D.h"
 
