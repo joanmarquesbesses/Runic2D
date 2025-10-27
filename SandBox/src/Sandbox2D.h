@@ -25,6 +25,9 @@ private:
 	Runic2D::Ref<Runic2D::Shader> m_FlatColorShader;
 
 	Runic2D::Ref<Runic2D::Texture2D> m_Texture, m_RunicTexture;
+	Runic2D::Ref<Runic2D::Texture2D> m_SpriteSheet;
+	Runic2D::Ref<Runic2D::SubTexture2D> m_StairsSubTexture;
+
 
 	glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 

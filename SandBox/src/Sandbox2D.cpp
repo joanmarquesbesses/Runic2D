@@ -15,6 +15,8 @@ void Sandbox2D::OnAttach()
 
 	m_Texture = Runic2D::Texture2D::Create("assets/textures/Check.png");
 	m_RunicTexture = Runic2D::Texture2D::Create("assets/textures/icon.png");
+	m_SpriteSheet = Runic2D::Texture2D::Create("assets/game/textures/tilemap_packed.png");
+	m_StairsSubTexture = Runic2D::SubTexture2D::CreateFromCoords(m_SpriteSheet, { 8, 1 }, { 16, 16 }, { 2,2 });
 
 	//init particle
 	m_Particle.ColorBegin = { 254.0f / 255.0f, 212.0f / 255.0f, 123.0f / 255.0f, 1.0f };
@@ -52,24 +54,28 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 		static float rotation = 0.0f;
 		rotation += ts * 50.0f;
 
+		//Runic2D::Renderer2D::BeginScene(m_CameraController.GetCamera());
+
+		//Runic2D::Renderer2D::DrawRotatedQuad({ 0.5f, -0.5f , -0.1}, { 0.5f, 1.0f }, glm::radians(rotation), m_SquareColor);
+		//Runic2D::Renderer2D::DrawRotatedQuad({ 1.0f, 1.0f }, { 0.8f, 0.8f }, glm::radians(-rotation), m_SquareColor);
+		//Runic2D::Renderer2D::DrawQuad({ -1.0f, 1.0f }, { 1.0f, 1.0f }, m_Texture);
+		//Runic2D::Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 0.8f, 0.8f }, m_RunicTexture, 1.0f);
+		//Runic2D::Renderer2D::DrawQuad({ 0.0f, 1.0f }, { 0.8f, 0.8f }, m_RunicTexture, 10.0f);
+		//Runic2D::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, 45.0f, m_Texture, 10.0f, glm::vec4(1.0f, 0.7f, 0.7f, 1.0f));
+
+		//Runic2D::Renderer2D::EndScene();
+
+		//Runic2D::Renderer2D::BeginScene(m_CameraController.GetCamera());
+		//for (float y = -5.0f; y < 5.0f; y += 0.25f) {
+		//	for (float x = -5.0f; x < 5.0f; x += 0.25f) {
+		//		glm::vec4 color = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.5f };
+		//		Runic2D::Renderer2D::DrawQuad({ x, y }, { 0.2f, 0.2f }, color);
+		//	}
+		//}
+		//Runic2D::Renderer2D::EndScene();
+
 		Runic2D::Renderer2D::BeginScene(m_CameraController.GetCamera());
-
-		Runic2D::Renderer2D::DrawRotatedQuad({ 0.5f, -0.5f , -0.1}, { 0.5f, 1.0f }, glm::radians(rotation), m_SquareColor);
-		Runic2D::Renderer2D::DrawRotatedQuad({ 1.0f, 1.0f }, { 0.8f, 0.8f }, glm::radians(-rotation), m_SquareColor);
-		Runic2D::Renderer2D::DrawQuad({ -1.0f, 1.0f }, { 1.0f, 1.0f }, m_Texture);
-		Runic2D::Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 0.8f, 0.8f }, m_RunicTexture, 1.0f);
-		Runic2D::Renderer2D::DrawQuad({ 0.0f, 1.0f }, { 0.8f, 0.8f }, m_RunicTexture, 10.0f);
-		Runic2D::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, 45.0f, m_Texture, 10.0f, glm::vec4(1.0f, 0.7f, 0.7f, 1.0f));
-
-		Runic2D::Renderer2D::EndScene();
-
-		Runic2D::Renderer2D::BeginScene(m_CameraController.GetCamera());
-		for (float y = -5.0f; y < 5.0f; y += 0.25f) {
-			for (float x = -5.0f; x < 5.0f; x += 0.25f) {
-				glm::vec4 color = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.5f };
-				Runic2D::Renderer2D::DrawQuad({ x, y }, { 0.2f, 0.2f }, color);
-			}
-		}
+		Runic2D::Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, m_StairsSubTexture, 1.0f);
 		Runic2D::Renderer2D::EndScene();
 	}
 
