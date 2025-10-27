@@ -5,6 +5,21 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+static const char* s_MapTiles =
+"################"
+"#..............#"
+"#..............#"
+"#.....##.......#"
+"#..............#"
+"#..a...........#"
+"#..............#"
+"#..............#"
+"#..............#"
+"#..............#"
+"#..............#"
+"#..............#"
+"################";
+
 Sandbox2D::Sandbox2D() : Layer("Sandbox2D"), m_CameraController(1280.0f / 720.0f, true) {
 
 }
@@ -15,8 +30,15 @@ void Sandbox2D::OnAttach()
 
 	m_Texture = Runic2D::Texture2D::Create("assets/textures/Check.png");
 	m_RunicTexture = Runic2D::Texture2D::Create("assets/textures/icon.png");
+	
 	m_SpriteSheet = Runic2D::Texture2D::Create("assets/game/textures/tilemap_packed.png");
-	m_StairsSubTexture = Runic2D::SubTexture2D::CreateFromCoords(m_SpriteSheet, { 8, 1 }, { 16, 16 }, { 2,2 });
+	m_ChestSubTexture = Runic2D::SubTexture2D::CreateFromCoords(m_SpriteSheet, { 0, 0 }, { 16, 16 });
+
+	m_MapWidth = 16;
+	m_MapHeight = strlen(s_MapTiles)/ m_MapWidth;
+	m_CharSubTextures['#'] = Runic2D::SubTexture2D::CreateFromCoords(m_SpriteSheet, {1, 6}, {16, 16});
+	m_CharSubTextures['.'] = Runic2D::SubTexture2D::CreateFromCoords(m_SpriteSheet, {6, 6}, {16, 16});
+
 
 	//init particle
 	m_Particle.ColorBegin = { 254.0f / 255.0f, 212.0f / 255.0f, 123.0f / 255.0f, 1.0f };
@@ -26,6 +48,8 @@ void Sandbox2D::OnAttach()
 	m_Particle.Velocity = { 0.0f, 0.0f };
 	m_Particle.VelocityVariation = { 3.0f, 1.0f };
 	m_Particle.Position = { 0.0f, 0.0f };
+
+	m_CameraController.SetZoomLevel(5.0f);
 }
 
 void Sandbox2D::OnDetach()
@@ -74,8 +98,22 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 		//}
 		//Runic2D::Renderer2D::EndScene();
 
+		//Draw tile map
 		Runic2D::Renderer2D::BeginScene(m_CameraController.GetCamera());
-		Runic2D::Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, m_StairsSubTexture, 1.0f);
+		for(int32_t y = 0; y < m_MapHeight; y++)
+		{
+			for (int32_t x = 0; x < m_MapWidth; x++)
+			{
+				char tile = s_MapTiles[(y * m_MapWidth) + x];
+				Runic2D::Ref<Runic2D::SubTexture2D> subTexture;
+				if (m_CharSubTextures.find(tile) != m_CharSubTextures.end())
+					subTexture = m_CharSubTextures[tile];
+				else
+					subTexture = m_ChestSubTexture;
+
+				Runic2D::Renderer2D::DrawQuad({ x, (float)(y*-1), 0.3 }, { 1.0f, 1.0f }, subTexture);
+			}
+		}
 		Runic2D::Renderer2D::EndScene();
 	}
 
@@ -102,12 +140,12 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 void Sandbox2D::OnImGuiRender()
 {
 	R2D_PROFILE_FUNCTION();
-	int avaragefps = Runic2D::Application::Get().GetAverageFPS();
+	float avaragefps = Runic2D::Application::Get().GetAverageFPS();
 	auto stats = Runic2D::Renderer2D::GetStats();
 	ImGui::Begin("Settings");
 	ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
 	ImGui::Text("Renderer2D Stats");
-	ImGui::Text("Avarage FPS: %d", avaragefps);
+	ImGui::Text("Avarage FPS: %.2f", avaragefps);
 	ImGui::Text("Draw Calls: %d", stats.DrawCalls);
 	ImGui::Text("Quad Count: %d", stats.QuadCount);
 	ImGui::Text("Vertex Count: %d", stats.GetTotalVertexCount());

@@ -39,7 +39,7 @@ namespace Runic2D
 		std::array<Ref<Texture>, MaxTextureSlots> TextureSlots; // TODO: identify textures using assets handler
 		uint32_t TextureSlotIndex = 1; // 0 = white texture
 
-		glm::vec4 QuadVertexPositions[4];
+		glm::vec4 QuadVertexPositions[4] = { glm::vec4(0.0f) };
 
 		Renderer2D::Statistics Stats;
 	};
@@ -233,7 +233,7 @@ namespace Runic2D
 		if (textureIndex == 0.0f) {
 
 			if(s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
-				FlsuhAndReset();
+				FlsuhAndReset();// mirar de seprar quan es te que reiniciar per max index i quan per max textures
 
 			textureIndex = (float)s_Data.TextureSlotIndex;
 			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;

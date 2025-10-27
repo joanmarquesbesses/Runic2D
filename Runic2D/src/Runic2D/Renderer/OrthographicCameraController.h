@@ -26,13 +26,14 @@ namespace Runic2D {
 		void OnEvent(Event& e);
 
 		float GetZoomLevel() const { return m_ZoomLevel; }
-		void SetZoomLevel(float level) { m_ZoomLevel = level; }
+		void SetZoomLevel(float level) { m_ZoomLevel = level; CalculateView(); }
 
 		const OrthographicCamera& GetCamera() const { return m_Camera; }
 		OrthographicCamera& GetCamera() { return m_Camera; }
 
 		const OrthographicCameraBounds& GetBounds() const { return m_Bounds; }
 	private:
+		void CalculateView();
 
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);

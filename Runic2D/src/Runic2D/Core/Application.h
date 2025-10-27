@@ -28,6 +28,8 @@ namespace Runic2D
 		inline static Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
 
+		void Close();
+
 		float GetAverageFPS() const { return m_AverageFPS; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e)

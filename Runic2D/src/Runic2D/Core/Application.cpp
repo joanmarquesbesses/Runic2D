@@ -69,6 +69,11 @@ namespace Runic2D {
 		return false;
 	}
 
+	void Application::Close()
+	{
+		m_Running = false;
+	}
+
 	void Application::OnEvent(Event& e)
 	{
 		R2D_PROFILE_FUNCTION();

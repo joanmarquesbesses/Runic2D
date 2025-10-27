@@ -26,12 +26,15 @@ private:
 
 	Runic2D::Ref<Runic2D::Texture2D> m_Texture, m_RunicTexture;
 	Runic2D::Ref<Runic2D::Texture2D> m_SpriteSheet;
-	Runic2D::Ref<Runic2D::SubTexture2D> m_StairsSubTexture;
+	Runic2D::Ref<Runic2D::SubTexture2D> m_ChestSubTexture;
 
 
 	glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 
 	ParticleSystem m_ParticleSystem;
 	ParticleProps m_Particle;
+
+	uint32_t m_MapWidth = 0, m_MapHeight = 0;
+	std::unordered_map<char, Runic2D::Ref<Runic2D::SubTexture2D>> m_CharSubTextures;
 };
 
