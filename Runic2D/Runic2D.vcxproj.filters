@@ -63,6 +63,9 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLFrameBuffer.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
@@ -141,6 +144,9 @@
     <ClInclude Include="src\Runic2D\Renderer\Buffer.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Renderer\FrameBuffer.h">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\GraphicsContext.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
@@ -163,6 +169,9 @@
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\Shader.h">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Renderer\SubTexture2D.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\Texture.h">
@@ -1428,15 +1437,15 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Renderer\SubTexture2D.h" />
-    <ClInclude Include="src\Runic2D\Renderer\FrameBuffer.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLFrameBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLFrameBuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp">
@@ -1481,6 +1490,9 @@
     <ClCompile Include="src\Runic2D\Renderer\Buffer.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Renderer\FrameBuffer.cpp">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\OrthographicCamera.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
@@ -1502,6 +1514,9 @@
     <ClCompile Include="src\Runic2D\Renderer\Shader.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Renderer\SubTexture2D.cpp">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\Texture.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
@@ -1511,8 +1526,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Renderer\SubTexture2D.cpp" />
-    <ClCompile Include="src\Runic2D\Renderer\FrameBuffer.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLFrameBuffer.cpp" />
   </ItemGroup>
 </Project>

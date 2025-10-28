@@ -162,3 +162,62 @@ project "SandBox"
 
 	filter { "system:windows", "configurations:Release" }
 		buildoptions "/utf-8"
+
+
+project "Runic2D-Editor"
+	location "Runic2D-Editor"
+	kind "ConsoleApp"
+	language "C++"
+	cppdialect "C++20"
+	staticruntime "on"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"%{prj.name}/src/**.h",
+		"%{prj.name}/src/**.cpp"
+	}
+
+	includedirs
+	{
+		"Runic2D/vendor/spdlog/include",
+		"Runic2D/src",
+		"Runic2D/vendor",
+		"%{IncludeDir.glm}"
+	}
+
+	links
+	{
+		"Runic2D"
+	}
+
+	filter "system:windows"
+		systemversion "latest"
+
+		defines
+		{
+			"RUNIC2D_PLATFORM_WINDOWS"
+		}
+
+	filter "configurations:Debug"
+		defines "RUNIC2D_DEBUG"
+		runtime "Debug"
+		symbols "on"
+
+	filter "configurations:Release"
+		defines "RUNIC2D_RELEASE"
+		runtime "Release"
+		optimize "on"
+
+	filter "configurations:Dist"
+		defines "RUNIC2D_DIST"
+		runtime "Release"
+		optimize "on"
+
+	filter { "system:windows", "configurations:Debug" }
+		buildoptions "/utf-8"
+
+	filter { "system:windows", "configurations:Release" }
+		buildoptions "/utf-8"

@@ -14,7 +14,7 @@ namespace Runic2D {
 
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application()
+	Application::Application(const std::string& name)
 	{
 		R2D_PROFILE_FUNCTION();
 
@@ -22,7 +22,7 @@ namespace Runic2D {
 		s_Instance = this;
 		R2D_CORE_INFO("Runic2D Engine Initialized");
 
-		m_Window = std::unique_ptr<Window>(Window::Create());
+		m_Window = std::unique_ptr<Window>(Window::Create(WindowProps(name)));
 		m_Window->SetEventCallback(R2D_BIND_EVENT_FN(OnEvent));
 
 		Renderer::Init();

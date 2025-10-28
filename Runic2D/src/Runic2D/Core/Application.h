@@ -15,7 +15,7 @@ namespace Runic2D
 	class RUNIC2D_API Application
 	{
 	public:
-		Application();
+		Application(const std::string& name = "Runic2D App");
 		virtual ~Application();
 
 		void Run();
