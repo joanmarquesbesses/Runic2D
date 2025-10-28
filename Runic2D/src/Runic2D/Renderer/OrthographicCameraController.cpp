@@ -77,6 +77,13 @@ namespace Runic2D {
 		//	return;
 	}
 
+	void OrthographicCameraController::OnResize(float width, float height)
+	{
+		R2D_PROFILE_FUNCTION();
+		m_AspectRatio = width / height;
+		CalculateView();
+	}
+
 	void OrthographicCameraController::CalculateView()
 	{
 		m_Bounds = { -m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel };
@@ -97,8 +104,7 @@ namespace Runic2D {
 	{
 		R2D_PROFILE_FUNCTION();
 
-		m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
-		CalculateView();
+		OnResize((float)e.GetWidth(), (float)e.GetHeight());
 		return false;
 	}
 
