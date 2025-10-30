@@ -8,7 +8,7 @@ namespace Runic2D
 	{
 	public:
 		OpenGLFrameBuffer(const FrameBufferSpecification& spec);
-		virtual ~OpenGLFrameBuffer();
+		virtual ~OpenGLFrameBuffer() override;
 
 		virtual void Bind() override;
 		virtual void Unbind() override;
