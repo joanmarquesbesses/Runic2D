@@ -30,6 +30,8 @@ namespace Runic2D
 
 		void Close();
 
+		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
+
 		float GetAverageFPS() const { return m_AverageFPS; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e)

@@ -66,6 +66,18 @@ namespace Runic2D
 		ImGui::DestroyContext();
 	}
 
+	void ImGuiLayer::OnEvent(Event& e)
+	{
+		if (m_BlockEvents)
+		{
+			ImGuiIO& io = ImGui::GetIO();
+			if (e.IsInCategory(EventCategoryMouse) && io.WantCaptureMouse)
+				e.SetHandled(true);
+			if (e.IsInCategory(EventCategoryKeyboard) && io.WantCaptureKeyboard)
+				e.SetHandled(true);
+		}
+	}
+
 	void ImGuiLayer::Begin()
 	{
 		R2D_PROFILE_FUNCTION();
@@ -98,35 +110,4 @@ namespace Runic2D
 			glfwMakeContextCurrent(backupCurrentContext);
 		}
 	}
-
-	// Helper function to map GLFW keycodes to ImGui keycodes  
-	int GLFWToImGuiKey(int glfwKey)
-	{
-		switch (glfwKey)
-		{
-			case GLFW_KEY_TAB: return ImGuiKey_Tab;
-			case GLFW_KEY_LEFT: return ImGuiKey_LeftArrow;
-			case GLFW_KEY_RIGHT: return ImGuiKey_RightArrow;
-			case GLFW_KEY_UP: return ImGuiKey_UpArrow;
-			case GLFW_KEY_DOWN: return ImGuiKey_DownArrow;
-			case GLFW_KEY_PAGE_UP: return ImGuiKey_PageUp;
-			case GLFW_KEY_PAGE_DOWN: return ImGuiKey_PageDown;
-			case GLFW_KEY_HOME: return ImGuiKey_Home;
-			case GLFW_KEY_END: return ImGuiKey_End;
-			case GLFW_KEY_INSERT: return ImGuiKey_Insert;
-			case GLFW_KEY_DELETE: return ImGuiKey_Delete;
-			case GLFW_KEY_BACKSPACE: return ImGuiKey_Backspace;
-			case GLFW_KEY_SPACE: return ImGuiKey_Space;
-			case GLFW_KEY_ENTER: return ImGuiKey_Enter;
-			case GLFW_KEY_ESCAPE: return ImGuiKey_Escape;
-			case GLFW_KEY_A: return ImGuiKey_A;
-			case GLFW_KEY_C: return ImGuiKey_C;
-			case GLFW_KEY_V: return ImGuiKey_V;
-			case GLFW_KEY_X: return ImGuiKey_X;
-			case GLFW_KEY_Y: return ImGuiKey_Y;
-			case GLFW_KEY_Z: return ImGuiKey_Z;
-			default: return ImGuiKey_None;
-		}
-	}
-
 } // namespace Runic2D

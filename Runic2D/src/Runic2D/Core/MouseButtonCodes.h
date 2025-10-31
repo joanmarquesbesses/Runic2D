@@ -1,15 +1,21 @@
 #pragma once
 
-// From GLFW 3.3
-#define GLFW_MOUSE_BUTTON_1         0
-#define GLFW_MOUSE_BUTTON_2         1
-#define GLFW_MOUSE_BUTTON_3         2
-#define GLFW_MOUSE_BUTTON_4         3
-#define GLFW_MOUSE_BUTTON_5         4
-#define GLFW_MOUSE_BUTTON_6         5
-#define GLFW_MOUSE_BUTTON_7         6
-#define GLFW_MOUSE_BUTTON_8         7
-#define R2D_MOUSE_BUTTON_LAST      GLFW_MOUSE_BUTTON_8
-#define R2D_MOUSE_BUTTON_LEFT      GLFW_MOUSE_BUTTON_1
-#define R2D_MOUSE_BUTTON_RIGHT     GLFW_MOUSE_BUTTON_2
-#define R2D_MOUSE_BUTTON_MIDDLE    GLFW_MOUSE_BUTTON_3
+namespace Runic2D {
+
+	enum class MouseButton : int
+	{
+		Button1 = 0,
+		Button2 = 1,
+		Button3 = 2,
+		Button4 = 3,
+		Button5 = 4,
+		Button6 = 5,
+		Button7 = 6,
+		Button8 = 7,
+		Last = Button8,
+		Left = Button1,
+		Right = Button2,
+		Middle = Button3
+	};
+
+} // namespace Runic2D

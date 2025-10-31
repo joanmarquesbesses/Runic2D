@@ -20,30 +20,30 @@ namespace Runic2D {
 	{
 		R2D_PROFILE_FUNCTION();
 
-		if (Input::IsKeyPressed(R2D_KEY_A)) {
+		if (Input::IsKeyPressed(KeyCode::A)) {
 			m_CameraPosition.x -= cos(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
 			m_CameraPosition.y -= sin(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
 		}
-		else if (Input::IsKeyPressed(R2D_KEY_D)) {
+		else if (Input::IsKeyPressed(KeyCode::D)) {
 			m_CameraPosition.x += cos(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
 			m_CameraPosition.y += sin(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
 		}
 
-		if (Input::IsKeyPressed(R2D_KEY_W)) {
+		if (Input::IsKeyPressed(KeyCode::W)) {
 			m_CameraPosition.x += -sin(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
 			m_CameraPosition.y += cos(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
 		}
-		else if (Input::IsKeyPressed(R2D_KEY_S)) {
+		else if (Input::IsKeyPressed(KeyCode::S)) {
 			m_CameraPosition.x -= -sin(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
 			m_CameraPosition.y -= cos(glm::radians(m_CameraRotation)) * m_CameraMoveSpeed * ts;
 		}
 
 		if (m_Rotation) 
 		{
-			if (Input::IsKeyPressed(R2D_KEY_E))
+			if (Input::IsKeyPressed(KeyCode::E))
 				m_CameraRotation -= m_CameraRotationSpeed * ts;
 
-			else if (Input::IsKeyPressed(R2D_KEY_Q))
+			else if (Input::IsKeyPressed(KeyCode::Q))
 				m_CameraRotation += m_CameraRotationSpeed * ts;
 
 			if (m_CameraRotation > 180.0f)

@@ -36,7 +36,6 @@ namespace Runic2D
 
 	class RUNIC2D_API Event
 	{
-		friend class EventDispatcher;
 	public:
 		virtual ~Event() = default;
 		virtual EventType GetEventType() const = 0;
@@ -50,8 +49,10 @@ namespace Runic2D
 
 		virtual std::string ToString() const { return GetName(); }
 
-		inline bool Handled() const { return m_Handled; }
-	protected:
+		inline bool IsHandled() const { return m_Handled; }
+
+		inline void SetHandled(bool handled) { m_Handled = handled; }
+	private:
 		bool m_Handled = false; // We can use this to check if the event has been handled and 
 								// prevent further processing of the event.
 	};
@@ -69,7 +70,8 @@ namespace Runic2D
 		{
 			if (m_Event.GetEventType() == T::GetStaticType())
 			{
-				m_Event.m_Handled = func(static_cast<T&>(m_Event));
+				bool handled = func(static_cast<T&>(m_Event));
+				m_Event.SetHandled(handled);
 				return true;
 			}
 			return false;
