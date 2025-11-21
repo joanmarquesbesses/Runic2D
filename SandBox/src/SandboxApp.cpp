@@ -56,16 +56,16 @@ public:
 		m_CameraController.OnUpdate(ts);
 
 		//render
-		if (Runic2D::Input::IsKeyPressed(R2D_KEY_J))
+		if (Runic2D::Input::IsKeyPressed(Runic2D::KeyCode::J))
 			m_SquarePosition.x -= m_SquareMoveSpeed * ts;
 
-		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_L))
+		else if (Runic2D::Input::IsKeyPressed(Runic2D::KeyCode::L))
 			m_SquarePosition.x += m_SquareMoveSpeed * ts;
 
-		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_I))
+		else if (Runic2D::Input::IsKeyPressed(Runic2D::KeyCode::I))
 			m_SquarePosition.y += m_SquareMoveSpeed * ts;
 
-		else if (Runic2D::Input::IsKeyPressed(R2D_KEY_K))
+		else if (Runic2D::Input::IsKeyPressed(Runic2D::KeyCode::K))
 			m_SquarePosition.y -= m_SquareMoveSpeed * ts;
 
 		Runic2D::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });

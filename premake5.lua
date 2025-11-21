@@ -18,6 +18,7 @@ IncludeDir["Glad"] = "Runic2D/vendor/Glad/include"
 IncludeDir["ImGui"] = "Runic2D/vendor/imgui"
 IncludeDir["glm"] = "Runic2D/vendor/glm"
 IncludeDir["stb_image"] = "Runic2D/vendor/stb_image"
+IncludeDir["entt"] = "Runic2D/vendor/entt/include"
 -- Include the vendor libraries
 
 group "Dependencies"
@@ -62,7 +63,8 @@ project "Runic2D"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.entt}"
 	}
 
 	links
@@ -126,7 +128,8 @@ project "SandBox"
 		"Runic2D/vendor/spdlog/include",
 		"Runic2D/src",
 		"Runic2D/vendor",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}"
 	}
 
 	links
@@ -185,7 +188,8 @@ project "Runic2D-Editor"
 		"Runic2D/vendor/spdlog/include",
 		"Runic2D/src",
 		"Runic2D/vendor",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}"
 	}
 
 	links

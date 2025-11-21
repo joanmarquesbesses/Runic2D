@@ -2,7 +2,6 @@
 
 #include "imgui/imgui.h"
 
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 static const char* s_MapTiles =
@@ -122,7 +121,7 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 		Runic2D::Renderer2D::EndScene();*/
 	}
 
-	if(Runic2D::Input::IsMouseButtonPressed(R2D_MOUSE_BUTTON_LEFT))
+	if(Runic2D::Input::IsMouseButtonPressed(Runic2D::MouseButton::Left))
 	{
 		auto [x, y] = Runic2D::Input::GetMousePosition();
 		auto width = Runic2D::Application::Get().GetWindow().GetWidth();

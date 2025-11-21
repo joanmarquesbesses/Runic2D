@@ -24,6 +24,12 @@ namespace Runic2D
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
 		m_FrameBuffer = FrameBuffer::Create(fbSpec);
+
+		m_ActiveScene = CreateRef<Scene>();
+
+		m_SquareEntity = m_ActiveScene->CreateEntity();
+		m_ActiveScene->Registry().emplace<TransformComponent>(m_SquareEntity);
+		m_ActiveScene->Registry().emplace<SpriteRendererComponent>(m_SquareEntity, glm::vec4{ 0.2f, 0.3f, 0.8f, 1.0f });
 	}
 
 	void EditorLayer::OnDetach()
@@ -42,34 +48,19 @@ namespace Runic2D
 
 		//render
 		Renderer2D::ResetStats();
-		{
-			R2D_PROFILE_SCOPE("Renderer Prep")
+		m_FrameBuffer->Bind();
+		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+		RenderCommand::Clear();
+		
+		Renderer2D::BeginScene(m_CameraController.GetCamera());
 
-				m_FrameBuffer->Bind();
+		//update scene
+		m_ActiveScene->OnUpdate(ts);
 
-			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
-			RenderCommand::Clear();
-		}
+		Renderer2D::EndScene();
 
-		{
-			R2D_PROFILE_SCOPE("Renderer Draw")
-
-				static float rotation = 0.0f;
-			rotation += ts * 50.0f;
-
-			Renderer2D::BeginScene(m_CameraController.GetCamera());
-
-			Renderer2D::DrawRotatedQuad({ 0.5f, -0.5f , -0.1 }, { 0.5f, 1.0f }, glm::radians(rotation), m_SquareColor);
-			Renderer2D::DrawRotatedQuad({ 1.0f, 1.0f }, { 0.8f, 0.8f }, glm::radians(-rotation), m_SquareColor);
-			Renderer2D::DrawQuad({ -1.0f, 1.0f }, { 1.0f, 1.0f }, m_Texture);
-			Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 0.8f, 0.8f }, m_RunicTexture, 1.0f);
-			Renderer2D::DrawQuad({ 0.0f, 1.0f }, { 0.8f, 0.8f }, m_RunicTexture, 10.0f);
-			Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, 45.0f, m_Texture, 10.0f, glm::vec4(1.0f, 0.7f, 0.7f, 1.0f));
-
-			Renderer2D::EndScene();
-
-			m_FrameBuffer->Unbind();
-		}
+		m_FrameBuffer->Unbind();
+		
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -114,7 +105,8 @@ namespace Runic2D
 		float avaragefps = Runic2D::Application::Get().GetAverageFPS();
 		auto stats = Runic2D::Renderer2D::GetStats();
 		ImGui::Begin("Settings");
-		ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
+		auto& squareColor = m_ActiveScene->Registry().get<SpriteRendererComponent>(m_SquareEntity).Color;
+		ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
 		ImGui::Text("Renderer2D Stats");
 		ImGui::Text("Avarage FPS: %.2f", avaragefps);
 		ImGui::Text("Draw Calls: %d", stats.DrawCalls);

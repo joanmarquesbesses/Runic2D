@@ -31,6 +31,9 @@
     <Filter Include="src\Runic2D\Renderer">
       <UniqueIdentifier>{F9D00935-E55F-93FE-8E7E-A7F97AECA3A4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Scene">
+      <UniqueIdentifier>{50C332BD-BCD9-3053-0551-BC7471A601DB}</UniqueIdentifier>
+    </Filter>
     <Filter Include="vendor">
       <UniqueIdentifier>{B3738122-9F15-ACF8-88D0-BF4C74113349}</UniqueIdentifier>
     </Filter>
@@ -176,6 +179,12 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\VertexArray.h">
       <Filter>src\Runic2D\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Component.h">
+      <Filter>src\Runic2D\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Scene.h">
+      <Filter>src\Runic2D\Scene</Filter>
     </ClInclude>
     <ClInclude Include="vendor\glm\glm\common.hpp">
       <Filter>vendor\glm\glm</Filter>
@@ -1519,6 +1528,9 @@
     </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\VertexArray.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Scene\Scene.cpp">
+      <Filter>src\Runic2D\Scene</Filter>
     </ClCompile>
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>

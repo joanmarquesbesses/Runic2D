@@ -16,6 +16,9 @@
 
 #include "Runic2D/ImGui/ImGuiLayer.h"
 
+#include "Runic2D/Scene/Scene.h"
+#include "Runic2D/Scene/Component.h"
+
 // Renderer
 #include "Runic2D/Renderer/Renderer.h"
 #include "Runic2D/Renderer/Renderer2D.h"
