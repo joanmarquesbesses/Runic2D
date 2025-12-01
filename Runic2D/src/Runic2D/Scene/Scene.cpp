@@ -4,6 +4,8 @@
 #include "Component.h"
 #include "Runic2D/Renderer/Renderer2D.h"
 
+#include "Entity.h"
+
 namespace Runic2D {
 
 	static void DoMath(const glm::mat4& transform) {
@@ -19,9 +21,19 @@ namespace Runic2D {
 	{
 	}
 
-	entt::entity Scene::CreateEntity()
+	Entity Scene::CreateEntity(const std::string& name)
 	{
-		return m_Registry.create();
+		Entity entity = { m_Registry.create(), this };
+		entity.AddComponent<TransformComponent>();
+		auto& tag = entity.AddComponent<TagComponent>();
+		tag.Tag = name.empty() ? "Entity" : name;
+
+		return entity;
+	}
+
+	void Scene::DestroyEntity(Entity entity)
+	{
+		m_Registry.destroy((entt::entity)entity);
 	}
 
 	void Scene::OnUpdate(Timestep ts)

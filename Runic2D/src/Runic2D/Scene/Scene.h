@@ -6,18 +6,19 @@
 
 namespace Runic2D {
 
+	class Entity;
+
 	class Scene {
 	public:
 		Scene();
 		~Scene();
 
-		//Temporary: will be replaced with a proper Entity class later
-		entt::entity CreateEntity();
-
-		//Temporary: will be replaced with a proper Entity class later
-		entt::registry& Registry() { return m_Registry; }
+		Entity CreateEntity(const std::string& name = std::string());
+		void DestroyEntity(Entity entity);
 
 		void OnUpdate(Timestep ts);
+
+		friend class Entity;
 	private:
 		entt::registry m_Registry;
 	};

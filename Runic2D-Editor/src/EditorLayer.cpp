@@ -27,9 +27,8 @@ namespace Runic2D
 
 		m_ActiveScene = CreateRef<Scene>();
 
-		m_SquareEntity = m_ActiveScene->CreateEntity();
-		m_ActiveScene->Registry().emplace<TransformComponent>(m_SquareEntity);
-		m_ActiveScene->Registry().emplace<SpriteRendererComponent>(m_SquareEntity, glm::vec4{ 0.2f, 0.3f, 0.8f, 1.0f });
+		m_SquareEntity = m_ActiveScene->CreateEntity("Quad");
+		m_SquareEntity.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.2f, 0.3f, 0.8f, 1.0f });
 	}
 
 	void EditorLayer::OnDetach()
@@ -56,6 +55,9 @@ namespace Runic2D
 
 		//update scene
 		m_ActiveScene->OnUpdate(ts);
+		if (Input::IsKeyPressed(KeyCode::K)) {
+			m_ActiveScene->DestroyEntity(m_SquareEntity);
+		}
 
 		Renderer2D::EndScene();
 
@@ -105,8 +107,15 @@ namespace Runic2D
 		float avaragefps = Runic2D::Application::Get().GetAverageFPS();
 		auto stats = Runic2D::Renderer2D::GetStats();
 		ImGui::Begin("Settings");
-		auto& squareColor = m_ActiveScene->Registry().get<SpriteRendererComponent>(m_SquareEntity).Color;
-		ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
+		if (m_SquareEntity) {
+			ImGui::Separator();
+			auto& tag = m_SquareEntity.GetComponent<TagComponent>().Tag;
+			ImGui::Text("Square Entity Tag: %s", tag.c_str());
+
+			auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
+			ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
+			ImGui::Separator();
+		}
 		ImGui::Text("Renderer2D Stats");
 		ImGui::Text("Avarage FPS: %.2f", avaragefps);
 		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
