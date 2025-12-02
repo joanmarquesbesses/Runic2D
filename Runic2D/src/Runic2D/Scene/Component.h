@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#include "SceneCamera.h"
+
 namespace Runic2D {
 
 	struct TagComponent {
@@ -40,6 +42,15 @@ namespace Runic2D {
 			: Color(color) {
 		}
 
+	};
+
+	struct CameraComponent {
+		SceneCamera Camera;
+		bool Primary = true; //TODO: think about moving to scene
+		bool FixedAspectRatio = false;
+
+		CameraComponent() = default;
+		CameraComponent(const CameraComponent&) = default;
 	};
 
 }

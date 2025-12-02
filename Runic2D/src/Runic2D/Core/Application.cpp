@@ -1,6 +1,7 @@
 #include "R2Dpch.h"
 #include "Application.h"
 
+#include "Core.h"
 #include <glad/glad.h>
 #include "Runic2D/Renderer/Renderer.h"
 
@@ -9,8 +10,6 @@
 #include <GLFW/glfw3.h>
 
 namespace Runic2D {
-
-#define R2D_BIND_EVENT_FN(fn) std::bind(&Application::fn, this, std::placeholders::_1)
 
 	Application* Application::s_Instance = nullptr;
 

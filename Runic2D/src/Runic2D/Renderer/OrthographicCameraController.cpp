@@ -64,8 +64,8 @@ namespace Runic2D {
 		R2D_PROFILE_FUNCTION();
 
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<MouseScrolledEvent>(RUNIC2D_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
-		dispatcher.Dispatch<WindowResizeEvent>(RUNIC2D_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
+		dispatcher.Dispatch<MouseScrolledEvent>(R2D_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
+		dispatcher.Dispatch<WindowResizeEvent>(R2D_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
 
 		//if (e.IsInCategory(EventCategoryMouse | EventCategoryInput))
 		//	return;

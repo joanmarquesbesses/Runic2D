@@ -38,13 +38,44 @@ namespace Runic2D {
 
 	void Scene::OnUpdate(Timestep ts)
 	{
-		auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-		for (auto entity : group) {
-			auto tuple = group.get<TransformComponent, SpriteRendererComponent>(entity);
-			auto& transform = std::get<0>(tuple);
-			auto& sprite = std::get<1>(tuple);
+		Camera* mainCamera = nullptr;
+		glm::mat4* cameraTransform = nullptr;
+		//Render Sprites
+		m_Registry.view<TransformComponent, CameraComponent>().each([&](auto entity, auto& transformComponent, auto& cameraComponent) {
+			if (cameraComponent.Primary) {
+				mainCamera = &cameraComponent.Camera;
+				cameraTransform = &transformComponent.Transform;
+			}
+			});
 
-			Renderer2D::DrawQuad(transform.Transform, sprite.Color);
+		if (mainCamera) {
+			Renderer2D::BeginScene(mainCamera->GetProjection(), *cameraTransform);
+
+			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+			for (auto entity : group) {
+				auto tuple = group.get<TransformComponent, SpriteRendererComponent>(entity);
+				auto& transform = std::get<0>(tuple);
+				auto& sprite = std::get<1>(tuple);
+
+				Renderer2D::DrawQuad(transform.Transform, sprite.Color);
+			}
+
+			Renderer2D::EndScene();
+		}
+	}
+
+	void Scene::OnViewportResize(uint32_t width, uint32_t height)
+	{
+		m_ViewportHeight = height;
+		m_ViewportWidth = width;
+
+		//Resize our non-fixed aspect ratio cameras
+		auto view = m_Registry.view<CameraComponent>();
+		for (auto entity : view) {
+			auto& cameraComponent = view.get<CameraComponent>(entity);
+			if (!cameraComponent.FixedAspectRatio) {
+				cameraComponent.Camera.SetViewportSize(width, height);
+			}
 		}
 	}
 

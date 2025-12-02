@@ -1444,6 +1444,8 @@
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Scene\Entity.h" />
+    <ClInclude Include="src\Runic2D\Renderer\Camera.h" />
+    <ClInclude Include="src\Runic2D\Scene\SceneCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1537,5 +1539,6 @@
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Scene\Entity.cpp" />
+    <ClCompile Include="src\Runic2D\Scene\SceneCamera.cpp" />
   </ItemGroup>
 </Project>
