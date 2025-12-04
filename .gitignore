@@ -1,7 +1,15 @@
 # Directories
 .vs/
-bin/
+**/bin/
+!vendor/premake/bin/
 bin-int/
 
-# Files
-*.user
+# Runic2D files
+*.log
+
+# Visual Studio files and folder
+.vs/
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
