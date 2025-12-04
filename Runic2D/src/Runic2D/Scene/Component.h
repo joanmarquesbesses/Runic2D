@@ -1,8 +1,13 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 #include "SceneCamera.h"
+#include "ScriptableEntity.h"
 
 namespace Runic2D {
 
@@ -18,19 +23,36 @@ namespace Runic2D {
 	};
 
 	struct TransformComponent {
-		glm::mat4 Transform = glm::mat4(1.0f);
+		glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
+
+		mutable glm::mat4 Transform = glm::mat4(1.0f);
+		mutable bool IsDirty = true;
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
 		TransformComponent(const glm::mat4& transform)
-			: Transform(transform) {
+			: Transform(transform), IsDirty(true) {
 		}
 		TransformComponent(const glm::mat4&& transform)
-			: Transform(transform) {
+			: Transform(transform), IsDirty(true) {
 		}
 
 		operator glm::mat4& () { return Transform; }
 		operator const glm::mat4& () const { return Transform; }
+
+		const glm::mat4& GetTransform() const {
+			if (IsDirty) {
+				glm::mat4 rot = glm::toMat4(glm::quat(Rotation));
+				Transform = glm::translate(glm::mat4(1.0f), Translation)
+					* rot
+					* glm::scale(glm::mat4(1.0f), Scale);
+
+				IsDirty = false;
+			}
+			return Transform;
+		}
 	};
 
 	struct SpriteRendererComponent {
@@ -51,6 +73,20 @@ namespace Runic2D {
 
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
+	};
+
+	struct NativeScriptComponent {
+		ScriptableEntity* Instance = nullptr;
+		
+		ScriptableEntity* (*InstantiateScript)();
+		void (*DestroyScript)(NativeScriptComponent*);
+
+		template<typename T>
+		void Bind() {
+			InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
+			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
+		}
+
 	};
 
 }

@@ -8,10 +8,6 @@
 
 namespace Runic2D {
 
-	static void DoMath(const glm::mat4& transform) {
-
-	}
-
 	Scene::Scene()
 	{
 
@@ -38,26 +34,38 @@ namespace Runic2D {
 
 	void Scene::OnUpdate(Timestep ts)
 	{
+
+		//Update Scripts
+		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc) 
+		{
+				//TODO: Move to Scene::OnPlayScene
+			//Script instantiation
+			if (!nsc.Instance) {
+				nsc.Instance = nsc.InstantiateScript();
+				nsc.Instance->m_Entity = Entity{ entity, this };
+				nsc.Instance->OnCreate();
+			}
+			nsc.Instance->OnUpdate(ts);
+			
+		});
+
 		Camera* mainCamera = nullptr;
-		glm::mat4* cameraTransform = nullptr;
+		glm::mat4 cameraTransform;
 		//Render Sprites
 		m_Registry.view<TransformComponent, CameraComponent>().each([&](auto entity, auto& transformComponent, auto& cameraComponent) {
 			if (cameraComponent.Primary) {
 				mainCamera = &cameraComponent.Camera;
-				cameraTransform = &transformComponent.Transform;
+				cameraTransform = transformComponent.GetTransform();
 			}
 			});
 
 		if (mainCamera) {
-			Renderer2D::BeginScene(mainCamera->GetProjection(), *cameraTransform);
+			Renderer2D::BeginScene(*mainCamera, cameraTransform);
 
 			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 			for (auto entity : group) {
-				auto tuple = group.get<TransformComponent, SpriteRendererComponent>(entity);
-				auto& transform = std::get<0>(tuple);
-				auto& sprite = std::get<1>(tuple);
-
-				Renderer2D::DrawQuad(transform.Transform, sprite.Color);
+				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+				Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color);;
 			}
 
 			Renderer2D::EndScene();

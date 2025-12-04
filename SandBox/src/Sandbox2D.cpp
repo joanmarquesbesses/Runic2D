@@ -123,7 +123,8 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 
 	if(Runic2D::Input::IsMouseButtonPressed(Runic2D::MouseButton::Left))
 	{
-		auto [x, y] = Runic2D::Input::GetMousePosition();
+		float x = Runic2D::Input::GetMousePosition().x;
+		float y = Runic2D::Input::GetMousePosition().y;
 		auto width = Runic2D::Application::Get().GetWindow().GetWidth();
 		auto height = Runic2D::Application::Get().GetWindow().GetHeight();
 

@@ -122,10 +122,7 @@ namespace Runic2D
 		s_Data.TextureShader->Bind();
 		s_Data.TextureShader->SetMat4("u_ViewProjection", viewProjection);
 
-		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
-		s_Data.QuadIndexCount = 0;
-
-		s_Data.TextureSlotIndex = 1;
+		StartBatch();
 	}
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
@@ -135,26 +132,33 @@ namespace Runic2D
 		s_Data.TextureShader->Bind();
 		s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
 
-		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
-		s_Data.QuadIndexCount = 0;
-
-		s_Data.TextureSlotIndex = 1;
-
+		StartBatch();
 	}
 
 	void Renderer2D::EndScene()
 	{
 		R2D_PROFILE_FUNCTION();
 
-		uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);
-		s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);
-
 		Flush();
+	}
+
+	void Renderer2D::StartBatch()
+	{
+		s_Data.QuadIndexCount = 0;
+		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
+
+		s_Data.TextureSlotIndex = 1;
 	}
 
 	void Renderer2D::Flush()
 	{
 		R2D_PROFILE_FUNCTION();
+
+		if (s_Data.QuadIndexCount == 0)
+			return; // Nothing to draw
+
+		uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);
+		s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);
 
 		// Bind textures
 		for (uint32_t i = 0; i < s_Data.TextureSlotIndex; ++i) {
@@ -166,13 +170,10 @@ namespace Runic2D
 		++s_Data.Stats.DrawCalls;
 	}
 
-	void Renderer2D::FlsuhAndReset()
+	void Renderer2D::NextBatch()
 	{
-		EndScene();
-
-		s_Data.QuadIndexCount = 0;
-		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
-		s_Data.TextureSlotIndex = 1;
+		Flush();
+		StartBatch();
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -206,17 +207,12 @@ namespace Runic2D
 
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor)
-	{
-		DrawQuad({ position.x, position.y, 0.0f }, size, subtexture, tilingFactor, tintColor);
-	}
-
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
 	{
 		R2D_PROFILE_FUNCTION();
 
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
-			FlsuhAndReset();
+			NextBatch();
 		}
 
 		constexpr size_t quadVertexCount = 4;
@@ -249,7 +245,7 @@ namespace Runic2D
 		R2D_PROFILE_FUNCTION();
 
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
-			FlsuhAndReset();
+			NextBatch();
 		}
 
 		constexpr size_t quadVertexCount = 4;
@@ -271,7 +267,7 @@ namespace Runic2D
 		if (textureIndex == 0.0f) {
 
 			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
-				FlsuhAndReset();// mirar de seprar quan es te que reiniciar per max index i quan per max textures
+				NextBatch();// mirar de seprar quan es te que reiniciar per max index i quan per max textures
 
 			textureIndex = (float)s_Data.TextureSlotIndex;
 			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;
@@ -293,19 +289,21 @@ namespace Runic2D
 		++s_Data.Stats.QuadCount;
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		R2D_PROFILE_FUNCTION();
 
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
-			FlsuhAndReset();
+			NextBatch();
 		}
 
 		constexpr size_t quadVertexCount = 4;
+		// Aquesta és la diferència clau: agafem les coordenades de la subtextura
 		const glm::vec2* texCoords = subtexture->GetTexCoords();
 		const Ref<Texture2D>& texture = subtexture->GetTexture();
 
 		float textureIndex = 0.0f;
+		// Busquem si la textura ja està en un slot
 		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; ++i) {
 			if (*s_Data.TextureSlots[i] == *texture) {
 				textureIndex = (float)i;
@@ -313,19 +311,17 @@ namespace Runic2D
 			}
 		}
 
+		// Si no hi és, l'afegim
 		if (textureIndex == 0.0f) {
-
 			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
-				FlsuhAndReset();
+				NextBatch();
 
 			textureIndex = (float)s_Data.TextureSlotIndex;
 			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;
 			++s_Data.TextureSlotIndex;
 		}
 
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
-			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
+		// Omplim el buffer utilitzant el Transform i les coords de la SubTexture
 		for (size_t i = 0; i < quadVertexCount; ++i)
 		{
 			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
@@ -337,8 +333,22 @@ namespace Runic2D
 		}
 
 		s_Data.QuadIndexCount += 6;
-
 		++s_Data.Stats.QuadCount;
+	}
+
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor)
+	{
+		DrawQuad({ position.x, position.y, 0.0f }, size, subtexture, tilingFactor, tintColor);
+	}
+
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor)
+	{
+		R2D_PROFILE_FUNCTION();
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
+			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+
+		DrawQuad(transform, subtexture, tilingFactor, tintColor);
 
 	}
 
@@ -351,38 +361,11 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
-			FlsuhAndReset();
-		}
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
-		constexpr size_t quadVertexCount = 4;
-		const float textureIndex = 0.0f; // White texture
-		const float tilingFactor = 1.0f;
-		constexpr glm::vec2 texCoords[quadVertexCount] = {
-			{ 0.0f, 0.0f },
-			{ 1.0f, 0.0f },
-			{ 1.0f, 1.0f },
-			{ 0.0f, 1.0f }
-		};
-
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
-			glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f }) *
-			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
-		for(size_t i = 0; i < quadVertexCount; ++i)
-		{
-			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
-			s_Data.QuadVertexBufferPtr->Color = color;
-			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
-			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
-			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-			++s_Data.QuadVertexBufferPtr;
-		}
-
-		s_Data.QuadIndexCount += 6;
-
-		// debug, activar stats si es volen
-		++s_Data.Stats.QuadCount;
+		DrawQuad(transform, color);
 
 	}
 
@@ -395,51 +378,11 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
-			FlsuhAndReset();
-		}
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
-		constexpr size_t quadVertexCount = 4;
-		constexpr glm::vec2 texCoords[quadVertexCount] = {
-			{ 0.0f, 0.0f },
-			{ 1.0f, 0.0f },
-			{ 1.0f, 1.0f },
-			{ 0.0f, 1.0f }
-		};
-
-		float textureIndex = 0.0f;
-		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; ++i) {
-			if (*s_Data.TextureSlots[i] == *texture) {
-				textureIndex = (float)i;
-				break;
-			}
-		}
-
-		if (textureIndex == 0.0f) {
-			textureIndex = (float)s_Data.TextureSlotIndex;
-			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;
-			++s_Data.TextureSlotIndex;
-		}
-
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
-			glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f}) *
-			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
-		for(size_t i = 0; i < quadVertexCount; ++i)
-		{
-			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
-			s_Data.QuadVertexBufferPtr->Color = tintColor;
-			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
-			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
-			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-			++s_Data.QuadVertexBufferPtr;
-		}
-
-		s_Data.QuadIndexCount += 6;
-
-		// debug, activar stats si es volen
-		++s_Data.Stats.QuadCount;
-
+		DrawQuad(transform, texture, tilingFactor, tintColor);
 	}
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor)
@@ -451,46 +394,11 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
-			FlsuhAndReset();
-		}
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
-		constexpr size_t quadVertexCount = 4;
-		const glm::vec2* texCoords = subtexture->GetTexCoords();
-		const Ref<Texture2D>& texture = subtexture->GetTexture();
-
-		float textureIndex = 0.0f;
-		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; ++i) {
-			if (*s_Data.TextureSlots[i] == *texture) {
-				textureIndex = (float)i;
-				break;
-			}
-		}
-
-		if (textureIndex == 0.0f) {
-			textureIndex = (float)s_Data.TextureSlotIndex;
-			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;
-			++s_Data.TextureSlotIndex;
-		}
-
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
-			glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f }) *
-			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
-		for (size_t i = 0; i < quadVertexCount; ++i)
-		{
-			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
-			s_Data.QuadVertexBufferPtr->Color = tintColor;
-			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
-			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
-			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-			++s_Data.QuadVertexBufferPtr;
-		}
-
-		s_Data.QuadIndexCount += 6;
-
-		// debug, activar stats si es volen
-		++s_Data.Stats.QuadCount;
+		DrawQuad(transform, subtexture, tilingFactor, tintColor);
 
 	}
 

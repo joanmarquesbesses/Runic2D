@@ -18,6 +18,7 @@
 
 #include "Runic2D/Scene/Scene.h"
 #include "Runic2D/Scene/Entity.h"
+#include "Runic2D/Scene/ScriptableEntity.h"
 #include "Runic2D/Scene/Component.h"
 
 // Renderer

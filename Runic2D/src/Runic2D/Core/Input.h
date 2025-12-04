@@ -4,6 +4,8 @@
 #include "Runic2D/Core/KeyCodes.h"
 #include "Runic2D/Core/MouseButtonCodes.h"
 
+#include <glm/glm.hpp>
+
 namespace Runic2D
 {
 	class RUNIC2D_API Input
@@ -12,7 +14,7 @@ namespace Runic2D
 		static bool IsKeyPressed(KeyCode keycode); // Use KeyCode, not int directly
 
 		static bool IsMouseButtonPressed(MouseButton button); // Use MouseButtonCode, not int directly
-		static std::pair<float, float> GetMousePosition();
+		static glm::vec2 GetMousePosition();
 		static float GetMouseX();
 		static float GetMouseY();
 	};

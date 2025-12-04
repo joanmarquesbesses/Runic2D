@@ -1446,6 +1446,7 @@
     <ClInclude Include="src\Runic2D\Scene\Entity.h" />
     <ClInclude Include="src\Runic2D\Renderer\Camera.h" />
     <ClInclude Include="src\Runic2D\Scene\SceneCamera.h" />
+    <ClInclude Include="src\Runic2D\Scene\ScriptableEntity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">

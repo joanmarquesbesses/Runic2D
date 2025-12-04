@@ -190,6 +190,7 @@
     <ClInclude Include="src\Runic2D\Renderer\VertexArray.h" />
     <ClInclude Include="src\Runic2D\Scene\Component.h" />
     <ClInclude Include="src\Runic2D\Scene\Scene.h" />
+    <ClInclude Include="src\Runic2D\Scene\ScriptableEntity.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_fixes.hpp" />

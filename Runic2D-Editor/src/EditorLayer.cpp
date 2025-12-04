@@ -30,12 +30,49 @@ namespace Runic2D
 		m_SquareEntity = m_ActiveScene->CreateEntity("Quad");
 		m_SquareEntity.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.2f, 0.3f, 0.8f, 1.0f });
 
+		m_SecondSquareEntity = m_ActiveScene->CreateEntity("Second Quad");
+		auto& sr = m_SecondSquareEntity.AddComponent<SpriteRendererComponent>();
+		sr.Color = glm::vec4{ 0.8f, 0.3f, 0.2f, 1.0f };
+
 		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
 		auto& cameraComponent = m_CameraEntity.AddComponent<CameraComponent>();
 
 		m_SecondCameraEntity = m_ActiveScene->CreateEntity("Second Camera Entity");
 		auto& secondCameraComponent = m_SecondCameraEntity.AddComponent<CameraComponent>();
 		secondCameraComponent.Primary = false;
+
+		class CameraControler : public ScriptableEntity
+		{
+		public:
+
+			virtual void OnCreate() override {
+			}
+
+			virtual void OnDestroy() override {
+
+			}
+
+			virtual void OnUpdate(Timestep ts) override {
+				auto& tc = GetComponent<TransformComponent>();
+				float speed = 5.0f;
+
+				// Modifiquem la Translation directament
+				if (Input::IsKeyPressed(KeyCode::A))
+					tc.Translation.x -= speed * ts;
+				if (Input::IsKeyPressed(KeyCode::D))
+					tc.Translation.x += speed * ts;
+				if (Input::IsKeyPressed(KeyCode::W))
+					tc.Translation.y += speed * ts;
+				if (Input::IsKeyPressed(KeyCode::S))
+					tc.Translation.y -= speed * ts;
+
+				tc.IsDirty = true;
+			}
+		};
+
+		m_SecondCameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraControler>();
+
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
 	void EditorLayer::OnDetach()
@@ -136,45 +173,18 @@ namespace Runic2D
 			ImGui::EndMenuBar();
 		}
 
+		//Scene Hierarchy Panel
+		m_SceneHierarchyPanel.OnImGuiRender();
 
 		float avaragefps = Runic2D::Application::Get().GetAverageFPS();
 		auto stats = Runic2D::Renderer2D::GetStats();
-		ImGui::Begin("Settings");
+		ImGui::Begin("Stats");
 		ImGui::Text("Renderer2D Stats");
 		ImGui::Text("Avarage FPS: %.2f", avaragefps);
 		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
 		ImGui::Text("Quad Count: %d", stats.QuadCount);
 		ImGui::Text("Vertex Count: %d", stats.GetTotalVertexCount());
-		ImGui::Text("Index Count: %d", stats.GetTotalIndexCount());
-
-		if (m_SquareEntity) {
-			ImGui::Separator();
-			auto& tag = m_SquareEntity.GetComponent<TagComponent>().Tag;
-			ImGui::Text("Tag: %s", tag.c_str());
-
-			auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
-			ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
-			ImGui::Separator();
-		}
-
-		ImGui::DragFloat3("Camera Transform",
-			glm::value_ptr(m_CameraEntity.GetComponent<TransformComponent>().Transform[3]));
-
-		if (ImGui::Checkbox("Camera A", &m_PrimaryCamera))
-		{
-			m_CameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
-			m_SecondCameraEntity.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
-		}
-
-		{
-			auto& camera = m_SecondCameraEntity.GetComponent<CameraComponent>().Camera;
-			float orthoSize = camera.GetOrthographicSize();
-			if (ImGui::DragFloat("Camera B Ortho Size", &orthoSize))
-			{
-				camera.SetOrthographicSize(orthoSize);
-			}
-		}
-		
+		ImGui::Text("Index Count: %d", stats.GetTotalIndexCount());		
 		ImGui::End();
 
 		//Viewport

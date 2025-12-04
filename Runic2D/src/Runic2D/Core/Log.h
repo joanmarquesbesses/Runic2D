@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Core.h"
-#include "spdlog/spdlog.h"
-#include "spdlog/fmt/ostr.h" // for spdlog's custom formatting support
+#pragma warning(push, 0)
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h> // for spdlog's custom formatting support
+#pragma warning(pop)
 
 namespace Runic2D
 {
