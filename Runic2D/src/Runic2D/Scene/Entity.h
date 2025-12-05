@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+#include "Runic2D/Core/UUID.h"
 
 namespace Runic2D
 {
@@ -49,6 +50,8 @@ namespace Runic2D
 		{
 			return !(*this == other);
 		}
+
+		UUID GetUUID();
 
 	private:
 		entt::entity m_EntityHandle = entt::null;

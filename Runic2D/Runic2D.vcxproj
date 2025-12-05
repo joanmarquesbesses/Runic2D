@@ -196,6 +196,7 @@
     <ClInclude Include="src\Runic2D\Scene\SceneCamera.h" />
     <ClInclude Include="src\Runic2D\Scene\SceneSerializer.h" />
     <ClInclude Include="src\Runic2D\Scene\ScriptableEntity.h" />
+    <ClInclude Include="src\Runic2D\Core\UUID.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_fixes.hpp" />
@@ -651,6 +652,7 @@
     <ClCompile Include="src\Runic2D\Scene\Scene.cpp" />
     <ClCompile Include="src\Runic2D\Scene\SceneCamera.cpp" />
     <ClCompile Include="src\Runic2D\Scene\SceneSerializer.cpp" />
+    <ClCompile Include="src\Runic2D\Core\UUID.cpp" />
     <ClCompile Include="vendor\stb_image\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -6,10 +6,21 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include "Runic2D/Core/UUID.h"
 #include "SceneCamera.h"
 #include "ScriptableEntity.h"
 
 namespace Runic2D {
+
+	struct IDComponent
+	{
+		UUID ID;
+
+		IDComponent() = default;
+		IDComponent(const IDComponent&) = default;
+		// Constructor que accepta un UUID concret
+		IDComponent(const UUID& uuid) : ID(uuid) {}
+	};
 
 	struct TagComponent {
 		std::string Tag;

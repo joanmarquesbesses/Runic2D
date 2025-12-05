@@ -4,6 +4,7 @@
 
 #include "Runic2D/Core/Core.h"
 #include "Runic2D/Core/Timestep.h"
+#include "Runic2D/Core/UUID.h"
 
 namespace Runic2D {
 
@@ -16,6 +17,8 @@ namespace Runic2D {
 
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
+
+		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
 
 		void OnUpdate(Timestep ts);
 		void OnViewportResize(uint32_t width, uint32_t height);

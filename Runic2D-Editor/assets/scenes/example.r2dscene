@@ -1,24 +1,24 @@
 Scene: Scene Name
 Entities:
-  - EntityID: 0
+  - EntityID: 16189600081678134799
     TagComponent:
       Tag: Quad
     TransformComponent:
-      Translation: [2.1, 0, 0]
+      Translation: [0, 0, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     SpriteRendererComponent:
       Color: [0.2, 0.3, 0.8, 1]
-  - EntityID: 1
+  - EntityID: 14688408740718534570
     TagComponent:
       Tag: Second Quad
     TransformComponent:
-      Translation: [1.8, 3.2, 0]
+      Translation: [0, 2, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     SpriteRendererComponent:
       Color: [0.8, 0.3, 0.2, 1]
-  - EntityID: 2
+  - EntityID: 2160067322908012025
     TagComponent:
       Tag: Camera Entity
     TransformComponent:
@@ -36,7 +36,7 @@ Entities:
         OrthographicFar: 1
       Primary: true
       FixedAspectRatio: false
-  - EntityID: 3
+  - EntityID: 17911306565233955376
     TagComponent:
       Tag: Second Camera Entity
     TransformComponent:

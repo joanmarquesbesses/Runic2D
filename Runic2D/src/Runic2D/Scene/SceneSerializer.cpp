@@ -77,8 +77,9 @@ namespace Runic2D {
 
 	static void SerializeEntity(YAML::Emitter& out, Entity entity)
 	{
-		out << YAML::BeginMap; // Entity
-		out << YAML::Key << "EntityID" << YAML::Value << (uint32_t)(entity); // TODO: Replace with UUID
+		out << YAML::BeginMap;
+		out << YAML::Key << "EntityID" << YAML::Value << entity.GetUUID();
+
 		if (entity.HasComponent<TagComponent>())
 		{
 			auto& tag = entity.GetComponent<TagComponent>().Tag;
@@ -189,13 +190,15 @@ namespace Runic2D {
 		{
 			for (auto entityNode : entities)
 			{
-				uint32_t entityID = entityNode["EntityID"].as<uint32_t>();
+				uint64_t uuid = entityNode["EntityID"].as<uint64_t>();
 				std::string name;
 				auto tagComponent = entityNode["TagComponent"];
 				if (tagComponent)
 					name = tagComponent["Tag"].as<std::string>();
-				R2D_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", entityID, name);
-				Entity deserializedEntity = m_Scene->CreateEntity(name);
+				R2D_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
+
+				Entity deserializedEntity = m_Scene->CreateEntityWithUUID(uuid, name);
+
 				auto transformComponent = entityNode["TransformComponent"];
 				if (transformComponent)
 				{
