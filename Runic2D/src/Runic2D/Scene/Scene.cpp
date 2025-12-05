@@ -10,11 +10,12 @@ namespace Runic2D {
 
 	Scene::Scene()
 	{
-
+		m_Registry.on_construct<CameraComponent>().connect<&Scene::OnCameraComponentConstruct>(this);
 	}
 
 	Scene::~Scene()
 	{
+		m_Registry.on_construct<CameraComponent>().disconnect<&Scene::OnCameraComponentConstruct>(this);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -29,7 +30,7 @@ namespace Runic2D {
 
 	void Scene::DestroyEntity(Entity entity)
 	{
-		m_Registry.destroy((entt::entity)entity);
+		m_Registry.destroy(entity);
 	}
 
 	void Scene::OnUpdate(Timestep ts)
@@ -85,6 +86,15 @@ namespace Runic2D {
 				cameraComponent.Camera.SetViewportSize(width, height);
 			}
 		}
+	}
+
+	void Scene::OnCameraComponentConstruct(entt::registry& registry, entt::entity entity)
+	{
+		auto& component = registry.get<CameraComponent>(entity);
+
+		// Inicialitzem el viewport
+		if (m_ViewportWidth > 0 && m_ViewportHeight > 0)
+			component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
 	}
 
 }

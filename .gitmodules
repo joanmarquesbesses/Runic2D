@@ -10,3 +10,6 @@
 [submodule "Runic2D/vendor/glm"]
 	path = Runic2D/vendor/glm
 	url = https://github.com/g-truc/glm
+[submodule "Runic2D/vendor/yaml-cpp"]
+	path = Runic2D/vendor/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp

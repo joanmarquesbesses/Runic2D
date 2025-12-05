@@ -11,7 +11,7 @@
 namespace Runic2D
 {
 	template<typename T, typename UIFunction>
-	static void DrawComponent(const std::string& name, Entity entity, UIFunction uiFunction)
+	static void DrawComponent(const std::string& name, Entity entity, UIFunction uiFunction, bool canBeDeleted = true)
 	{
 		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
 
@@ -25,23 +25,27 @@ namespace Runic2D
 
 			// Dibuixar el Header (la fletxa i el nom)
 			ImGui::Separator();
+			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
+			ImGui::PopFont();
 			ImGui::PopStyleVar();
 
 			// Botó de opcions (els tres puntets o "+") a la dreta
-			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
-			if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
-			{
-				ImGui::OpenPopup("ComponentSettings");
-			}
-
 			bool removeComponent = false;
-			if (ImGui::BeginPopup("ComponentSettings"))
-			{
-				if (ImGui::MenuItem("Remove component"))
-					removeComponent = true;
+			if (canBeDeleted) {
+				ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+				if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
+				{
+					ImGui::OpenPopup("ComponentSettings");
+				}
 
-				ImGui::EndPopup();
+				if (ImGui::BeginPopup("ComponentSettings"))
+				{
+					if (ImGui::MenuItem("Remove component"))
+						removeComponent = true;
+
+					ImGui::EndPopup();
+				}
 			}
 
 			if (open)
@@ -50,7 +54,7 @@ namespace Runic2D
 				ImGui::TreePop();
 			}
 
-			if (removeComponent)
+			if (removeComponent && canBeDeleted)
 				entity.RemoveComponent<T>();
 		}
 	}
@@ -76,11 +80,15 @@ namespace Runic2D
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
 
+		ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+
 		if (ImGui::Button("X", buttonSize)) {
 			values.x = resetValue;
 			changed = true;
 		}
 		ImGui::PopStyleColor(3);
+
+		ImGui::PopFont();
 
 		ImGui::SameLine();
 		if (ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f")) changed = true;
@@ -91,11 +99,15 @@ namespace Runic2D
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
 
+		ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+
 		if (ImGui::Button("Y", buttonSize)) {
 			values.y = resetValue;
 			changed = true;
 		}
 		ImGui::PopStyleColor(3);
+
+		ImGui::PopFont();
 
 		ImGui::SameLine();
 		if (ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f")) changed = true;
@@ -106,11 +118,15 @@ namespace Runic2D
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
 
+		ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+
 		if (ImGui::Button("Z", buttonSize)) {
 			values.z = resetValue;
 			changed = true;
 		}
 		ImGui::PopStyleColor(3);
+
+		ImGui::PopFont();
 
 		ImGui::SameLine();
 		if (ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f")) changed = true;
@@ -139,18 +155,42 @@ namespace Runic2D
 		auto& tag = entity.GetComponent<TagComponent>().Tag;
 
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+		if (m_SelectionContext == entity)
+			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
 		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
+
+		if (m_SelectionContext == entity)
+			ImGui::PopFont(); 
 
 		if (ImGui::IsItemClicked())
 		{
 			m_SelectionContext = entity;
 		}
 
+		bool entityDeleted = false;
+		if (ImGui::BeginPopupContextItem())
+		{
+			if (ImGui::MenuItem("Delete Entity"))
+			{
+				entityDeleted = true;
+			}
+			ImGui::EndPopup();
+		}
+
 		if (opened)
 		{
 			ImGui::TreePop();
 		}
+
+		if(entityDeleted)
+		{
+			if (m_SelectionContext == entity)
+				m_SelectionContext = {};
+			m_Context->DestroyEntity(entity);
+		}
+
 	}
 
 	void SceneHierarchyPanel::DrawComponents(Entity entity)
@@ -166,7 +206,7 @@ namespace Runic2D
 				{
 					tag = std::string(buffer);
 				}
-			});
+			}, false);
 
 		DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
 			{
@@ -182,7 +222,7 @@ namespace Runic2D
 
 				if (DrawVec3Control("Scale", component.Scale, 1.0f))
 					component.IsDirty = true;
-			});
+			}, false);
 
 
 		DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
@@ -257,10 +297,67 @@ namespace Runic2D
 				auto& color = component.Color;
 				ImGui::ColorEdit4("Color", glm::value_ptr(color));
 			});
+
+		// BOTÓ D'AFEGIR COMPONENT
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		float buttonWidth = 150.0f;
+		float buttonHeight = 25.0f;
+		float availableWidth = ImGui::GetContentRegionAvail().x;
+
+		ImGui::SetCursorPosX((availableWidth - buttonWidth) * 0.5f);
+
+		ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+
+		if (ImGui::Button("Add Component", ImVec2{ buttonWidth, buttonHeight }))
+		{
+			ImGui::OpenPopup("AddComponent");
+		}
+
+		ImGui::PopFont();
+
+		if (ImGui::BeginPopup("AddComponent"))
+		{
+			if (!entity.HasComponent<CameraComponent>())
+			{
+				if (ImGui::MenuItem("Camera"))
+				{
+					entity.AddComponent<CameraComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!entity.HasComponent<SpriteRendererComponent>())
+			{
+				if (ImGui::MenuItem("Sprite Renderer"))
+				{
+					entity.AddComponent<SpriteRendererComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!entity.HasComponent<NativeScriptComponent>())
+			{
+				if (ImGui::MenuItem("Native Script"))
+				{
+					entity.AddComponent<NativeScriptComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			//CircleCollider, BoxCollider, etc.
+
+			ImGui::EndPopup();
+		}
+
 	}
 
 	void SceneHierarchyPanel::OnImGuiRender()
 	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(200.0f, 200.0f));
+
 		ImGui::Begin("Scene Hierarchy");
 
 		if (m_Context)
@@ -276,12 +373,26 @@ namespace Runic2D
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 			m_SelectionContext = {};
 
+		//right click on a empty space
+		if(ImGui::BeginPopupContextWindow(0, 1 | ImGuiPopupFlags_NoOpenOverItems))
+		{
+			if(ImGui::MenuItem("Create Empty Entity"))
+			{
+				Entity newEntity = m_Context->CreateEntity("Empty Entity");
+			}
+			ImGui::EndPopup();
+		}
+
 		ImGui::End();
 
+		ImGui::PopStyleVar();
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.0f, 200.0f));
 		ImGui::Begin("Properties");
 		if (m_SelectionContext)
 			DrawComponents(m_SelectionContext);
 		ImGui::End();
+		ImGui::PopStyleVar();
 	}
 
 }
