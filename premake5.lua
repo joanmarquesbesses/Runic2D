@@ -1,6 +1,6 @@
 workspace "Runic2D"
 	architecture "x64"
-	startproject "SandBox"
+	startproject "Runic2D-Editor"
 
 	configurations
 	{
@@ -9,22 +9,29 @@ workspace "Runic2D"
 		"Dist"
 	}
 
+	flags
+	{
+		"MultiProcessorCompile"
+	}
+
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
-IncludeDir["GLFW"] = "Runic2D/vendor/GLFW/include"
-IncludeDir["Glad"] = "Runic2D/vendor/Glad/include"
-IncludeDir["ImGui"] = "Runic2D/vendor/imgui"
-IncludeDir["glm"] = "Runic2D/vendor/glm"
-IncludeDir["stb_image"] = "Runic2D/vendor/stb_image"
-IncludeDir["entt"] = "Runic2D/vendor/entt/include"
+IncludeDir["GLFW"] = "%{wks.location}/Runic2D/vendor/GLFW/include"
+IncludeDir["Glad"] = "%{wks.location}/Runic2D/vendor/Glad/include"
+IncludeDir["ImGui"] = "%{wks.location}/Runic2D/vendor/imgui"
+IncludeDir["glm"] = "%{wks.location}/Runic2D/vendor/glm"
+IncludeDir["stb_image"] = "%{wks.location}/Runic2D/vendor/stb_image"
+IncludeDir["entt"] = "%{wks.location}/Runic2D/vendor/entt/include"
+IncludeDir["yaml_cpp"] = "%{wks.location}/Runic2D/vendor/yaml-cpp/include"
 -- Include the vendor libraries
 
 group "Dependencies"
 	include "Runic2D/vendor/Premake/glfw.lua"
 	include "Runic2D/vendor/Premake/Glad.lua"
 	include "Runic2D/vendor/Premake/imgui.lua"
+	include "Runic2D/vendor/Premake/yaml-cpp.lua"
 group ""
 
 project "Runic2D"
@@ -52,7 +59,8 @@ project "Runic2D"
 
 	defines
 	{
-		"_CRT_SECURE_NO_WARNINGS"
+		"_CRT_SECURE_NO_WARNINGS",
+		"YAML_CPP_STATIC_DEFINE"
 	}
 
 	includedirs
@@ -64,7 +72,8 @@ project "Runic2D"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.yaml_cpp}"
 	}
 
 	links
@@ -72,6 +81,7 @@ project "Runic2D"
 		"GLFW",
 		"Glad",
 		"ImGui",
+		"yaml-cpp",
 		"opengl32.lib"
 	}
 

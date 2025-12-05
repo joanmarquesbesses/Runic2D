@@ -1,0 +1,56 @@
+Scene: Scene Name
+Entities:
+  - EntityID: 0
+    TagComponent:
+      Tag: Quad
+    TransformComponent:
+      Translation: [2.1, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.2, 0.3, 0.8, 1]
+  - EntityID: 1
+    TagComponent:
+      Tag: Second Quad
+    TransformComponent:
+      Translation: [1.8, 3.2, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.8, 0.3, 0.2, 1]
+  - EntityID: 2
+    TagComponent:
+      Tag: Camera Entity
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.7853982
+        PerspectiveNear: 0.01
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+      FixedAspectRatio: false
+  - EntityID: 3
+    TagComponent:
+      Tag: Second Camera Entity
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.7853982
+        PerspectiveNear: 0.01
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: false
+      FixedAspectRatio: false

@@ -1,9 +1,11 @@
 #include "EditorLayer.h"
 
-#include "imgui/imgui.h"
+#include <imgui/imgui.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "Runic2D/Scene/SceneSerializer.h"
 
 namespace Runic2D
 {
@@ -27,50 +29,50 @@ namespace Runic2D
 
 		m_ActiveScene = CreateRef<Scene>();
 
-		m_SquareEntity = m_ActiveScene->CreateEntity("Quad");
-		m_SquareEntity.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.2f, 0.3f, 0.8f, 1.0f });
+		//m_SquareEntity = m_ActiveScene->CreateEntity("Quad");
+		//m_SquareEntity.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.2f, 0.3f, 0.8f, 1.0f });
 
-		m_SecondSquareEntity = m_ActiveScene->CreateEntity("Second Quad");
-		auto& sr = m_SecondSquareEntity.AddComponent<SpriteRendererComponent>();
-		sr.Color = glm::vec4{ 0.8f, 0.3f, 0.2f, 1.0f };
+		//m_SecondSquareEntity = m_ActiveScene->CreateEntity("Second Quad");
+		//auto& sr = m_SecondSquareEntity.AddComponent<SpriteRendererComponent>();
+		//sr.Color = glm::vec4{ 0.8f, 0.3f, 0.2f, 1.0f };
 
-		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
-		auto& cameraComponent = m_CameraEntity.AddComponent<CameraComponent>();
+		//m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
+		//auto& cameraComponent = m_CameraEntity.AddComponent<CameraComponent>();
 
-		m_SecondCameraEntity = m_ActiveScene->CreateEntity("Second Camera Entity");
-		auto& secondCameraComponent = m_SecondCameraEntity.AddComponent<CameraComponent>();
-		secondCameraComponent.Primary = false;
+		//m_SecondCameraEntity = m_ActiveScene->CreateEntity("Second Camera Entity");
+		//auto& secondCameraComponent = m_SecondCameraEntity.AddComponent<CameraComponent>();
+		//secondCameraComponent.Primary = false;
 
-		class CameraControler : public ScriptableEntity
-		{
-		public:
+		//class CameraControler : public ScriptableEntity
+		//{
+		//public:
 
-			virtual void OnCreate() override {
-			}
+		//	virtual void OnCreate() override {
+		//	}
 
-			virtual void OnDestroy() override {
+		//	virtual void OnDestroy() override {
 
-			}
+		//	}
 
-			virtual void OnUpdate(Timestep ts) override {
-				auto& tc = GetComponent<TransformComponent>();
-				float speed = 5.0f;
+		//	virtual void OnUpdate(Timestep ts) override {
+		//		auto& tc = GetComponent<TransformComponent>();
+		//		float speed = 5.0f;
 
-				// Modifiquem la Translation directament
-				if (Input::IsKeyPressed(KeyCode::A))
-					tc.Translation.x -= speed * ts;
-				if (Input::IsKeyPressed(KeyCode::D))
-					tc.Translation.x += speed * ts;
-				if (Input::IsKeyPressed(KeyCode::W))
-					tc.Translation.y += speed * ts;
-				if (Input::IsKeyPressed(KeyCode::S))
-					tc.Translation.y -= speed * ts;
+		//		// Modifiquem la Translation directament
+		//		if (Input::IsKeyPressed(KeyCode::A))
+		//			tc.Translation.x -= speed * ts;
+		//		if (Input::IsKeyPressed(KeyCode::D))
+		//			tc.Translation.x += speed * ts;
+		//		if (Input::IsKeyPressed(KeyCode::W))
+		//			tc.Translation.y += speed * ts;
+		//		if (Input::IsKeyPressed(KeyCode::S))
+		//			tc.Translation.y -= speed * ts;
 
-				tc.IsDirty = true;
-			}
-		};
+		//		tc.IsDirty = true;
+		//	}
+		//};
 
-		m_SecondCameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraControler>();
+		//m_SecondCameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraControler>();
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
@@ -169,6 +171,18 @@ namespace Runic2D
 				// Disabling fullscreen would allow the window to be moved to the front of other windows, 
 				// which we can't undo at the moment without finer window depth/z control.
 				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
+
+				if(ImGui::MenuItem("Serialize"))
+				{
+					SceneSerializer serializer(m_ActiveScene);
+					serializer.Serialize("assets/scenes/example.r2dscene");
+				}
+
+				if(ImGui::MenuItem("Deserialize"))
+				{
+					SceneSerializer serializer(m_ActiveScene);
+					serializer.Deserialize("assets/scenes/example.r2dscene");
+				}
 
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
 				ImGui::EndMenu();
