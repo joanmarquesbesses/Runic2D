@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Event.h"
+#include "Runic2D/Core/KeyCodes.h"
 
 namespace Runic2D {
 
@@ -8,14 +9,19 @@ namespace Runic2D {
 	class RUNIC2D_API KeyEvent : public Event
 	{
 	public:
-		inline int GetKeyCode() const { return m_KeyCode; }
+		inline KeyCode GetKeyCode() const { return m_KeyCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
 	protected:
-		KeyEvent(int keyCode)
-			: m_KeyCode(keyCode) {}
+		KeyEvent(const KeyCode keycode)
+			: m_KeyCode(keycode) {
+		}
 
-		int m_KeyCode;
+		KeyEvent(int keycode)
+			: m_KeyCode((KeyCode)keycode) {
+		}
+
+		KeyCode m_KeyCode;
 	};
 
 	class RUNIC2D_API KeyPressedEvent : public KeyEvent
@@ -31,7 +37,7 @@ namespace Runic2D {
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << m_KeyCode << " (Repeat Count: " << m_RepeatCount << ")";
+			ss << "KeyPressedEvent: " << (int)m_KeyCode << " (Repeat Count: " << m_RepeatCount << ")";
 			return ss.str();
 		}
 
@@ -50,7 +56,7 @@ namespace Runic2D {
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << m_KeyCode;
+			ss << "KeyReleasedEvent: " << (int)m_KeyCode;
 			return ss.str();
 		}
 	};
@@ -66,7 +72,7 @@ namespace Runic2D {
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyTypedEvent: " << m_KeyCode;
+			ss << "KeyTypedEvent: " << (int)m_KeyCode;
 			return ss.str();
 		}
 	};

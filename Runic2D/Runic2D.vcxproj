@@ -197,6 +197,7 @@
     <ClInclude Include="src\Runic2D\Scene\SceneSerializer.h" />
     <ClInclude Include="src\Runic2D\Scene\ScriptableEntity.h" />
     <ClInclude Include="src\Runic2D\Core\UUID.h" />
+    <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_fixes.hpp" />
@@ -626,6 +627,7 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsPlatformUtils.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\R2Dpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

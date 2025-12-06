@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Runic2D/Scene/SceneSerializer.h"
+#include "Runic2D/Utils/PlatformUtils.h"
 
 namespace Runic2D
 {
@@ -172,18 +173,20 @@ namespace Runic2D
 				// Disabling fullscreen would allow the window to be moved to the front of other windows, 
 				// which we can't undo at the moment without finer window depth/z control.
 				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
+				if(ImGui::MenuItem("New", "Ctrl+N"))
+					NewScene();
 
-				if(ImGui::MenuItem("Serialize"))
-				{
-					SceneSerializer serializer(m_ActiveScene);
-					serializer.Serialize("assets/scenes/example.r2dscene");
-				}
+				ImGui::Separator();
 
-				if(ImGui::MenuItem("Deserialize"))
-				{
-					SceneSerializer serializer(m_ActiveScene);
-					serializer.Deserialize("assets/scenes/example.r2dscene");
-				}
+				if(ImGui::MenuItem("Open...", "Ctrl+O"))
+					OpenScene();
+
+				ImGui::Separator();
+
+				if(ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
+					SaveSceneAs();
+
+				ImGui::Separator();
 
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
 				ImGui::EndMenu();
@@ -225,8 +228,77 @@ namespace Runic2D
 		ImGui::End();
 	}
 
-	void EditorLayer::OnEvent(Runic2D::Event& e)
+	void EditorLayer::OnEvent(Event& e)
 	{
 		m_CameraController.OnEvent(e);
+
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<KeyPressedEvent>(R2D_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+	}
+
+	bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
+	{
+		if(e.GetRepeatCount() > 0)
+			return false;
+
+		bool control = Input::IsKeyPressed(KeyCode::LeftControl) || Input::IsKeyPressed(KeyCode::RightControl);
+		bool shift = Input::IsKeyPressed(KeyCode::LeftShift) || Input::IsKeyPressed(KeyCode::RightShift);
+
+		switch (e.GetKeyCode())
+		{
+		case KeyCode::N:
+			if (control)
+				NewScene();
+
+			break;
+		case KeyCode::O:
+			if (control)
+				OpenScene();
+
+			break;
+		case KeyCode::S:
+			if (control && shift)
+				SaveSceneAs();
+
+			break;
+		default:
+			break;
+		}
+	}
+
+	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+	{
+		return false;
+	}
+
+	void EditorLayer::NewScene()
+	{
+		m_ActiveScene = CreateRef<Scene>();
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+	}
+
+	void EditorLayer::OpenScene()
+	{
+		std::string filePath = FileDialogs::OpenFile("Runic2D Scene (*.r2dscene)\0*.r2dscene\0");
+		if (!filePath.empty())
+		{
+			m_ActiveScene = CreateRef<Scene>();
+			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+			SceneSerializer serializer(m_ActiveScene);
+			serializer.Deserialize(filePath);
+		}
+	}
+
+	void EditorLayer::SaveSceneAs()
+	{
+		std::string filePath = FileDialogs::SaveFile("Runic2D Scene (*.r2dscene)\0*.r2dscene\0");
+		if (!filePath.empty())
+		{
+			SceneSerializer serializer(m_ActiveScene);
+			serializer.Serialize(filePath);
+		}
 	}
 }
