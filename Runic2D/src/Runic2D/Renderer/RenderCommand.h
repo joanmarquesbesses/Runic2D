@@ -31,6 +31,12 @@ namespace Runic2D {
 		{
 			s_RendererAPI->DrawIndexed(vertexArray, count);
 		}
+
+		inline static void DisableScissor()
+		{
+			s_RendererAPI->DisableScissor();
+		}
+
 	private:
 		static RendererAPI* s_RendererAPI;
 	};

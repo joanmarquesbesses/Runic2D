@@ -25,6 +25,8 @@ namespace Runic2D {
 	
 		virtual void DrawIndexed(const Ref<class VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
+		virtual void DisableScissor() = 0;
+
 		inline static API GetAPI() { return s_API; }
 	private:
 		static API s_API;
