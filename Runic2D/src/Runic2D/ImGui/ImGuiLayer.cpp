@@ -11,6 +11,8 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+#include "ImGuizmo.h"
+
 namespace Runic2D
 {
 
@@ -33,7 +35,7 @@ namespace Runic2D
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
@@ -90,6 +92,7 @@ namespace Runic2D
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 		m_Time = (float)glfwGetTime();
 	}
 
@@ -161,4 +164,6 @@ namespace Runic2D
 		colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
 		colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
 	}
+
+	
 } // namespace Runic2D

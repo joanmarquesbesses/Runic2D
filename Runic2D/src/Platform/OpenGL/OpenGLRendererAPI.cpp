@@ -40,7 +40,6 @@ namespace Runic2D {
 	void OpenGLRendererAPI::DisableScissor()
 	{
 		glDisable(GL_SCISSOR_TEST);
-		glDepthMask(GL_TRUE);
 	}
 
 }

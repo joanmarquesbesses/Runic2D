@@ -1,10 +1,10 @@
 #pragma once
 
-#include <entt.hpp>
-
-#include "Runic2D/Core/Core.h"
 #include "Runic2D/Core/Timestep.h"
 #include "Runic2D/Core/UUID.h"
+#include "Runic2D/Renderer/EditorCamera.h"
+
+#include <entt.hpp>
 
 namespace Runic2D {
 
@@ -20,8 +20,11 @@ namespace Runic2D {
 
 		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
 
-		void OnUpdate(Timestep ts);
+		void OnUpdateRunTime(Timestep ts);
+		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 		void OnViewportResize(uint32_t width, uint32_t height);
+
+		Entity GetPrimaryCameraEntity();
 	private:
 		void OnCameraComponentConstruct(entt::registry& registry, entt::entity entity);
 	private:

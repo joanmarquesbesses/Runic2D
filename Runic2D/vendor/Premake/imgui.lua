@@ -21,8 +21,16 @@ project "ImGui"
 		"%{prj.location}/imgui_widgets.cpp",
 		"%{prj.location}/imstb_rectpack.h",
 		"%{prj.location}/imstb_textedit.h",
-		"%{prj.location}/imstb_truetype.h"
+		"%{prj.location}/imstb_truetype.h",
+		"%{prj.location}/../ImGuizmo/ImGuizmo.h",
+		"%{prj.location}/../ImGuizmo/ImGuizmo.cpp"
 	}
+
+	includedirs
+    {
+        "%{prj.location}",             
+        "%{prj.location}/../ImGuizmo"  
+    }
 
 	filter "configurations:Debug"
 		runtime "Debug"

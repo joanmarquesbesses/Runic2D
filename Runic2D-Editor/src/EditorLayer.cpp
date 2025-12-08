@@ -8,9 +8,13 @@
 #include "Runic2D/Scene/SceneSerializer.h"
 #include "Runic2D/Utils/PlatformUtils.h"
 
+#include "Runic2D/Math/Math.h"
+
+#include "ImGuizmo.h"
+
 namespace Runic2D
 {
-	EditorLayer::EditorLayer() : Layer("EditorLayer"), m_CameraController(1280.0f / 720.0f, true) {
+	EditorLayer::EditorLayer() : Layer("EditorLayer") {
 
 	}
 
@@ -21,14 +25,15 @@ namespace Runic2D
 		m_Texture = Texture2D::Create("assets/textures/Check.png");
 		m_RunicTexture = Texture2D::Create("assets/textures/icon.png");
 
-		m_CameraController.SetZoomLevel(5.0f);
-
 		FrameBufferSpecification fbSpec;
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
 		m_FrameBuffer = FrameBuffer::Create(fbSpec);
 
 		m_ActiveScene = CreateRef<Scene>();
+
+		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
+
 #if 0
 		m_SquareEntity = m_ActiveScene->CreateEntity("Quad");
 		m_SquareEntity.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.2f, 0.3f, 0.8f, 1.0f });
@@ -95,14 +100,11 @@ namespace Runic2D
 			(spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
 		{
 			m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_CameraController.OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-
+			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		}
 
-		if (m_ViewportFocused) {
-			m_CameraController.OnUpdate(ts);
-		}
+		m_EditorCamera.OnUpdate(ts);
 
 		//render
 		Renderer2D::ResetStats();
@@ -110,7 +112,7 @@ namespace Runic2D
 		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		RenderCommand::Clear();
 		//update scene
-		m_ActiveScene->OnUpdate(ts);
+		m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
 
 		m_FrameBuffer->Unbind();
 		
@@ -197,15 +199,101 @@ namespace Runic2D
 		//Scene Hierarchy Panel
 		m_SceneHierarchyPanel.OnImGuiRender();
 
-		float avaragefps = Runic2D::Application::Get().GetAverageFPS();
-		auto stats = Runic2D::Renderer2D::GetStats();
-		ImGui::Begin("Stats");
-		ImGui::Text("Renderer2D Stats");
-		ImGui::Text("Avarage FPS: %.2f", avaragefps);
-		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-		ImGui::Text("Quad Count: %d", stats.QuadCount);
-		ImGui::Text("Vertex Count: %d", stats.GetTotalVertexCount());
-		ImGui::Text("Index Count: %d", stats.GetTotalIndexCount());		
+		ImGui::Begin("Settings");
+		
+		// Gizmo Type
+		if (ImGui::CollapsingHeader("Gizmo", ImGuiTreeNodeFlags_CollapsingHeader)){
+
+			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+			ImGui::Text("Gizmo Type");
+			ImGui::PopFont();
+			ImGui::Separator();
+
+			if (ImGui::RadioButton("Translate", m_GizmoType == ImGuizmo::TRANSLATE))
+				m_GizmoType = ImGuizmo::TRANSLATE;
+
+			ImGui::SameLine();
+
+			if (ImGui::RadioButton("Rotate", m_GizmoType == ImGuizmo::ROTATE))
+				m_GizmoType = ImGuizmo::ROTATE;
+
+			ImGui::SameLine();
+
+			if (ImGui::RadioButton("Scale", m_GizmoType == ImGuizmo::SCALE))
+				m_GizmoType = ImGuizmo::SCALE;
+
+			ImGui::Separator();
+
+			// Gizmo Mode
+			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+			ImGui::Text("Gizmo Mode");
+			ImGui::PopFont();
+			ImGui::Separator();
+
+			if (ImGui::RadioButton("Local", m_GizmoMode == ImGuizmo::LOCAL))
+				m_GizmoMode = ImGuizmo::LOCAL;
+
+			ImGui::SameLine();
+
+			if (ImGui::RadioButton("World", m_GizmoMode == ImGuizmo::WORLD))
+				m_GizmoMode = ImGuizmo::WORLD;
+		}
+		
+		// Editor Camera Settings
+		if (ImGui::CollapsingHeader("Editor Camera", ImGuiTreeNodeFlags_CollapsingHeader))
+		{
+			bool isLocked = m_EditorCamera.IsRotationLocked();
+			if (ImGui::Checkbox("Lock Rotation (2D Mode)", &isLocked))
+			{
+				m_EditorCamera.SetRotationLocked(isLocked);
+			}
+
+			// Ajuda visual (Tooltip)
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Blocks camera rotation to work in 2D");
+
+			ImGui::Separator();
+
+			float fov = m_EditorCamera.GetFOV();
+			if (ImGui::DragFloat("FOV", &fov, 1.0f, 1.0f, 180.0f))
+			{
+				m_EditorCamera.SetFOV(fov);
+			}
+
+			// 3. CLIPPING PLANES (Near / Far)
+			float nearClip = m_EditorCamera.GetNearClip();
+			float farClip = m_EditorCamera.GetFarClip();
+
+			bool changed = false;
+			if (ImGui::DragFloat("Near Clip", &nearClip, 0.1f, 0.001f, 10000.0f)) {
+				m_EditorCamera.SetNearClip(nearClip);
+			}
+
+			if (ImGui::DragFloat("Far Clip", &farClip, 10.0f, nearClip, 100000.0f)) {
+				m_EditorCamera.SetFarClip(farClip);
+			}
+
+			ImGui::Separator();
+
+			float distance = m_EditorCamera.GetDistance();
+			if (ImGui::DragFloat("Distance", &distance, 0.2f))
+			{
+				m_EditorCamera.SetDistance(distance); 
+			}
+		}
+
+		if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_CollapsingHeader)) {
+			float avaragefps = Runic2D::Application::Get().GetAverageFPS();
+			auto stats = Runic2D::Renderer2D::GetStats();
+
+			ImGui::Text("Renderer2D Stats");
+			ImGui::Text("Avarage FPS: %.2f", avaragefps);
+			ImGui::Text("Draw Calls: %d", stats.DrawCalls);
+			ImGui::Text("Quad Count: %d", stats.QuadCount);
+			ImGui::Text("Vertex Count: %d", stats.GetTotalVertexCount());
+			ImGui::Text("Index Count: %d", stats.GetTotalIndexCount());
+		}
+
 		ImGui::End();
 
 		//Viewport
@@ -214,13 +302,68 @@ namespace Runic2D
 
 		m_ViewportFocused = ImGui::IsWindowFocused();
 		m_ViewportHovered = ImGui::IsWindowHovered();
-		Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused || !m_ViewportHovered);
+		Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused && !m_ViewportHovered);
 
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_ViewportSize = { viewportSize.x, viewportSize.y };
 
 		uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
 		ImGui::Image((void*)(uintptr_t)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+		// Gizmos
+		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		if (selectedEntity && m_GizmoType != -1)
+		{
+			ImGuizmo::SetDrawlist();
+
+			float windowWidth = (float)ImGui::GetWindowWidth();
+			float windowHeight = (float)ImGui::GetWindowHeight();
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+			// Camera
+			// Run time camera from entity with camera component
+			//auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+			//if (!cameraEntity) return;
+			//const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+			//const glm::mat4& cameraProjection = camera.GetProjection();
+			//ImGuizmo::SetOrthographic((int)camera.GetProjectionType());
+			//glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+
+			// Editor camera
+			const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
+			glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
+
+			// Entity transform
+			auto& tc = selectedEntity.GetComponent<TransformComponent>();
+			glm::mat4 transform = tc.GetTransform();
+
+			// Snapping
+			bool snap = Input::IsKeyPressed(KeyCode::LeftControl);
+			float snapValue = 0.5f; // Snap to 0.5m for translation/scale
+			// Snap to 45 degrees for rotation
+			if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+				snapValue = 45.0f;
+
+			float snapValues[3] = { snapValue, snapValue, snapValue };
+
+			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+				(ImGuizmo::OPERATION)m_GizmoType, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transform),
+				nullptr, snap ? snapValues : nullptr);
+
+			if (ImGuizmo::IsUsing())
+			{
+				glm::vec3 translation, rotation, scale;
+				Math::DecomposeTransform(transform, translation, rotation, scale);
+
+				glm::vec3 deltaRotation = rotation - tc.Rotation;
+				tc.Translation = translation;
+				tc.Rotation += deltaRotation;
+				tc.Scale = scale;
+
+				tc.IsDirty = true;
+			}
+		}
+
 		ImGui::End();
 		ImGui::PopStyleVar();
 
@@ -229,7 +372,7 @@ namespace Runic2D
 
 	void EditorLayer::OnEvent(Event& e)
 	{
-		m_CameraController.OnEvent(e);
+		m_EditorCamera.OnEvent(e);
 
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<KeyPressedEvent>(R2D_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
@@ -258,7 +401,17 @@ namespace Runic2D
 		case KeyCode::S:
 			if (control && shift)
 				SaveSceneAs();
-
+		case KeyCode::Q:
+			m_GizmoType = -1;
+			break;
+		case KeyCode::W:
+			m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+			break;
+		case KeyCode::E:
+			m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+			break;
+		case KeyCode::R:
+			m_GizmoType = ImGuizmo::OPERATION::SCALE;
 			break;
 		default:
 			break;

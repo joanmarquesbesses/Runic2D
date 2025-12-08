@@ -40,7 +40,7 @@ namespace Runic2D {
 		return entity;
 	}
 
-	void Scene::OnUpdate(Timestep ts)
+	void Scene::OnUpdateRunTime(Timestep ts)
 	{
 
 		//Update Scripts
@@ -80,6 +80,19 @@ namespace Runic2D {
 		}
 	}
 
+	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
+	{
+		Renderer2D::BeginScene(camera);
+
+		auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+		for (auto entity : group) {
+			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+			Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color);;
+		}
+
+		Renderer2D::EndScene();
+	}
+
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
 		m_ViewportHeight = height;
@@ -93,6 +106,18 @@ namespace Runic2D {
 				cameraComponent.Camera.SetViewportSize(width, height);
 			}
 		}
+	}
+
+	Entity Scene::GetPrimaryCameraEntity()
+	{
+		auto view = m_Registry.view<CameraComponent>();
+		for (auto entity : view) {
+			auto& cameraComponent = view.get<CameraComponent>(entity);
+			if (cameraComponent.Primary) {
+				return Entity{ entity, this };
+			}
+		}
+		return Entity{};
 	}
 
 	void Scene::OnCameraComponentConstruct(entt::registry& registry, entt::entity entity)

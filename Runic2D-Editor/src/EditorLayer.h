@@ -3,6 +3,8 @@
 #include <Runic2D.h>
 #include "Panels/SceneHierarchyPanel.h"
 
+#include "Runic2D/Renderer/EditorCamera.h"
+
 namespace Runic2D {
 	
 	class EditorLayer : public Layer
@@ -26,8 +28,6 @@ namespace Runic2D {
 		void OpenScene();
 		void SaveSceneAs();
 	private:
-		OrthographicCameraController m_CameraController;
-
 		//temp
 		Ref<VertexArray> m_SquareVA;
 		Ref<Shader> m_FlatColorShader;
@@ -41,12 +41,15 @@ namespace Runic2D {
 		Entity m_CameraEntity;
 		Entity m_SecondCameraEntity;
 
-		bool m_PrimaryCamera = true;
+		EditorCamera m_EditorCamera;
 
 		bool m_ViewportFocused = false, m_ViewportHovered = false;
 		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
 
 		glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+
+		int m_GizmoType = -1;
+		int m_GizmoMode = 0;
 
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;

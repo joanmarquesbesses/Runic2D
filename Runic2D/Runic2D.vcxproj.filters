@@ -34,6 +34,9 @@
     <Filter Include="src\Runic2D\Scene">
       <UniqueIdentifier>{50C332BD-BCD9-3053-0551-BC7471A601DB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Utils">
+      <UniqueIdentifier>{935760BD-FF6D-5E53-48E5-E974B43A2FDB}</UniqueIdentifier>
+    </Filter>
     <Filter Include="vendor">
       <UniqueIdentifier>{B3738122-9F15-ACF8-88D0-BF4C74113349}</UniqueIdentifier>
     </Filter>
@@ -120,6 +123,9 @@
     <ClInclude Include="src\Runic2D\Core\Timestep.h">
       <Filter>src\Runic2D\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Core\UUID.h">
+      <Filter>src\Runic2D\Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Core\Window.h">
       <Filter>src\Runic2D\Core</Filter>
     </ClInclude>
@@ -200,6 +206,9 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\Scene\ScriptableEntity.h">
       <Filter>src\Runic2D\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h">
+      <Filter>src\Runic2D\Utils</Filter>
     </ClInclude>
     <ClInclude Include="vendor\glm\glm\common.hpp">
       <Filter>vendor\glm\glm</Filter>
@@ -1458,8 +1467,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\UUID.h" />
-    <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1486,6 +1493,9 @@
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsPlatformUtils.cpp">
+      <Filter>src\Platform\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
@@ -1502,6 +1512,9 @@
       <Filter>src\Runic2D\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Core\Log.cpp">
+      <Filter>src\Runic2D\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Core\UUID.cpp">
       <Filter>src\Runic2D\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\ImGui\ImGuiBuild.cpp">
@@ -1561,7 +1574,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Core\UUID.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsPlatformUtils.cpp" />
   </ItemGroup>
 </Project>

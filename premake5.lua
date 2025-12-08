@@ -25,6 +25,7 @@ IncludeDir["glm"] = "%{wks.location}/Runic2D/vendor/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Runic2D/vendor/stb_image"
 IncludeDir["entt"] = "%{wks.location}/Runic2D/vendor/entt/include"
 IncludeDir["yaml_cpp"] = "%{wks.location}/Runic2D/vendor/yaml-cpp/include"
+IncludeDir["ImGuizmo"] = "%{wks.location}/Runic2D/vendor/ImGuizmo"
 -- Include the vendor libraries
 
 group "Dependencies"
@@ -73,7 +74,8 @@ project "Runic2D"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.yaml_cpp}"
+		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 
 	links
@@ -199,7 +201,8 @@ project "Runic2D-Editor"
 		"Runic2D/src",
 		"Runic2D/vendor",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 
 	links
