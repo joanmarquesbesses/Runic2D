@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef RUNIC2D_PLATFORM_WINDOWS
+#ifdef R2D_PLATFORM_WINDOWS
 
 extern Runic2D::Application* Runic2D::CreateApplication();
 

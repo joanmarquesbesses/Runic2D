@@ -8,7 +8,7 @@
 
 namespace Runic2D
 {
-	class RUNIC2D_API ImGuiLayer : public Layer
+	class ImGuiLayer : public Layer
 	{
 	public:
 		ImGuiLayer();

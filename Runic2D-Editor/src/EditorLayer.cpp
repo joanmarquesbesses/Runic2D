@@ -26,6 +26,7 @@ namespace Runic2D
 		m_RunicTexture = Texture2D::Create("assets/textures/icon.png");
 
 		FrameBufferSpecification fbSpec;
+		fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
 		m_FrameBuffer = FrameBuffer::Create(fbSpec);

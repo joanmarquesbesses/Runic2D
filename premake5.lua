@@ -92,23 +92,22 @@ project "Runic2D"
 
 		defines
 		{
-			"RUNIC2D_PLATFORM_WINDOWS",
-			"RUNIC2D_BUILD_DLL",
+			"R2D_BUILD_DLL",
 			"GLFW_INCLUDE_NONE" -- Prevent GLFW from including OpenGL headers
 		}
 
 	filter "configurations:Debug"
-		defines "RUNIC2D_DEBUG"
+		defines "R2D_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "RUNIC2D_RELEASE"
+		defines "R2D_RELEASE"
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
-		defines "RUNIC2D_DIST"
+		defines "R2D_DIST"
 		runtime "Release"
 		optimize "on"
 
@@ -152,23 +151,18 @@ project "SandBox"
 	filter "system:windows"
 		systemversion "latest"
 
-		defines
-		{
-			"RUNIC2D_PLATFORM_WINDOWS"
-		}
-
 	filter "configurations:Debug"
-		defines "RUNIC2D_DEBUG"
+		defines "R2D_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "RUNIC2D_RELEASE"
+		defines "R2D_RELEASE"
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
-		defines "RUNIC2D_DIST"
+		defines "R2D_DIST"
 		runtime "Release"
 		optimize "on"
 
@@ -213,23 +207,18 @@ project "Runic2D-Editor"
 	filter "system:windows"
 		systemversion "latest"
 
-		defines
-		{
-			"RUNIC2D_PLATFORM_WINDOWS"
-		}
-
 	filter "configurations:Debug"
-		defines "RUNIC2D_DEBUG"
+		defines "R2D_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "RUNIC2D_RELEASE"
+		defines "R2D_RELEASE"
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
-		defines "RUNIC2D_DIST"
+		defines "R2D_DIST"
 		runtime "Release"
 		optimize "on"
 

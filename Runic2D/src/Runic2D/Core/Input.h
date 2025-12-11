@@ -8,7 +8,7 @@
 
 namespace Runic2D
 {
-	class RUNIC2D_API Input
+	class Input
 	{
 	public:
 		static bool IsKeyPressed(KeyCode keycode); // Use KeyCode, not int directly

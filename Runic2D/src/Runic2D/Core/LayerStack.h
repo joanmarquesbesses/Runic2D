@@ -7,7 +7,7 @@
 
 namespace Runic2D {
 
-	class RUNIC2D_API LayerStack
+	class LayerStack
 	{
 	public:
 		LayerStack();

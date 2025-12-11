@@ -2,32 +2,24 @@
 
 #include <memory>
 
-#ifdef RUNIC2D_PLATFORM_WINDOWS
-#if RUNIC2D_DYNAMIC_LINK
-	#ifdef RUNIC2D_BUILD_DLL
-		#define RUNIC2D_API __declspec(dllexport)
+#include "Runic2D/Core/PlatformDetection.h"
+
+#ifdef R2D_DEBUG
+	#if defined(R2D_PLATFORM_WINDOWS)
+		#define R2D_DEBUGBREAK() __debugbreak()
+	#elif defined(R2D_PLATFORM_LINUX)
+		#include <signal.h>
+		#define R2D_DEBUGBREAK() raise(SIGTRAP)
 	#else
-		#define RUNIC2D_API __declspec(dllimport)
-	#endif // DEBUG
-#else
-	#define RUNIC2D_API
-#endif
-#else
-	#error Runic2D only supports Windows!
-#endif // RUNIC2D_PLATFORM_WINDOWS
-
-#ifdef RUNIC2D_DEBUG
+		#error "Platform doesn't support debugbreak yet!"
+	#endif
 	#define R2D_ENABLE_ASSERTS
-#endif // RUNIC2D_DEBUG
-
-
-#ifdef R2D_ENABLE_ASSERTS
-	#define R2D_ASSERT(x, ...) { if(!(x)) { R2D_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-	#define R2D_CORE_ASSERT(x, ...) { if(!(x)) { R2D_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #else
-	#define R2D_ASSERT(x, ...)
-	#define R2D_CORE_ASSERT(x, ...)
-#endif // RUNIC2D_ENABLE_ASSERTS
+	#define R2D_DEBUGBREAK()
+#endif
+
+#define R2D_EXPAND_MACRO(x) x
+#define R2D_STRINGIFY_MACRO(x) #x
 
 #define BIT(x) (1 << x)
 
@@ -52,3 +44,6 @@ namespace Runic2D{
 	}
 
 } // namespace Runic2D
+
+#include "Runic2D/Core/Log.h"
+#include "Runic2D/Core/Assert.h"

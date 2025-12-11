@@ -28,6 +28,9 @@
     <Filter Include="src\Runic2D\ImGui">
       <UniqueIdentifier>{5DCB82BC-C9E1-8052-1259-0C747EAE51DA}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Math">
+      <UniqueIdentifier>{AC401D99-9839-3CEB-C16B-2170ADC31BF7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Renderer">
       <UniqueIdentifier>{F9D00935-E55F-93FE-8E7E-A7F97AECA3A4}</UniqueIdentifier>
     </Filter>
@@ -120,6 +123,9 @@
     <ClInclude Include="src\Runic2D\Core\MouseButtonCodes.h">
       <Filter>src\Runic2D\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Core\PlatformDetection.h">
+      <Filter>src\Runic2D\Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Core\Timestep.h">
       <Filter>src\Runic2D\Core</Filter>
     </ClInclude>
@@ -147,10 +153,16 @@
     <ClInclude Include="src\Runic2D\ImGui\ImGuiLayer.h">
       <Filter>src\Runic2D\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Math\Math.h">
+      <Filter>src\Runic2D\Math</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\Buffer.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\Camera.h">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Renderer\EditorCamera.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\FrameBuffer.h">
@@ -1523,7 +1535,13 @@
     <ClCompile Include="src\Runic2D\ImGui\ImGuiLayer.cpp">
       <Filter>src\Runic2D\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Math\Math.cpp">
+      <Filter>src\Runic2D\Math</Filter>
+    </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\Buffer.cpp">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Renderer\EditorCamera.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\FrameBuffer.cpp">

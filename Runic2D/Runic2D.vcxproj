@@ -76,7 +76,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>R2Dpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;RUNIC2D_PLATFORM_WINDOWS;RUNIC2D_BUILD_DLL;GLFW_INCLUDE_NONE;RUNIC2D_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;R2D_BUILD_DLL;GLFW_INCLUDE_NONE;R2D_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -100,7 +100,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>R2Dpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;RUNIC2D_PLATFORM_WINDOWS;RUNIC2D_BUILD_DLL;GLFW_INCLUDE_NONE;RUNIC2D_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;R2D_BUILD_DLL;GLFW_INCLUDE_NONE;R2D_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -127,7 +127,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>R2Dpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;RUNIC2D_PLATFORM_WINDOWS;RUNIC2D_BUILD_DLL;GLFW_INCLUDE_NONE;RUNIC2D_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;R2D_BUILD_DLL;GLFW_INCLUDE_NONE;R2D_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -149,7 +149,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Runic2D\Renderer\EditorCamera.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFrameBuffer.h" />
@@ -161,6 +160,7 @@
     <ClInclude Include="src\R2Dpch.h" />
     <ClInclude Include="src\Runic2D.h" />
     <ClInclude Include="src\Runic2D\Core\Application.h" />
+    <ClInclude Include="src\Runic2D\Core\Assert.h" />
     <ClInclude Include="src\Runic2D\Core\Core.h" />
     <ClInclude Include="src\Runic2D\Core\EntryPoint.h" />
     <ClInclude Include="src\Runic2D\Core\Input.h" />
@@ -169,6 +169,7 @@
     <ClInclude Include="src\Runic2D\Core\LayerStack.h" />
     <ClInclude Include="src\Runic2D\Core\Log.h" />
     <ClInclude Include="src\Runic2D\Core\MouseButtonCodes.h" />
+    <ClInclude Include="src\Runic2D\Core\PlatformDetection.h" />
     <ClInclude Include="src\Runic2D\Core\Timestep.h" />
     <ClInclude Include="src\Runic2D\Core\UUID.h" />
     <ClInclude Include="src\Runic2D\Core\Window.h" />
@@ -181,6 +182,7 @@
     <ClInclude Include="src\Runic2D\Math\Math.h" />
     <ClInclude Include="src\Runic2D\Renderer\Buffer.h" />
     <ClInclude Include="src\Runic2D\Renderer\Camera.h" />
+    <ClInclude Include="src\Runic2D\Renderer\EditorCamera.h" />
     <ClInclude Include="src\Runic2D\Renderer\FrameBuffer.h" />
     <ClInclude Include="src\Runic2D\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Runic2D\Renderer\OrthographicCamera.h" />
@@ -621,7 +623,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Runic2D\Renderer\EditorCamera.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFrameBuffer.cpp" />
@@ -644,6 +645,7 @@
     <ClCompile Include="src\Runic2D\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Runic2D\Math\Math.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\Runic2D\Renderer\EditorCamera.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\FrameBuffer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\OrthographicCameraController.cpp" />

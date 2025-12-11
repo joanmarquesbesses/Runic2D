@@ -5,7 +5,7 @@
 
 namespace Runic2D {
 
-	class RUNIC2D_API Layer
+	class Layer
 	{
 	public:
 		Layer(const std::string& name = "Layer");

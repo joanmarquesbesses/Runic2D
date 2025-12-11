@@ -12,7 +12,7 @@
 
 namespace Runic2D
 {
-	class RUNIC2D_API Application
+	class Application
 	{
 	public:
 		Application(const std::string& name = "Runic2D App");

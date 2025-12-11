@@ -19,7 +19,7 @@ namespace Runic2D {
 	};
 
 	//Interface representing a desktop system based Window
-	class RUNIC2D_API Window {
+	class Window {
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
 

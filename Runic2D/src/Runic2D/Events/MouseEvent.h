@@ -4,7 +4,7 @@
 
 namespace Runic2D {
 
-	class RUNIC2D_API MouseMovedEvent : public Event
+	class MouseMovedEvent : public Event
 	{
 	public:
 		MouseMovedEvent(float x, float y)
@@ -26,7 +26,7 @@ namespace Runic2D {
 		float m_MouseX, m_MouseY;
 	};
 
-	class RUNIC2D_API MouseScrolledEvent : public Event
+	class MouseScrolledEvent : public Event
 	{
 	public:
 		MouseScrolledEvent(float xOffset, float yOffset)
@@ -48,7 +48,7 @@ namespace Runic2D {
 		float m_XOffset, m_YOffset;
 	};
 
-	class RUNIC2D_API MouseButtonEvnent : public Event
+	class MouseButtonEvnent : public Event
 	{
 	public:
 		inline int GetMouseButton() const { return m_Button; }
@@ -61,7 +61,7 @@ namespace Runic2D {
 		int m_Button;
 	};
 
-	class RUNIC2D_API MouseButtonPressedEvent : public MouseButtonEvnent
+	class MouseButtonPressedEvent : public MouseButtonEvnent
 	{
 	public:
 		MouseButtonPressedEvent(int button)
@@ -77,7 +77,7 @@ namespace Runic2D {
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
-	class RUNIC2D_API MouseButtonReleasedEvent : public MouseButtonEvnent
+	class MouseButtonReleasedEvent : public MouseButtonEvnent
 	{
 	public:
 		MouseButtonReleasedEvent(int button)
