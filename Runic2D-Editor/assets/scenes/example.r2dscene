@@ -13,9 +13,9 @@ Entities:
     TagComponent:
       Tag: Second Quad
     TransformComponent:
-      Translation: [0, 0, 0]
+      Translation: [1.3894405, 0, 0]
       Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
+      Scale: [4.1099997, 4.1099997, 4.1099997]
     SpriteRendererComponent:
       Color: [0.8, 0.3, 0.2, 1]
   - EntityID: 2160067322908012025

@@ -155,6 +155,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLUniformBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\R2Dpch.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="src\Runic2D\Renderer\Shader.h" />
     <ClInclude Include="src\Runic2D\Renderer\SubTexture2D.h" />
     <ClInclude Include="src\Runic2D\Renderer\Texture.h" />
+    <ClInclude Include="src\Runic2D\Renderer\UniformBuffer.h" />
     <ClInclude Include="src\Runic2D\Renderer\VertexArray.h" />
     <ClInclude Include="src\Runic2D\Scene\Component.h" />
     <ClInclude Include="src\Runic2D\Scene\Entity.h" />
@@ -629,6 +631,7 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLUniformBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsPlatformUtils.cpp" />
@@ -656,6 +659,7 @@
     <ClCompile Include="src\Runic2D\Renderer\Shader.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\SubTexture2D.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Texture.cpp" />
+    <ClCompile Include="src\Runic2D\Renderer\UniformBuffer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Runic2D\Scene\Entity.cpp" />
     <ClCompile Include="src\Runic2D\Scene\Scene.cpp" />

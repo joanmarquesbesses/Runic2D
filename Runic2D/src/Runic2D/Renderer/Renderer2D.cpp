@@ -3,10 +3,11 @@
 
 #include "Shader.h"
 #include "VertexArray.h"
-
+#include "UniformBuffer.h"
 #include "RenderCommand.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Runic2D
 {
@@ -45,6 +46,13 @@ namespace Runic2D
 		glm::vec4 QuadVertexPositions[4] = { glm::vec4(0.0f) };
 
 		Renderer2D::Statistics Stats;
+
+		struct CameraData
+		{
+			glm::mat4 ViewProjection;
+		};
+		CameraData CameraBuffer;
+		Ref<UniformBuffer> CameraUniformBuffer;
 	};
 
 	static Renderer2DData s_Data;
@@ -110,6 +118,8 @@ namespace Runic2D
 		s_Data.QuadVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
 		s_Data.QuadVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
 		s_Data.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
 	}
 
 	void Renderer2D::Shutdown()
@@ -121,10 +131,8 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
-		glm::mat4 viewProjection = camera.GetProjection() * glm::inverse(transform);
-
-		s_Data.TextureShader->Bind();
-		s_Data.TextureShader->SetMat4("u_ViewProjection", viewProjection);
+		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
 
 		StartBatch();
 	}
@@ -133,8 +141,8 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
-		s_Data.TextureShader->Bind();
-		s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjection());
+		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
 
 		StartBatch();
 	}
@@ -178,6 +186,8 @@ namespace Runic2D
 		for (uint32_t i = 0; i < s_Data.TextureSlotIndex; ++i) {
 			s_Data.TextureSlots[i]->Bind(i);
 		}
+
+		s_Data.TextureShader->Bind();
 
 		RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
 
@@ -305,7 +315,7 @@ namespace Runic2D
 		++s_Data.Stats.QuadCount;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor, int entityID)
 	{
 		R2D_PROFILE_FUNCTION();
 
@@ -345,6 +355,7 @@ namespace Runic2D
 			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
 			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
 			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+			s_Data.QuadVertexBufferPtr->EntityID = entityID;
 			++s_Data.QuadVertexBufferPtr;
 		}
 
