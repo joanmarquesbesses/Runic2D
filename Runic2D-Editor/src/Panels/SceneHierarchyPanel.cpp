@@ -405,4 +405,9 @@ namespace Runic2D
 		ImGui::PopStyleVar();
 	}
 
+	void SceneHierarchyPanel::SetSelectedEntity(Entity entity)
+	{
+		m_SelectionContext = entity;
+	}
+
 }

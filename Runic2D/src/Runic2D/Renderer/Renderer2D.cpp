@@ -18,6 +18,9 @@ namespace Runic2D
 		glm::vec2 TexCoord;
 		float TexIndex;
 		float TilingFactor;
+
+		// Editor-only
+		int EntityID;
 	};
 
 	struct Renderer2DData
@@ -59,7 +62,8 @@ namespace Runic2D
 			{ ShaderDataType::Float4, "a_Color" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float,  "a_TexIndex" },
-			{ ShaderDataType::Float,  "a_TilingFactor" }
+			{ ShaderDataType::Float,  "a_TilingFactor" },
+			{ ShaderDataType::Int,    "a_EntityID"     }
 		};
 		s_Data.QuadVertexBuffer->SetLayout(squareLayout);
 
@@ -217,7 +221,7 @@ namespace Runic2D
 
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
 	{
 		R2D_PROFILE_FUNCTION();
 
@@ -242,6 +246,7 @@ namespace Runic2D
 			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
 			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
 			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+			s_Data.QuadVertexBufferPtr->EntityID = entityID;
 			++s_Data.QuadVertexBufferPtr;
 		}
 
@@ -250,7 +255,7 @@ namespace Runic2D
 		++s_Data.Stats.QuadCount;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
 	{
 		R2D_PROFILE_FUNCTION();
 
@@ -291,6 +296,7 @@ namespace Runic2D
 			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
 			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
 			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+			s_Data.QuadVertexBufferPtr->EntityID = entityID;
 			++s_Data.QuadVertexBufferPtr;
 		}
 
@@ -410,6 +416,11 @@ namespace Runic2D
 
 		DrawQuad(transform, subtexture, tilingFactor, tintColor);
 
+	}
+
+	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+	{
+		DrawQuad(transform, src.Color, entityID);
 	}
 
 	void Renderer2D::ResetStats()

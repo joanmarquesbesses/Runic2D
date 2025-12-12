@@ -20,9 +20,9 @@ namespace Runic2D {
 		virtual const Ref<Runic2D::IndexBuffer>& GetIndexBuffer() const override { return m_IndexBuffer; }
 	private:
 		uint32_t m_RendererID;
+		uint32_t m_VertexBufferIndex = 0;
 		std::vector<Ref<Runic2D::VertexBuffer>> m_VertexBuffers;
 		Ref<Runic2D::IndexBuffer> m_IndexBuffer;
-		uint32_t m_IndexCount = 0;
 	};
 
 }

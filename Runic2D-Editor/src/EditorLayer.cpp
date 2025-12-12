@@ -26,7 +26,7 @@ namespace Runic2D
 		m_RunicTexture = Texture2D::Create("assets/textures/icon.png");
 
 		FrameBufferSpecification fbSpec;
-		fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };
+		fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
 		m_FrameBuffer = FrameBuffer::Create(fbSpec);
@@ -112,6 +112,8 @@ namespace Runic2D
 		m_FrameBuffer->Bind();
 		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		RenderCommand::Clear();
+
+		m_FrameBuffer->ClearAttachment(1, -1);
 		//update scene
 		m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
 
@@ -286,7 +288,6 @@ namespace Runic2D
 		if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_CollapsingHeader)) {
 			float avaragefps = Runic2D::Application::Get().GetAverageFPS();
 			auto stats = Runic2D::Renderer2D::GetStats();
-
 			ImGui::Text("Renderer2D Stats");
 			ImGui::Text("Avarage FPS: %.2f", avaragefps);
 			ImGui::Text("Draw Calls: %d", stats.DrawCalls);
@@ -300,6 +301,12 @@ namespace Runic2D
 		//Viewport
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport");
+		
+		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+		auto viewportOffset = ImGui::GetWindowPos();
+		m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+		m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
 		m_ViewportFocused = ImGui::IsWindowFocused();
 		m_ViewportHovered = ImGui::IsWindowHovered();
@@ -319,7 +326,7 @@ namespace Runic2D
 
 			float windowWidth = (float)ImGui::GetWindowWidth();
 			float windowHeight = (float)ImGui::GetWindowHeight();
-			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+			ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
 
 			// Camera
 			// Run time camera from entity with camera component
@@ -377,6 +384,7 @@ namespace Runic2D
 
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<KeyPressedEvent>(R2D_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(R2D_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
 	}
 
 	bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
@@ -403,16 +411,24 @@ namespace Runic2D
 			if (control && shift)
 				SaveSceneAs();
 		case KeyCode::Q:
-			m_GizmoType = -1;
+			if (!ImGuizmo::IsUsing()) {
+				m_GizmoType = -1;
+			}
 			break;
 		case KeyCode::W:
-			m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+			if (!ImGuizmo::IsUsing()) {
+				m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+			}
 			break;
 		case KeyCode::E:
-			m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+			if (!ImGuizmo::IsUsing()) {
+				m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+			}
 			break;
 		case KeyCode::R:
-			m_GizmoType = ImGuizmo::OPERATION::SCALE;
+			if (!ImGuizmo::IsUsing()) {
+				m_GizmoType = ImGuizmo::OPERATION::SCALE;
+			}
 			break;
 		default:
 			break;
@@ -421,6 +437,32 @@ namespace Runic2D
 
 	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 	{
+		if (e.GetMouseButton() == (int)MouseButton::Left)
+		{
+			// 1. Comprovacions inicials per no fer feina si no cal
+			if (ImGuizmo::IsOver() || Input::IsKeyPressed(KeyCode::LeftAlt))
+				return false;
+
+			auto [mx, my] = ImGui::GetMousePos();
+			mx -= m_ViewportBounds[0].x;
+			my -= m_ViewportBounds[0].y;
+			glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+
+			// Invertim Y
+			int mouseX = (int)mx;
+			int mouseY = (int)viewportSize.y - (int)my;
+
+			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+			{
+				m_FrameBuffer->Bind();
+				int pixelData = m_FrameBuffer->ReadPixel(1, mouseX, mouseY);
+				m_FrameBuffer->Unbind();
+
+				Entity clickedEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
+				m_SceneHierarchyPanel.SetSelectedEntity(clickedEntity);
+				m_HoveredEntity = clickedEntity;
+			}
+		}
 		return false;
 	}
 
