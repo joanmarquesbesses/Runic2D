@@ -2,6 +2,8 @@
 
 #include <Runic2D.h>
 #include "Panels/SceneHierarchyPanel.h"
+#include "Panels/ContentBrowserPanel.h"
+#include "Panels/SettingsPanel.h"
 
 #include "Runic2D/Renderer/EditorCamera.h"
 
@@ -56,6 +58,8 @@ namespace Runic2D {
 
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
+		ContentBrowserPanel m_ContentBrowserPanel;
+		SettingsPanel m_SettingsPanel;
 	};
 
 }

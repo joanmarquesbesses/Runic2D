@@ -130,8 +130,6 @@ namespace Runic2D
 		bool opt_fullscreen = opt_fullscreen_persistant;
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-		// because it would be confusing to have two docking targets within each others.
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 		if (opt_fullscreen)
 		{
@@ -148,9 +146,6 @@ namespace Runic2D
 		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
 			window_flags |= ImGuiWindowFlags_NoBackground;
 
-		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-		// all active windows docked into it will lose their parent and become undocked.
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
 		ImGui::PopStyleVar();
@@ -174,9 +169,6 @@ namespace Runic2D
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				// Disabling fullscreen would allow the window to be moved to the front of other windows, 
-				// which we can't undo at the moment without finer window depth/z control.
-				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
 				if(ImGui::MenuItem("New", "Ctrl+N"))
 					NewScene();
 
@@ -199,104 +191,12 @@ namespace Runic2D
 			ImGui::EndMenuBar();
 		}
 
+		ImGuizmo::BeginFrame();
+
 		//Scene Hierarchy Panel
 		m_SceneHierarchyPanel.OnImGuiRender();
-
-		ImGui::Begin("Settings");
-		
-		// Gizmo Type
-		if (ImGui::CollapsingHeader("Gizmo", ImGuiTreeNodeFlags_CollapsingHeader)){
-
-			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-			ImGui::Text("Gizmo Type");
-			ImGui::PopFont();
-			ImGui::Separator();
-
-			if (ImGui::RadioButton("Translate", m_GizmoType == ImGuizmo::TRANSLATE))
-				m_GizmoType = ImGuizmo::TRANSLATE;
-
-			ImGui::SameLine();
-
-			if (ImGui::RadioButton("Rotate", m_GizmoType == ImGuizmo::ROTATE))
-				m_GizmoType = ImGuizmo::ROTATE;
-
-			ImGui::SameLine();
-
-			if (ImGui::RadioButton("Scale", m_GizmoType == ImGuizmo::SCALE))
-				m_GizmoType = ImGuizmo::SCALE;
-
-			ImGui::Separator();
-
-			// Gizmo Mode
-			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-			ImGui::Text("Gizmo Mode");
-			ImGui::PopFont();
-			ImGui::Separator();
-
-			if (ImGui::RadioButton("Local", m_GizmoMode == ImGuizmo::LOCAL))
-				m_GizmoMode = ImGuizmo::LOCAL;
-
-			ImGui::SameLine();
-
-			if (ImGui::RadioButton("World", m_GizmoMode == ImGuizmo::WORLD))
-				m_GizmoMode = ImGuizmo::WORLD;
-		}
-		
-		// Editor Camera Settings
-		if (ImGui::CollapsingHeader("Editor Camera", ImGuiTreeNodeFlags_CollapsingHeader))
-		{
-			bool isLocked = m_EditorCamera.IsRotationLocked();
-			if (ImGui::Checkbox("Lock Rotation (2D Mode)", &isLocked))
-			{
-				m_EditorCamera.SetRotationLocked(isLocked);
-			}
-
-			// Ajuda visual (Tooltip)
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Blocks camera rotation to work in 2D");
-
-			ImGui::Separator();
-
-			float fov = m_EditorCamera.GetFOV();
-			if (ImGui::DragFloat("FOV", &fov, 1.0f, 1.0f, 180.0f))
-			{
-				m_EditorCamera.SetFOV(fov);
-			}
-
-			// 3. CLIPPING PLANES (Near / Far)
-			float nearClip = m_EditorCamera.GetNearClip();
-			float farClip = m_EditorCamera.GetFarClip();
-
-			bool changed = false;
-			if (ImGui::DragFloat("Near Clip", &nearClip, 0.1f, 0.001f, 10000.0f)) {
-				m_EditorCamera.SetNearClip(nearClip);
-			}
-
-			if (ImGui::DragFloat("Far Clip", &farClip, 10.0f, nearClip, 100000.0f)) {
-				m_EditorCamera.SetFarClip(farClip);
-			}
-
-			ImGui::Separator();
-
-			float distance = m_EditorCamera.GetDistance();
-			if (ImGui::DragFloat("Distance", &distance, 0.2f))
-			{
-				m_EditorCamera.SetDistance(distance); 
-			}
-		}
-
-		if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_CollapsingHeader)) {
-			float avaragefps = Runic2D::Application::Get().GetAverageFPS();
-			auto stats = Runic2D::Renderer2D::GetStats();
-			ImGui::Text("Renderer2D Stats");
-			ImGui::Text("Avarage FPS: %.2f", avaragefps);
-			ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-			ImGui::Text("Quad Count: %d", stats.QuadCount);
-			ImGui::Text("Vertex Count: %d", stats.GetTotalVertexCount());
-			ImGui::Text("Index Count: %d", stats.GetTotalIndexCount());
-		}
-
-		ImGui::End();
+		m_ContentBrowserPanel.OnImGuiRender();
+		m_SettingsPanel.OnImGuiRender(m_EditorCamera, m_ContentBrowserPanel, m_GizmoType, m_GizmoMode);
 
 		//Viewport
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
