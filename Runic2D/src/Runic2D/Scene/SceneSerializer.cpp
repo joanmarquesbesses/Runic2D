@@ -136,6 +136,13 @@ namespace Runic2D {
 
 			out << YAML::Key << "Color" << YAML::Value << spriteRenderer.Color;
 
+			if (spriteRenderer.Texture)
+			{
+				out << YAML::Key << "TexturePath" << YAML::Value << spriteRenderer.Texture->GetPath();
+			}
+
+			out << YAML::Key << "TilingFactor" << YAML::Value << spriteRenderer.TilingFactor;
+
 			out << YAML::EndMap;
 		}
 
@@ -236,6 +243,15 @@ namespace Runic2D {
 				{
 					auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
 					YAML_LOAD(spriteRendererComponent, "Color", src.Color);
+
+					if (spriteRendererComponent["TexturePath"])
+					{
+						std::string texturePath = spriteRendererComponent["TexturePath"].as<std::string>();
+						src.Texture = Texture2D::Create(texturePath);
+					}
+
+					if (spriteRendererComponent["TilingFactor"])
+						src.TilingFactor = spriteRendererComponent["TilingFactor"].as<float>();
 				}
 			}
 		}

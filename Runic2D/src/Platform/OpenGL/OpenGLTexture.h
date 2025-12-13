@@ -23,6 +23,8 @@ namespace Runic2D
 
 		virtual void SetData(void* data, uint32_t size) override;
 
+		virtual const std::string& GetPath() const override { return m_Path; }
+
 		virtual bool operator==(const Texture& other) const override
 		{
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;

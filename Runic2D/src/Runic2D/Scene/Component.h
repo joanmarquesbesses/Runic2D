@@ -9,6 +9,7 @@
 #include "Runic2D/Core/UUID.h"
 #include "SceneCamera.h"
 #include "ScriptableEntity.h"
+#include "Runic2D/Renderer/Texture.h"
 
 namespace Runic2D {
 
@@ -68,6 +69,8 @@ namespace Runic2D {
 
 	struct SpriteRendererComponent {
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
+		Ref<Texture2D> Texture;
+		float TilingFactor = 1.0f;
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;

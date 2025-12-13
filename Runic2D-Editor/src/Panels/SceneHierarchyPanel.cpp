@@ -8,6 +8,8 @@
 
 #include "Runic2D/Scene/Component.h"
 
+#include "Runic2D/Renderer/Renderer2D.h"
+
 #include <cstring>
 
 /* The Microsoft C++ compiler is non-compliant with the C++ standard and needs
@@ -19,6 +21,8 @@
 
 namespace Runic2D
 {
+	static const std::filesystem::path g_AssetPath = "assets";
+
 	template<typename T, typename UIFunction>
 	static void DrawComponent(const std::string& name, Entity entity, UIFunction uiFunction, bool canBeDeleted = true)
 	{
@@ -306,6 +310,32 @@ namespace Runic2D
 			{
 				auto& color = component.Color;
 				ImGui::ColorEdit4("Color", glm::value_ptr(color));
+
+				ImGui::Separator();
+
+				ImGui::Text("Texture");
+				Ref<Texture2D> textureToShow = component.Texture ? component.Texture : Renderer2D::GetWhiteTexture();
+				ImGui::ImageButton("TexturePreview", (ImTextureID)textureToShow->GetRendererID(), ImVec2(64, 64), ImVec2(0, 1), ImVec2(1, 0));
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path texturePath = std::filesystem::path(g_AssetPath) / path;
+						component.Texture = Texture2D::Create(texturePath.string());
+					}
+					ImGui::EndDragDropTarget();
+				}
+
+				if (component.Texture)
+				{
+					ImGui::SameLine();
+					if (ImGui::Button("X"))
+						component.Texture = nullptr;
+				}
+
+				ImGui::DragFloat("Tiling Factor", &component.TilingFactor, 0.1f, 0.0f, 100.0f);
 			});
 
 		// BOTÓ D'AFEGIR COMPONENT

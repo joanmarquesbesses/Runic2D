@@ -14,6 +14,9 @@
 
 namespace Runic2D
 {
+	// Once we have projects, change this
+	static const std::filesystem::path g_AssetPath = "assets";
+
 	EditorLayer::EditorLayer() : Layer("EditorLayer") {
 
 	}
@@ -83,6 +86,18 @@ namespace Runic2D
 #endif
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+		m_ContentBrowserPanel.SetOnFileOpenCallback([this](const std::filesystem::path& path)
+			{
+				if (path.extension().string() == ".r2dscene")
+				{
+					OpenScene(path);
+				}
+				else
+				{
+					R2D_CORE_WARN("File type not supported for opening: {0}", path.string());
+				}
+			});
 	}
 
 	void EditorLayer::OnDetach()
@@ -218,6 +233,15 @@ namespace Runic2D
 		uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
 		ImGui::Image((void*)(uintptr_t)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+			{
+				const wchar_t* path = (const wchar_t*)payload->Data;
+				OpenScene(std::filesystem::path(g_AssetPath) / path);
+			}
+			ImGui::EndDragDropTarget();
+		}
 		// Gizmos
 		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 		if (selectedEntity && m_GizmoType != -1)
@@ -378,12 +402,28 @@ namespace Runic2D
 		std::string filePath = FileDialogs::OpenFile("Runic2D Scene (*.r2dscene)\0*.r2dscene\0");
 		if (!filePath.empty())
 		{
-			m_ActiveScene = CreateRef<Scene>();
-			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+			OpenScene(filePath);
+		}
+	}
 
-			SceneSerializer serializer(m_ActiveScene);
-			serializer.Deserialize(filePath);
+	void EditorLayer::OpenScene(const std::filesystem::path& path)
+	{
+		if (path.extension().string() != ".r2dscene")
+		{
+			R2D_CORE_WARN("Could not load {0} - not a scene file", path.filename().string());
+			return;
+		}
+
+		Ref<Scene> newScene = CreateRef<Scene>();
+		newScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		m_SceneHierarchyPanel.SetContext(newScene);
+
+		SceneSerializer serializer(newScene);
+		if (serializer.Deserialize(path.string()))
+		{
+			m_ActiveScene = newScene;
+			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+			// Opcional: Guardar el path de l'escena actual per "Save" ràpid
 		}
 	}
 

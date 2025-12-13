@@ -58,6 +58,8 @@ namespace Runic2D {
 		static void ResetStats();
 		static Statistics GetStats();
 
+		static Ref<Texture2D> GetWhiteTexture();
+
 	private:
 		static void StartBatch();
 		static void NextBatch();
