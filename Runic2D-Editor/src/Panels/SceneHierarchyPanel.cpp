@@ -170,41 +170,126 @@ namespace Runic2D
 
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+
+		bool hasChildren = false;
+		if (entity.HasComponent<RelationshipComponent>())
+			hasChildren = entity.GetComponent<RelationshipComponent>().ChildrenCount > 0;
+
+		if (!hasChildren)
+			flags |= ImGuiTreeNodeFlags_Leaf;
+
 		if (m_SelectionContext == entity)
 			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
+		// 1. Dibuixem el Node
 		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
 
 		if (m_SelectionContext == entity)
-			ImGui::PopFont(); 
+			ImGui::PopFont();
 
 		if (ImGui::IsItemClicked())
 		{
 			m_SelectionContext = entity;
 		}
 
+		// --- CORRECCIÓ 1: DRAG & DROP IMMEDIATAMENT DESPRÉS DEL TREENODE ---
+
+		// Drag Source (Origen)
+		if (ImGui::BeginDragDropSource())
+		{
+			entt::entity entityID = (entt::entity)entity;
+			ImGui::SetDragDropPayload("SCENE_HIERARCHY_ENTITY", &entityID, sizeof(entt::entity));
+			ImGui::Text("%s", tag.c_str());
+			ImGui::EndDragDropSource();
+		}
+
+		// Drag Target (Destí)
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HIERARCHY_ENTITY"))
+			{
+				entt::entity payloadEntityID = *(const entt::entity*)payload->Data;
+				Entity payloadEntity{ payloadEntityID, m_Context.get() };
+
+				bool isDescendant = false;
+
+				if (entity.HasComponent<RelationshipComponent>())
+				{
+					entt::entity parentCheck = entity.GetComponent<RelationshipComponent>().Parent;
+					while (parentCheck != entt::null)
+					{
+						if (parentCheck == payloadEntityID)
+						{
+							isDescendant = true;
+							break;
+						}
+						// Pugem un nivell més
+						Entity parentEnt{ parentCheck, m_Context.get() };
+						if (parentEnt.HasComponent<RelationshipComponent>())
+							parentCheck = parentEnt.GetComponent<RelationshipComponent>().Parent;
+						else
+							parentCheck = entt::null;
+					}
+				}
+
+				if (payloadEntity != entity && !isDescendant)
+				{
+					m_Context->ParentEntity(payloadEntity, entity);
+				}
+				else if (isDescendant)
+				{
+					R2D_CORE_WARN("Cannot parent an entity to its own descendant!");
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+
 		bool entityDeleted = false;
 		if (ImGui::BeginPopupContextItem())
 		{
+			bool hasParent = false;
+			if (entity.HasComponent<RelationshipComponent>())
+				if (entity.GetComponent<RelationshipComponent>().Parent != entt::null)
+					hasParent = true;
+
+			if (hasParent)
+			{
+				if (ImGui::MenuItem("Unparent"))
+				{
+					m_DeferredUnparentEntity = entity;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::Separator();
+			}
+
 			if (ImGui::MenuItem("Delete Entity"))
 			{
-				entityDeleted = true;
+				m_DeferredDeleteEntity = entity;
+				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();
 		}
 
 		if (opened)
 		{
+			if (hasChildren)
+			{
+				auto& rc = entity.GetComponent<RelationshipComponent>();
+				entt::entity currentChild = rc.FirstChild;
+
+				while (currentChild != entt::null)
+				{
+					Entity childEntity{ currentChild, m_Context.get() };
+					DrawEntityNode(childEntity);
+
+					if (childEntity.HasComponent<RelationshipComponent>())
+						currentChild = childEntity.GetComponent<RelationshipComponent>().NextSibling;
+					else
+						currentChild = entt::null;
+				}
+			}
 			ImGui::TreePop();
 		}
-
-		if(entityDeleted)
-		{
-			if (m_SelectionContext == entity)
-				m_SelectionContext = {};
-			m_Context->DestroyEntity(entity);
-		}
-
 	}
 
 	void SceneHierarchyPanel::DrawComponents(Entity entity)
@@ -402,11 +487,25 @@ namespace Runic2D
 
 		if (m_Context)
 		{
-			m_Context->m_Registry.view<TagComponent>().each([&](auto entityID, auto& tagComponent)
+			auto view = m_Context->m_Registry.view<TagComponent>();
+
+			for (auto entityID : view)
+			{
+				Entity entity{ entityID, m_Context.get() };
+
+				bool isRootEntity = true;
+
+				if (entity.HasComponent<RelationshipComponent>())
 				{
-					Entity entity{ entityID, m_Context.get() };
+					if (entity.GetComponent<RelationshipComponent>().Parent != entt::null)
+						isRootEntity = false;
+				}
+
+				if (isRootEntity)
+				{
 					DrawEntityNode(entity);
-				});
+				}
+			}
 		}
 
 		// Deseleccionar si cliquem al buit
@@ -426,6 +525,27 @@ namespace Runic2D
 		ImGui::End();
 
 		ImGui::PopStyleVar();
+
+		if (m_DeferredUnparentEntity)
+		{
+			m_Context->UnparentEntity(m_DeferredUnparentEntity);
+			m_DeferredUnparentEntity = {};
+		}
+
+		if (m_DeferredDeleteEntity)
+		{
+			if (m_SelectionContext == m_DeferredDeleteEntity)
+				m_SelectionContext = {};
+
+			m_Context->DestroyEntity(m_DeferredDeleteEntity);
+			m_DeferredDeleteEntity = {};
+		}
+
+		if (m_SelectionContext)
+		{
+			if (!m_Context->m_Registry.valid((entt::entity)m_SelectionContext))
+				m_SelectionContext = {};
+		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.0f, 200.0f));
 		ImGui::Begin("Properties");

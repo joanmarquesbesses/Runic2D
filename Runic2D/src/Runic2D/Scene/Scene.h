@@ -19,12 +19,18 @@ namespace Runic2D {
 		void DestroyEntity(Entity entity);
 
 		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
+		Entity GetEntityByUUID(UUID uuid);
 
 		void OnUpdateRunTime(Timestep ts);
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		Entity GetPrimaryCameraEntity();
+
+		void ParentEntity(Entity entity, Entity parent);
+		void UnparentEntity(Entity entity, bool convertToWorldSpace = true);
+
+		glm::mat4 GetWorldTransform(Entity entity);
 	private:
 		void OnCameraComponentConstruct(entt::registry& registry, entt::entity entity);
 	private:

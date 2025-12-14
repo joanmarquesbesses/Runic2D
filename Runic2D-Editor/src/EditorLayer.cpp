@@ -267,7 +267,7 @@ namespace Runic2D
 
 			// Entity transform
 			auto& tc = selectedEntity.GetComponent<TransformComponent>();
-			glm::mat4 transform = tc.GetTransform();
+			glm::mat4 transform = m_ActiveScene->GetWorldTransform(selectedEntity);
 
 			// Snapping
 			bool snap = Input::IsKeyPressed(KeyCode::LeftControl);
@@ -284,12 +284,43 @@ namespace Runic2D
 
 			if (ImGuizmo::IsUsing())
 			{
+				glm::mat4 localTransform = transform;
+
+				if (selectedEntity.HasComponent<RelationshipComponent>())
+				{
+					auto& rc = selectedEntity.GetComponent<RelationshipComponent>();
+					if (rc.Parent != entt::null)
+					{
+						Entity parent = { rc.Parent, m_ActiveScene.get() };
+						glm::mat4 parentWorldTransform = m_ActiveScene->GetWorldTransform(parent);
+
+						if (glm::epsilonNotEqual(glm::determinant(parentWorldTransform), 0.0f, glm::epsilon<float>()))
+						{
+							localTransform = glm::inverse(parentWorldTransform) * transform;
+						}
+						else
+						{
+							return;
+						}
+					}
+				}
+
 				glm::vec3 translation, rotation, scale;
-				Math::DecomposeTransform(transform, translation, rotation, scale);
+				Math::DecomposeTransform(localTransform, translation, rotation, scale);
 
 				glm::vec3 deltaRotation = rotation - tc.Rotation;
 				tc.Translation = translation;
 				tc.Rotation += deltaRotation;
+
+				auto checkScale = [](float& s) {
+					if (std::isnan(s)) s = 1.0f; 
+					else if (std::abs(s) < 0.001f) s = 0.001f;
+					};
+
+				if (std::abs(scale.x) < 0.001f) scale.x = 0.001f;
+				if (std::abs(scale.y) < 0.001f) scale.y = 0.001f;
+				if (std::abs(scale.z) < 0.001f) scale.z = 0.001f;
+
 				tc.Scale = scale;
 
 				tc.IsDirty = true;

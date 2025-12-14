@@ -51,6 +51,21 @@ namespace Runic2D {
 			: Transform(transform), IsDirty(true) {
 		}
 
+		void SetTranslation(const glm::vec3& translation) {
+			Translation = translation;
+			IsDirty = true;
+		}
+
+		void SetRotation(const glm::vec3& rotation) {
+			Rotation = rotation;
+			IsDirty = true;
+		}
+
+		void SetScale(const glm::vec3& scale) {
+			Scale = scale;
+			IsDirty = true;
+		}
+
 		operator glm::mat4& () { return Transform; }
 		operator const glm::mat4& () const { return Transform; }
 
@@ -103,4 +118,16 @@ namespace Runic2D {
 
 	};
 
+	struct RelationshipComponent
+	{
+		entt::entity Parent = entt::null;
+		entt::entity FirstChild = entt::null;
+		entt::entity NextSibling = entt::null;
+		entt::entity PrevSibling = entt::null;
+
+		std::size_t ChildrenCount = 0;
+
+		RelationshipComponent() = default;
+		RelationshipComponent(const RelationshipComponent&) = default;
+	};
 }

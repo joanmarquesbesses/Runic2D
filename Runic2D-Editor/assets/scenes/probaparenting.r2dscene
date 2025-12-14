@@ -1,0 +1,38 @@
+Scene: Scene Name
+Entities:
+  - EntityID: 4750213128430998713
+    TagComponent:
+      Tag: 3
+    TransformComponent:
+      Translation: [1.1955478, -1.0591123, -1.3986249]
+      Rotation: [1.4339509, -0.97135204, -1.57081]
+      Scale: [1.0001198, 1.000098, 1.0000823]
+    RelationshipComponent:
+      Parent: 2886006786707139582
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      TilingFactor: 1
+  - EntityID: 2886006786707139582
+    TagComponent:
+      Tag: 2
+    TransformComponent:
+      Translation: [-0.13986808, 0.19421063, -0.70644224]
+      Rotation: [0.38437217, -0.3786289, -2.4011712]
+      Scale: [0.99999934, 0.9999986, 0.99999976]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      TilingFactor: 1
+  - EntityID: 8960958597215815227
+    TagComponent:
+      Tag: 1
+    TransformComponent:
+      Translation: [0.10505092, -0.040498614, -2.6297784]
+      Rotation: [-2.0248463, 7.15246e-07, 1.3112843e-06]
+      Scale: [1.0000136, 1.0000117, 1.0000013]
+    RelationshipComponent:
+      Parent: 4750213128430998713
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      TilingFactor: 1

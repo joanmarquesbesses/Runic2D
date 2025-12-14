@@ -21,5 +21,7 @@ namespace Runic2D
 	private:
 		Ref<Scene> m_Context;
 		Entity m_SelectionContext;
+		Entity m_DeferredUnparentEntity = {};
+		Entity m_DeferredDeleteEntity = {};
 	};
 }

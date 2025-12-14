@@ -7,6 +7,8 @@
 #include "Entity.h"
 #include "Component.h"
 
+#include <unordered_map>
+
 #define YAML_LOAD(node, key, target) if (node[key]) target = node[key].as<decltype(target)>();
 
 namespace YAML {
@@ -75,7 +77,7 @@ namespace Runic2D {
 	{
 	}
 
-	static void SerializeEntity(YAML::Emitter& out, Entity entity)
+	static void SerializeEntity(YAML::Emitter& out, Entity entity, Scene* scene)
 	{
 		out << YAML::BeginMap;
 		out << YAML::Key << "EntityID" << YAML::Value << entity.GetUUID();
@@ -99,6 +101,23 @@ namespace Runic2D {
 			out << YAML::Key << "Translation" << YAML::Value << transform.Translation;
 			out << YAML::Key << "Rotation" << YAML::Value << transform.Rotation;
 			out << YAML::Key << "Scale" << YAML::Value << transform.Scale;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<RelationshipComponent>())
+		{
+			out << YAML::Key << "RelationshipComponent";
+			out << YAML::BeginMap;
+
+			auto& rc = entity.GetComponent<RelationshipComponent>();
+
+			UUID parentUUID = 0;
+			if (rc.Parent != entt::null)
+			{
+				Entity parent = { rc.Parent, scene };
+				parentUUID = parent.GetUUID();
+			}
+			out << YAML::Key << "Parent" << YAML::Value << parentUUID;
 			out << YAML::EndMap;
 		}
 
@@ -163,7 +182,7 @@ namespace Runic2D {
 			Entity entity = { *it, m_Scene.get() };
 			if (!entity) continue;
 
-			SerializeEntity(out, entity);
+			SerializeEntity(out, entity, m_Scene.get());
 		}
 
 		out << YAML::EndSeq;
@@ -189,8 +208,12 @@ namespace Runic2D {
 		R2D_CORE_TRACE("Deserializing scene '{0}'", sceneName);
 
 		auto entities = data["Entities"];
+
+		std::unordered_map<UUID, UUID> parentMap;
+
 		if(entities)
 		{
+
 			for (auto entityNode : entities)
 			{
 				uint64_t uuid = entityNode["EntityID"].as<uint64_t>();
@@ -211,6 +234,18 @@ namespace Runic2D {
 					YAML_LOAD(transformComponent, "Rotation", tc.Rotation);
 					YAML_LOAD(transformComponent, "Scale", tc.Scale);
 				}
+
+				auto relationshipComponent = entityNode["RelationshipComponent"];
+				if (relationshipComponent)
+				{
+					UUID parentUUID = relationshipComponent["Parent"].as<uint64_t>();
+
+					if (parentUUID != 0)
+					{
+						parentMap[deserializedEntity.GetUUID()] = parentUUID;
+					}
+				}
+
 				auto cameraComponent = entityNode["CameraComponent"];
 				if (cameraComponent)
 				{
@@ -253,6 +288,27 @@ namespace Runic2D {
 					if (spriteRendererComponent["TilingFactor"])
 						src.TilingFactor = spriteRendererComponent["TilingFactor"].as<float>();
 				}
+			}
+		}
+
+		for (auto const& [childUUID, parentUUID] : parentMap)
+		{
+			Entity child = m_Scene->GetEntityByUUID(childUUID);
+			Entity parent = m_Scene->GetEntityByUUID(parentUUID);
+
+			if (child && parent)
+			{
+				auto& tc = child.GetComponent<TransformComponent>();
+				glm::vec3 oldTranslation = tc.Translation;
+				glm::vec3 oldRotation = tc.Rotation;
+				glm::vec3 oldScale = tc.Scale;
+
+				m_Scene->ParentEntity(child, parent);
+
+				tc.Translation = oldTranslation;
+				tc.Rotation = oldRotation;
+				tc.Scale = oldScale;
+				tc.IsDirty = true;
 			}
 		}
 

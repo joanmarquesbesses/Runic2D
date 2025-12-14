@@ -3,6 +3,7 @@
 
 #include "Component.h"
 #include "Runic2D/Renderer/Renderer2D.h"
+#include "Runic2D/Math/Math.h"
 
 #include "Entity.h"
 
@@ -25,6 +26,28 @@ namespace Runic2D {
 
 	void Scene::DestroyEntity(Entity entity)
 	{
+		if (entity.HasComponent<RelationshipComponent>())
+		{
+			auto& rc = entity.GetComponent<RelationshipComponent>();
+			entt::entity currentChild = rc.FirstChild;
+			while (currentChild != entt::null)
+			{
+				entt::entity nextChild = entt::null;
+
+				// Guardem el següent perquè quan destruïm l'actual perdrem l'enllaç
+				Entity childEntity{ currentChild, this };
+				if (childEntity.HasComponent<RelationshipComponent>())
+					nextChild = childEntity.GetComponent<RelationshipComponent>().NextSibling;
+
+				// Destruïm el fill
+				DestroyEntity(childEntity);
+
+				currentChild = nextChild;
+			}
+		}
+
+		UnparentEntity(entity);
+
 		m_Registry.destroy(entity);
 	}
 
@@ -37,7 +60,21 @@ namespace Runic2D {
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 
+		entity.AddComponent<RelationshipComponent>();
+
 		return entity;
+	}
+
+	Entity Scene::GetEntityByUUID(UUID uuid)
+	{
+		auto view = m_Registry.view<IDComponent>();
+		for (auto entity : view)
+		{
+			const auto& idComponent = view.get<IDComponent>(entity);
+			if (idComponent.ID == uuid)
+				return { entity, this };
+		}
+		return {};
 	}
 
 	void Scene::OnUpdateRunTime(Timestep ts)
@@ -73,7 +110,11 @@ namespace Runic2D {
 			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 			for (auto entity : group) {
 				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+				
+				Entity e{ entity, this };
+				glm::mat4 worldTransform = GetWorldTransform(e);
+
+				Renderer2D::DrawSprite(worldTransform, sprite, (int)entity);
 			}
 
 			Renderer2D::EndScene();
@@ -87,7 +128,11 @@ namespace Runic2D {
 		auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 		for (auto entity : group) {
 			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-			Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+			
+			Entity e{ entity, this };
+			glm::mat4 worldTransform = GetWorldTransform(e);
+
+			Renderer2D::DrawSprite(worldTransform, sprite, (int)entity);
 		}
 
 		Renderer2D::EndScene();
@@ -129,4 +174,110 @@ namespace Runic2D {
 			component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
 	}
 
+	void Scene::ParentEntity(Entity entity, Entity parent)
+	{
+		if (entity == parent) return;
+
+		glm::mat4 oldWorldTransform = GetWorldTransform(entity);
+
+		UnparentEntity(entity);
+
+		auto& childRC = entity.GetComponent<RelationshipComponent>();
+		childRC.Parent = (entt::entity)parent;
+
+		auto& parentRC = parent.GetComponent<RelationshipComponent>();
+
+		if (parentRC.FirstChild == entt::null)
+		{
+			parentRC.FirstChild = (entt::entity)entity;
+		}
+		else
+		{
+			entt::entity prevNode = parentRC.FirstChild;
+			while (true)
+			{
+				Entity prevEntity{ prevNode, this };
+				auto& prevRC = prevEntity.GetComponent<RelationshipComponent>();
+
+				if (prevRC.NextSibling == entt::null)
+				{
+					prevRC.NextSibling = (entt::entity)entity;
+					childRC.PrevSibling = prevNode;
+					break;
+				}
+				prevNode = prevRC.NextSibling;
+			}
+		}
+
+		parentRC.ChildrenCount++;
+
+		glm::mat4 parentWorldTransform = GetWorldTransform(parent);
+		glm::mat4 newLocalTransform = glm::inverse(parentWorldTransform) * oldWorldTransform;
+
+		auto& tc = entity.GetComponent<TransformComponent>();
+		Math::DecomposeTransform(newLocalTransform, tc.Translation, tc.Rotation, tc.Scale);
+		tc.IsDirty = true;
+	}
+
+	void Scene::UnparentEntity(Entity entity, bool convertToWorldSpace)
+	{
+		auto& childRC = entity.GetComponent<RelationshipComponent>();
+		if (childRC.Parent == entt::null)
+			return;
+
+		glm::mat4 worldTransform = glm::mat4(1.0f);
+		if (convertToWorldSpace) {
+			worldTransform = GetWorldTransform(entity);
+		}
+
+		Entity parent{ childRC.Parent, this };
+		auto& parentRC = parent.GetComponent<RelationshipComponent>();
+
+		if (childRC.PrevSibling != entt::null)
+		{
+			Entity prevEntity{ childRC.PrevSibling, this };
+			prevEntity.GetComponent<RelationshipComponent>().NextSibling = childRC.NextSibling;
+		}
+
+		if (childRC.NextSibling != entt::null)
+		{
+			Entity nextEntity{ childRC.NextSibling, this };
+			nextEntity.GetComponent<RelationshipComponent>().PrevSibling = childRC.PrevSibling;
+		}
+
+		if (parentRC.FirstChild == (entt::entity)entity)
+		{
+			parentRC.FirstChild = childRC.NextSibling;
+		}
+
+		parentRC.ChildrenCount--;
+
+		childRC.Parent = entt::null;
+		childRC.NextSibling = entt::null;
+		childRC.PrevSibling = entt::null;
+
+		if (convertToWorldSpace) {
+			auto& tc = entity.GetComponent<TransformComponent>();
+			Math::DecomposeTransform(worldTransform, tc.Translation, tc.Rotation, tc.Scale);
+			tc.IsDirty = true;
+		}
+	}
+
+	glm::mat4 Scene::GetWorldTransform(Entity entity)
+	{
+		glm::mat4 transform = entity.GetComponent<TransformComponent>().GetTransform();
+
+		// Si té pare, multipliquem la nostra transformació per la del pare
+		if (entity.HasComponent<RelationshipComponent>())
+		{
+			entt::entity parentID = entity.GetComponent<RelationshipComponent>().Parent;
+			if (parentID != entt::null)
+			{
+				Entity parent{ parentID, this };
+				transform = GetWorldTransform(parent) * transform;
+			}
+		}
+
+		return transform;
+	}
 }

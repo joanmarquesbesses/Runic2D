@@ -4,20 +4,26 @@ Entities:
     TagComponent:
       Tag: Quad
     TransformComponent:
-      Translation: [0, 0, 0]
+      Translation: [0.31606048, 1.4437606, 0.5424757]
       Rotation: [0, 0, 0]
-      Scale: [7, 7, 2.2]
+      Scale: [0.9999999, 0.9999999, 1]
     SpriteRendererComponent:
       Color: [0.2, 0.3, 0.8, 1]
+      TilingFactor: 1
+    RelationshipComponent:
+      Parent: 14688408740718534570
   - EntityID: 14688408740718534570
     TagComponent:
       Tag: Second Quad
     TransformComponent:
-      Translation: [1.3894405, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [4.1099997, 4.1099997, 4.1099997]
+      Translation: [2.3, 1.7302856, 0]
+      Rotation: [0, 0, -0.78491837]
+      Scale: [0.99999994, 0.99999994, 1]
     SpriteRendererComponent:
       Color: [0.8, 0.3, 0.2, 1]
+      TilingFactor: 1
+    RelationshipComponent:
+      Parent: 0
   - EntityID: 2160067322908012025
     TagComponent:
       Tag: Camera Entity
@@ -34,23 +40,27 @@ Entities:
         OrthographicSize: 10
         OrthographicNear: -1
         OrthographicFar: 1
-      Primary: true
+      Primary: false
       FixedAspectRatio: false
+    RelationshipComponent:
+      Parent: 0
   - EntityID: 17911306565233955376
     TagComponent:
       Tag: Second Camera Entity
     TransformComponent:
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
+      Translation: [0, 0, 14.7]
+      Rotation: [0, -0, 0]
       Scale: [1, 1, 1]
     CameraComponent:
       Camera:
-        ProjectionType: 1
+        ProjectionType: 0
         PerspectiveFOV: 0.7853982
         PerspectiveNear: 0.01
         PerspectiveFar: 1000
         OrthographicSize: 10
         OrthographicNear: -1
         OrthographicFar: 1
-      Primary: false
+      Primary: true
       FixedAspectRatio: false
+    RelationshipComponent:
+      Parent: 0
