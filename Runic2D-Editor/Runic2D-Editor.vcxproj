@@ -140,17 +140,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Panels\SceneViewportPanel.h" />
     <ClInclude Include="src\Panels\SettingsPanel.h" />
     <ClInclude Include="src\Panels\ContentBrowserPanel.h" />
     <ClInclude Include="src\EditorLayer.h" />
     <ClInclude Include="src\Panels\SceneHierarchyPanel.h" />
+    <ClInclude Include="src\Panels\ToolbarPanel.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Panels\SceneViewportPanel.cpp" />
     <ClCompile Include="src\Panels\SettingsPanel.cpp" />
     <ClCompile Include="src\Panels\ContentBrowserPanel.cpp" />
     <ClCompile Include="src\EditorLayer.cpp" />
     <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp" />
     <ClCompile Include="src\Runic2DEditorApp.cpp" />
+    <ClCompile Include="src\Panels\ToolbarPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Runic2D\Runic2D.vcxproj">

@@ -4,6 +4,8 @@
 #include "Panels/SceneHierarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
 #include "Panels/SettingsPanel.h"
+#include "Panels/ToolbarPanel.h"
+#include "Panels/SceneViewportPanel.h"
 
 #include "Runic2D/Renderer/EditorCamera.h"
 
@@ -33,47 +35,24 @@ namespace Runic2D {
 		void OpenScene();
 		void OpenScene(const std::filesystem::path& path);
 		void SaveSceneAs();
-
-		void UI_Toolbar();
 	private:
-		//temp
-		Ref<VertexArray> m_SquareVA;
-		Ref<Shader> m_FlatColorShader;
-
-		Ref<Texture2D> m_Texture, m_RunicTexture;
 		Ref<FrameBuffer> m_FrameBuffer;
-
-		Ref<Texture2D> m_IconPlay, m_IconStop;
-
 		Ref<Scene> m_ActiveScene;
-		Entity m_SquareEntity;
-		Entity m_SecondSquareEntity;
-		Entity m_CameraEntity;
-		Entity m_SecondCameraEntity;
 
 		EditorCamera m_EditorCamera;
-
 		Entity m_HoveredEntity;
-
-		bool m_ViewportFocused = false, m_ViewportHovered = false;
-		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
-		glm::vec2 m_ViewportBounds[2];
-
-		glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 
 		int m_GizmoType = -1;
 		int m_GizmoMode = 0;
 
-		enum class SceneState
-		{
-			Edit = 0, Play = 1
-		};
 		SceneState m_SceneState = SceneState::Edit;
 
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		ContentBrowserPanel m_ContentBrowserPanel;
 		SettingsPanel m_SettingsPanel;
+		ToolbarPanel m_ToolbarPanel;
+		SceneViewportPanel m_ViewportPanel;
 	};
 
 }

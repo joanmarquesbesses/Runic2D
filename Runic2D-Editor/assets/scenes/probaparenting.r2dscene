@@ -17,8 +17,8 @@ Entities:
       Tag: 2
     TransformComponent:
       Translation: [-0.13986808, 0.19421063, -0.70644224]
-      Rotation: [0.38437217, -0.3786289, -2.4011712]
-      Scale: [0.99999934, 0.9999986, 0.99999976]
+      Rotation: [2.4289546, -1.008792, 1.5202074]
+      Scale: [0.99999976, 0.9999987, 0.9999995]
     RelationshipComponent:
       Parent: 0
     SpriteRendererComponent:
@@ -36,3 +36,23 @@ Entities:
     SpriteRendererComponent:
       Color: [1, 1, 1, 1]
       TilingFactor: 1
+  - EntityID: 9027932023090375567
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Translation: [0, 0, 12.3]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.7853982
+        PerspectiveNear: 0.01
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -61
+        OrthographicFar: 70
+      Primary: true
+      FixedAspectRatio: false

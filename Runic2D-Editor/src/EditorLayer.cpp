@@ -8,8 +8,6 @@
 #include "Runic2D/Scene/SceneSerializer.h"
 #include "Runic2D/Utils/PlatformUtils.h"
 
-#include "Runic2D/Math/Math.h"
-
 #include "ImGuizmo.h"
 
 namespace Runic2D
@@ -24,11 +22,6 @@ namespace Runic2D
 	void EditorLayer::OnAttach()
 	{
 		R2D_PROFILE_FUNCTION();
-
-		m_Texture = Texture2D::Create("assets/textures/Check.png");
-		m_RunicTexture = Texture2D::Create("assets/textures/icon.png");
-		m_IconPlay = Texture2D::Create("Resources/Icons/play.png");
-		m_IconStop = Texture2D::Create("Resources/Icons/stop.png");
 
 		FrameBufferSpecification fbSpec;
 		fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
@@ -100,6 +93,13 @@ namespace Runic2D
 					R2D_CORE_WARN("File type not supported for opening: {0}", path.string());
 				}
 			});
+
+		m_ToolbarPanel.SetOnPlayCallback([this]() { OnScenePlay(); });
+		m_ToolbarPanel.SetOnStopCallback([this]() { OnSceneStop(); });
+
+		m_ViewportPanel.SetOnSceneOpenCallback([this](const std::string& path) {
+			OpenScene(path);
+			});
 	}
 
 	void EditorLayer::OnDetach()
@@ -112,14 +112,15 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
+		glm::vec2 viewportSize = m_ViewportPanel.GetSize();
 		//Resize
 		if(FrameBufferSpecification spec = m_FrameBuffer->GetSpecification();
-			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
-			(spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+			viewportSize.x > 0.0f && viewportSize.y > 0.0f &&
+			(spec.Width != viewportSize.x || spec.Height != viewportSize.y))
 		{
-			m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
-			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			m_FrameBuffer->Resize((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+			m_EditorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
+			m_ActiveScene->OnViewportResize((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
 		}
 
 		m_EditorCamera.OnUpdate(ts);
@@ -224,187 +225,17 @@ namespace Runic2D
 
 		ImGuizmo::BeginFrame();
 
-		//Scene Hierarchy Panel
+		//Panels
 		m_SceneHierarchyPanel.OnImGuiRender();
 		m_ContentBrowserPanel.OnImGuiRender();
 		m_SettingsPanel.OnImGuiRender(m_EditorCamera, m_ContentBrowserPanel, m_GizmoType, m_GizmoMode);
 
-		//Viewport
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-		ImGuiWindowClass window_class;
-		window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
-		ImGui::SetNextWindowClass(&window_class);
-		ImGui::Begin("Viewport");
-		
-		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
-		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
-		auto viewportOffset = ImGui::GetWindowPos();
-		m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
-		m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-
-		m_ViewportFocused = ImGui::IsWindowFocused();
-		m_ViewportHovered = ImGui::IsWindowHovered();
-		Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused && !m_ViewportHovered);
-
-		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-		m_ViewportSize = { viewportSize.x, viewportSize.y };
-
-		uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
-		ImGui::Image((void*)(uintptr_t)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-			{
-				const wchar_t* path = (const wchar_t*)payload->Data;
-				OpenScene(std::filesystem::path(g_AssetPath) / path);
-			}
-			ImGui::EndDragDropTarget();
-		}
-		// Gizmos
 		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-		if (selectedEntity && m_GizmoType != -1)
-		{
-			ImGuizmo::SetDrawlist();
-
-			float windowWidth = (float)ImGui::GetWindowWidth();
-			float windowHeight = (float)ImGui::GetWindowHeight();
-			ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
-
-			// Camera
-			// Run time camera from entity with camera component
-			//auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-			//if (!cameraEntity) return;
-			//const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
-			//const glm::mat4& cameraProjection = camera.GetProjection();
-			//ImGuizmo::SetOrthographic((int)camera.GetProjectionType());
-			//glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
-
-			// Editor camera
-			const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
-			glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
-
-			// Entity transform
-			auto& tc = selectedEntity.GetComponent<TransformComponent>();
-			glm::mat4 transform = m_ActiveScene->GetWorldTransform(selectedEntity);
-
-			// Snapping
-			bool snap = Input::IsKeyPressed(KeyCode::LeftControl);
-			float snapValue = 0.5f; // Snap to 0.5m for translation/scale
-			// Snap to 45 degrees for rotation
-			if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
-				snapValue = 45.0f;
-
-			float snapValues[3] = { snapValue, snapValue, snapValue };
-
-			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-				(ImGuizmo::OPERATION)m_GizmoType, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transform),
-				nullptr, snap ? snapValues : nullptr);
-
-			if (ImGuizmo::IsUsing())
-			{
-				glm::mat4 localTransform = transform;
-
-				if (selectedEntity.HasComponent<RelationshipComponent>())
-				{
-					auto& rc = selectedEntity.GetComponent<RelationshipComponent>();
-					if (rc.Parent != entt::null)
-					{
-						Entity parent = { rc.Parent, m_ActiveScene.get() };
-						glm::mat4 parentWorldTransform = m_ActiveScene->GetWorldTransform(parent);
-
-						if (glm::epsilonNotEqual(glm::determinant(parentWorldTransform), 0.0f, glm::epsilon<float>()))
-						{
-							localTransform = glm::inverse(parentWorldTransform) * transform;
-						}
-						else
-						{
-							return;
-						}
-					}
-				}
-
-				glm::vec3 translation, rotation, scale;
-				Math::DecomposeTransform(localTransform, translation, rotation, scale);
-
-				glm::vec3 deltaRotation = rotation - tc.Rotation;
-				tc.Translation = translation;
-				tc.Rotation += deltaRotation;
-
-				auto checkScale = [](float& s) {
-					if (std::isnan(s)) s = 1.0f; 
-					else if (std::abs(s) < 0.001f) s = 0.001f;
-					};
-
-				if (std::abs(scale.x) < 0.001f) scale.x = 0.001f;
-				if (std::abs(scale.y) < 0.001f) scale.y = 0.001f;
-				if (std::abs(scale.z) < 0.001f) scale.z = 0.001f;
-
-				tc.Scale = scale;
-
-				tc.IsDirty = true;
-			}
-		}
-
-		ImGui::End();
-		ImGui::PopStyleVar();
-
-		UI_Toolbar();
-
-		ImGui::End();
-	}
-
-	void EditorLayer::UI_Toolbar()
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
-
-		auto& colors = ImGui::GetStyle().Colors;
-		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
-		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
-
-		ImGuiWindowClass window_class;
-		window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
-		ImGui::SetNextWindowClass(&window_class);
-		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-		float size = ImGui::GetWindowHeight() - 4.0f;
-		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
-
-		Ref<Texture2D> icon = m_SceneState == SceneState::Edit ? m_IconPlay : m_IconStop;
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-
-		if (ImGui::InvisibleButton("##toolbar_play_stop", ImVec2(size, size)))
-		{
-			if (m_SceneState == SceneState::Edit)
-				OnScenePlay();
-			else if (m_SceneState == SceneState::Play)
-				OnSceneStop();
-		}
-		ImGui::PopStyleVar();
-
-		bool isHovered = ImGui::IsItemHovered();
-		bool isActive = ImGui::IsItemActive();
-		ImVec2 pMin = ImGui::GetItemRectMin();
-		ImVec2 pMax = ImGui::GetItemRectMax();
-		ImVec2 center = { pMin.x + size * 0.5f, pMin.y + size * 0.5f };
-
-		auto* drawList = ImGui::GetWindowDrawList();
-
-		if (isActive)
-		{
-			drawList->AddCircleFilled(center, size * 0.5f, ImGui::GetColorU32(buttonActive));
-		}
-		else if (isHovered)
-		{
-			drawList->AddCircleFilled(center, size * 0.5f, ImGui::GetColorU32(buttonHovered));
-		}
-
-		drawList->AddImage((ImTextureID)(uint64_t)icon->GetRendererID(), pMin, pMax, ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(ImVec4(1, 1, 1, 1)));
-
-		ImGui::End();
-		ImGui::PopStyleVar(2);
+		m_ViewportPanel.OnImGuiRender(m_FrameBuffer, m_ActiveScene, m_EditorCamera, selectedEntity, m_GizmoType, m_GizmoMode);
 		
+		m_ToolbarPanel.OnImGuiRender(m_SceneState);
+
+		ImGui::End();
 	}
 
 	void EditorLayer::OnEvent(Event& e)
@@ -473,9 +304,9 @@ namespace Runic2D
 				return false;
 
 			auto [mx, my] = ImGui::GetMousePos();
-			mx -= m_ViewportBounds[0].x;
-			my -= m_ViewportBounds[0].y;
-			glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+			mx -= m_ViewportPanel.GetBoundsMin().x;
+			my -= m_ViewportPanel.GetBoundsMin().y;
+			glm::vec2 viewportSize = m_ViewportPanel.GetBoundsMax() - m_ViewportPanel.GetBoundsMin();
 
 			// Invertim Y
 			int mouseX = (int)mx;
@@ -498,7 +329,7 @@ namespace Runic2D
 	void EditorLayer::NewScene()
 	{
 		m_ActiveScene = CreateRef<Scene>();
-		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportPanel.GetSize().x, (uint32_t)m_ViewportPanel.GetSize().y);
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
@@ -520,7 +351,7 @@ namespace Runic2D
 		}
 
 		Ref<Scene> newScene = CreateRef<Scene>();
-		newScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		newScene->OnViewportResize((uint32_t)m_ViewportPanel.GetSize().x, (uint32_t)m_ViewportPanel.GetSize().y);
 		m_SceneHierarchyPanel.SetContext(newScene);
 
 		SceneSerializer serializer(newScene);
@@ -545,11 +376,12 @@ namespace Runic2D
 	void EditorLayer::OnScenePlay()
 	{
 		m_SceneState = SceneState::Play;
+		m_ViewportPanel.SetPlayMode(true);
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
 		m_SceneState = SceneState::Edit;
-
+		m_ViewportPanel.SetPlayMode(false);
 	}
 }
