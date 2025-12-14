@@ -22,6 +22,9 @@ namespace Runic2D {
 		virtual void OnImGuiRender() override;
 		virtual void OnEvent(Event& e) override;
 
+		void OnScenePlay();
+		void OnSceneStop();
+
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
@@ -30,6 +33,8 @@ namespace Runic2D {
 		void OpenScene();
 		void OpenScene(const std::filesystem::path& path);
 		void SaveSceneAs();
+
+		void UI_Toolbar();
 	private:
 		//temp
 		Ref<VertexArray> m_SquareVA;
@@ -37,6 +42,8 @@ namespace Runic2D {
 
 		Ref<Texture2D> m_Texture, m_RunicTexture;
 		Ref<FrameBuffer> m_FrameBuffer;
+
+		Ref<Texture2D> m_IconPlay, m_IconStop;
 
 		Ref<Scene> m_ActiveScene;
 		Entity m_SquareEntity;
@@ -56,6 +63,12 @@ namespace Runic2D {
 
 		int m_GizmoType = -1;
 		int m_GizmoMode = 0;
+
+		enum class SceneState
+		{
+			Edit = 0, Play = 1
+		};
+		SceneState m_SceneState = SceneState::Edit;
 
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;

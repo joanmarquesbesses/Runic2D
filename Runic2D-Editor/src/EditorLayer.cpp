@@ -27,6 +27,8 @@ namespace Runic2D
 
 		m_Texture = Texture2D::Create("assets/textures/Check.png");
 		m_RunicTexture = Texture2D::Create("assets/textures/icon.png");
+		m_IconPlay = Texture2D::Create("Resources/Icons/play.png");
+		m_IconStop = Texture2D::Create("Resources/Icons/stop.png");
 
 		FrameBufferSpecification fbSpec;
 		fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
@@ -130,7 +132,21 @@ namespace Runic2D
 
 		m_FrameBuffer->ClearAttachment(1, -1);
 		//update scene
-		m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+		switch (m_SceneState)
+		{
+			case SceneState::Edit:
+			{
+				m_EditorCamera.OnUpdate(ts);
+
+				m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+				break;
+			}
+			case SceneState::Play:
+			{
+				m_ActiveScene->OnUpdateRunTime(ts);
+				break;
+			}
+		}
 
 		m_FrameBuffer->Unbind();
 		
@@ -215,6 +231,9 @@ namespace Runic2D
 
 		//Viewport
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+		ImGuiWindowClass window_class;
+		window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
+		ImGui::SetNextWindowClass(&window_class);
 		ImGui::Begin("Viewport");
 		
 		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
@@ -330,7 +349,62 @@ namespace Runic2D
 		ImGui::End();
 		ImGui::PopStyleVar();
 
+		UI_Toolbar();
+
 		ImGui::End();
+	}
+
+	void EditorLayer::UI_Toolbar()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+
+		auto& colors = ImGui::GetStyle().Colors;
+		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+
+		ImGuiWindowClass window_class;
+		window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
+		ImGui::SetNextWindowClass(&window_class);
+		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+		float size = ImGui::GetWindowHeight() - 4.0f;
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+
+		Ref<Texture2D> icon = m_SceneState == SceneState::Edit ? m_IconPlay : m_IconStop;
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+
+		if (ImGui::InvisibleButton("##toolbar_play_stop", ImVec2(size, size)))
+		{
+			if (m_SceneState == SceneState::Edit)
+				OnScenePlay();
+			else if (m_SceneState == SceneState::Play)
+				OnSceneStop();
+		}
+		ImGui::PopStyleVar();
+
+		bool isHovered = ImGui::IsItemHovered();
+		bool isActive = ImGui::IsItemActive();
+		ImVec2 pMin = ImGui::GetItemRectMin();
+		ImVec2 pMax = ImGui::GetItemRectMax();
+		ImVec2 center = { pMin.x + size * 0.5f, pMin.y + size * 0.5f };
+
+		auto* drawList = ImGui::GetWindowDrawList();
+
+		if (isActive)
+		{
+			drawList->AddCircleFilled(center, size * 0.5f, ImGui::GetColorU32(buttonActive));
+		}
+		else if (isHovered)
+		{
+			drawList->AddCircleFilled(center, size * 0.5f, ImGui::GetColorU32(buttonHovered));
+		}
+
+		drawList->AddImage((ImTextureID)(uint64_t)icon->GetRendererID(), pMin, pMax, ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(ImVec4(1, 1, 1, 1)));
+
+		ImGui::End();
+		ImGui::PopStyleVar(2);
+		
 	}
 
 	void EditorLayer::OnEvent(Event& e)
@@ -466,5 +540,16 @@ namespace Runic2D
 			SceneSerializer serializer(m_ActiveScene);
 			serializer.Serialize(filePath);
 		}
+	}
+
+	void EditorLayer::OnScenePlay()
+	{
+		m_SceneState = SceneState::Play;
+	}
+
+	void EditorLayer::OnSceneStop()
+	{
+		m_SceneState = SceneState::Edit;
+
 	}
 }
