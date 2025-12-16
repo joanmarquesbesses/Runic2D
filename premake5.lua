@@ -26,6 +26,7 @@ IncludeDir["stb_image"] = "%{wks.location}/Runic2D/vendor/stb_image"
 IncludeDir["entt"] = "%{wks.location}/Runic2D/vendor/entt/include"
 IncludeDir["yaml_cpp"] = "%{wks.location}/Runic2D/vendor/yaml-cpp/include"
 IncludeDir["ImGuizmo"] = "%{wks.location}/Runic2D/vendor/ImGuizmo"
+IncludeDir["Box2D"] = "%{wks.location}/Runic2D/vendor/Box2D/include"
 -- Include the vendor libraries
 
 group "Dependencies"
@@ -33,6 +34,7 @@ group "Dependencies"
 	include "Runic2D/vendor/Premake/Glad.lua"
 	include "Runic2D/vendor/Premake/imgui.lua"
 	include "Runic2D/vendor/Premake/yaml-cpp.lua"
+	include "Runic2D/vendor/Premake/box2d.lua"
 group ""
 
 project "Runic2D"
@@ -75,7 +77,8 @@ project "Runic2D"
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
-		"%{IncludeDir.ImGuizmo}"
+		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.Box2D}"
 	}
 
 	links
@@ -84,7 +87,8 @@ project "Runic2D"
 		"Glad",
 		"ImGui",
 		"yaml-cpp",
-		"opengl32.lib"
+		"opengl32.lib",
+		"Box2D"
 	}
 
 	filter "system:windows"
@@ -140,7 +144,8 @@ project "SandBox"
 		"Runic2D/src",
 		"Runic2D/vendor",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.Box2D}"
 	}
 
 	links
@@ -196,7 +201,8 @@ project "Runic2D-Editor"
 		"Runic2D/vendor",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.ImGuizmo}"
+		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.Box2D}"
 	}
 
 	links

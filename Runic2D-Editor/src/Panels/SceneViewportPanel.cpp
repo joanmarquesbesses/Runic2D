@@ -55,6 +55,7 @@ namespace Runic2D {
 		// Gizmos
 		if (selectedEntity && gizmoType != -1 && !m_IsPlayMode)
 		{
+			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
 

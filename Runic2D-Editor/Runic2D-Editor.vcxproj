@@ -79,7 +79,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>R2D_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\ImGuizmo;..\Runic2D\vendor\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -99,7 +99,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>R2D_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\ImGuizmo;..\Runic2D\vendor\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -122,7 +122,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>R2D_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\ImGuizmo;..\Runic2D\vendor\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -140,21 +140,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\EditorLayer.h" />
+    <ClInclude Include="src\Panels\ContentBrowserPanel.h" />
+    <ClInclude Include="src\Panels\SceneHierarchyPanel.h" />
     <ClInclude Include="src\Panels\SceneViewportPanel.h" />
     <ClInclude Include="src\Panels\SettingsPanel.h" />
-    <ClInclude Include="src\Panels\ContentBrowserPanel.h" />
-    <ClInclude Include="src\EditorLayer.h" />
-    <ClInclude Include="src\Panels\SceneHierarchyPanel.h" />
     <ClInclude Include="src\Panels\ToolbarPanel.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\EditorLayer.cpp" />
+    <ClCompile Include="src\Panels\ContentBrowserPanel.cpp" />
+    <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp" />
     <ClCompile Include="src\Panels\SceneViewportPanel.cpp" />
     <ClCompile Include="src\Panels\SettingsPanel.cpp" />
-    <ClCompile Include="src\Panels\ContentBrowserPanel.cpp" />
-    <ClCompile Include="src\EditorLayer.cpp" />
-    <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp" />
-    <ClCompile Include="src\Runic2DEditorApp.cpp" />
     <ClCompile Include="src\Panels\ToolbarPanel.cpp" />
+    <ClCompile Include="src\Runic2DEditorApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Runic2D\Runic2D.vcxproj">

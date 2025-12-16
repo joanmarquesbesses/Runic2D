@@ -123,12 +123,15 @@ namespace Runic2D
 			m_ActiveScene->OnViewportResize((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
 		}
 
-		m_EditorCamera.OnUpdate(ts);
-
 		//render
 		Renderer2D::ResetStats();
 		m_FrameBuffer->Bind();
-		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+
+		if (m_SceneState == SceneState::Play)
+			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.2f, 1 });
+		else
+			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+
 		RenderCommand::Clear();
 
 		m_FrameBuffer->ClearAttachment(1, -1);
@@ -377,11 +380,13 @@ namespace Runic2D
 	{
 		m_SceneState = SceneState::Play;
 		m_ViewportPanel.SetPlayMode(true);
+		m_ActiveScene->OnRuntimeStart();
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
 		m_SceneState = SceneState::Edit;
 		m_ViewportPanel.SetPlayMode(false);
+		m_ActiveScene->OnRuntimeStop();
 	}
 }

@@ -13,3 +13,6 @@
 [submodule "Runic2D/vendor/yaml-cpp"]
 	path = Runic2D/vendor/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp
+[submodule "Runic2D/vendor/Box2D"]
+	path = Runic2D/vendor/Box2D
+	url = https://github.com/erincatto/box2d
