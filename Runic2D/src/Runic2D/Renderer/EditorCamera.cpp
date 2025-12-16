@@ -18,10 +18,29 @@ namespace Runic2D {
 		UpdateView();
 	}
 
+	void EditorCamera::SetProjectionType(ProjectionType type)
+	{
+		m_ProjectionType = type;
+		UpdateProjection();
+	}
+
 	void EditorCamera::UpdateProjection()
 	{
 		m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
-		m_Projection = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
+
+		if (m_ProjectionType == ProjectionType::Perspective)
+		{
+			m_Projection = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
+		}
+		else
+		{
+			float orthoLeft = -m_OrthographicSize * m_AspectRatio * 0.5f;
+			float orthoRight = m_OrthographicSize * m_AspectRatio * 0.5f;
+			float orthoBottom = -m_OrthographicSize * 0.5f;
+			float orthoTop = m_OrthographicSize * 0.5f;
+
+			m_Projection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, m_OrthographicNear, m_OrthographicFar);
+		}
 	}
 
 	void EditorCamera::UpdateView()
@@ -109,11 +128,20 @@ namespace Runic2D {
 
 	void EditorCamera::MouseZoom(float delta)
 	{
-		m_Distance -= delta * ZoomSpeed();
-		if (m_Distance < 1.0f)
+		if (m_ProjectionType == ProjectionType::Perspective)
 		{
-			m_FocalPoint += GetForwardDirection();
-			m_Distance = 1.0f;
+			m_Distance -= delta * ZoomSpeed();
+			if (m_Distance < 1.0f)
+			{
+				m_FocalPoint += GetForwardDirection();
+				m_Distance = 1.0f;
+			}
+		}
+		else
+		{
+			m_OrthographicSize -= delta * ZoomSpeed() * 0.5f;
+			m_OrthographicSize = std::max(m_OrthographicSize, 0.25f);
+			UpdateProjection(); 
 		}
 	}
 

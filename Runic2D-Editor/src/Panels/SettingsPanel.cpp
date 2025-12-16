@@ -28,26 +28,67 @@ namespace Runic2D {
 		}
 
 		// --- EDITOR CAMERA ---
-		if (ImGui::CollapsingHeader("Editor Camera", ImGuiTreeNodeFlags_CollapsingHeader))
-		{
-			bool isLocked = camera.IsRotationLocked();
-			if (ImGui::Checkbox("Lock Rotation (2D Mode)", &isLocked))
-				camera.SetRotationLocked(isLocked);
+        if (ImGui::CollapsingHeader("Editor Camera", ImGuiTreeNodeFlags_CollapsingHeader))
+        {
+            EditorCamera::ProjectionType currentProjection = camera.GetProjectionType();
 
-			float fov = camera.GetFOV();
-			if (ImGui::DragFloat("FOV", &fov, 1.0f, 1.0f, 180.0f)) camera.SetFOV(fov);
+            if (ImGui::RadioButton("Perspective", currentProjection == EditorCamera::ProjectionType::Perspective))
+            {
+                camera.SetProjectionType(EditorCamera::ProjectionType::Perspective);
+				camera.SetRotationLocked(false);
+            }
 
-			float nearClip = camera.GetNearClip();
-			if (ImGui::DragFloat("Near Clip", &nearClip, 0.1f, 0.001f, 10000.0f)) camera.SetNearClip(nearClip);
+            ImGui::SameLine();
 
-			float farClip = camera.GetFarClip();
-			if (ImGui::DragFloat("Far Clip", &farClip, 10.0f, nearClip, 100000.0f)) camera.SetFarClip(farClip);
-		}
+            if (ImGui::RadioButton("Orthographic", currentProjection == EditorCamera::ProjectionType::Orthographic))
+            {
+                camera.SetProjectionType(EditorCamera::ProjectionType::Orthographic);
+                camera.SetRotationLocked(true);
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            bool isLocked = camera.IsRotationLocked();
+            if (ImGui::Checkbox("Lock Rotation", &isLocked))
+                camera.SetRotationLocked(isLocked);
+
+            if (camera.GetProjectionType() == EditorCamera::ProjectionType::Perspective)
+            {
+                float fov = camera.GetFOV();
+                if (ImGui::DragFloat("Vertical FOV", &fov, 1.0f, 1.0f, 179.0f))
+                    camera.SetFOV(fov);
+
+                float nearClip = camera.GetNearClip();
+                if (ImGui::DragFloat("Near Clip", &nearClip, 0.1f, 0.001f, 10000.0f))
+                    camera.SetNearClip(nearClip);
+
+                float farClip = camera.GetFarClip();
+                if (ImGui::DragFloat("Far Clip", &farClip, 10.0f, nearClip, 100000.0f))
+                    camera.SetFarClip(farClip);
+            }
+            else
+            {
+                float orthoSize = camera.GetOrthographicSize();
+                if (ImGui::DragFloat("Size (Zoom)", &orthoSize, 0.1f, 0.1f, 1000.0f))
+                    camera.SetOrthographicSize(orthoSize);
+
+                float orthoNear = camera.GetOrthographicNearClip();
+                if (ImGui::DragFloat("Near Clip", &orthoNear, 0.1f, -100.0f, 100.0f))
+                    camera.SetOrthographicNearClip(orthoNear);
+
+                float orthoFar = camera.GetOrthographicFarClip();
+                if (ImGui::DragFloat("Far Clip", &orthoFar, 0.1f, orthoNear, 100.0f))
+                    camera.SetOrthographicFarClip(orthoFar);
+
+                ImGui::TextDisabled("(In Ortho mode, 'Size' controls the Zoom level)");
+            }
+        }
 
 		// --- CONTENT BROWSER SETTINGS (NOU) ---
 		if (ImGui::CollapsingHeader("Content Browser", ImGuiTreeNodeFlags_CollapsingHeader))
 		{
-			// Accedim a les variables del Content Browser via referència
 			ImGui::SliderFloat("Thumbnail Size", &contentBrowser.GetThumbnailSize(), 16, 512);
 			ImGui::SliderFloat("Padding", &contentBrowser.GetPadding(), 0, 32);
 		}

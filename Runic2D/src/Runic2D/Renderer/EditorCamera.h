@@ -12,6 +12,8 @@ namespace Runic2D {
 	class EditorCamera : public Camera
 	{
 	public:
+		enum class ProjectionType { Perspective = 0, Orthographic = 1 };
+	public:
 		EditorCamera() = default;
 		EditorCamera(float fov, float aspectRatio, float nearClip, float farClip);
 
@@ -22,12 +24,20 @@ namespace Runic2D {
 		inline void SetDistance(float distance) { m_Distance = distance; }
 
 		inline float GetFOV() const { return m_FOV; }
+		inline void SetFOV(float fov) { m_FOV = fov; UpdateProjection(); }
+
 		inline float GetNearClip() const { return m_NearClip; }
 		inline float GetFarClip() const { return m_FarClip; }
 
-		inline void SetFOV(float fov) { m_FOV = fov; UpdateProjection(); }
 		inline void SetNearClip(float nearClip) { m_NearClip = nearClip; UpdateProjection(); }
 		inline void SetFarClip(float farClip) { m_FarClip = farClip; UpdateProjection(); }
+
+		inline float GetOrthographicSize() const { return m_OrthographicSize; }
+		inline void SetOrthographicSize(float size) { m_OrthographicSize = size; UpdateProjection(); }
+		inline float GetOrthographicNearClip() const { return m_OrthographicNear; }
+		inline void SetOrthographicNearClip(float nearClip) { m_OrthographicNear = nearClip; UpdateProjection(); }
+		inline float GetOrthographicFarClip() const { return m_OrthographicFar; }
+		inline void SetOrthographicFarClip(float farClip) { m_OrthographicFar = farClip; UpdateProjection(); }
 
 		inline void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; UpdateProjection(); }
 
@@ -45,6 +55,9 @@ namespace Runic2D {
 
 		void SetRotationLocked(bool locked);
 		bool IsRotationLocked() const { return m_RotationLocked; }
+
+		ProjectionType GetProjectionType() const { return m_ProjectionType; }
+		void SetProjectionType(ProjectionType type);
 	private:
 		void UpdateProjection();
 		void UpdateView();
@@ -61,7 +74,12 @@ namespace Runic2D {
 		float RotationSpeed() const;
 		float ZoomSpeed() const;
 	private:
+		ProjectionType m_ProjectionType = ProjectionType::Perspective;
+
 		float m_FOV = 45.0f, m_AspectRatio = 1.778f, m_NearClip = 0.1f, m_FarClip = 1000.0f;
+
+		float m_OrthographicSize = 10.0f;
+		float m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;
 
 		glm::mat4 m_ViewMatrix;
 		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
