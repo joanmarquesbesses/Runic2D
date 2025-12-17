@@ -30,6 +30,7 @@ namespace Runic2D
 		m_FrameBuffer = FrameBuffer::Create(fbSpec);
 
 		m_ActiveScene = CreateRef<Scene>();
+		m_EditorScene = m_ActiveScene;
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
@@ -98,6 +99,7 @@ namespace Runic2D
 		m_ViewportPanel.SetOnSceneOpenCallback([this](const std::string& path) {
 			OpenScene(path);
 			});
+
 	}
 
 	void EditorLayer::OnDetach()
@@ -339,7 +341,12 @@ namespace Runic2D
 
 	void EditorLayer::NewScene()
 	{
+		if (m_SceneState != SceneState::Edit)
+			OnSceneStop();
+
 		m_ActiveScene = CreateRef<Scene>();
+		m_EditorScene = m_ActiveScene;
+
 		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportPanel.GetSize().x, (uint32_t)m_ViewportPanel.GetSize().y);
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 		m_EditorScenePath = std::filesystem::path();
