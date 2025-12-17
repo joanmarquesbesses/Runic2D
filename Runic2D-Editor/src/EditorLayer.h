@@ -24,9 +24,6 @@ namespace Runic2D {
 		virtual void OnImGuiRender() override;
 		virtual void OnEvent(Event& e) override;
 
-		void OnScenePlay();
-		void OnSceneStop();
-
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
@@ -35,17 +32,28 @@ namespace Runic2D {
 		void OpenScene();
 		void OpenScene(const std::filesystem::path& path);
 		void SaveSceneAs();
+		void SaveScene();
+
+		void SerializeScene(Ref<Scene> scene, const std::filesystem::path& path);
+
+		void OnScenePlay();
+		void OnSceneStop();
+
+		void OnDuplicateEntity();
 	private:
 		Ref<FrameBuffer> m_FrameBuffer;
+		
 		Ref<Scene> m_ActiveScene;
+		Ref<Scene> m_EditorScene;
+		std::filesystem::path m_EditorScenePath;
 
 		EditorCamera m_EditorCamera;
 		Entity m_HoveredEntity;
 
+		SceneState m_SceneState = SceneState::Edit;
+
 		int m_GizmoType = -1;
 		int m_GizmoMode = 0;
-
-		SceneState m_SceneState = SceneState::Edit;
 
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;

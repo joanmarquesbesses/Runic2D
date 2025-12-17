@@ -37,6 +37,88 @@ namespace Runic2D {
 		return CreateEntityWithUUID(UUID(), name);
 	}
 
+	template<typename Component>
+	static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
+	{
+		auto view = src.view<Component>();
+		for (auto e : view)
+		{
+			UUID uuid = src.get<IDComponent>(e).ID;
+			R2D_CORE_ASSERT(enttMap.find(uuid) != enttMap.end());
+			entt::entity dstEnttID = enttMap.at(uuid);
+
+			auto& component = src.get<Component>(e);
+			dst.emplace_or_replace<Component>(dstEnttID, component);
+		}
+	}
+
+	template<typename Component>
+	static void CopyComponentIfExists(Entity dst, Entity src)
+	{
+		if (src.HasComponent<Component>())
+			dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
+	}
+
+	template<typename T>
+	void Scene::OnComponentAdded(Entity entity, T& component)
+	{
+
+	}
+
+	Ref<Scene> Scene::Copy(Ref<Scene> other)
+	{
+		Ref<Scene> newScene = CreateRef<Scene>();
+
+		newScene->m_ViewportWidth = other->m_ViewportWidth;
+		newScene->m_ViewportHeight = other->m_ViewportHeight;
+
+		auto& srcSceneRegistry = other->m_Registry;
+		auto& dstSceneRegistry = newScene->m_Registry;
+
+		std::unordered_map<UUID, entt::entity> enttMap;
+
+		auto idView = srcSceneRegistry.view<IDComponent>();
+		std::vector<entt::entity> entitiesToCopy;
+		entitiesToCopy.reserve(idView.size());
+		for (auto e : idView) entitiesToCopy.push_back(e);
+
+		for (auto it = entitiesToCopy.rbegin(); it != entitiesToCopy.rend(); ++it)
+		{
+			entt::entity e = *it;
+			UUID uuid = srcSceneRegistry.get<IDComponent>(e).ID;
+			const auto& name = srcSceneRegistry.get<TagComponent>(e).Tag;
+			Entity newEntity = newScene->CreateEntityWithUUID(uuid, name);
+			enttMap[uuid] = (entt::entity)newEntity;
+		}
+
+		CopyComponent<TransformComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<SpriteRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<CameraComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<NativeScriptComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<Rigidbody2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<BoxCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<RelationshipComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+
+		auto relationshipView = dstSceneRegistry.view<RelationshipComponent>();
+		for (auto e : relationshipView)
+		{
+			auto& newRC = dstSceneRegistry.get<RelationshipComponent>(e);
+
+			auto remapEntity = [&](entt::entity oldHandle) -> entt::entity {
+				if (oldHandle == entt::null) return entt::null;
+				UUID uuid = srcSceneRegistry.get<IDComponent>(oldHandle).ID;
+				return enttMap.at(uuid);
+				};
+
+			newRC.Parent = remapEntity(newRC.Parent);
+			newRC.NextSibling = remapEntity(newRC.NextSibling);
+			newRC.PrevSibling = remapEntity(newRC.PrevSibling);
+			newRC.FirstChild = remapEntity(newRC.FirstChild);
+		}
+
+		return newScene;
+	}
+
 	void Scene::DestroyEntity(Entity entity)
 	{
 		if (entity.HasComponent<RelationshipComponent>())
@@ -270,6 +352,113 @@ namespace Runic2D {
 				cameraComponent.Camera.SetViewportSize(width, height);
 			}
 		}
+	}
+
+	void Scene::DuplicateEntity(Entity entity)
+	{
+		Entity newEntity = CreateEntity(entity.GetComponent<TagComponent>().Tag);
+
+		CopyEntity(entity, newEntity);
+
+		if (entity.HasComponent<RelationshipComponent>())
+		{
+			auto& rc = entity.GetComponent<RelationshipComponent>();
+			if (rc.Parent != entt::null)
+			{
+				Entity parent = { rc.Parent, this };
+
+				// 1. Configurem el component del fill
+				auto& childRC = newEntity.GetOrAddComponent<RelationshipComponent>();
+				childRC.Parent = rc.Parent;
+
+				// 2. Configurem el component del pare
+				auto& parentRC = parent.GetComponent<RelationshipComponent>(); // El pare ja té component segur
+
+				// 3. Afegim al final de la llista de fills del pare
+				if (parentRC.FirstChild == entt::null)
+				{
+					parentRC.FirstChild = (entt::entity)newEntity;
+				}
+				else
+				{
+					// Busquem l'últim germà
+					entt::entity prevNode = parentRC.FirstChild;
+					while (true)
+					{
+						Entity prevEntity{ prevNode, this };
+						auto& prevRC = prevEntity.GetComponent<RelationshipComponent>();
+						if (prevRC.NextSibling == entt::null)
+						{
+							prevRC.NextSibling = (entt::entity)newEntity;
+							childRC.PrevSibling = prevNode;
+							break;
+						}
+						prevNode = prevRC.NextSibling;
+					}
+				}
+				parentRC.ChildrenCount++;
+			}
+		}
+
+		std::function<void(Entity, Entity)> CopyChildrenRec = [&](Entity srcParent, Entity dstParent)
+			{
+				if (!srcParent.HasComponent<RelationshipComponent>())
+					return;
+
+				auto& srcRC = srcParent.GetComponent<RelationshipComponent>();
+				entt::entity currentChildHandle = srcRC.FirstChild;
+
+				while (currentChildHandle != entt::null)
+				{
+					Entity srcChild = { currentChildHandle, this };
+					Entity dstChild = CreateEntity(srcChild.GetComponent<TagComponent>().Tag);
+
+					CopyEntity(srcChild, dstChild);
+
+					auto& childRC = dstChild.GetOrAddComponent<RelationshipComponent>();
+					childRC.Parent = (entt::entity)dstParent;
+
+					auto& parentRC = dstParent.GetOrAddComponent<RelationshipComponent>();
+
+					if (parentRC.FirstChild == entt::null)
+					{
+						parentRC.FirstChild = (entt::entity)dstChild;
+					}
+					else
+					{
+						entt::entity prevNode = parentRC.FirstChild;
+						while (true)
+						{
+							Entity prevEntity{ prevNode, this };
+							auto& prevRC = prevEntity.GetComponent<RelationshipComponent>();
+							if (prevRC.NextSibling == entt::null)
+							{
+								prevRC.NextSibling = (entt::entity)dstChild;
+								childRC.PrevSibling = prevNode;
+								break;
+							}
+							prevNode = prevRC.NextSibling;
+						}
+					}
+					parentRC.ChildrenCount++;
+
+					CopyChildrenRec(srcChild, dstChild);
+
+					currentChildHandle = srcChild.GetComponent<RelationshipComponent>().NextSibling;
+				}
+			};
+
+		CopyChildrenRec(entity, newEntity);
+	}
+
+	void Scene::CopyEntity(Entity src, Entity dst)
+	{
+		CopyComponentIfExists<TransformComponent>(dst, src);
+		CopyComponentIfExists<SpriteRendererComponent>(dst, src);
+		CopyComponentIfExists<CameraComponent>(dst, src);
+		CopyComponentIfExists<NativeScriptComponent>(dst, src);
+		CopyComponentIfExists<Rigidbody2DComponent>(dst, src);
+		CopyComponentIfExists<BoxCollider2DComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

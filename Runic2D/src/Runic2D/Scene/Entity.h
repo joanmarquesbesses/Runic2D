@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Scene.h"
-#include "Runic2D/Core/UUID.h"
 
 namespace Runic2D
 {
@@ -19,6 +18,13 @@ namespace Runic2D
 			R2D_ASSERT(!HasComponent<T>(), "Entity already has component!");
 			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
 		}
+		template<typename T, typename... Args>
+		T& AddOrReplaceComponent(Args&&... args)
+		{
+			T& component = m_Scene->m_Registry.emplace_or_replace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			m_Scene->template OnComponentAdded<T>(*this, component);
+			return component;
+		}
 		template<typename T>
 		T& GetComponent()
 		{
@@ -29,6 +35,13 @@ namespace Runic2D
 		bool HasComponent()
 		{
 			return m_Scene->m_Registry.any_of<T>(m_EntityHandle);
+		}
+		template<typename T, typename... Args>
+		T& GetOrAddComponent(Args&&... args)
+		{
+			if (HasComponent<T>())
+				return GetComponent<T>();
+			return AddComponent<T>(std::forward<Args>(args)...);
 		}
 		template<typename T>
 		void RemoveComponent()

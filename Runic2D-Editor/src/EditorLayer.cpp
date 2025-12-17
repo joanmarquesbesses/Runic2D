@@ -80,8 +80,6 @@ namespace Runic2D
 		m_SecondCameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraControler>();
 #endif
 
-		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-
 		m_ContentBrowserPanel.SetOnFileOpenCallback([this](const std::filesystem::path& path)
 			{
 				if (path.extension().string() == ".r2dscene")
@@ -271,8 +269,18 @@ namespace Runic2D
 
 			break;
 		case KeyCode::S:
-			if (control && shift)
-				SaveSceneAs();
+			if (control)
+			{
+				if (shift)
+					SaveSceneAs();
+				else
+					SaveScene();
+			}
+			break;
+		case KeyCode::D:
+			if (control)
+				OnDuplicateEntity();
+			break;
 		case KeyCode::Q:
 			if (!ImGuizmo::IsUsing()) {
 				m_GizmoType = -1;
@@ -334,6 +342,7 @@ namespace Runic2D
 		m_ActiveScene = CreateRef<Scene>();
 		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportPanel.GetSize().x, (uint32_t)m_ViewportPanel.GetSize().y);
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+		m_EditorScenePath = std::filesystem::path();
 	}
 
 	void EditorLayer::OpenScene()
@@ -347,6 +356,11 @@ namespace Runic2D
 
 	void EditorLayer::OpenScene(const std::filesystem::path& path)
 	{
+
+		if (m_SceneState != SceneState::Edit) {
+			OnSceneStop();
+		}
+
 		if (path.extension().string() != ".r2dscene")
 		{
 			R2D_CORE_WARN("Could not load {0} - not a scene file", path.filename().string());
@@ -360,9 +374,12 @@ namespace Runic2D
 		SceneSerializer serializer(newScene);
 		if (serializer.Deserialize(path.string()))
 		{
-			m_ActiveScene = newScene;
-			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-			// Opcional: Guardar el path de l'escena actual per "Save" ràpid
+			m_EditorScene = newScene;
+			m_EditorScene->OnViewportResize(m_ViewportPanel.GetSize().x, m_ViewportPanel.GetSize().y);
+			m_SceneHierarchyPanel.SetContext(m_EditorScene);
+
+			m_ActiveScene = m_EditorScene;
+			m_EditorScenePath = path;
 		}
 	}
 
@@ -371,22 +388,50 @@ namespace Runic2D
 		std::string filePath = FileDialogs::SaveFile("Runic2D Scene (*.r2dscene)\0*.r2dscene\0");
 		if (!filePath.empty())
 		{
-			SceneSerializer serializer(m_ActiveScene);
-			serializer.Serialize(filePath);
+			SerializeScene(m_ActiveScene, filePath);
+			m_EditorScenePath = filePath;
 		}
+	}
+
+	void EditorLayer::SaveScene()
+	{
+		if (!m_EditorScenePath.empty())
+			SerializeScene(m_ActiveScene, m_EditorScenePath);
+		else
+			SaveSceneAs();
+	}
+
+	void EditorLayer::SerializeScene(Ref<Scene> scene, const std::filesystem::path& path)
+	{
+		SceneSerializer serializer(scene);
+		serializer.Serialize(path.string());
 	}
 
 	void EditorLayer::OnScenePlay()
 	{
 		m_SceneState = SceneState::Play;
+		m_ActiveScene = Scene::Copy(m_EditorScene);
 		m_ViewportPanel.SetPlayMode(true);
 		m_ActiveScene->OnRuntimeStart();
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
 		m_SceneState = SceneState::Edit;
 		m_ViewportPanel.SetPlayMode(false);
+		m_ActiveScene = m_EditorScene;
 		m_ActiveScene->OnRuntimeStop();
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+	}
+
+	void EditorLayer::OnDuplicateEntity()
+	{
+		if (m_SceneState != SceneState::Edit)
+			return;
+
+		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		if (selectedEntity)
+			m_EditorScene->DuplicateEntity(selectedEntity);
 	}
 }
