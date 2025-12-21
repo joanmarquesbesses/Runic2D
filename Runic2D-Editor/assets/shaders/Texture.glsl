@@ -15,7 +15,7 @@ layout(std140, binding = 0) uniform Camera
 
 out vec4 v_Color;
 out vec2 v_TexCoord;
-out float v_TexIndex;
+out flat float v_TexIndex;
 out float v_TilingFactor;
 out flat int v_EntityID;
 
@@ -37,7 +37,7 @@ layout(location = 1) out int color2;
 
 in vec4 v_Color;
 in vec2 v_TexCoord;
-in float v_TexIndex;
+in flat float v_TexIndex;
 in float v_TilingFactor;
 in flat int v_EntityID;
 
