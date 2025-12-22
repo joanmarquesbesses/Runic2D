@@ -240,7 +240,8 @@ namespace Runic2D {
 				{
 					Entity e{ entityID, this };
 					glm::mat4 worldTransform = GetWorldTransform(transform, e);
-					Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
+					//Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
+					Renderer2D::DrawRect(worldTransform, sprite.Color, (int)entityID);
 				});
 
 			auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>();
@@ -266,7 +267,8 @@ namespace Runic2D {
 			{
 				Entity e{ entityID, this };
 				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
+				//Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
+				Renderer2D::DrawRect(worldTransform, sprite.Color, (int)entityID);
 			});
 
 		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>();
