@@ -217,6 +217,19 @@ namespace Runic2D {
 			out << YAML::EndMap;
 		}
 
+		if (entity.HasComponent<CircleRendererComponent>())
+		{
+			out << YAML::Key << "CircleRendererComponent";
+			out << YAML::BeginMap;
+
+			auto& circleRendererComponent = entity.GetComponent<CircleRendererComponent>();
+			out << YAML::Key << "Color" << YAML::Value << circleRendererComponent.Color;
+			out << YAML::Key << "Thickness" << YAML::Value << circleRendererComponent.Thickness;
+			out << YAML::Key << "Fade" << YAML::Value << circleRendererComponent.Fade;
+
+			out << YAML::EndMap;
+		}
+
 		if (entity.HasComponent<Rigidbody2DComponent>())
 		{
 			out << YAML::Key << "Rigidbody2DComponent";
@@ -367,6 +380,15 @@ namespace Runic2D {
 
 					if (spriteRendererComponent["TilingFactor"])
 						src.TilingFactor = spriteRendererComponent["TilingFactor"].as<float>();
+				}
+
+				auto circleRendererComponent = entityNode["CircleRendererComponent"];
+				if (circleRendererComponent)
+				{
+					auto& crc = deserializedEntity.AddComponent<CircleRendererComponent>();
+					YAML_LOAD(circleRendererComponent, "Color", crc.Color);
+					YAML_LOAD(circleRendererComponent, "Thickness", crc.Thickness);
+					YAML_LOAD(circleRendererComponent, "Fade", crc.Fade);
 				}
 
 				auto rigidbody2DComponent = entityNode["Rigidbody2DComponent"];

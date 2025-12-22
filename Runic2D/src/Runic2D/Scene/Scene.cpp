@@ -93,6 +93,7 @@ namespace Runic2D {
 
 		CopyComponent<TransformComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<SpriteRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<CircleRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<CameraComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<NativeScriptComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<Rigidbody2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
@@ -238,10 +239,17 @@ namespace Runic2D {
 			view.each([&](auto entityID, auto& transform, auto& sprite)
 				{
 					Entity e{ entityID, this };
-
 					glm::mat4 worldTransform = GetWorldTransform(transform, e);
-
 					Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
+				});
+
+			auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>();
+
+			circleView.each([&](auto entityID, auto& transform, auto& circle)
+				{
+					Entity e{ entityID, this };
+					glm::mat4 worldTransform = GetWorldTransform(transform, e);
+					Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
 				});
 
 			Renderer2D::EndScene();
@@ -257,10 +265,17 @@ namespace Runic2D {
 		view.each([&](auto entityID, auto& transform, auto& sprite)
 			{
 				Entity e{ entityID, this };
-
 				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-
 				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
+			});
+
+		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>();
+
+		circleView.each([&](auto entityID, auto& transform, auto& circle)
+			{
+				Entity e{ entityID, this };
+				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
 			});
 
 		Renderer2D::EndScene();
@@ -455,6 +470,7 @@ namespace Runic2D {
 	{
 		CopyComponentIfExists<TransformComponent>(dst, src);
 		CopyComponentIfExists<SpriteRendererComponent>(dst, src);
+		CopyComponentIfExists<CircleRendererComponent>(dst, src);
 		CopyComponentIfExists<CameraComponent>(dst, src);
 		CopyComponentIfExists<NativeScriptComponent>(dst, src);
 		CopyComponentIfExists<Rigidbody2DComponent>(dst, src);

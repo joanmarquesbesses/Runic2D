@@ -423,6 +423,14 @@ namespace Runic2D
 				ImGui::DragFloat("Tiling Factor", &component.TilingFactor, 0.1f, 0.0f, 100.0f);
 			});
 
+		DrawComponent<CircleRendererComponent>("Circle Renderer", entity, [](auto& component)
+			{
+				auto& color = component.Color;
+				ImGui::ColorEdit4("Color", glm::value_ptr(color));
+				ImGui::DragFloat("Thickness", &component.Thickness, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Fade", &component.Fade, 0.01f, 0.0f, 1.0f);
+			});
+
 		DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [](auto& component)
 			{
 				const char* bodyTypeStrings[] = { "Static", "Dynamic", "Kinematic" };
@@ -494,6 +502,15 @@ namespace Runic2D
 				if (ImGui::MenuItem("Sprite Renderer"))
 				{
 					entity.AddComponent<SpriteRendererComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!entity.HasComponent<CircleRendererComponent>())
+			{
+				if (ImGui::MenuItem("Circle Renderer"))
+				{
+					entity.AddComponent<CircleRendererComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}

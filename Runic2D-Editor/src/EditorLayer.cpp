@@ -31,6 +31,7 @@ namespace Runic2D
 
 		m_ActiveScene = CreateRef<Scene>();
 		m_EditorScene = m_ActiveScene;
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
