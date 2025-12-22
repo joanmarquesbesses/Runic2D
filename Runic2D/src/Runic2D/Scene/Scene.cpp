@@ -1,8 +1,6 @@
 #include "R2Dpch.h"
 #include "Scene.h"
 
-#include <box2d/box2d.h>
-
 #include "Component.h"
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Math/Math.h"
@@ -99,6 +97,7 @@ namespace Runic2D {
 		CopyComponent<Rigidbody2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<BoxCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<RelationshipComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<CircleCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		auto relationshipView = dstSceneRegistry.view<RelationshipComponent>();
 		for (auto e : relationshipView)
@@ -240,8 +239,7 @@ namespace Runic2D {
 				{
 					Entity e{ entityID, this };
 					glm::mat4 worldTransform = GetWorldTransform(transform, e);
-					//Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
-					Renderer2D::DrawRect(worldTransform, sprite.Color, (int)entityID);
+					Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
 				});
 
 			auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>();
@@ -267,8 +265,7 @@ namespace Runic2D {
 			{
 				Entity e{ entityID, this };
 				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				//Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
-				Renderer2D::DrawRect(worldTransform, sprite.Color, (int)entityID);
+				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
 			});
 
 		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>();
@@ -324,12 +321,32 @@ namespace Runic2D {
 				b2Shape_SetFriction(shapeId, bc2d.Friction);
 				b2Shape_SetRestitution(shapeId, bc2d.Restitution);
 				bc2d.RuntimeShape = shapeId;
+			}
 
-				if (rb2d.Type == Rigidbody2DComponent::BodyType::Dynamic)
-				{
-					b2Body_ApplyMassFromShapes(bodyId);
-					b2Body_SetAwake(bodyId, true);
-				}
+			if (entity.HasComponent<CircleCollider2DComponent>())
+			{
+				auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+
+				b2ShapeDef shapeDef = b2DefaultShapeDef();
+				shapeDef.density = cc2d.Density;
+
+				float maxScale = std::max(transform.Scale.x, transform.Scale.y);
+				float radius = cc2d.Radius * maxScale;
+
+				b2Circle circle;
+				circle.center = { cc2d.Offset.x, cc2d.Offset.y };
+				circle.radius = radius;
+
+				b2ShapeId shapeId = b2CreateCircleShape(bodyId, &shapeDef, &circle);
+				b2Shape_SetFriction(shapeId, cc2d.Friction);
+				b2Shape_SetRestitution(shapeId, cc2d.Restitution);
+				cc2d.RuntimeShape = shapeId;
+			}
+
+			if (rb2d.Type == Rigidbody2DComponent::BodyType::Dynamic)
+			{
+				b2Body_ApplyMassFromShapes(bodyId);
+				b2Body_SetAwake(bodyId, true);
 			}
 		}
 	}
@@ -353,6 +370,12 @@ namespace Runic2D {
 			{
 				auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
 				bc2d.RuntimeShape = b2_nullShapeId;
+			}
+
+			if (entity.HasComponent<CircleCollider2DComponent>())
+			{
+				auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+				cc2d.RuntimeShape = b2_nullShapeId;
 			}
 		}
 	}
@@ -477,6 +500,7 @@ namespace Runic2D {
 		CopyComponentIfExists<NativeScriptComponent>(dst, src);
 		CopyComponentIfExists<Rigidbody2DComponent>(dst, src);
 		CopyComponentIfExists<BoxCollider2DComponent>(dst, src);
+		CopyComponentIfExists<CircleCollider2DComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

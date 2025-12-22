@@ -17,6 +17,8 @@
 
 #include "Runic2D/Debug/Instrumentor.h"
 
+#include <box2d/box2d.h>
+
 #ifdef R2D_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif // RUNIC_PLATFORM_WINDOWS
