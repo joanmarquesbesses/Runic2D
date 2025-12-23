@@ -40,8 +40,8 @@ namespace Runic2D
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		io.Fonts->Clear();
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/Inter/Inter_18pt-Regular.ttf", 16.0f);
-		io.Fonts->AddFontFromFileTTF("assets/fonts/Inter/Inter_18pt-Bold.ttf", 16.0f);
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Inter/Inter_18pt-Regular.ttf", 16.0f);
+		io.Fonts->AddFontFromFileTTF("Resources/Fonts/Inter/Inter_18pt-Bold.ttf", 16.0f);
 
 		//Style setup
 		SetDarkThemeColors(); // Set ImGui style

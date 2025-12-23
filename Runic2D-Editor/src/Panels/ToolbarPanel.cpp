@@ -6,8 +6,8 @@ namespace Runic2D {
 
 	ToolbarPanel::ToolbarPanel()
 	{
-		m_IconPlay = Texture2D::Create("Resources/Icons/play.png");
-		m_IconStop = Texture2D::Create("Resources/Icons/stop.png");
+		m_IconPlay = Texture2D::Create("Resources/Icons/ToolPanel/play.png");
+		m_IconStop = Texture2D::Create("Resources/Icons/ToolPanel/stop.png");
 	}
 
 	void ToolbarPanel::OnImGuiRender(SceneState state)

@@ -7,13 +7,12 @@
 
 #include "Runic2D/Scene/SceneSerializer.h"
 #include "Runic2D/Utils/PlatformUtils.h"
+#include "Runic2D/Project/Project.h"
 
 #include "ImGuizmo.h"
 
 namespace Runic2D
 {
-	// Once we have projects, change this
-	static const std::filesystem::path g_AssetPath = "assets";
 
 	EditorLayer::EditorLayer() : Layer("EditorLayer") {
 
@@ -34,6 +33,18 @@ namespace Runic2D
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
+
+		std::filesystem::path projectPath = "Projects/Prova/Prova.r2dproj";
+
+		if (std::filesystem::exists(projectPath))
+		{
+			OpenProject(projectPath);
+		}
+		else
+		{
+			Project::New();
+			m_ContentBrowserPanel.ResetToDefault();
+		}
 
 #if 0
 		m_SquareEntity = m_ActiveScene->CreateEntity("Quad");
@@ -231,17 +242,27 @@ namespace Runic2D
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if(ImGui::MenuItem("New", "Ctrl+N"))
+				if (ImGui::MenuItem("New Project..."))
+					NewProject();
+
+				if (ImGui::MenuItem("Open Project..."))
+					OpenProject();
+
+				if (ImGui::MenuItem("Save Project"))
+					SaveProject();
+
+				ImGui::Separator();
+
+				if(ImGui::MenuItem("New Scene", "Ctrl+N"))
 					NewScene();
 
-				ImGui::Separator();
-
-				if(ImGui::MenuItem("Open...", "Ctrl+O"))
+				if(ImGui::MenuItem("Open Scene...", "Ctrl+O"))
 					OpenScene();
 
-				ImGui::Separator();
+				if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
+					SaveScene();
 
-				if(ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
+				if(ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"))
 					SaveSceneAs();
 
 				ImGui::Separator();
@@ -467,5 +488,38 @@ namespace Runic2D
 		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 		if (selectedEntity)
 			m_EditorScene->DuplicateEntity(selectedEntity);
+	}
+
+	void EditorLayer::NewProject()
+	{
+		Project::New();
+	}
+
+	void EditorLayer::OpenProject()
+	{
+		std::string filepath = FileDialogs::OpenFile("Runic2D Project (*.r2dproj)\0*.r2dproj\0");
+		if (filepath.empty())
+			return;
+
+		OpenProject(filepath);
+	}
+
+	void EditorLayer::OpenProject(const std::filesystem::path& path)
+	{
+		if (Project::Load(path))
+		{
+			auto startScenePath = Project::GetAssetFileSystemPath(Project::GetActive()->GetConfig().StartScene);
+			OpenScene(startScenePath);
+
+			m_ContentBrowserPanel.ResetToDefault();
+		}
+	}
+
+	void EditorLayer::SaveProject()
+	{
+		// Pots guardar a la ruta existent o demanar "Save As"
+		// De moment simplificat:
+		// Project::SaveActive("ruta/al/teu/Sandbox.r2dproj"); 
+		// Idealment guardes la ruta quan fas Load i reutilitzes.
 	}
 }

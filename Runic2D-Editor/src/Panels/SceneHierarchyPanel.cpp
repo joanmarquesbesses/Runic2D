@@ -9,6 +9,7 @@
 #include "Runic2D/Scene/Component.h"
 
 #include "Runic2D/Renderer/Renderer2D.h"
+#include "Runic2D/Project/Project.h"
 
 #include <cstring>
 
@@ -21,7 +22,6 @@
 
 namespace Runic2D
 {
-	static const std::filesystem::path g_AssetPath = "assets";
 
 	template<typename T, typename UIFunction>
 	static void DrawComponent(const std::string& name, Entity entity, UIFunction uiFunction, bool canBeDeleted = true)
@@ -406,8 +406,8 @@ namespace Runic2D
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
 					{
-						const wchar_t* path = (const wchar_t*)payload->Data;
-						std::filesystem::path texturePath = std::filesystem::path(g_AssetPath) / path;
+						const char* path = (const char*)payload->Data;
+						std::filesystem::path texturePath = Project::GetAssetFileSystemPath(path);
 						component.Texture = Texture2D::Create(texturePath.string());
 					}
 					ImGui::EndDragDropTarget();

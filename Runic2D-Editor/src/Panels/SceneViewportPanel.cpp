@@ -5,6 +5,7 @@
 #include "Runic2D/Scene/Component.h"
 #include "Runic2D/Core/Input.h"
 #include "Runic2D/Math/Math.h" 
+#include "Runic2D/Project/Project.h"
 
 #include <imgui/imgui.h>
 #include "ImGuizmo.h"
@@ -41,8 +42,8 @@ namespace Runic2D {
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
 			{
-				const wchar_t* path = (const wchar_t*)payload->Data;
-				std::filesystem::path scenePath = std::filesystem::path("assets") / path;
+				const char* path = (const char*)payload->Data;
+				std::filesystem::path scenePath = Project::GetAssetFileSystemPath(path);
 
 				if (scenePath.extension().string() == ".r2dscene" && m_OnSceneOpenCallback)
 				{

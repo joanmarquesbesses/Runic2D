@@ -11,7 +11,7 @@ Entities:
       Parent: 2886006786707139582
     SpriteRendererComponent:
       Color: [1, 1, 1, 1]
-      TexturePath: assets\textures\icon.png
+      TexturePath: textures/icon.png
       TilingFactor: 1
   - EntityID: 2886006786707139582
     TagComponent:
@@ -24,6 +24,7 @@ Entities:
       Parent: 0
     SpriteRendererComponent:
       Color: [1, 1, 1, 1]
+      TexturePath: textures/icon.png
       TilingFactor: 1
   - EntityID: 8960958597215815227
     TagComponent:

@@ -40,6 +40,11 @@ namespace Runic2D {
 		void OnSceneStop();
 
 		void OnDuplicateEntity();
+
+		void NewProject();
+		void OpenProject();
+		void OpenProject(const std::filesystem::path& path);
+		void SaveProject();
 	private:
 		Ref<FrameBuffer> m_FrameBuffer;
 		

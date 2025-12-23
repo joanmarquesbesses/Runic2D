@@ -3,23 +3,31 @@
 
 #include <imgui/imgui.h>
 
+#include "Runic2D/Project/Project.h"
+
 namespace Runic2D {
 
-	// Once we have projects, change this
-	static const std::filesystem::path s_AssetPath = "assets";
-
 	ContentBrowserPanel::ContentBrowserPanel()
-		: m_CurrentDirectory(s_AssetPath), m_FirstFrame(true)
+		: m_FirstFrame(true)
 	{
 		m_DirectoryIcon = Texture2D::Create("Resources/Icons/ContentBrowser/folder.png");
 		m_FileIcon = Texture2D::Create("Resources/Icons/ContentBrowser/document.png");
+	}
 
-		RefreshDirectoryEntries();
-		RefreshTree();
+	void ContentBrowserPanel::ResetToDefault()
+	{
+		if (Project::GetActive()) {
+			m_CurrentDirectory = Project::GetAssetFileSystemPath("");
+			RefreshDirectoryEntries();
+			RefreshTree();
+		}
 	}
 
 	void ContentBrowserPanel::RefreshDirectoryEntries()
 	{
+		if (m_CurrentDirectory.empty() || !std::filesystem::exists(m_CurrentDirectory))
+			return;
+
 		m_DirectoryEntries.clear();
 		for (auto& directoryEntry : std::filesystem::directory_iterator(m_CurrentDirectory))
 		{
@@ -30,11 +38,14 @@ namespace Runic2D {
 	void ContentBrowserPanel::RefreshTree()
 	{
 		m_TreeNodes.clear();
-		BuildTreeNodes(s_AssetPath, m_TreeNodes);
+		BuildTreeNodes(Project::GetAssetFileSystemPath(""), m_TreeNodes);
 	}
 
 	void ContentBrowserPanel::BuildTreeNodes(const std::filesystem::path& path, std::vector<FileNode>& nodes)
 	{
+		if (path.empty() || !std::filesystem::exists(path) || !std::filesystem::is_directory(path))
+			return;
+
 		for (auto& entry : std::filesystem::directory_iterator(path))
 		{
 			if (!entry.is_directory())
@@ -97,13 +108,15 @@ namespace Runic2D {
 
 		ImGui::BeginChild("FolderTree");
 
+		std::filesystem::path assetPath = Project::GetAssetFileSystemPath("");
+
 		ImGuiTreeNodeFlags rootFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
-		if (m_CurrentDirectory == s_AssetPath) rootFlags |= ImGuiTreeNodeFlags_Selected;
+		if (m_CurrentDirectory == assetPath) rootFlags |= ImGuiTreeNodeFlags_Selected;
 
 		bool rootOpen = ImGui::TreeNodeEx("Assets", rootFlags, "Assets");
 		if (ImGui::IsItemClicked())
 		{
-			m_CurrentDirectory = s_AssetPath;
+			m_CurrentDirectory = assetPath;
 			RefreshDirectoryEntries();
 		}
 
@@ -119,11 +132,20 @@ namespace Runic2D {
 
 		ImGui::BeginChild("FileGrid");
 
-		if (m_CurrentDirectory != std::filesystem::path(s_AssetPath))
+		if (m_CurrentDirectory != assetPath)
 		{
 			if (ImGui::Button("<-"))
 			{
-				m_CurrentDirectory = m_CurrentDirectory.parent_path();
+				std::filesystem::path parentPath = m_CurrentDirectory.parent_path();
+				if (std::filesystem::equivalent(parentPath, assetPath))
+				{
+					m_CurrentDirectory = assetPath;
+				}
+				else
+				{
+					m_CurrentDirectory = parentPath;
+				}
+
 				RefreshDirectoryEntries();
 			}
 			ImGui::Separator();
@@ -137,13 +159,20 @@ namespace Runic2D {
 
 		ImGui::Columns(columnCount, 0, false);
 
+		int i = 0;
 		for (auto& directoryEntry : m_DirectoryEntries)
 		{
 			const auto& path = directoryEntry.path();
-			auto relativePath = std::filesystem::relative(path, s_AssetPath);
+			auto relativePath = std::filesystem::relative(path, assetPath);
 			std::string filenameString = relativePath.filename().string();
 
-			ImGui::PushID(filenameString.c_str());
+			std::string itemPathString = relativePath.string();
+			std::replace(itemPathString.begin(), itemPathString.end(), '\\', '/');
+
+			std::string absolutePathString = path.string();
+			std::replace(absolutePathString.begin(), absolutePathString.end(), '\\', '/');
+
+			ImGui::PushID(i++);
 
 			Ref<Texture2D> icon = directoryEntry.is_directory() ? m_DirectoryIcon : m_FileIcon;
 
@@ -153,8 +182,8 @@ namespace Runic2D {
 
 			if (ImGui::BeginDragDropSource())
 			{
-				const wchar_t* itemPath = relativePath.c_str();
-				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
+				const char* itemPath = itemPathString.c_str();
+				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, itemPathString.size() + 1);
 				ImGui::EndDragDropSource();
 			}
 
@@ -166,10 +195,12 @@ namespace Runic2D {
 				{
 					m_CurrentDirectory /= path.filename();
 					RefreshDirectoryEntries();
+					ImGui::PopID();
+					break;
 				}
 				else if (m_OnFileOpenCallback)
 				{
-					m_OnFileOpenCallback(directoryEntry.path());
+					m_OnFileOpenCallback(std::filesystem::path(absolutePathString));
 				}
 			}
 			ImGui::TextWrapped(filenameString.c_str());

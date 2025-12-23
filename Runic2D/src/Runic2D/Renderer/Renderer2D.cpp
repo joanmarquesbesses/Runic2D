@@ -175,15 +175,15 @@ namespace Runic2D
 		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; ++i)
 			samplers[i] = i;
 
-		s_Data.QuadShader = Shader::Create("assets/shaders/Renderer2D_Quad.glsl");
+		s_Data.QuadShader = Shader::Create("Resources/Shaders/Renderer2D_Quad.glsl");
 		s_Data.QuadShader->Bind();
 		s_Data.QuadShader->SetIntArray("u_Texture", samplers, s_Data.MaxTextureSlots);
 
-		s_Data.CircleShader = Shader::Create("assets/shaders/Renderer2D_Circle.glsl");
+		s_Data.CircleShader = Shader::Create("Resources/Shaders/Renderer2D_Circle.glsl");
 		s_Data.CircleShader->Bind();
 		//s_Data.CircleShader->SetIntArray("u_Texture", samplers, s_Data.MaxTextureSlots);
 
-		s_Data.LineShader = Shader::Create("assets/shaders/Renderer2D_Line.glsl");
+		s_Data.LineShader = Shader::Create("Resources/Shaders/Renderer2D_Line.glsl");
 		s_Data.LineShader->Bind();
 
 		// Set texture slots to 0

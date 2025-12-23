@@ -31,6 +31,7 @@ namespace Runic2D {
 			m_OnFileOpenCallback = callback;
 		}
 
+		void ResetToDefault();
 	private:
 		void RefreshDirectoryEntries();
 		void RefreshTree();

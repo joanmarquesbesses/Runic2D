@@ -6,6 +6,7 @@
 
 #include "Entity.h"
 #include "Component.h"
+#include "Runic2D/Project/Project.h"
 
 #include <unordered_map>
 
@@ -198,7 +199,7 @@ namespace Runic2D {
 			out << YAML::EndMap; // CameraComponent
 		}
 
-		if(entity.HasComponent<SpriteRendererComponent>())
+		if (entity.HasComponent<SpriteRendererComponent>())
 		{
 			auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 
@@ -209,7 +210,51 @@ namespace Runic2D {
 
 			if (spriteRenderer.Texture)
 			{
-				out << YAML::Key << "TexturePath" << YAML::Value << spriteRenderer.Texture->GetPath();
+				std::filesystem::path texturePath = spriteRenderer.Texture->GetPath();
+				std::string texturePathString = texturePath.string();
+
+				std::replace(texturePathString.begin(), texturePathString.end(), '\\', '/');
+
+				if (Project::GetActive())
+				{
+					std::filesystem::path assetPath = Project::GetAssetDirectory();
+					std::string assetPathString = assetPath.string();
+
+					std::replace(assetPathString.begin(), assetPathString.end(), '\\', '/');
+
+					size_t pos = texturePathString.find(assetPathString);
+
+					if (pos != std::string::npos)
+					{
+						texturePathString = texturePathString.substr(pos + assetPathString.length());
+
+						if (texturePathString.size() > 0 && (texturePathString[0] == '/' || texturePathString[0] == '\\'))
+						{
+							texturePathString = texturePathString.substr(1);
+						}
+					}
+					else
+					{
+						std::filesystem::path absTexture = std::filesystem::absolute(texturePath);
+						std::filesystem::path absAssets = std::filesystem::absolute(assetPath);
+
+						std::string absTexStr = absTexture.string();
+						std::string absAssStr = absAssets.string();
+
+						std::replace(absTexStr.begin(), absTexStr.end(), '\\', '/');
+						std::replace(absAssStr.begin(), absAssStr.end(), '\\', '/');
+
+						pos = absTexStr.find(absAssStr);
+						if (pos != std::string::npos)
+						{
+							texturePathString = absTexStr.substr(pos + absAssStr.length());
+							if (texturePathString.size() > 0 && texturePathString[0] == '/')
+								texturePathString = texturePathString.substr(1);
+						}
+					}
+				}
+
+				out << YAML::Key << "TexturePath" << YAML::Value << texturePathString;
 			}
 
 			out << YAML::Key << "TilingFactor" << YAML::Value << spriteRenderer.TilingFactor;
@@ -390,8 +435,17 @@ namespace Runic2D {
 
 					if (spriteRendererComponent["TexturePath"])
 					{
-						std::string texturePath = spriteRendererComponent["TexturePath"].as<std::string>();
-						src.Texture = Texture2D::Create(texturePath);
+						std::string texturePathString = spriteRendererComponent["TexturePath"].as<std::string>();
+						std::filesystem::path path = Project::GetAssetFileSystemPath(texturePathString);
+
+						if (std::filesystem::exists(path))
+						{
+							src.Texture = Texture2D::Create(path.string());
+						}
+						else
+						{
+							R2D_CORE_WARN("Texture not found: {0}", path.string());
+						}
 					}
 
 					if (spriteRendererComponent["TilingFactor"])
