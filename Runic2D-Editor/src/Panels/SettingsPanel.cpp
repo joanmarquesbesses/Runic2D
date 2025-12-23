@@ -7,7 +7,7 @@
 
 namespace Runic2D {
 
-	void SettingsPanel::OnImGuiRender(EditorCamera& camera, ContentBrowserPanel& contentBrowser, int& gizmoType, int& gizmoMode)
+	void SettingsPanel::OnImGuiRender(EditorCamera& camera, ContentBrowserPanel& contentBrowser, int& gizmoType, int& gizmoMode, bool& showColliders)
 	{
 		ImGui::Begin("Settings");
 
@@ -101,6 +101,12 @@ namespace Runic2D {
 			ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 			ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 			ImGui::Text("FPS: %.1f", Application::Get().GetAverageFPS());
+		}
+
+        // --- Physics ---
+        if (ImGui::CollapsingHeader("Physics", ImGuiTreeNodeFlags_CollapsingHeader))
+        {
+            ImGui::Checkbox("Show Physics Colliders", &showColliders);
 		}
 
 		ImGui::End();

@@ -43,6 +43,8 @@ namespace Runic2D {
 
 		void DuplicateEntity(Entity entity);
 
+		void OnRenderOverlay(const glm::mat4& viewProjection);
+
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
 	private:

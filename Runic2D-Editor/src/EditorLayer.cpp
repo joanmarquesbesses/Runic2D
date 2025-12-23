@@ -153,6 +153,32 @@ namespace Runic2D
 			}
 		}
 
+		if (m_ShowPhysicsColliders)
+		{
+			glm::mat4 viewProj;
+
+			if (m_SceneState == SceneState::Play)
+			{
+				Entity cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+				if (cameraEntity)
+				{
+					auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+					auto& tc = cameraEntity.GetComponent<TransformComponent>();
+					viewProj = camera.GetProjection() * glm::inverse(tc.GetTransform());
+				}
+				else
+				{
+					viewProj = m_EditorCamera.GetViewProjection();
+				}
+			}
+			else
+			{
+				viewProj = m_EditorCamera.GetViewProjection();
+			}
+
+			m_ActiveScene->OnRenderOverlay(viewProj);
+		}
+
 		m_FrameBuffer->Unbind();
 		
 	}
@@ -232,7 +258,7 @@ namespace Runic2D
 		//Panels
 		m_SceneHierarchyPanel.OnImGuiRender();
 		m_ContentBrowserPanel.OnImGuiRender();
-		m_SettingsPanel.OnImGuiRender(m_EditorCamera, m_ContentBrowserPanel, m_GizmoType, m_GizmoMode);
+		m_SettingsPanel.OnImGuiRender(m_EditorCamera, m_ContentBrowserPanel, m_GizmoType, m_GizmoMode, m_ShowPhysicsColliders);
 
 		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 		m_ViewportPanel.OnImGuiRender(m_FrameBuffer, m_ActiveScene, m_EditorCamera, selectedEntity, m_GizmoType, m_GizmoMode);

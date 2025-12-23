@@ -232,6 +232,13 @@ namespace Runic2D
 		StartBatch();
 	}
 
+	void Renderer2D::BeginScene(const glm::mat4& viewProj)
+	{
+		s_Data.CameraBuffer.ViewProjection = viewProj;
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
+		StartBatch();
+	}
+
 	void Renderer2D::EndScene()
 	{
 		R2D_PROFILE_FUNCTION();

@@ -55,6 +55,8 @@ namespace Runic2D {
 		int m_GizmoType = -1;
 		int m_GizmoMode = 0;
 
+		bool m_ShowPhysicsColliders = false;
+
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		ContentBrowserPanel m_ContentBrowserPanel;

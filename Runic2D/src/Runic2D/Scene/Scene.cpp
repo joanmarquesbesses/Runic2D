@@ -645,4 +645,39 @@ namespace Runic2D {
 
 		return worldTransform;
 	}
+
+	void Scene::OnRenderOverlay(const glm::mat4& viewProjection)
+	{
+		Renderer2D::BeginScene(viewProjection);
+		
+		auto viewbc = m_Registry.view<TransformComponent, BoxCollider2DComponent>();
+
+		viewbc.each([&](auto entity, auto& tc, auto& bc2d)
+			{
+				glm::vec3 scale = tc.Scale * glm::vec3(bc2d.Size, 1.0f);
+
+				glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.Translation)
+					* glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
+					* glm::translate(glm::mat4(1.0f), glm::vec3(bc2d.Offset, 0.001f))
+					* glm::scale(glm::mat4(1.0f), scale);
+
+				Renderer2D::DrawRect(transform, glm::vec4(0, 1, 0, 1));
+			});
+		
+		auto viewcc = m_Registry.view<TransformComponent, CircleCollider2DComponent>();
+
+		viewcc.each([&](auto entity, auto& tc, auto& cc2d)
+			{
+				float scale = std::max(tc.Scale.x, tc.Scale.y) * cc2d.Radius * 2.0f;
+
+				glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.Translation)
+					* glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
+					* glm::translate(glm::mat4(1.0f), glm::vec3(cc2d.Offset, 0.001f))
+					* glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, 1.0f));
+
+				Renderer2D::DrawCircle(transform, glm::vec4(0, 1, 0, 1), 0.05f, 0.01f, (int)entity);
+			});
+
+		Renderer2D::EndScene();
+	}
 }
