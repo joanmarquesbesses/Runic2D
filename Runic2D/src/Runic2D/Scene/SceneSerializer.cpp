@@ -7,6 +7,7 @@
 #include "Entity.h"
 #include "Component.h"
 #include "Runic2D/Project/Project.h"
+#include "Runic2D/Assets/ResourceManager.h"
 
 #include <unordered_map>
 
@@ -440,7 +441,7 @@ namespace Runic2D {
 
 						if (std::filesystem::exists(path))
 						{
-							src.Texture = Texture2D::Create(path.string());
+							src.Texture = ResourceManager::Get<Texture2D>(path);
 						}
 						else
 						{

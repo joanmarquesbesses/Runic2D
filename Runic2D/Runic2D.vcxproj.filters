@@ -1490,6 +1490,7 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\Project\Project.h" />
     <ClInclude Include="src\Runic2D\Project\ProjectSerializer.h" />
+    <ClInclude Include="src\Runic2D\Assets\ResourceManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1611,5 +1612,6 @@
     </ClCompile>
     <ClCompile Include="src\Runic2D\Project\Project.cpp" />
     <ClCompile Include="src\Runic2D\Project\ProjectSerializer.cpp" />
+    <ClCompile Include="src\Runic2D\Assets\ResourceManager.cpp" />
   </ItemGroup>
 </Project>

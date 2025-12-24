@@ -1,13 +1,15 @@
 #include "R2Dpch.h"
 #include "ToolbarPanel.h"
+
+#include "Runic2D/Assets/ResourceManager.h"
 #include <imgui/imgui.h>
 
 namespace Runic2D {
 
 	ToolbarPanel::ToolbarPanel()
 	{
-		m_IconPlay = Texture2D::Create("Resources/Icons/ToolPanel/play.png");
-		m_IconStop = Texture2D::Create("Resources/Icons/ToolPanel/stop.png");
+		m_IconPlay = ResourceManager::Get<Texture2D>("Resources/Icons/ToolPanel/play.png");
+		m_IconStop = ResourceManager::Get<Texture2D>("Resources/Icons/ToolPanel/stop.png");
 	}
 
 	void ToolbarPanel::OnImGuiRender(SceneState state)

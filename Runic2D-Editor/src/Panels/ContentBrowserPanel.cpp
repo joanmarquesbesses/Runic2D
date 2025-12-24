@@ -4,14 +4,15 @@
 #include <imgui/imgui.h>
 
 #include "Runic2D/Project/Project.h"
+#include "Runic2D/Assets/ResourceManager.h"
 
 namespace Runic2D {
 
 	ContentBrowserPanel::ContentBrowserPanel()
 		: m_FirstFrame(true)
 	{
-		m_DirectoryIcon = Texture2D::Create("Resources/Icons/ContentBrowser/folder.png");
-		m_FileIcon = Texture2D::Create("Resources/Icons/ContentBrowser/document.png");
+		m_DirectoryIcon = ResourceManager::Get<Texture2D>("Resources/Icons/ContentBrowser/folder.png");
+		m_FileIcon = ResourceManager::Get<Texture2D>("Resources/Icons/ContentBrowser/document.png");
 	}
 
 	void ContentBrowserPanel::ResetToDefault()

@@ -4,6 +4,7 @@
 #include "Core.h"
 #include <glad/glad.h>
 #include "Runic2D/Renderer/Renderer.h"
+#include "Runic2D/Assets/ResourceManager.h"
 
 #include "Input.h"
 
@@ -35,6 +36,7 @@ namespace Runic2D {
 		R2D_PROFILE_FUNCTION();
 
 		Renderer::Shutdown();
+		ResourceManager::Clear();
 	}
 
 	void Application::PushLayer(Layer* layer)

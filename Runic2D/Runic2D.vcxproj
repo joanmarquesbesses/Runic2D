@@ -149,6 +149,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Runic2D\Assets\ResourceManager.h" />
     <ClInclude Include="src\Runic2D\Project\ProjectSerializer.h" />
     <ClInclude Include="src\Runic2D\Project\Project.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
@@ -627,6 +628,7 @@
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Runic2D\Assets\ResourceManager.cpp" />
     <ClCompile Include="src\Runic2D\Project\ProjectSerializer.cpp" />
     <ClCompile Include="src\Runic2D\Project\Project.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />

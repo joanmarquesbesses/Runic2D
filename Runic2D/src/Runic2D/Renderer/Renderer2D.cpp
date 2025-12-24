@@ -5,6 +5,7 @@
 #include "VertexArray.h"
 #include "UniformBuffer.h"
 #include "RenderCommand.h"
+#include "Runic2D/Assets/ResourceManager.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -175,15 +176,16 @@ namespace Runic2D
 		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; ++i)
 			samplers[i] = i;
 
-		s_Data.QuadShader = Shader::Create("Resources/Shaders/Renderer2D_Quad.glsl");
+		
+		s_Data.QuadShader = ResourceManager::Get<Shader>("Resources/Shaders/Renderer2D_Quad.glsl");
 		s_Data.QuadShader->Bind();
 		s_Data.QuadShader->SetIntArray("u_Texture", samplers, s_Data.MaxTextureSlots);
 
-		s_Data.CircleShader = Shader::Create("Resources/Shaders/Renderer2D_Circle.glsl");
+		s_Data.CircleShader = ResourceManager::Get<Shader>("Resources/Shaders/Renderer2D_Circle.glsl");
 		s_Data.CircleShader->Bind();
 		//s_Data.CircleShader->SetIntArray("u_Texture", samplers, s_Data.MaxTextureSlots);
 
-		s_Data.LineShader = Shader::Create("Resources/Shaders/Renderer2D_Line.glsl");
+		s_Data.LineShader = ResourceManager::Get<Shader>("Resources/Shaders/Renderer2D_Line.glsl");
 		s_Data.LineShader->Bind();
 
 		// Set texture slots to 0
@@ -301,6 +303,15 @@ namespace Runic2D
 			RenderCommand::DrawLines(s_Data.LineVertexArray, s_Data.LineVertexCount);
 			s_Data.Stats.DrawCalls++;
 		}
+	}
+
+	void Renderer2D::ResetTextureSlots()
+	{
+		for (uint32_t i = 1; i < s_Data.MaxTextureSlots; i++)
+		{
+			s_Data.TextureSlots[i] = nullptr;
+		}
+		s_Data.TextureSlotIndex = 1;
 	}
 
 	void Renderer2D::NextBatch()

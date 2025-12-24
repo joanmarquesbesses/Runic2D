@@ -8,6 +8,7 @@
 #include "Runic2D/Scene/SceneSerializer.h"
 #include "Runic2D/Utils/PlatformUtils.h"
 #include "Runic2D/Project/Project.h"
+#include"Runic2D/Assets/ResourceManager.h"
 
 #include "ImGuizmo.h"
 
@@ -117,7 +118,8 @@ namespace Runic2D
 	void EditorLayer::OnDetach()
 	{
 		R2D_PROFILE_FUNCTION();
-
+		m_EditorScene = nullptr;
+		m_ActiveScene = nullptr;
 	}
 
 	void EditorLayer::OnUpdate(Timestep ts)
@@ -306,54 +308,58 @@ namespace Runic2D
 		bool control = Input::IsKeyPressed(KeyCode::LeftControl) || Input::IsKeyPressed(KeyCode::RightControl);
 		bool shift = Input::IsKeyPressed(KeyCode::LeftShift) || Input::IsKeyPressed(KeyCode::RightShift);
 
-		switch (e.GetKeyCode())
-		{
-		case KeyCode::N:
-			if (control)
-				NewScene();
-
-			break;
-		case KeyCode::O:
-			if (control)
-				OpenScene();
-
-			break;
-		case KeyCode::S:
-			if (control)
+		ImGuiIO& io = ImGui::GetIO();
+		if (!io.WantCaptureKeyboard) {
+			switch (e.GetKeyCode())
 			{
-				if (shift)
-					SaveSceneAs();
-				else
-					SaveScene();
+			case KeyCode::N:
+				if (control)
+					NewScene();
+
+				break;
+			case KeyCode::O:
+				if (control)
+					OpenScene();
+
+				break;
+			case KeyCode::S:
+				if (control)
+				{
+					if (shift)
+						SaveSceneAs();
+					else
+						SaveScene();
+				}
+				break;
+			case KeyCode::D:
+				if (control)
+					OnDuplicateEntity();
+				break;
+			case KeyCode::Q:
+				if (!ImGuizmo::IsUsing()) {
+					m_GizmoType = -1;
+				}
+				break;
+			case KeyCode::W:
+				if (!ImGuizmo::IsUsing()) {
+					m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+				}
+				break;
+			case KeyCode::E:
+				if (!ImGuizmo::IsUsing()) {
+					m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+				}
+				break;
+			case KeyCode::R:
+				if (!ImGuizmo::IsUsing()) {
+					m_GizmoType = ImGuizmo::OPERATION::SCALE;
+				}
+				break;
+			default:
+				break;
 			}
-			break;
-		case KeyCode::D:
-			if (control)
-				OnDuplicateEntity();
-			break;
-		case KeyCode::Q:
-			if (!ImGuizmo::IsUsing()) {
-				m_GizmoType = -1;
-			}
-			break;
-		case KeyCode::W:
-			if (!ImGuizmo::IsUsing()) {
-				m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
-			}
-			break;
-		case KeyCode::E:
-			if (!ImGuizmo::IsUsing()) {
-				m_GizmoType = ImGuizmo::OPERATION::ROTATE;
-			}
-			break;
-		case KeyCode::R:
-			if (!ImGuizmo::IsUsing()) {
-				m_GizmoType = ImGuizmo::OPERATION::SCALE;
-			}
-			break;
-		default:
-			break;
-		}
+		}	
+		return true;
 	}
 
 	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
@@ -422,19 +428,30 @@ namespace Runic2D
 			return;
 		}
 
+		m_EditorScene = nullptr;
+		m_ActiveScene = nullptr;
+
+		m_SceneHierarchyPanel.SetContext(nullptr);
+
+		m_HoveredEntity = {};
+		m_SceneHierarchyPanel.SetSelectedEntity({});
+
+		Renderer2D::ResetTextureSlots();
+
+		ResourceManager::CleanUpUnused();
+
 		Ref<Scene> newScene = CreateRef<Scene>();
-		newScene->OnViewportResize((uint32_t)m_ViewportPanel.GetSize().x, (uint32_t)m_ViewportPanel.GetSize().y);
-		m_SceneHierarchyPanel.SetContext(newScene);
+		newScene->OnViewportResize((uint32_t)m_ViewportPanel.GetSize().x, (uint32_t)m_ViewportPanel.GetSize().y);		
 
 		SceneSerializer serializer(newScene);
 		if (serializer.Deserialize(path.string()))
 		{
 			m_EditorScene = newScene;
-			m_EditorScene->OnViewportResize(m_ViewportPanel.GetSize().x, m_ViewportPanel.GetSize().y);
-			m_SceneHierarchyPanel.SetContext(m_EditorScene);
 
 			m_ActiveScene = m_EditorScene;
 			m_EditorScenePath = path;
+
+			m_SceneHierarchyPanel.SetContext(m_EditorScene);
 		}
 	}
 
@@ -517,9 +534,8 @@ namespace Runic2D
 
 	void EditorLayer::SaveProject()
 	{
-		// Pots guardar a la ruta existent o demanar "Save As"
-		// De moment simplificat:
-		// Project::SaveActive("ruta/al/teu/Sandbox.r2dproj"); 
-		// Idealment guardes la ruta quan fas Load i reutilitzes.
+		// TODO: Implementar quan tinguem panell de configuració del Projecte
+		// (Ex: per canviar l'escena inicial o el nom del joc des de la UI)
+		// Project::SaveActive(m_ProjectPath);
 	}
 }
