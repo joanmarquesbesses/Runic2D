@@ -1,11 +1,11 @@
 #include "R2Dpch.h"
 #include "Scene.h"
 
-#include "Component.h"
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Math/Math.h"
 
 #include "Entity.h"
+#include "Component.h"
 
 namespace Runic2D {
 
@@ -193,6 +193,7 @@ namespace Runic2D {
 		if (B2_IS_NON_NULL(m_PhysicsWorld))
 		{
 			b2World_Step(m_PhysicsWorld, ts, 4);
+			b2ContactEvents events = b2World_GetContactEvents(m_PhysicsWorld);
 
 			auto view = m_Registry.view<Rigidbody2DComponent>();
 			for (auto e : view)
@@ -216,6 +217,32 @@ namespace Runic2D {
 				transform.Translation.y = position.y;
 				transform.Rotation.z = b2Rot_GetAngle(rotation);
 				transform.IsDirty = true;
+			}
+
+			for (int i = 0; i < events.beginCount; ++i)
+			{
+				b2ContactBeginTouchEvent* event = events.beginEvents + i;
+
+				b2ShapeId shapeA = event->shapeIdA;
+				b2ShapeId shapeB = event->shapeIdB;
+
+				uint64_t uuidA = (uintptr_t)b2Shape_GetUserData(shapeA);
+				uint64_t uuidB = (uintptr_t)b2Shape_GetUserData(shapeB);
+
+				Entity entityA = GetEntityByUUID(uuidA);
+				Entity entityB = GetEntityByUUID(uuidB);
+
+				if (entityA && entityA.HasComponent<NativeScriptComponent>())
+				{
+					auto& script = entityA.GetComponent<NativeScriptComponent>();
+					if (script.Instance) script.Instance->OnCollision(entityB);
+				}
+
+				if (entityB && entityB.HasComponent<NativeScriptComponent>())
+				{
+					auto& script = entityB.GetComponent<NativeScriptComponent>();
+					if (script.Instance) script.Instance->OnCollision(entityA);
+				}
 			}
 		}
 
@@ -299,6 +326,7 @@ namespace Runic2D {
 			bodyDef.type = Rigidbody2DTypeToBox2D(rb2d.Type);
 			bodyDef.position = { wolrdTransform[3].x, wolrdTransform[3].y };
 			bodyDef.rotation = b2MakeRot(transform.Rotation.z);
+			bodyDef.enableSleep = true;
 			bodyDef.motionLocks.angularZ = rb2d.FixedRotation;
 
 			b2BodyId bodyId = b2CreateBody(m_PhysicsWorld, &bodyDef);
@@ -308,9 +336,11 @@ namespace Runic2D {
 			{
 				auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
 
-				// Definició de la forma (materials)
 				b2ShapeDef shapeDef = b2DefaultShapeDef();
 				shapeDef.density = bc2d.Density;
+
+				shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
+				shapeDef.enableContactEvents = true;
 
 				float hx = std::abs(bc2d.Size.x * transform.Scale.x) * 0.5f;
 				float hy = std::abs(bc2d.Size.y * transform.Scale.y) * 0.5f;
@@ -329,6 +359,9 @@ namespace Runic2D {
 
 				b2ShapeDef shapeDef = b2DefaultShapeDef();
 				shapeDef.density = cc2d.Density;
+
+				shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
+				shapeDef.enableContactEvents = true;
 
 				float maxScale = std::max(transform.Scale.x, transform.Scale.y);
 				float radius = cc2d.Radius * maxScale;

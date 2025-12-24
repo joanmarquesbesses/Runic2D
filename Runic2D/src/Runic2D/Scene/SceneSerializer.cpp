@@ -8,6 +8,7 @@
 #include "Component.h"
 #include "Runic2D/Project/Project.h"
 #include "Runic2D/Assets/ResourceManager.h"
+#include "Runic2D/Scripting/ScriptEngine.h"
 
 #include <unordered_map>
 
@@ -276,6 +277,17 @@ namespace Runic2D {
 			out << YAML::EndMap;
 		}
 
+		if (entity.HasComponent<NativeScriptComponent>())
+		{
+			out << YAML::Key << "NativeScriptComponent";
+			out << YAML::BeginMap;
+
+			auto& nsc = entity.GetComponent<NativeScriptComponent>();
+			out << YAML::Key << "ClassName" << YAML::Value << nsc.ClassName;
+
+			out << YAML::EndMap;
+		}
+
 		if (entity.HasComponent<Rigidbody2DComponent>())
 		{
 			out << YAML::Key << "Rigidbody2DComponent";
@@ -492,6 +504,18 @@ namespace Runic2D {
 					cc2d.Friction = circleCollider2DComponent["Friction"].as<float>();
 					cc2d.Restitution = circleCollider2DComponent["Restitution"].as<float>();
 					cc2d.RestitutionThreshold = circleCollider2DComponent["RestitutionThreshold"].as<float>();
+				}
+
+				auto nativeScriptComponent = entityNode["NativeScriptComponent"];
+				if (nativeScriptComponent)
+				{
+					auto& nsc = deserializedEntity.AddComponent<NativeScriptComponent>();
+					nsc.ClassName = nativeScriptComponent["ClassName"].as<std::string>();
+
+					if (!nsc.ClassName.empty())
+					{
+						ScriptEngine::BindScript(nsc.ClassName, deserializedEntity);
+					}
 				}
 			}
 		}

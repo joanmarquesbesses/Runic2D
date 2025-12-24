@@ -119,6 +119,8 @@ namespace Runic2D {
 		ScriptableEntity* (*InstantiateScript)();
 		void (*DestroyScript)(NativeScriptComponent*);
 
+		std::string ClassName = "None";
+
 		template<typename T>
 		void Bind() {
 			InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
@@ -155,7 +157,7 @@ namespace Runic2D {
 	struct BoxCollider2DComponent
 	{
 		glm::vec2 Offset = { 0.0f, 0.0f };
-		glm::vec2 Size = { 0.5f, 0.5f };
+		glm::vec2 Size = { 1.0f, 1.0f };
 
 		float Density = 1.0f;
 		float Friction = 0.5f;

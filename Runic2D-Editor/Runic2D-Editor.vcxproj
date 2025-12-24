@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Projects\Arkanoid\Assets\scripts\ScriptRegistry.h" />
     <ClInclude Include="src\EditorLayer.h" />
     <ClInclude Include="src\Panels\ContentBrowserPanel.h" />
     <ClInclude Include="src\Panels\SceneHierarchyPanel.h" />
@@ -148,6 +149,8 @@
     <ClInclude Include="src\Panels\ToolbarPanel.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Projects\Arkanoid\Assets\scripts\Paddle.cpp" />
+    <ClCompile Include="Projects\Arkanoid\Assets\scripts\Paddle.h" />
     <ClCompile Include="src\EditorLayer.cpp" />
     <ClCompile Include="src\Panels\ContentBrowserPanel.cpp" />
     <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp" />

@@ -1,0 +1,46 @@
+Scene: Scene Name
+Entities:
+  - EntityID: 14869475600232901314
+    TagComponent:
+      Tag: Pala
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Paddle
+    Rigidbody2DComponent:
+      BodyType: Kinematic
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - EntityID: 6298628075175912447
+    TagComponent:
+      Tag: Empty Entity
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.7853982
+        PerspectiveNear: 0.01
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 166
+      Primary: true
+      FixedAspectRatio: false

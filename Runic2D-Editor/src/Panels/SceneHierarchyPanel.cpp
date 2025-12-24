@@ -10,6 +10,7 @@
 
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Project/Project.h"
+#include "Runic2D/Scripting/ScriptEngine.h"
 
 #include <cstring>
 
@@ -386,9 +387,37 @@ namespace Runic2D
 			});
 
 
-		DrawComponent<NativeScriptComponent>("Script", entity, [](auto& component)
+		DrawComponent<NativeScriptComponent>("Script", entity, [&](auto& component)
 			{
-				ImGui::Text("Script Attached");
+				std::vector<std::string> scriptNames = ScriptEngine::GetAvailableScripts();
+
+				std::string currentScript = component.ClassName;
+				if (currentScript.empty()) currentScript = "None";
+
+
+				if (ImGui::BeginCombo("Class", currentScript.c_str()))
+				{
+					bool isNoneSelected = (currentScript == "None");
+					if (ImGui::Selectable("None", isNoneSelected))
+					{
+						// Si tries None, podríem voler esborrar el component o deixar-lo buit
+						// De moment no fem res o pots posar ClassName = "None"
+					}
+
+					for (const auto& name : scriptNames)
+					{
+						bool isSelected = (currentScript == name);
+
+						if (ImGui::Selectable(name.c_str(), isSelected))
+						{
+							ScriptEngine::BindScript(name, entity);
+						}
+
+						if (isSelected)
+							ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
 			});
 
 		DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component)

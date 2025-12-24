@@ -1,0 +1,4 @@
+Project:
+  Name: Arkanoid
+  StartScene: scenes/Level1.r2dscene  
+  AssetDirectory: Assets                   
