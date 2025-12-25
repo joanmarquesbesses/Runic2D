@@ -79,7 +79,7 @@ namespace Runic2D {
                     camera.SetOrthographicNearClip(orthoNear);
 
                 float orthoFar = camera.GetOrthographicFarClip();
-                if (ImGui::DragFloat("Far Clip", &orthoFar, 0.1f, orthoNear, 100.0f))
+                if (ImGui::DragFloat("Far Clip", &orthoFar, 0.1f, orthoNear, 10000.0f))
                     camera.SetOrthographicFarClip(orthoFar);
 
                 ImGui::TextDisabled("(In Ortho mode, 'Size' controls the Zoom level)");

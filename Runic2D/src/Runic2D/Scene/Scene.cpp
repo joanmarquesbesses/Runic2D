@@ -141,6 +141,17 @@ namespace Runic2D {
 			}
 		}
 
+		if (entity.HasComponent<Rigidbody2DComponent>())
+		{
+			auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
+
+			if (B2_IS_NON_NULL(rb2d.RuntimeBody) && m_PhysicsWorld.index1 != 0)
+			{
+				b2DestroyBody(rb2d.RuntimeBody);
+				rb2d.RuntimeBody = b2_nullBodyId;
+			}
+		}
+
 		UnparentEntity(entity);
 
 		m_Registry.destroy(entity);
@@ -328,6 +339,7 @@ namespace Runic2D {
 			bodyDef.rotation = b2MakeRot(transform.Rotation.z);
 			bodyDef.enableSleep = true;
 			bodyDef.motionLocks.angularZ = rb2d.FixedRotation;
+			bodyDef.gravityScale = rb2d.GravityScale;
 
 			b2BodyId bodyId = b2CreateBody(m_PhysicsWorld, &bodyDef);
 			rb2d.RuntimeBody = bodyId;

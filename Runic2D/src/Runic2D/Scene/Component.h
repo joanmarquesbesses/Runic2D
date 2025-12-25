@@ -148,6 +148,8 @@ namespace Runic2D {
 		BodyType Type = BodyType::Static;
 		bool FixedRotation = false;
 
+		float GravityScale = 1.0f;
+
 		b2BodyId RuntimeBody = b2_nullBodyId;
 
 		Rigidbody2DComponent() = default;

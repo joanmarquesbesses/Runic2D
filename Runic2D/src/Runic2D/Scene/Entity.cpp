@@ -10,4 +10,12 @@ namespace Runic2D {
         return GetComponent<IDComponent>().ID;
     }
 
+    void Entity::Destroy()
+    {
+        if (m_Scene)
+        {
+            m_Scene->DestroyEntity(*this);
+        }
+    }
+
 } // namespace Runic2D

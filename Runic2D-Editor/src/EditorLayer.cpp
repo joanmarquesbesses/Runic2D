@@ -367,7 +367,7 @@ namespace Runic2D
 		if (e.GetMouseButton() == (int)MouseButton::Left)
 		{
 			// 1. Comprovacions inicials per no fer feina si no cal
-			if (ImGuizmo::IsOver() || Input::IsKeyPressed(KeyCode::LeftAlt))
+			if ((m_GizmoType != -1 && ImGuizmo::IsOver()) || Input::IsKeyPressed(KeyCode::LeftAlt))
 				return false;
 
 			auto [mx, my] = ImGui::GetMousePos();

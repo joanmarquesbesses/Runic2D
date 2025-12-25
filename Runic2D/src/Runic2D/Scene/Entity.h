@@ -12,6 +12,8 @@ namespace Runic2D
 			: m_EntityHandle(handle), m_Scene(scene) {}
 		Entity(const Entity& other) = default;
 
+		void Destroy();
+
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args)
 		{

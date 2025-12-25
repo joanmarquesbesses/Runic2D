@@ -17,6 +17,11 @@ namespace Runic2D
 		virtual void OnUpdate(Timestep ts) {}
 
 		virtual void OnCollision(Entity other) {}
+
+		void Destroy()
+		{
+			m_Entity.Destroy();
+		}
 	private:
 		Entity m_Entity;
 		friend class Scene;

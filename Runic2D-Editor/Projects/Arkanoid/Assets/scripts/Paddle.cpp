@@ -28,8 +28,5 @@ void Paddle::OnUpdate(Timestep ts)
 
 void Paddle::OnCollision(Entity other)
 {
-	R2D_INFO("Paddle ha tocat l'entitat amb ID: {0}", (uint64_t)other.GetUUID());
 
-	if (other.HasComponent<TagComponent>())
-		R2D_INFO("Nom: {0}", other.GetComponent<TagComponent>().Tag);
 }
