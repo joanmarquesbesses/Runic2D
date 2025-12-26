@@ -19,6 +19,8 @@ namespace Runic2D
 			glm::vec2 max = { ((coords.x + spriteSize.x) * cellSize.x) / texture->GetWidth(), ((coords.y + spriteSize.y) * cellSize.y) / texture->GetHeight() };
 			return CreateRef<SubTexture2D>(texture, min, max);
 		}
+
+		static Ref<SubTexture2D> CreateFromPixelCoords(const Ref<Texture2D>& texture, float x, float y, float width, float height);
 	private:
 		Ref<Texture2D> m_Texture;
 		glm::vec2 m_TexCoords[4];

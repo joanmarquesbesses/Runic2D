@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClInclude Include="Projects\Arkanoid\Assets\scripts\Ball.h" />
     <ClInclude Include="Projects\Arkanoid\Assets\scripts\Block.h" />
+    <ClInclude Include="Projects\Arkanoid\Assets\scripts\KillZone.h" />
     <ClInclude Include="Projects\Arkanoid\Assets\scripts\ScriptRegistry.h" />
     <ClInclude Include="src\EditorLayer.h" />
     <ClInclude Include="src\Panels\ContentBrowserPanel.h" />
@@ -153,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="Projects\Arkanoid\Assets\scripts\Ball.cpp" />
     <ClCompile Include="Projects\Arkanoid\Assets\scripts\Block.cpp" />
+    <ClCompile Include="Projects\Arkanoid\Assets\scripts\KillZone.cpp" />
     <ClCompile Include="Projects\Arkanoid\Assets\scripts\Paddle.cpp" />
     <ClCompile Include="Projects\Arkanoid\Assets\scripts\Paddle.h" />
     <ClCompile Include="src\EditorLayer.cpp" />

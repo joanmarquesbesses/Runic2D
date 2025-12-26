@@ -313,6 +313,7 @@ namespace Runic2D {
 			out << YAML::Key << "Friction" << YAML::Value << bc2dComponent.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << bc2dComponent.Restitution;
 			out << YAML::Key << "RestitutionThreshold" << YAML::Value << bc2dComponent.RestitutionThreshold;
+			out << YAML::Key << "IsSensor" << YAML::Value << bc2dComponent.IsSensor;
 
 			out << YAML::EndMap; // BoxCollider2DComponent
 		}
@@ -329,6 +330,7 @@ namespace Runic2D {
 			out << YAML::Key << "Friction" << YAML::Value << cc2dComponent.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << cc2dComponent.Restitution;
 			out << YAML::Key << "RestitutionThreshold" << YAML::Value << cc2dComponent.RestitutionThreshold;
+			out << YAML::Key << "IsSensor" << YAML::Value << cc2dComponent.IsSensor;
 
 			out << YAML::EndMap; // CircleCollider2DComponent
 		}
@@ -488,24 +490,26 @@ namespace Runic2D {
 				if (boxCollider2DComponent)
 				{
 					auto& bc2d = deserializedEntity.AddComponent<BoxCollider2DComponent>();
-					bc2d.Offset = boxCollider2DComponent["Offset"].as<glm::vec2>();
-					bc2d.Size = boxCollider2DComponent["Size"].as<glm::vec2>();
-					bc2d.Density = boxCollider2DComponent["Density"].as<float>();
-					bc2d.Friction = boxCollider2DComponent["Friction"].as<float>();
-					bc2d.Restitution = boxCollider2DComponent["Restitution"].as<float>();
-					bc2d.RestitutionThreshold = boxCollider2DComponent["RestitutionThreshold"].as<float>();
+					YAML_LOAD(boxCollider2DComponent, "Offset", bc2d.Offset);
+					YAML_LOAD(boxCollider2DComponent, "Size", bc2d.Size);
+					YAML_LOAD(boxCollider2DComponent, "Density", bc2d.Density);
+					YAML_LOAD(boxCollider2DComponent, "Friction", bc2d.Friction);
+					YAML_LOAD(boxCollider2DComponent, "Restitution", bc2d.Restitution);
+					YAML_LOAD(boxCollider2DComponent, "RestitutionThreshold", bc2d.RestitutionThreshold);
+					YAML_LOAD(boxCollider2DComponent, "IsSensor", bc2d.IsSensor);
 				}
 
 				auto circleCollider2DComponent = entityNode["CircleCollider2DComponent"];
 				if (circleCollider2DComponent)
 				{
 					auto& cc2d = deserializedEntity.AddComponent<CircleCollider2DComponent>();
-					cc2d.Offset = circleCollider2DComponent["Offset"].as<glm::vec2>();
-					cc2d.Radius = circleCollider2DComponent["Radius"].as<float>();
-					cc2d.Density = circleCollider2DComponent["Density"].as<float>();
-					cc2d.Friction = circleCollider2DComponent["Friction"].as<float>();
-					cc2d.Restitution = circleCollider2DComponent["Restitution"].as<float>();
-					cc2d.RestitutionThreshold = circleCollider2DComponent["RestitutionThreshold"].as<float>();
+					YAML_LOAD(circleCollider2DComponent, "Offset", cc2d.Offset);
+					YAML_LOAD(circleCollider2DComponent, "Radius", cc2d.Radius);
+					YAML_LOAD(circleCollider2DComponent, "Density", cc2d.Density);
+					YAML_LOAD(circleCollider2DComponent, "Friction", cc2d.Friction);
+					YAML_LOAD(circleCollider2DComponent, "Restitution", cc2d.Restitution);
+					YAML_LOAD(circleCollider2DComponent, "RestitutionThreshold", cc2d.RestitutionThreshold);
+					YAML_LOAD(circleCollider2DComponent, "IsSensor", cc2d.IsSensor);
 				}
 
 				auto nativeScriptComponent = entityNode["NativeScriptComponent"];

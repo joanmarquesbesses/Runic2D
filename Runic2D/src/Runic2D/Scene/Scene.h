@@ -35,6 +35,8 @@ namespace Runic2D {
 
 		Entity GetPrimaryCameraEntity();
 
+		void SetCollisionEnabled(Entity entity, bool enabled);
+
 		void ParentEntity(Entity entity, Entity parent);
 		void UnparentEntity(Entity entity, bool convertToWorldSpace = true);
 

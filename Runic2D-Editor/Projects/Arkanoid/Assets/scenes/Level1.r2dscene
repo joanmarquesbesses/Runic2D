@@ -25,6 +25,7 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 6298628075175912447
     TagComponent:
       Tag: Camera
@@ -40,7 +41,7 @@ Entities:
         PerspectiveFOV: 0.7853982
         PerspectiveNear: 0.01
         PerspectiveFar: 1000
-        OrthographicSize: 21
+        OrthographicSize: 39
         OrthographicNear: -1
         OrthographicFar: 88
       Primary: true
@@ -71,6 +72,7 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 779570430222426592
     TagComponent:
       Tag: Left Wall
@@ -94,6 +96,7 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 12608054333397464458
     TagComponent:
       Tag: Top Wall
@@ -117,6 +120,7 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 15770869148292312577
     TagComponent:
       Tag: Right Wall
@@ -140,6 +144,7 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 6417879015506095008
     TagComponent:
       Tag: Block
@@ -165,6 +170,7 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 15213477863934584818
     TagComponent:
       Tag: Block
@@ -190,6 +196,7 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 11662567184668829244
     TagComponent:
       Tag: Block
@@ -215,6 +222,7 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 7524014851498592770
     TagComponent:
       Tag: Block
@@ -240,6 +248,7 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 17004687715120761802
     TagComponent:
       Tag: Block
@@ -265,11 +274,12 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 11090717591308405393
     TagComponent:
       Tag: Block
     TransformComponent:
-      Translation: [-9.580143, 13.248154, 0]
+      Translation: [9.690211, 11.607162, 0]
       Rotation: [0, 0, 0]
       Scale: [2.461085, 1, 1]
     RelationshipComponent:
@@ -290,6 +300,7 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
   - EntityID: 7948765392618807781
     TagComponent:
       Tag: Block
@@ -315,3 +326,573 @@ Entities:
       Friction: 0
       Restitution: 1
       RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 17869599091960778122
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [9.595115, 14.949183, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 6377081775268628647
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [9.672432, 9.98345, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 15003633896091131883
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [-6.5073557, 11.607162, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 9735807676864638921
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [-3.299489, 11.607162, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 2300420094277938069
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [0.10257411, 11.607162, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 14805079945922616287
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [3.2726789, 11.607162, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 5662917615475210893
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [6.4427843, 11.607162, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 13893838355215043693
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [-9.580143, 13.248154, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 13135173208736075194
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [-9.580143, 14.949183, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 1892745270182077607
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [-6.564679, 14.949183, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 7590985881058292726
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [-3.3945763, 14.949183, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 15103299714548135640
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [0.00748682, 14.949183, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 15861571585216849502
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [3.2549088, 14.949183, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 9394269264828893468
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [6.4250097, 14.949183, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 8530134491691429136
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [-9.580143, 11.607162, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 1109871626813294391
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [-9.580143, 9.98345, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 4053953846561761759
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [-6.41004, 9.98345, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 18405548611709552846
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [-3.2399373, 9.98345, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 1121347592880823462
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [0.0848043, 9.98345, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 2176557111942043173
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [3.4095483, 9.98345, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 2987156671802335602
+    TagComponent:
+      Tag: Block
+    TransformComponent:
+      Translation: [6.5023313, 9.98345, 0]
+      Rotation: [0, 0, 0]
+      Scale: [2.461085, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [0.47234195, 0.5611814, 0.19179618, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Block
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0
+      Restitution: 1
+      RestitutionThreshold: 0
+      IsSensor: false
+  - EntityID: 8212770938434451530
+    TagComponent:
+      Tag: KillZone
+    TransformComponent:
+      Translation: [0, -2.8371544, 0]
+      Rotation: [0, 0, 0]
+      Scale: [30.996264, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    NativeScriptComponent:
+      ClassName: KillZone
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+      IsSensor: true

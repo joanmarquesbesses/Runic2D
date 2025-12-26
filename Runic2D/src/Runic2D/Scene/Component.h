@@ -11,6 +11,7 @@
 #include "SceneCamera.h"
 #include "ScriptableEntity.h"
 #include "Runic2D/Renderer/Texture.h"
+#include "Runic2D/Renderer/SubTexture2D.h"
 
 namespace Runic2D {
 
@@ -86,6 +87,7 @@ namespace Runic2D {
 	struct SpriteRendererComponent {
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Texture2D> Texture;
+		Ref<SubTexture2D> SubTexture;
 		float TilingFactor = 1.0f;
 
 		SpriteRendererComponent() = default;
@@ -166,6 +168,8 @@ namespace Runic2D {
 		float Restitution = 0.0f;
 		float RestitutionThreshold = 0.5f;
 
+		bool IsSensor = false;
+
 		b2ShapeId RuntimeShape = b2_nullShapeId;
 
 		BoxCollider2DComponent() = default;
@@ -182,6 +186,8 @@ namespace Runic2D {
 		float Friction = 0.5f;
 		float Restitution = 0.0f;
 		float RestitutionThreshold = 0.5f;
+
+		bool IsSensor = false;
 
 		b2ShapeId RuntimeShape = b2_nullShapeId;
 

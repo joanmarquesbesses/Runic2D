@@ -4,7 +4,7 @@ using namespace Runic2D;
 
 void Paddle::OnCreate()
 {
-	R2D_INFO("Paddle Creat!");
+
 }
 
 void Paddle::OnDestroy()

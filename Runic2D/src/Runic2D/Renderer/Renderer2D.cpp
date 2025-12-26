@@ -615,10 +615,18 @@ namespace Runic2D
 
 	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
 	{
-		if (src.Texture)
+		if (src.SubTexture)
+		{
+			DrawQuad(transform, src.SubTexture, src.TilingFactor, src.Color, entityID);
+		}
+		else if (src.Texture)
+		{
 			DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID);
+		}
 		else
+		{
 			DrawQuad(transform, src.Color, entityID);
+		}
 	}
 
 	float Renderer2D::GetLineWidth()

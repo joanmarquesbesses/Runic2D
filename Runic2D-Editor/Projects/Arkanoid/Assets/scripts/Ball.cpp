@@ -5,10 +5,19 @@ using namespace Runic2D;
 void Ball::Restart()
 {
 	auto& rb2d = GetComponent<Rigidbody2DComponent>();
+
 	b2BodyId bodyId = (b2BodyId)rb2d.RuntimeBody;
 
-	auto& transform = GetComponent<TransformComponent>();
-	transform.SetTranslation({ 0.0f, 3.5f, 0.0f });
+	b2Vec2 newPosition = { 0.0f, 3.5f };
+
+	b2Rot newRotation = b2MakeRot(0.0f);
+
+	b2Body_SetTransform(bodyId, newPosition, newRotation);
+
+	b2Body_SetLinearVelocity(bodyId, { 0.0f, 0.0f });
+	b2Body_SetAngularVelocity(bodyId, 0.0f);
+
+	b2Body_SetAwake(bodyId, true);
 
 	float x = (float)(rand() % 100) / 100.0f * 2.0f - 1.0f;
 	float y = 1.0f;
@@ -38,6 +47,19 @@ void Ball::OnUpdate(Timestep ts)
 		b2Vec2 normalized = b2Normalize(velocity);
 		b2Vec2 newVel = { normalized.x * m_Speed, normalized.y * m_Speed };
 		b2Body_SetLinearVelocity(bodyId, newVel);
+	}
+
+	if(lives <= 0 && !m_PendingDestroy)
+	{
+		m_PendingDestroy = true;
+	}
+
+	if (m_PendingDestroy)
+	{
+		if (m_PendingDestroy)
+		{
+			Destroy();
+		}
 	}
 }
 
