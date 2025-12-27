@@ -149,9 +149,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Runic2D\Assets\ResourceManager.h" />
-    <ClInclude Include="src\Runic2D\Project\ProjectSerializer.h" />
-    <ClInclude Include="src\Runic2D\Project\Project.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFrameBuffer.h" />
@@ -163,6 +160,7 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\R2Dpch.h" />
     <ClInclude Include="src\Runic2D.h" />
+    <ClInclude Include="src\Runic2D\Assets\ResourceManager.h" />
     <ClInclude Include="src\Runic2D\Core\Application.h" />
     <ClInclude Include="src\Runic2D\Core\Assert.h" />
     <ClInclude Include="src\Runic2D\Core\Core.h" />
@@ -184,6 +182,8 @@
     <ClInclude Include="src\Runic2D\Events\MouseEvent.h" />
     <ClInclude Include="src\Runic2D\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Runic2D\Math\Math.h" />
+    <ClInclude Include="src\Runic2D\Project\Project.h" />
+    <ClInclude Include="src\Runic2D\Project\ProjectSerializer.h" />
     <ClInclude Include="src\Runic2D\Renderer\Buffer.h" />
     <ClInclude Include="src\Runic2D\Renderer\Camera.h" />
     <ClInclude Include="src\Runic2D\Renderer\EditorCamera.h" />
@@ -629,9 +629,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Runic2D\Assets\ResourceManager.cpp" />
-    <ClCompile Include="src\Runic2D\Project\ProjectSerializer.cpp" />
-    <ClCompile Include="src\Runic2D\Project\Project.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFrameBuffer.cpp" />
@@ -646,6 +643,7 @@
     <ClCompile Include="src\R2Dpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Assets\ResourceManager.cpp" />
     <ClCompile Include="src\Runic2D\Core\Application.cpp" />
     <ClCompile Include="src\Runic2D\Core\Layer.cpp" />
     <ClCompile Include="src\Runic2D\Core\LayerStack.cpp" />
@@ -654,6 +652,8 @@
     <ClCompile Include="src\Runic2D\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Runic2D\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Runic2D\Math\Math.cpp" />
+    <ClCompile Include="src\Runic2D\Project\Project.cpp" />
+    <ClCompile Include="src\Runic2D\Project\ProjectSerializer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\EditorCamera.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\FrameBuffer.cpp" />

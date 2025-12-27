@@ -14,6 +14,11 @@ workspace "Runic2D"
 		"MultiProcessorCompile"
 	}
 
+	local activeGame = "Arkanoid" 
+    -- local activeGame = "Mario"
+    
+    local gameSourcePath = "Projects/" .. activeGame .. "/Assets/scripts"
+
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Include directories relative to root folder (solution directory)
@@ -191,7 +196,9 @@ project "Runic2D-Editor"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/" .. gameSourcePath .. "/**.h",
+		"%{prj.name}/" .. gameSourcePath .. "/**.cpp"
 	}
 
 	includedirs
@@ -202,7 +209,8 @@ project "Runic2D-Editor"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.ImGuizmo}",
-		"%{IncludeDir.Box2D}"
+		"%{IncludeDir.Box2D}",
+		"%{prj.name}/" .. gameSourcePath
 	}
 
 	links

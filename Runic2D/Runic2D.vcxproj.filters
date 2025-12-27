@@ -16,6 +16,9 @@
     <Filter Include="src\Runic2D">
       <UniqueIdentifier>{F36B0ECE-5F21-87C3-E815-819A54CA7DC7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Assets">
+      <UniqueIdentifier>{7563B73A-6147-7890-CAA7-72E3B6AA6212}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Core">
       <UniqueIdentifier>{2B001899-17F9-36EB-402B-1C702C8316F7}</UniqueIdentifier>
     </Filter>
@@ -31,11 +34,17 @@
     <Filter Include="src\Runic2D\Math">
       <UniqueIdentifier>{AC401D99-9839-3CEB-C16B-2170ADC31BF7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Project">
+      <UniqueIdentifier>{3953B211-A5B4-8F1F-2E22-D6D19A82C6DE}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Renderer">
       <UniqueIdentifier>{F9D00935-E55F-93FE-8E7E-A7F97AECA3A4}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Runic2D\Scene">
       <UniqueIdentifier>{50C332BD-BCD9-3053-0551-BC7471A601DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Scripting">
+      <UniqueIdentifier>{B5AC97B2-2119-53AD-EA0C-EB0A56387515}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Runic2D\Utils">
       <UniqueIdentifier>{935760BD-FF6D-5E53-48E5-E974B43A2FDB}</UniqueIdentifier>
@@ -99,6 +108,9 @@
     <ClInclude Include="src\Runic2D.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Assets\ResourceManager.h">
+      <Filter>src\Runic2D\Assets</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Core\Application.h">
       <Filter>src\Runic2D\Core</Filter>
     </ClInclude>
@@ -161,6 +173,12 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\Math\Math.h">
       <Filter>src\Runic2D\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Project\Project.h">
+      <Filter>src\Runic2D\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Project\ProjectSerializer.h">
+      <Filter>src\Runic2D\Project</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\Buffer.h">
       <Filter>src\Runic2D\Renderer</Filter>
@@ -227,6 +245,9 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\Scene\ScriptableEntity.h">
       <Filter>src\Runic2D\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h">
+      <Filter>src\Runic2D\Scripting</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h">
       <Filter>src\Runic2D\Utils</Filter>
@@ -1488,10 +1509,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Project\Project.h" />
-    <ClInclude Include="src\Runic2D\Project\ProjectSerializer.h" />
-    <ClInclude Include="src\Runic2D\Assets\ResourceManager.h" />
-    <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1530,6 +1547,9 @@
     <ClCompile Include="src\R2Dpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Assets\ResourceManager.cpp">
+      <Filter>src\Runic2D\Assets</Filter>
+    </ClCompile>
     <ClCompile Include="src\Runic2D\Core\Application.cpp">
       <Filter>src\Runic2D\Core</Filter>
     </ClCompile>
@@ -1553,6 +1573,12 @@
     </ClCompile>
     <ClCompile Include="src\Runic2D\Math\Math.cpp">
       <Filter>src\Runic2D\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Project\Project.cpp">
+      <Filter>src\Runic2D\Project</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Project\ProjectSerializer.cpp">
+      <Filter>src\Runic2D\Project</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\Buffer.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
@@ -1608,12 +1634,11 @@
     <ClCompile Include="src\Runic2D\Scene\SceneSerializer.cpp">
       <Filter>src\Runic2D\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp">
+      <Filter>src\Runic2D\Scripting</Filter>
+    </ClCompile>
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Project\Project.cpp" />
-    <ClCompile Include="src\Runic2D\Project\ProjectSerializer.cpp" />
-    <ClCompile Include="src\Runic2D\Assets\ResourceManager.cpp" />
-    <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp" />
   </ItemGroup>
 </Project>

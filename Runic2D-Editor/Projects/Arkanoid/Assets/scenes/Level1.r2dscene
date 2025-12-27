@@ -83,7 +83,7 @@ Entities:
     RelationshipComponent:
       Parent: 0
     SpriteRendererComponent:
-      Color: [1, 1, 1, 1]
+      Color: [0.54008436, 0.09798998, 0.09798998, 1]
       TilingFactor: 1
     Rigidbody2DComponent:
       BodyType: Static
@@ -107,7 +107,7 @@ Entities:
     RelationshipComponent:
       Parent: 0
     SpriteRendererComponent:
-      Color: [1, 1, 1, 1]
+      Color: [0.5411765, 0.09803922, 0.09803922, 1]
       TilingFactor: 1
     Rigidbody2DComponent:
       BodyType: Static
@@ -131,7 +131,7 @@ Entities:
     RelationshipComponent:
       Parent: 0
     SpriteRendererComponent:
-      Color: [1, 1, 1, 1]
+      Color: [0.5411765, 0.09803922, 0.09803922, 1]
       TilingFactor: 1
     Rigidbody2DComponent:
       BodyType: Static

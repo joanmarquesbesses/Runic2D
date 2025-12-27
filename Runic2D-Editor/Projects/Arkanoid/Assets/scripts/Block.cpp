@@ -1,9 +1,5 @@
 #include "Block.h"
 
-#include "Runic2D/Assets/ResourceManager.h"
-#include "Runic2D/Renderer/Texture.h"
-#include "Runic2D/Project/Project.h"
-
 using namespace Runic2D;
 
 void Block::OnCreate()

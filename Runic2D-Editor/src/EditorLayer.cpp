@@ -155,8 +155,8 @@ namespace Runic2D
 			case SceneState::Edit:
 			{
 				m_EditorCamera.OnUpdate(ts);
-
 				m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+
 				break;
 			}
 			case SceneState::Play:

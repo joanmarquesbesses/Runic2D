@@ -4,7 +4,13 @@ using namespace Runic2D;
 
 void Paddle::OnCreate()
 {
-
+	auto texture = ResourceManager::Get<Texture2D>(Project::GetAssetFileSystemPath("textures/blocksTileset.png"));
+	GetComponent<SpriteRendererComponent>().Texture = texture;
+	GetComponent<SpriteRendererComponent>().SubTexture = SubTexture2D::CreateFromPixelCoords(
+		texture,
+		32.0f, 64.0f,
+		48.0f, 14.0f
+	);
 }
 
 void Paddle::OnDestroy()

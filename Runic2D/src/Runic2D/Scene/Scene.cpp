@@ -344,6 +344,32 @@ namespace Runic2D {
 				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
 			});
 
+
+		SceneCamera* mainCamera = nullptr;
+		glm::mat4 cameraTransform;
+
+		m_Registry.view<TransformComponent, CameraComponent>().each([&](auto entity, auto& tc, auto& cc)
+			{
+				if (cc.Primary)
+				{
+					mainCamera = &cc.Camera;
+					cameraTransform = tc.GetTransform();
+				}
+			});
+
+		if (mainCamera)
+		{
+			float orthoSize = mainCamera->GetOrthographicSize();
+			float targetAspectRatio = 16.0f / 9.0f;
+
+			float height = orthoSize * 2.0f;
+			float width = height * targetAspectRatio;
+
+			glm::mat4 debugTransform = cameraTransform * glm::scale(glm::mat4(1.0f), { width, height, 1.0f });
+
+			Renderer2D::DrawRect(debugTransform, { 0.0f, 1.0f, 0.0f, 1.0f });
+		}
+
 		Renderer2D::EndScene();
 	}
 
