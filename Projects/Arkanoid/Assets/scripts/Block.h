@@ -1,6 +1,8 @@
 #pragma once
 #include "Runic2D.h"
 
+using namespace Runic2D;
+
 enum class BlockType
 {
 	Bonce = 0,   
@@ -25,6 +27,7 @@ public:
 private:
 	void UpdateVisuals(); 
 	void Die();
+	void TakeDamage();
 private:
 	bool m_PendingDestroy = false;
 
@@ -45,4 +48,6 @@ private:
 	int m_TotalAnimFrames = 5;
 
 	float m_FallSpeed = 5.0f; 
+
+	Entity m_ScoreEntity;
 };

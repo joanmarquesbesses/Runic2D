@@ -314,6 +314,8 @@ namespace Runic2D {
 			out << YAML::Key << "Restitution" << YAML::Value << bc2dComponent.Restitution;
 			out << YAML::Key << "RestitutionThreshold" << YAML::Value << bc2dComponent.RestitutionThreshold;
 			out << YAML::Key << "IsSensor" << YAML::Value << bc2dComponent.IsSensor;
+			out << YAML::Key << "EnableContactEvents" << YAML::Value << bc2dComponent.EnableContactEvents;
+			out << YAML::Key << "EnableSensorEvents" << YAML::Value << bc2dComponent.EnableSensorEvents;
 
 			out << YAML::EndMap; // BoxCollider2DComponent
 		}
@@ -331,6 +333,8 @@ namespace Runic2D {
 			out << YAML::Key << "Restitution" << YAML::Value << cc2dComponent.Restitution;
 			out << YAML::Key << "RestitutionThreshold" << YAML::Value << cc2dComponent.RestitutionThreshold;
 			out << YAML::Key << "IsSensor" << YAML::Value << cc2dComponent.IsSensor;
+			out << YAML::Key << "EnableContactEvents" << YAML::Value << cc2dComponent.EnableContactEvents;
+			out << YAML::Key << "EnableSensorEvents" << YAML::Value << cc2dComponent.EnableSensorEvents;
 
 			out << YAML::EndMap; // CircleCollider2DComponent
 		}
@@ -514,6 +518,8 @@ namespace Runic2D {
 					YAML_LOAD(boxCollider2DComponent, "Restitution", bc2d.Restitution);
 					YAML_LOAD(boxCollider2DComponent, "RestitutionThreshold", bc2d.RestitutionThreshold);
 					YAML_LOAD(boxCollider2DComponent, "IsSensor", bc2d.IsSensor);
+					YAML_LOAD(boxCollider2DComponent, "EnableContactEvents", bc2d.EnableContactEvents);
+					YAML_LOAD(boxCollider2DComponent, "EnableSensorEvents", bc2d.EnableSensorEvents);
 				}
 
 				auto circleCollider2DComponent = entityNode["CircleCollider2DComponent"];
@@ -527,6 +533,8 @@ namespace Runic2D {
 					YAML_LOAD(circleCollider2DComponent, "Restitution", cc2d.Restitution);
 					YAML_LOAD(circleCollider2DComponent, "RestitutionThreshold", cc2d.RestitutionThreshold);
 					YAML_LOAD(circleCollider2DComponent, "IsSensor", cc2d.IsSensor);
+					YAML_LOAD(circleCollider2DComponent, "EnableContactEvents", cc2d.EnableContactEvents);
+					YAML_LOAD(circleCollider2DComponent, "EnableSensorEvents", cc2d.EnableSensorEvents);
 				}
 
 				auto nativeScriptComponent = entityNode["NativeScriptComponent"];

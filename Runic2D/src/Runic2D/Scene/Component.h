@@ -171,6 +171,9 @@ namespace Runic2D {
 
 		bool IsSensor = false;
 
+		bool EnableContactEvents = true;
+		bool EnableSensorEvents = false;
+
 		b2ShapeId RuntimeShape = b2_nullShapeId;
 
 		BoxCollider2DComponent() = default;
@@ -189,6 +192,9 @@ namespace Runic2D {
 		float RestitutionThreshold = 0.5f;
 
 		bool IsSensor = false;
+
+		bool EnableContactEvents = true;
+		bool EnableSensorEvents = false;
 
 		b2ShapeId RuntimeShape = b2_nullShapeId;
 

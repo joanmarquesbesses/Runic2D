@@ -1,5 +1,7 @@
 #include "Block.h"
 
+#include "Score.h"
+
 using namespace Runic2D;
 
 void Block::OnCreate()
@@ -10,6 +12,12 @@ void Block::OnCreate()
 
 	int randomInt = std::rand() % (int)BlockType::Count;
 	Initialize(static_cast<BlockType>(randomInt));
+
+	m_ScoreEntity = GetScene()->FindEntityByName("Score");
+	if (!m_ScoreEntity)
+	{
+		R2D_CORE_ERROR("Block could not find 'Score' entity!");
+	}
 }
 
 void Block::Initialize(BlockType type)
@@ -103,16 +111,47 @@ void Block::Die()
 
 void Block::OnCollision(Entity other)
 {
+	if (!other.HasComponent<NativeScriptComponent>())
+		return;
+
 	if (other.GetComponent<NativeScriptComponent>().ClassName == "Ball")
 	{
-		m_Lives--;
-		if (m_Lives <= 0)
+		TakeDamage();
+	}
+}
+
+void Block::TakeDamage()
+{
+	m_Lives--;
+
+	if (m_ScoreEntity && m_ScoreEntity.HasComponent<NativeScriptComponent>())
+	{
+		auto& nsc = m_ScoreEntity.GetComponent<NativeScriptComponent>();
+		if (nsc.Instance)
 		{
-			Die();
+			// Nota: dynamic_cast és una mica lent, però segur. 
+			// Si estàs segur al 100% que és Score, podries fer static_cast.
+			Score* scoreScript = dynamic_cast<Score*>(nsc.Instance);
+
+			if (scoreScript)
+			{
+				if (m_Lives <= 0)
+				{
+					scoreScript->AddScore(100);
+					Die(); // Destruir bloc
+				}
+				else
+				{
+					scoreScript->AddScore(10);
+					UpdateVisuals(); // Canviar color/sprite
+				}
+			}
 		}
-		else
-		{
-			UpdateVisuals();
-		}
+	}
+	else
+	{
+		// Si no hi ha score, el bloc mor igualment (lògica de joc robusta)
+		if (m_Lives <= 0) Die();
+		else UpdateVisuals();
 	}
 }

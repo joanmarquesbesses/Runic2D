@@ -27,7 +27,7 @@ namespace Runic2D
 	template<typename T, typename UIFunction>
 	static void DrawComponent(const std::string& name, Entity entity, UIFunction uiFunction, bool canBeDeleted = true)
 	{
-		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
+		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
 
 		if (entity.HasComponent<T>())
 		{
@@ -193,8 +193,6 @@ namespace Runic2D
 			m_SelectionContext = entity;
 		}
 
-		// --- CORRECCIÓ 1: DRAG & DROP IMMEDIATAMENT DESPRÉS DEL TREENODE ---
-
 		// Drag Source (Origen)
 		if (ImGui::BeginDragDropSource())
 		{
@@ -325,7 +323,7 @@ namespace Runic2D
 			}, false);
 
 
-		DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
+		DrawComponent<CameraComponent>("Camera", entity, [&](auto& component)
 			{
 				auto& camera = component.Camera;
 
@@ -367,7 +365,10 @@ namespace Runic2D
 					if (ImGui::DragFloat("Far Clip", &orthoFar))
 						camera.SetOrthographicFarClip(orthoFar);
 
-					ImGui::Checkbox("Fixed Aspect Ratio", &component.FixedAspectRatio);
+					if (ImGui::Checkbox("Fixed Aspect Ratio", &component.FixedAspectRatio)) {
+						m_Context->OnViewportResize(m_Context->GetViewportWidth(), m_Context->GetViewportHeight());
+					}
+
 				}
 
 				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
@@ -495,8 +496,11 @@ namespace Runic2D
 				ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f);
-				ImGui::Spacing();
+				ImGui::Separator();
 				ImGui::Checkbox("Is Sensor", &component.IsSensor);
+				ImGui::Separator();
+				ImGui::Checkbox("Enable Contact Events", &component.EnableContactEvents);
+				ImGui::Checkbox("Enable Sensor Events", &component.EnableSensorEvents);
 			});
 
 		DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [](auto& component)
@@ -507,8 +511,11 @@ namespace Runic2D
 				ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f);
-				ImGui::Spacing();
+				ImGui::Separator();
 				ImGui::Checkbox("Is Sensor", &component.IsSensor);
+				ImGui::Separator();
+				ImGui::Checkbox("Enable Contact Events", &component.EnableContactEvents);
+				ImGui::Checkbox("Enable Sensor Events", &component.EnableSensorEvents);
 			});
 
 		DrawComponent<TextComponent>("Text Renderer", entity, [](auto& component)

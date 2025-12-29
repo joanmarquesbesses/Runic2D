@@ -30,6 +30,9 @@ namespace Runic2D {
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 		void OnViewportResize(uint32_t width, uint32_t height);
 
+		uint32_t GetViewportWidth() const { return m_ViewportWidth; }
+		uint32_t GetViewportHeight() const { return m_ViewportHeight; }
+
 		void OnRuntimeStart();
 		void OnRuntimeStop();
 
@@ -39,6 +42,8 @@ namespace Runic2D {
 
 		void ParentEntity(Entity entity, Entity parent);
 		void UnparentEntity(Entity entity, bool convertToWorldSpace = true);
+
+		Entity FindEntityByName(std::string_view name);
 
 		glm::mat4 GetWorldTransform(Entity entity);
 		glm::mat4 GetWorldTransform(const TransformComponent& transform, Entity entity);

@@ -7,6 +7,7 @@
 #include "Ball.h"
 #include "Block.h"
 #include "KillZone.h"
+#include "Score.h"
 
 #include <vector>
 #include <string>
@@ -15,7 +16,7 @@ namespace ScriptRegistry {
 
 	static std::vector<std::string> GetScriptNames()
 	{
-		return { "Paddle", "Ball", "Block", "KillZone" };
+		return { "Paddle", "Ball", "Block", "KillZone", "Score"};
 	}
 
 	static void BindScript(std::string name, Runic2D::Entity entity)
@@ -55,6 +56,14 @@ namespace ScriptRegistry {
 			auto& nsc = entity.AddComponent<Runic2D::NativeScriptComponent>();
 			nsc.Bind<KillZone>();
 			nsc.ClassName = "KillZone";
+		}
+		else if (name == "Score")
+		{
+			if (entity.HasComponent<Runic2D::NativeScriptComponent>())
+				entity.RemoveComponent<Runic2D::NativeScriptComponent>();
+			auto& nsc = entity.AddComponent<Runic2D::NativeScriptComponent>();
+			nsc.Bind<Score>();
+			nsc.ClassName = "Score";
 		}
 	}
 }

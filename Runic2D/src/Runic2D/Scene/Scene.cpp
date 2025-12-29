@@ -354,7 +354,7 @@ namespace Runic2D {
 				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
 			});
 
-
+		// Draw Camera Bounds
 		SceneCamera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
 
@@ -370,10 +370,10 @@ namespace Runic2D {
 		if (mainCamera)
 		{
 			float orthoSize = mainCamera->GetOrthographicSize();
-			float targetAspectRatio = 16.0f / 9.0f;
+			float height = orthoSize;
 
-			float height = orthoSize * 2.0f;
-			float width = height * targetAspectRatio;
+			float aspectRatio = mainCamera->GetAspectRatio();
+			float width = height * aspectRatio;
 
 			glm::mat4 debugTransform = cameraTransform * glm::scale(glm::mat4(1.0f), { width, height, 1.0f });
 
@@ -425,13 +425,8 @@ namespace Runic2D {
 
 				shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
 				shapeDef.isSensor = bc2d.IsSensor;
-
-				shapeDef.enableSensorEvents = true;
-
-				if (!bc2d.IsSensor)
-				{
-					shapeDef.enableContactEvents = true;
-				}
+				shapeDef.enableSensorEvents = bc2d.EnableSensorEvents;
+				shapeDef.enableContactEvents = bc2d.EnableContactEvents;
 
 				float hx = std::abs(bc2d.Size.x * transform.Scale.x) * 0.5f;
 				float hy = std::abs(bc2d.Size.y * transform.Scale.y) * 0.5f;
@@ -453,12 +448,8 @@ namespace Runic2D {
 
 				shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
 				shapeDef.isSensor = cc2d.IsSensor;
-				shapeDef.enableSensorEvents = true;
-
-				if (!cc2d.IsSensor)
-				{
-					shapeDef.enableContactEvents = true;
-				}
+				shapeDef.enableSensorEvents = cc2d.EnableSensorEvents;
+				shapeDef.enableContactEvents = cc2d.EnableContactEvents;
 
 				float maxScale = std::max(transform.Scale.x, transform.Scale.y);
 				float radius = cc2d.Radius * maxScale;
@@ -778,6 +769,18 @@ namespace Runic2D {
 			Math::DecomposeTransform(worldTransform, tc.Translation, tc.Rotation, tc.Scale);
 			tc.IsDirty = true;
 		}
+	}
+
+	Entity Scene::FindEntityByName(std::string_view name)
+	{
+		auto view = m_Registry.view<TagComponent>();
+		for (auto entityID : view)
+		{
+			const auto& tc = view.get<TagComponent>(entityID);
+			if (tc.Tag == name)
+				return Entity{ entityID, this };
+		}
+		return {};
 	}
 
 	glm::mat4 Scene::GetWorldTransform(Entity entity)

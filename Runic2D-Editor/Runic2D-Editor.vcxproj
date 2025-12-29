@@ -144,6 +144,7 @@
     <ClInclude Include="..\Projects\Arkanoid\Assets\scripts\Block.h" />
     <ClInclude Include="..\Projects\Arkanoid\Assets\scripts\KillZone.h" />
     <ClInclude Include="..\Projects\Arkanoid\Assets\scripts\Paddle.h" />
+    <ClInclude Include="..\Projects\Arkanoid\Assets\scripts\Score.h" />
     <ClInclude Include="..\Projects\Arkanoid\Assets\scripts\ScriptRegistry.h" />
     <ClInclude Include="src\EditorLayer.h" />
     <ClInclude Include="src\Panels\ContentBrowserPanel.h" />
@@ -157,6 +158,7 @@
     <ClCompile Include="..\Projects\Arkanoid\Assets\scripts\Block.cpp" />
     <ClCompile Include="..\Projects\Arkanoid\Assets\scripts\KillZone.cpp" />
     <ClCompile Include="..\Projects\Arkanoid\Assets\scripts\Paddle.cpp" />
+    <ClCompile Include="..\Projects\Arkanoid\Assets\scripts\Score.cpp" />
     <ClCompile Include="src\EditorLayer.cpp" />
     <ClCompile Include="src\Panels\ContentBrowserPanel.cpp" />
     <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp" />
