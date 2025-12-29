@@ -32,6 +32,8 @@ IncludeDir["entt"] = "%{wks.location}/Runic2D/vendor/entt/include"
 IncludeDir["yaml_cpp"] = "%{wks.location}/Runic2D/vendor/yaml-cpp/include"
 IncludeDir["ImGuizmo"] = "%{wks.location}/Runic2D/vendor/ImGuizmo"
 IncludeDir["Box2D"] = "%{wks.location}/Runic2D/vendor/Box2D/include"
+IncludeDir["msdf_atlas_gen"] = "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdf-atlas-gen"
+IncludeDir["msdfgen"] = "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdfgen"
 -- Include the vendor libraries
 
 group "Dependencies"
@@ -40,6 +42,7 @@ group "Dependencies"
 	include "Runic2D/vendor/Premake/imgui.lua"
 	include "Runic2D/vendor/Premake/yaml-cpp.lua"
 	include "Runic2D/vendor/Premake/box2d.lua"
+	include "Runic2D/vendor/Premake/msdf-atlas-gen.lua"
 group ""
 
 project "Runic2D"
@@ -68,7 +71,8 @@ project "Runic2D"
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"YAML_CPP_STATIC_DEFINE"
+		"YAML_CPP_STATIC_DEFINE",
+		"MSDFGEN_PUBLIC="
 	}
 
 	includedirs
@@ -83,7 +87,10 @@ project "Runic2D"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
-		"%{IncludeDir.Box2D}"
+		"%{IncludeDir.Box2D}",
+		"%{IncludeDir.msdf_atlas_gen}",
+		"%{IncludeDir.msdfgen}",
+		"%{wks.location}/Runic2D/vendor/msdf-atlas-gen"
 	}
 
 	links
@@ -93,7 +100,8 @@ project "Runic2D"
 		"ImGui",
 		"yaml-cpp",
 		"opengl32.lib",
-		"Box2D"
+		"Box2D",
+		"msdf-atlas-gen"
 	}
 
 	filter "system:windows"
@@ -197,8 +205,19 @@ project "Runic2D-Editor"
 	{
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
-		"%{prj.name}/" .. gameSourcePath .. "/**.h",
-		"%{prj.name}/" .. gameSourcePath .. "/**.cpp"
+		gameSourcePath .. "/**.h",
+        gameSourcePath .. "/**.cpp"
+	}
+
+	vpaths 
+    {
+        ["src/*"] = "%{prj.name}/src/**",
+        ["Game Scripts"] = { gameSourcePath .. "/**.h", gameSourcePath .. "/**.cpp" }
+    }
+
+	defines
+	{
+		"MSDFGEN_PUBLIC=" 
 	}
 
 	includedirs
@@ -210,7 +229,9 @@ project "Runic2D-Editor"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Box2D}",
-		"%{prj.name}/" .. gameSourcePath
+		gameSourcePath,
+		"%{IncludeDir.msdf_atlas_gen}",
+		"%{IncludeDir.msdfgen}"
 	}
 
 	links
@@ -222,7 +243,7 @@ project "Runic2D-Editor"
 		systemversion "latest"
 
 	filter "configurations:Debug"
-		defines "R2D_DEBUG"
+		defines "R2D_DEBUG"	
 		runtime "Debug"
 		symbols "on"
 

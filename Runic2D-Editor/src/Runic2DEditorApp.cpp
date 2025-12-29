@@ -2,7 +2,7 @@
 #include <Runic2D/Core/EntryPoint.h>
 #include <Runic2D/Scripting/ScriptEngine.h>
 
-#include "../Projects/Arkanoid/Assets/Scripts/ScriptRegistry.h"
+#include "../../Projects/Arkanoid/Assets/scripts/ScriptRegistry.h"
 #include "EditorLayer.h"
 
 namespace Runic2D

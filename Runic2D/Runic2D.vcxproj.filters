@@ -189,6 +189,9 @@
     <ClInclude Include="src\Runic2D\Renderer\EditorCamera.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Renderer\Font.h">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\FrameBuffer.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
@@ -1584,6 +1587,9 @@
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\EditorCamera.cpp">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Renderer\Font.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\FrameBuffer.cpp">

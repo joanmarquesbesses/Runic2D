@@ -34,7 +34,9 @@ namespace Runic2D {
 	Application::~Application()
 	{
 		R2D_PROFILE_FUNCTION();
-
+		for (Layer* layer : m_LayerStack) {
+			layer->OnDetach();
+		}
 		Renderer::Shutdown();
 		ResourceManager::Clear();
 	}

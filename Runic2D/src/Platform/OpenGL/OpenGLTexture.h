@@ -9,10 +9,12 @@ namespace Runic2D
 	class OpenGLTexture2D : public Texture2D
 	{
 	public:
-		OpenGLTexture2D(uint32_t width, uint32_t height);
+		OpenGLTexture2D(const TextureSpecification& specification);
 		OpenGLTexture2D(const std::string& path);
 
 		virtual ~OpenGLTexture2D();
+
+		virtual const TextureSpecification& GetSpecification() const override { return m_Specification; }
 
 		virtual void Bind(uint32_t slot = 0) const override;
 		virtual void Unbind() const override;
@@ -30,6 +32,8 @@ namespace Runic2D
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;
 		}
 	private:
+		TextureSpecification m_Specification;
+
 		std::string m_Path;
 		uint32_t m_Width, m_Height;
 		uint32_t m_RendererID;

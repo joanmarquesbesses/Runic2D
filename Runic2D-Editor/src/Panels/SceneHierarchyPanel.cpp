@@ -511,6 +511,25 @@ namespace Runic2D
 				ImGui::Checkbox("Is Sensor", &component.IsSensor);
 			});
 
+		DrawComponent<TextComponent>("Text Renderer", entity, [](auto& component)
+			{
+				char buffer[256];
+				memset(buffer, 0, sizeof(buffer));
+				strcpy_s(buffer, sizeof(buffer), component.TextString.c_str());
+
+				if (ImGui::InputTextMultiline("Text String", buffer, sizeof(buffer)))
+				{
+					component.TextString = std::string(buffer);
+				}
+
+				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
+
+				ImGui::DragFloat("Kerning", &component.Kerning, 0.025f);
+				ImGui::DragFloat("Line Spacing", &component.LineSpacing, 0.025f);
+
+				ImGui::Text("Font Asset: %s", component.FontAsset ? "Default (Loaded)" : "None");
+			});
+
 		// BOTÓ D'AFEGIR COMPONENT
 		ImGui::Spacing();
 		ImGui::Separator();
@@ -592,6 +611,15 @@ namespace Runic2D
 				if (ImGui::MenuItem("Circle Collider 2D"))
 				{
 					m_SelectionContext.AddComponent<CircleCollider2DComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!m_SelectionContext.HasComponent<TextComponent>())
+			{
+				if (ImGui::MenuItem("Text Renderer"))
+				{
+					m_SelectionContext.AddComponent<TextComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}

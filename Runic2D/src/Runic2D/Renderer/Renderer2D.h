@@ -6,6 +6,7 @@
 #include "Texture.h"
 #include "SubTexture2D.h"
 #include "EditorCamera.h"
+#include "Font.h"
 
 #include "Runic2D/Scene/Component.h"
 
@@ -54,6 +55,8 @@ namespace Runic2D {
 		static void DrawRect(const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
 
 		static void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
+
+		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning = 0.0f, float lineSpacing = 0.0f, int entityID = -1);
 
 		// Stats
 		struct Statistics

@@ -98,6 +98,7 @@ namespace Runic2D {
 		CopyComponent<BoxCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<RelationshipComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<CircleCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<TextComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		auto relationshipView = dstSceneRegistry.view<RelationshipComponent>();
 		for (auto e : relationshipView)
@@ -189,14 +190,16 @@ namespace Runic2D {
 		//Update Scripts
 		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc) 
 		{
-				//TODO: Move to Scene::OnPlayScene
-			//Script instantiation
+			//Script instantiation for created entities in runtime
 			if (!nsc.Instance) {
 				nsc.Instance = nsc.InstantiateScript();
 				nsc.Instance->m_Entity = Entity{ entity, this };
 				nsc.Instance->OnCreate();
 			}
-			nsc.Instance->OnUpdate(ts);
+
+			//Update Script
+			if (nsc.Instance)
+				nsc.Instance->OnUpdate(ts);
 			
 		});
 
@@ -318,6 +321,13 @@ namespace Runic2D {
 					Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
 				});
 
+			m_Registry.view<TransformComponent, TextComponent>().each([&](auto entityID, auto& transform, auto& text)
+				{
+					Entity e{ entityID, this };
+					glm::mat4 worldTransform = GetWorldTransform(transform, e);
+					Renderer2D::DrawString(text.TextString, text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
+				});
+
 			Renderer2D::EndScene();
 		}
 	}
@@ -369,6 +379,13 @@ namespace Runic2D {
 
 			Renderer2D::DrawRect(debugTransform, { 0.0f, 1.0f, 0.0f, 1.0f });
 		}
+
+		m_Registry.view<TransformComponent, TextComponent>().each([&](auto entityID, auto& transform, auto& text)
+			{
+				Entity e{ entityID, this };
+				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				Renderer2D::DrawString(text.TextString, text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
+			});
 
 		Renderer2D::EndScene();
 	}
@@ -462,6 +479,16 @@ namespace Runic2D {
 				b2Body_SetAwake(bodyId, true);
 			}
 		}
+
+		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+			{
+				//Script instantiation
+				if (!nsc.Instance) {
+					nsc.Instance = nsc.InstantiateScript();
+					nsc.Instance->m_Entity = Entity{ entity, this };
+					nsc.Instance->OnCreate();
+				}
+			});
 	}
 
 	void Scene::OnRuntimeStop()
@@ -491,6 +518,17 @@ namespace Runic2D {
 				cc2d.RuntimeShape = b2_nullShapeId;
 			}
 		}
+
+		//Destroy script instances
+		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+			{
+				if (nsc.Instance)
+				{
+					nsc.Instance->OnDestroy();
+					nsc.DestroyScript(&nsc);  
+					nsc.Instance = nullptr;    
+				}
+			});
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
@@ -614,6 +652,7 @@ namespace Runic2D {
 		CopyComponentIfExists<Rigidbody2DComponent>(dst, src);
 		CopyComponentIfExists<BoxCollider2DComponent>(dst, src);
 		CopyComponentIfExists<CircleCollider2DComponent>(dst, src);
+		CopyComponentIfExists<TextComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

@@ -16,3 +16,9 @@
 [submodule "Runic2D/vendor/Box2D"]
 	path = Runic2D/vendor/Box2D
 	url = https://github.com/erincatto/box2d
+[submodule "Runic2D/vendor/msdf-atlas-gen"]
+	path = Runic2D/vendor/msdf-atlas-gen
+	url = https://github.com/Chlumsky/msdf-atlas-gen
+[submodule "Runic2D/vendor/freetype"]
+	path = Runic2D/vendor/freetype
+	url = https://gitlab.freedesktop.org/freetype/freetype.git

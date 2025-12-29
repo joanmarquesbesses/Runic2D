@@ -335,6 +335,23 @@ namespace Runic2D {
 			out << YAML::EndMap; // CircleCollider2DComponent
 		}
 
+		if (entity.HasComponent<TextComponent>())
+		{
+			out << YAML::Key << "TextComponent";
+			out << YAML::BeginMap;
+
+			auto& tc = entity.GetComponent<TextComponent>();
+			out << YAML::Key << "TextString" << YAML::Value << tc.TextString;
+			out << YAML::Key << "Color" << YAML::Value << tc.Color;
+			out << YAML::Key << "Kerning" << YAML::Value << tc.Kerning;
+			out << YAML::Key << "LineSpacing" << YAML::Value << tc.LineSpacing;
+
+			// Nota: De moment no guardem la Font perquè sempre carregues la Default.
+			// Quan tinguis sistema d'Assets per fonts, hauràs de guardar el path aquí.
+
+			out << YAML::EndMap;
+		}
+
 		out << YAML::EndMap; // Entity
 	}
 
@@ -522,6 +539,17 @@ namespace Runic2D {
 					{
 						ScriptEngine::BindScript(nsc.ClassName, deserializedEntity);
 					}
+				}
+
+				auto textComponent = entityNode["TextComponent"];
+				if (textComponent)
+				{
+					auto& tc = deserializedEntity.AddComponent<TextComponent>();
+					tc.TextString = textComponent["TextString"].as<std::string>();
+
+					YAML_LOAD(textComponent, "Color", tc.Color);
+					YAML_LOAD(textComponent, "Kerning", tc.Kerning);
+					YAML_LOAD(textComponent, "LineSpacing", tc.LineSpacing);
 				}
 			}
 		}

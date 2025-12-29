@@ -12,6 +12,7 @@
 #include "ScriptableEntity.h"
 #include "Runic2D/Renderer/Texture.h"
 #include "Runic2D/Renderer/SubTexture2D.h"
+#include "Runic2D/Renderer/Font.h"
 
 namespace Runic2D {
 
@@ -193,5 +194,18 @@ namespace Runic2D {
 
 		CircleCollider2DComponent() = default;
 		CircleCollider2DComponent(const CircleCollider2DComponent&) = default;
+	};
+
+	struct TextComponent
+	{
+		std::string TextString = "";
+		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		Ref<Font> FontAsset = Font::GetDefault();
+		float Kerning = 0.0f;
+		float LineSpacing = 0.0f;
+
+		TextComponent() = default;
+		TextComponent(const TextComponent&) = default;
+		TextComponent(const std::string& text) : TextString(text) {}
 	};
 }
