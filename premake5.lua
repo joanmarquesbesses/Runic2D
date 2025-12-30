@@ -34,6 +34,7 @@ IncludeDir["ImGuizmo"] = "%{wks.location}/Runic2D/vendor/ImGuizmo"
 IncludeDir["Box2D"] = "%{wks.location}/Runic2D/vendor/Box2D/include"
 IncludeDir["msdf_atlas_gen"] = "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdf-atlas-gen"
 IncludeDir["msdfgen"] = "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdfgen"
+IncludeDir["miniaudio"] = "%{wks.location}/Runic2D/vendor/miniaudio"
 -- Include the vendor libraries
 
 group "Dependencies"
@@ -90,7 +91,8 @@ project "Runic2D"
 		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.msdfgen}",
-		"%{wks.location}/Runic2D/vendor/msdf-atlas-gen"
+		"%{wks.location}/Runic2D/vendor/msdf-atlas-gen",
+		"%{IncludeDir.miniaudio}"
 	}
 
 	links
@@ -197,6 +199,8 @@ project "Runic2D-Editor"
 	language "C++"
 	cppdialect "C++20"
 	staticruntime "on"
+
+	debugdir "%{wks.location}"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")

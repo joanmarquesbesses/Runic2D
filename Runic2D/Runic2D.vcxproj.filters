@@ -19,6 +19,9 @@
     <Filter Include="src\Runic2D\Assets">
       <UniqueIdentifier>{7563B73A-6147-7890-CAA7-72E3B6AA6212}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Audio">
+      <UniqueIdentifier>{34E4F6BB-A0FA-F451-E971-807355C7C5D9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Core">
       <UniqueIdentifier>{2B001899-17F9-36EB-402B-1C702C8316F7}</UniqueIdentifier>
     </Filter>
@@ -110,6 +113,9 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\Assets\ResourceManager.h">
       <Filter>src\Runic2D\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Audio\AudioEngine.h">
+      <Filter>src\Runic2D\Audio</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Core\Application.h">
       <Filter>src\Runic2D\Core</Filter>
@@ -1552,6 +1558,9 @@
     </ClCompile>
     <ClCompile Include="src\Runic2D\Assets\ResourceManager.cpp">
       <Filter>src\Runic2D\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Audio\AudioEngine.cpp">
+      <Filter>src\Runic2D\Audio</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Core\Application.cpp">
       <Filter>src\Runic2D\Core</Filter>

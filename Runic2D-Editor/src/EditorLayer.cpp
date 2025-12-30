@@ -35,7 +35,7 @@ namespace Runic2D
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
-		std::filesystem::path projectPath = "../Projects/Arkanoid/Arkanoid.r2dproj";
+		std::filesystem::path projectPath = "Projects/Arkanoid/Arkanoid.r2dproj";
 
 		if (std::filesystem::exists(projectPath))
 		{

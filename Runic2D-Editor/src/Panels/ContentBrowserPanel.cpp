@@ -11,8 +11,8 @@ namespace Runic2D {
 	ContentBrowserPanel::ContentBrowserPanel()
 		: m_FirstFrame(true)
 	{
-		m_DirectoryIcon = ResourceManager::Get<Texture2D>("Resources/Icons/ContentBrowser/folder.png");
-		m_FileIcon = ResourceManager::Get<Texture2D>("Resources/Icons/ContentBrowser/document.png");
+		m_DirectoryIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/folder.png");
+		m_FileIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/document.png");
 	}
 
 	void ContentBrowserPanel::ResetToDefault()

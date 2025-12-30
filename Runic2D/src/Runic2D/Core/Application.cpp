@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include "Runic2D/Renderer/Renderer.h"
 #include "Runic2D/Assets/ResourceManager.h"
+#include "Runic2D/Audio/AudioEngine.h"
 
 #include "Input.h"
 
@@ -26,6 +27,7 @@ namespace Runic2D {
 		m_Window->SetEventCallback(R2D_BIND_EVENT_FN(OnEvent));
 
 		Renderer::Init();
+		AudioEngine::Init();
 		
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -38,6 +40,7 @@ namespace Runic2D {
 			layer->OnDetach();
 		}
 		Renderer::Shutdown();
+		AudioEngine::Shutdown();
 		ResourceManager::Clear();
 	}
 

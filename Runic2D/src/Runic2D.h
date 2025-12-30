@@ -23,6 +23,7 @@
 #include "Runic2D/Scene/Component.h"
 
 #include "Runic2D/Assets/ResourceManager.h"
+#include "Runic2D/Audio/AudioEngine.h"
 
 // Renderer
 #include "Runic2D/Renderer/Renderer.h"

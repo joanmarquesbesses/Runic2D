@@ -139,11 +139,13 @@ void Block::TakeDamage()
 				{
 					scoreScript->AddScore(100);
 					Die(); // Destruir bloc
+					AudioEngine::Play("Projects/Arkanoid/Assets/sounds/DestroyBlock.mp3");
 				}
 				else
 				{
 					scoreScript->AddScore(10);
-					UpdateVisuals(); // Canviar color/sprite
+					UpdateVisuals();
+					AudioEngine::Play("Projects/Arkanoid/Assets/sounds/HitBlock.mp3");
 				}
 			}
 		}
