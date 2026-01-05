@@ -356,6 +356,18 @@ namespace Runic2D {
 			out << YAML::EndMap;
 		}
 
+		if (entity.HasComponent<AnimationComponent>())
+		{
+			out << YAML::Key << "AnimationComponent";
+			out << YAML::BeginMap; // AnimationComponent
+
+			auto& ac = entity.GetComponent<AnimationComponent>();
+			out << YAML::Key << "Playing" << YAML::Value << ac.Playing;
+			out << YAML::Key << "Loop" << YAML::Value << ac.Loop;
+
+			out << YAML::EndMap; // AnimationComponent
+		}
+
 		out << YAML::EndMap; // Entity
 	}
 
@@ -558,6 +570,14 @@ namespace Runic2D {
 					YAML_LOAD(textComponent, "Color", tc.Color);
 					YAML_LOAD(textComponent, "Kerning", tc.Kerning);
 					YAML_LOAD(textComponent, "LineSpacing", tc.LineSpacing);
+				}
+
+				auto animationComponent = entityNode["AnimationComponent"];
+				if (animationComponent)
+				{
+					auto& ac = deserializedEntity.AddComponent<AnimationComponent>();
+					YAML_LOAD(animationComponent, "Playing", ac.Playing);
+					YAML_LOAD(animationComponent, "Loop", ac.Loop);
 				}
 			}
 		}

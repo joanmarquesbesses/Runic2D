@@ -537,6 +537,31 @@ namespace Runic2D
 				ImGui::Text("Font Asset: %s", component.FontAsset ? "Default (Loaded)" : "None");
 			});
 
+		DrawComponent<AnimationComponent>("Animation", entity, [](auto& component)
+			{
+				ImGui::Checkbox("Playing", &component.Playing);
+				ImGui::Checkbox("Loop", &component.Loop);
+
+				int currentFrame = (int)component.CurrentFrameIndex;
+				int maxFrames = component.Animation ? component.Animation->GetFrameCount() - 1 : 0;
+
+				if (ImGui::SliderInt("Current Frame", &currentFrame, 0, maxFrames))
+				{
+					component.CurrentFrameIndex = (uint32_t)currentFrame;
+					component.TimeAccumulator = 0.0f;
+				}
+
+				if (component.Animation)
+				{
+					ImGui::Text("Total Frames: %d", component.Animation->GetFrameCount());
+					ImGui::Text("Frame Time: %.3fs", component.Animation->GetFrameTime());
+				}
+				else
+				{
+					ImGui::TextColored({ 0.9f, 0.2f, 0.2f, 1.0f }, "No Animation Asset Assigned!");
+				}
+			});
+
 		// BOTÓ D'AFEGIR COMPONENT
 		ImGui::Spacing();
 		ImGui::Separator();

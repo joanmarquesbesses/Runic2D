@@ -65,5 +65,21 @@ void Ball::OnUpdate(Timestep ts)
 
 void Ball::OnCollision(Entity other)
 {
-	
+	ParticleProps props;
+	props.Position = GetComponent<TransformComponent>().Translation;
+
+	props.Velocity = { 0.0f, 0.0f };
+	props.VelocityVariation = { 3.0f, 3.0f };
+
+	props.LifeTime = 1.0f;
+
+	props.ColorBegin = { 1.0f, 0.5f, 0.0f, 1.0f };
+	props.ColorEnd = { 1.0f, 0.0f, 0.0f, 0.0f };  
+
+	props.SizeBegin = 0.3f; 
+	props.SizeEnd = 0.0f;   
+	props.SizeVariation = 0.1f; 
+
+	for (int i = 0; i < 5; i++)
+		GetScene()->EmitParticles(props);
 }

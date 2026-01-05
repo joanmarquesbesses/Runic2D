@@ -3,6 +3,7 @@
 #include "Runic2D/Core/Timestep.h"
 #include "Runic2D/Core/UUID.h"
 #include "Runic2D/Renderer/EditorCamera.h"
+#include "Runic2D/Renderer/ParticleSystem.h"
 
 #include <entt.hpp>
 #include <box2d/types.h>
@@ -36,6 +37,8 @@ namespace Runic2D {
 		void OnRuntimeStart();
 		void OnRuntimeStop();
 
+		void EmitParticles(const ParticleProps& props) { m_ParticleSystem.Emit(props); }
+
 		Entity GetPrimaryCameraEntity();
 
 		void SetCollisionEnabled(Entity entity, bool enabled);
@@ -54,6 +57,11 @@ namespace Runic2D {
 
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
+		template<typename... Components>
+		auto GetAllEntitiesWith()
+		{
+			return m_Registry.view<Components...>();
+		}
 	private:
 		void OnCameraComponentConstruct(entt::registry& registry, entt::entity entity);
 		void CopyEntity(Entity src, Entity dst);
@@ -62,6 +70,8 @@ namespace Runic2D {
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 
 		b2WorldId m_PhysicsWorld = b2_nullWorldId;
+
+		ParticleSystem m_ParticleSystem;
 
 		friend class Entity;
 		friend class SceneSerializer;

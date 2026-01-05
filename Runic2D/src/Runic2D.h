@@ -21,7 +21,11 @@
 #include "Runic2D/Scene/Entity.h"
 #include "Runic2D/Scene/ScriptableEntity.h"
 #include "Runic2D/Scene/Component.h"
+#include "Runic2D/Scene/SceneSerializer.h"
 
+#include "Runic2D/Scripting/ScriptEngine.h"
+
+// Asset Management
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Audio/AudioEngine.h"
 
@@ -36,6 +40,7 @@
 #include "Runic2D/Renderer/FrameBuffer.h"
 #include "Runic2D/Renderer/Texture.h"
 #include "Runic2D/Renderer/SubTexture2D.h"
+#include "Runic2D/Renderer/Animation2D.h"
 
 #include "Runic2D/Renderer/OrthographicCamera.h"
 // --------

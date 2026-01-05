@@ -4,7 +4,7 @@
 
 namespace Runic2D
 {
-	Runic2D::SubTexture2D::SubTexture2D(const Ref<Texture2D>& texture, const glm::vec2& min, const glm::vec2& max)
+	SubTexture2D::SubTexture2D(const Ref<Texture2D>& texture, const glm::vec2& min, const glm::vec2& max)
 		: m_Texture(texture)
 	{
 		m_TexCoords[0] = { min.x, min.y };
@@ -31,5 +31,10 @@ namespace Runic2D
         };
 
         return CreateRef<SubTexture2D>(texture, min, max);
+    }
+
+    Ref<SubTexture2D> SubTexture2D::CreateFromPixelCoords(const Ref<Texture2D>& texture, const glm::vec2& coords, const glm::vec2& cellSize)
+    {
+        return CreateFromPixelCoords(texture, coords.x, coords.y, cellSize.x, cellSize.y);
     }
 }

@@ -2,10 +2,10 @@
 #include "Application.h"
 
 #include "Core.h"
-#include <glad/glad.h>
 #include "Runic2D/Renderer/Renderer.h"
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Audio/AudioEngine.h"
+#include "Runic2D/Utils/Random.h"
 
 #include "Input.h"
 
@@ -26,11 +26,14 @@ namespace Runic2D {
 		m_Window = std::unique_ptr<Window>(Window::Create(WindowProps(name)));
 		m_Window->SetEventCallback(R2D_BIND_EVENT_FN(OnEvent));
 
+		Random::Init();
 		Renderer::Init();
 		AudioEngine::Init();
-		
+
+#ifndef R2D_DIST
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
+#endif
 	}
 
 	Application::~Application()
@@ -123,7 +126,7 @@ namespace Runic2D {
 						layer->OnUpdate(timestep);
 					}
 				}
-
+#ifndef R2D_DIST
 				m_ImGuiLayer->Begin();
 				{
 					R2D_PROFILE_SCOPE("LayerStack OnImGuiRender");
@@ -132,6 +135,7 @@ namespace Runic2D {
 					}
 				}
 				m_ImGuiLayer->End();
+#endif
 			}
 
 			m_Window->OnUpdate();

@@ -211,7 +211,6 @@ namespace Runic2D
 		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; ++i)
 			samplers[i] = i;
 
-		
 		s_Data.QuadShader = ResourceManager::Get<Shader>("Resources/Shaders/Renderer2D_Quad.glsl");
 		s_Data.QuadShader->Bind();
 		s_Data.QuadShader->SetIntArray("u_Texture", samplers, s_Data.MaxTextureSlots);

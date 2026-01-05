@@ -136,6 +136,7 @@
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -185,6 +186,7 @@
     <ClInclude Include="src\Runic2D\Math\Math.h" />
     <ClInclude Include="src\Runic2D\Project\Project.h" />
     <ClInclude Include="src\Runic2D\Project\ProjectSerializer.h" />
+    <ClInclude Include="src\Runic2D\Renderer\Animation2D.h" />
     <ClInclude Include="src\Runic2D\Renderer\Buffer.h" />
     <ClInclude Include="src\Runic2D\Renderer\Camera.h" />
     <ClInclude Include="src\Runic2D\Renderer\EditorCamera.h" />
@@ -193,6 +195,7 @@
     <ClInclude Include="src\Runic2D\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Runic2D\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Runic2D\Renderer\OrthographicCameraController.h" />
+    <ClInclude Include="src\Runic2D\Renderer\ParticleSystem.h" />
     <ClInclude Include="src\Runic2D\Renderer\RenderCommand.h" />
     <ClInclude Include="src\Runic2D\Renderer\Renderer.h" />
     <ClInclude Include="src\Runic2D\Renderer\Renderer2D.h" />
@@ -210,6 +213,7 @@
     <ClInclude Include="src\Runic2D\Scene\ScriptableEntity.h" />
     <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h" />
+    <ClInclude Include="src\Runic2D\Utils\Random.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_fixes.hpp" />
@@ -657,12 +661,14 @@
     <ClCompile Include="src\Runic2D\Math\Math.cpp" />
     <ClCompile Include="src\Runic2D\Project\Project.cpp" />
     <ClCompile Include="src\Runic2D\Project\ProjectSerializer.cpp" />
+    <ClCompile Include="src\Runic2D\Renderer\Animation2D.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\EditorCamera.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Font.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\FrameBuffer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\OrthographicCameraController.cpp" />
+    <ClCompile Include="src\Runic2D\Renderer\ParticleSystem.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Renderer2D.cpp" />
@@ -677,6 +683,7 @@
     <ClCompile Include="src\Runic2D\Scene\SceneCamera.cpp" />
     <ClCompile Include="src\Runic2D\Scene\SceneSerializer.cpp" />
     <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp" />
+    <ClCompile Include="src\Runic2D\Utils\Random.cpp" />
     <ClCompile Include="vendor\stb_image\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>

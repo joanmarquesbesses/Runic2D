@@ -13,6 +13,7 @@
 #include "Runic2D/Renderer/Texture.h"
 #include "Runic2D/Renderer/SubTexture2D.h"
 #include "Runic2D/Renderer/Font.h"
+#include "Runic2D/Renderer/Animation2D.h"
 
 namespace Runic2D {
 
@@ -213,5 +214,21 @@ namespace Runic2D {
 		TextComponent() = default;
 		TextComponent(const TextComponent&) = default;
 		TextComponent(const std::string& text) : TextString(text) {}
+	};
+
+	struct AnimationComponent
+	{
+		Ref<Animation2D> Animation; 
+
+		float TimeAccumulator = 0.0f; 
+		uint32_t CurrentFrameIndex = 0;
+		bool Loop = true; 
+		bool Playing = true;
+
+		AnimationComponent() = default;
+		AnimationComponent(const AnimationComponent&) = default;
+		AnimationComponent(Ref<Animation2D> animation)
+			: Animation(animation) {
+		}
 	};
 }

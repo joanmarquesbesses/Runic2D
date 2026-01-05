@@ -289,6 +289,9 @@ namespace Runic2D {
 			}
 		}
 
+		//Update Particles
+		m_ParticleSystem.OnUpdate(ts);
+
 		//Find Main Camera
 		Camera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
@@ -297,6 +300,33 @@ namespace Runic2D {
 				mainCamera = &cameraComponent.Camera;
 				cameraTransform = transformComponent.GetTransform();
 			}
+			});
+
+		//update animations
+		m_Registry.view<AnimationComponent, SpriteRendererComponent>().each([&](auto entityID, auto& anim, auto& sprite)
+			{
+				if (anim.Animation && anim.Playing)
+				{
+					anim.TimeAccumulator += ts;
+
+					if (anim.TimeAccumulator >= anim.Animation->GetFrameTime())
+					{
+						anim.TimeAccumulator -= anim.Animation->GetFrameTime();
+						anim.CurrentFrameIndex++;
+
+						if (anim.CurrentFrameIndex >= anim.Animation->GetFrameCount())
+						{
+							if (anim.Loop) {
+								anim.CurrentFrameIndex = 0;
+							}
+							else {
+								anim.CurrentFrameIndex = anim.Animation->GetFrameCount() - 1;
+								anim.Playing = false;
+							}
+						}
+						sprite.SubTexture = anim.Animation->GetFrame(anim.CurrentFrameIndex);
+					}
+				}
 			});
 
 		// Render Scene
@@ -327,6 +357,8 @@ namespace Runic2D {
 					glm::mat4 worldTransform = GetWorldTransform(transform, e);
 					Renderer2D::DrawString(text.TextString, text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
 				});
+
+			m_ParticleSystem.OnRender();
 
 			Renderer2D::EndScene();
 		}

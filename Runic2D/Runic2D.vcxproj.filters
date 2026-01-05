@@ -210,6 +210,9 @@
     <ClInclude Include="src\Runic2D\Renderer\OrthographicCameraController.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Renderer\ParticleSystem.h">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\RenderCommand.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
@@ -259,6 +262,9 @@
       <Filter>src\Runic2D\Scripting</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h">
+      <Filter>src\Runic2D\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Utils\Random.h">
       <Filter>src\Runic2D\Utils</Filter>
     </ClInclude>
     <ClInclude Include="vendor\glm\glm\common.hpp">
@@ -1518,6 +1524,7 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Renderer\Animation2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1610,6 +1617,9 @@
     <ClCompile Include="src\Runic2D\Renderer\OrthographicCameraController.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Renderer\ParticleSystem.cpp">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\RenderCommand.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
@@ -1652,8 +1662,12 @@
     <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp">
       <Filter>src\Runic2D\Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Utils\Random.cpp">
+      <Filter>src\Runic2D\Utils</Filter>
+    </ClCompile>
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Renderer\Animation2D.cpp" />
   </ItemGroup>
 </Project>

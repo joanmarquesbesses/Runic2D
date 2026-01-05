@@ -136,6 +136,10 @@ project "Runic2D"
 	filter { "system:windows", "configurations:Release" }
 		buildoptions "/utf-8"
 
+	filter { "system:windows", "configurations:Dist" }
+        buildoptions "/utf-8"
+        entrypoint "mainCRTStartup"
+
 
 project "SandBox"
 	location "SandBox"
@@ -144,13 +148,22 @@ project "SandBox"
 	cppdialect "C++20"
 	staticruntime "on"
 
+	debugdir "%{wks.location}"
+
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	defines
+	{
+		"MSDFGEN_PUBLIC="
+	}
 
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		gameSourcePath .. "/**.h",
+        gameSourcePath .. "/**.cpp"
 	}
 
 	includedirs
@@ -160,7 +173,10 @@ project "SandBox"
 		"Runic2D/vendor",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.Box2D}"
+		"%{IncludeDir.Box2D}",
+		"%{IncludeDir.msdf_atlas_gen}",
+		"Runic2D/vendor/msdf-atlas-gen/msdfgen",
+		gameSourcePath
 	}
 
 	links
@@ -183,6 +199,7 @@ project "SandBox"
 
 	filter "configurations:Dist"
 		defines "R2D_DIST"
+		kind "WindowedApp"
 		runtime "Release"
 		optimize "on"
 
@@ -191,6 +208,10 @@ project "SandBox"
 
 	filter { "system:windows", "configurations:Release" }
 		buildoptions "/utf-8"
+
+	filter { "configurations:Dist", "system:windows" }
+		buildoptions "/utf-8"
+        entrypoint "mainCRTStartup"
 
 
 project "Runic2D-Editor"
@@ -266,3 +287,7 @@ project "Runic2D-Editor"
 
 	filter { "system:windows", "configurations:Release" }
 		buildoptions "/utf-8"
+
+	filter { "configurations:Dist", "system:windows" }
+		buildoptions "/utf-8"
+        entrypoint "mainCRTStartup"
