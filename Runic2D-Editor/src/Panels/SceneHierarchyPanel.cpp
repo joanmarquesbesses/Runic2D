@@ -11,6 +11,7 @@
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Project/Project.h"
 #include "Runic2D/Scripting/ScriptEngine.h"
+#include "Runic2D/Assets/ResourceManager.h"
 
 #include <cstring>
 
@@ -438,7 +439,7 @@ namespace Runic2D
 					{
 						const char* path = (const char*)payload->Data;
 						std::filesystem::path texturePath = Project::GetAssetFileSystemPath(path);
-						component.Texture = Texture2D::Create(texturePath.string());
+						component.Texture = ResourceManager::Get<Texture2D>(texturePath.string());
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -537,28 +538,157 @@ namespace Runic2D
 				ImGui::Text("Font Asset: %s", component.FontAsset ? "Default (Loaded)" : "None");
 			});
 
-		DrawComponent<AnimationComponent>("Animation", entity, [](auto& component)
+		DrawComponent<AnimationComponent>("Animation", entity, [&](auto& component)
 			{
+				ImGui::Text("Preview Controller");
+
+				std::string previewName = component.CurrentStateName.empty() ? "None" : component.CurrentStateName;
+
+				if (ImGui::BeginCombo("Active State", previewName.c_str()))
+				{
+					for (auto& profile : component.Profiles)
+					{
+						bool isSelected = (component.CurrentStateName == profile.Name);
+
+						if (ImGui::Selectable(profile.Name.c_str(), isSelected))
+						{
+							component.CurrentStateName = profile.Name;
+
+							if (profile.AtlasTexture)
+							{
+								int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
+								int col = profile.StartFrame % numCols;
+								int row = profile.StartFrame / numCols;
+
+								auto animAsset = Animation2D::CreateFromAtlas(
+									profile.AtlasTexture,
+									profile.TileSize,
+									{ (float)col * profile.TileSize.x, (float)row * profile.TileSize.y },
+									profile.FrameCount,
+									profile.FrameTime
+								);
+
+
+								component.CurrentAnimation = animAsset;
+
+								component.CurrentFrameIndex = 0;
+								component.TimeAccumulator = 0.0f;
+
+								component.Animations[profile.Name] = animAsset;
+
+								if (entity.HasComponent<SpriteRendererComponent>())
+								{
+									entity.GetComponent<SpriteRendererComponent>().SubTexture = animAsset->GetFrame(0);
+								}
+							}
+						}
+
+						if (isSelected)
+							ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
+
+				ImGui::Separator();
+
+				ImGui::Text("Runtime Settings");
 				ImGui::Checkbox("Playing", &component.Playing);
 				ImGui::Checkbox("Loop", &component.Loop);
 
 				int currentFrame = (int)component.CurrentFrameIndex;
-				int maxFrames = component.Animation ? component.Animation->GetFrameCount() - 1 : 0;
-
-				if (ImGui::SliderInt("Current Frame", &currentFrame, 0, maxFrames))
+				int maxFrames = component.CurrentAnimation ? component.CurrentAnimation->GetFrameCount() - 1 : 0;
+				if (ImGui::SliderInt("Runtime Frame", &currentFrame, 0, maxFrames))
 				{
-					component.CurrentFrameIndex = (uint32_t)currentFrame;
+					component.CurrentFrameIndex = currentFrame;
 					component.TimeAccumulator = 0.0f;
+					if (component.CurrentAnimation && entity.HasComponent<SpriteRendererComponent>())
+					{
+						auto frame = component.CurrentAnimation->GetFrame(currentFrame);
+						if (frame)
+						{
+							entity.GetComponent<SpriteRendererComponent>().SubTexture = frame;
+							entity.GetComponent<SpriteRendererComponent>().Color = glm::vec4(1.0f);
+						}
+					}
 				}
 
-				if (component.Animation)
+				if (component.CurrentAnimation)
 				{
-					ImGui::Text("Total Frames: %d", component.Animation->GetFrameCount());
-					ImGui::Text("Frame Time: %.3fs", component.Animation->GetFrameTime());
+					ImGui::SameLine();
+					ImGui::Text("(%d/%d)", currentFrame, maxFrames);
 				}
-				else
+
+				ImGui::Separator();
+
+				ImGui::Text("Profiles Configuration");
+
+				if (ImGui::Button("Add Animation"))
+					component.Profiles.push_back({ "New Anim" });
+
+				for (int i = 0; i < component.Profiles.size(); i++)
 				{
-					ImGui::TextColored({ 0.9f, 0.2f, 0.2f, 1.0f }, "No Animation Asset Assigned!");
+					auto& profile = component.Profiles[i];
+
+					ImGui::PushID(i);
+
+					bool open = ImGui::TreeNode((void*)(intptr_t)i, "%s", profile.Name.c_str());
+
+					if (open)
+					{
+						char buffer[256];
+						memset(buffer, 0, sizeof(buffer));
+						strcpy_s(buffer, sizeof(buffer), profile.Name.c_str());
+						if (ImGui::InputText("Name", buffer, sizeof(buffer))) profile.Name = std::string(buffer);
+
+						ImGui::Text("Sprite Sheet");
+
+						Ref<Texture2D> textureToShow = profile.AtlasTexture ? profile.AtlasTexture : Renderer2D::GetWhiteTexture();
+						ImGui::ImageButton("TexturePreview", (ImTextureID)textureToShow->GetRendererID(), ImVec2(64, 64), ImVec2(0, 1), ImVec2(1, 0));
+
+						if (ImGui::BeginDragDropTarget())
+						{
+							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+							{
+								const char* path = (const char*)payload->Data;
+								std::filesystem::path texturePath = Project::GetAssetFileSystemPath(path);
+
+								profile.AtlasTexture = ResourceManager::Get<Texture2D>(texturePath.string());
+								profile.TexturePath = texturePath.string();
+							}
+							ImGui::EndDragDropTarget();
+						}
+
+						ImGui::DragFloat2("Tile Size", glm::value_ptr(profile.TileSize));
+						ImGui::DragInt("Start Frame", &profile.StartFrame);
+						ImGui::DragInt("Frame Count", &profile.FrameCount);
+						ImGui::DragFloat("Speed", &profile.FrameTime, 0.01f, 0.01f, 10.0f);
+
+						if (ImGui::Button("Preview This"))
+						{
+							if (profile.AtlasTexture && entity.HasComponent<SpriteRendererComponent>())
+							{
+								int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
+								int frameIndex = profile.StartFrame;
+								int col = frameIndex % numCols;
+								int row = frameIndex / numCols;
+
+								auto subtex = SubTexture2D::CreateFromPixelCoords(
+									profile.AtlasTexture,
+									(float)col * profile.TileSize.x,
+									(float)row * profile.TileSize.y,
+									profile.TileSize.x, profile.TileSize.y
+								);
+
+								entity.GetComponent<SpriteRendererComponent>().SubTexture = subtex;
+								entity.GetComponent<SpriteRendererComponent>().Color = glm::vec4(1.0f);
+
+								component.CurrentFrameIndex = 0;
+							}
+						}
+
+						ImGui::TreePop();
+					}
+					ImGui::PopID();
 				}
 			});
 
@@ -652,6 +782,15 @@ namespace Runic2D
 				if (ImGui::MenuItem("Text Renderer"))
 				{
 					m_SelectionContext.AddComponent<TextComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!m_SelectionContext.HasComponent<AnimationComponent>())
+			{
+				if (ImGui::MenuItem("Animation"))
+				{
+					m_SelectionContext.AddComponent<AnimationComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}

@@ -55,6 +55,8 @@ namespace Runic2D {
 
 		void OnRenderOverlay(const glm::mat4& viewProjection);
 
+		void UpdateAnimation(Timestep ts);
+
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
 		template<typename... Components>

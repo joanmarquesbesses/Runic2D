@@ -14,7 +14,7 @@ workspace "Runic2D"
 		"MultiProcessorCompile"
 	}
 
-	local activeGame = "Arkanoid" 
+	local activeGame = "Survivor" 
     -- local activeGame = "Mario"
     
     local gameSourcePath = "Projects/" .. activeGame .. "/Assets/scripts"

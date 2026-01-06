@@ -216,9 +216,27 @@ namespace Runic2D {
 		TextComponent(const std::string& text) : TextString(text) {}
 	};
 
+	struct AnimationProfile
+	{
+		std::string Name = "New Anim";
+
+		Ref<Texture2D> AtlasTexture = nullptr;
+		std::string TexturePath = "";
+
+		glm::vec2 TileSize = { 32.0f, 32.0f };
+
+		int StartFrame = 0; 
+		int FrameCount = 1; 
+		float FrameTime = 0.1f; 
+	};
+
 	struct AnimationComponent
 	{
-		Ref<Animation2D> Animation; 
+		std::vector<AnimationProfile> Profiles;
+
+		std::map<std::string, Ref<Animation2D>> Animations;
+		Ref<Animation2D> CurrentAnimation = nullptr;
+		std::string CurrentStateName = "";
 
 		float TimeAccumulator = 0.0f; 
 		uint32_t CurrentFrameIndex = 0;
@@ -227,8 +245,5 @@ namespace Runic2D {
 
 		AnimationComponent() = default;
 		AnimationComponent(const AnimationComponent&) = default;
-		AnimationComponent(Ref<Animation2D> animation)
-			: Animation(animation) {
-		}
 	};
 }

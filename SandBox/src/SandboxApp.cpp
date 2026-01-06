@@ -1,7 +1,7 @@
 #include <Runic2D.h>
 #include <Runic2D/Core/EntryPoint.h>
 
-#include "../../Projects/Arkanoid/Assets/scripts/ScriptRegistry.h"
+#include "../../Projects/Survivor/Assets/scripts/ScriptRegistry.h"
 
 #include "Sandbox2D.h"
 

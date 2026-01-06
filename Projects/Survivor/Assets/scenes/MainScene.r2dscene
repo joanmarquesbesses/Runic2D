@@ -1,0 +1,50 @@
+Scene: Scene Name
+Entities:
+  - EntityID: 17659946315792279860
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.7853982
+        PerspectiveNear: 0.01
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -331
+        OrthographicFar: 411
+      Primary: true
+      FixedAspectRatio: false
+  - EntityID: 1157622868981590110
+    TagComponent:
+      Tag: Player
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [5, 5, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      TilingFactor: 1
+    AnimationComponent:
+      Playing: true
+      Loop: true
+      Profiles:
+        - Name: Idle
+          TexturePath: Projects/Survivor\Assets\textures/wizard/Idle.png
+          TileSize: [231, 190]
+          StartFrame: 0
+          FrameCount: 6
+          FrameTime: 0.1
+        - Name: Run
+          TexturePath: Projects/Survivor\Assets\textures/wizard/Run.png
+          TileSize: [231, 190]
+          StartFrame: 0
+          FrameCount: 8
+          FrameTime: 0.1

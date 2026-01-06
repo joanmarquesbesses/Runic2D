@@ -1,0 +1,4 @@
+Project:
+  Name: Survivor
+  StartScene: scenes/MainScene.r2dscene  
+  AssetDirectory: Assets                   

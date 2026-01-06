@@ -359,13 +359,27 @@ namespace Runic2D {
 		if (entity.HasComponent<AnimationComponent>())
 		{
 			out << YAML::Key << "AnimationComponent";
-			out << YAML::BeginMap; // AnimationComponent
+			out << YAML::BeginMap;
 
 			auto& ac = entity.GetComponent<AnimationComponent>();
 			out << YAML::Key << "Playing" << YAML::Value << ac.Playing;
 			out << YAML::Key << "Loop" << YAML::Value << ac.Loop;
 
-			out << YAML::EndMap; // AnimationComponent
+			out << YAML::Key << "Profiles" << YAML::Value << YAML::BeginSeq;
+			for (auto& profile : ac.Profiles)
+			{
+				out << YAML::BeginMap;
+				out << YAML::Key << "Name" << YAML::Value << profile.Name;
+				out << YAML::Key << "TexturePath" << YAML::Value << profile.TexturePath;
+				out << YAML::Key << "TileSize" << YAML::Value << profile.TileSize;
+				out << YAML::Key << "StartFrame" << YAML::Value << profile.StartFrame;
+				out << YAML::Key << "FrameCount" << YAML::Value << profile.FrameCount;
+				out << YAML::Key << "FrameTime" << YAML::Value << profile.FrameTime;
+				out << YAML::EndMap;
+			}
+			out << YAML::EndSeq;
+
+			out << YAML::EndMap;
 		}
 
 		out << YAML::EndMap; // Entity
@@ -578,6 +592,59 @@ namespace Runic2D {
 					auto& ac = deserializedEntity.AddComponent<AnimationComponent>();
 					YAML_LOAD(animationComponent, "Playing", ac.Playing);
 					YAML_LOAD(animationComponent, "Loop", ac.Loop);
+
+					auto profiles = animationComponent["Profiles"];
+					if (profiles)
+					{
+						for (auto profileNode : profiles)
+						{
+							AnimationProfile profile;
+							YAML_LOAD(profileNode, "Name", profile.Name);
+							YAML_LOAD(profileNode, "TileSize", profile.TileSize);
+							YAML_LOAD(profileNode, "StartFrame", profile.StartFrame);
+							YAML_LOAD(profileNode, "FrameCount", profile.FrameCount);
+							YAML_LOAD(profileNode, "FrameTime", profile.FrameTime);
+
+							if (profileNode["TexturePath"])
+							{
+								std::string path = profileNode["TexturePath"].as<std::string>();
+								profile.TexturePath = path;
+								if (!path.empty())
+								{
+									profile.AtlasTexture = ResourceManager::Get<Texture2D>(path);
+								}
+							}
+
+							ac.Profiles.push_back(profile);
+						}
+
+						if (!ac.Profiles.empty())
+						{
+							auto& profile = ac.Profiles[0];
+
+							if (!profile.TexturePath.empty())
+							{
+								profile.AtlasTexture = ResourceManager::Get<Texture2D>(profile.TexturePath);
+
+								if (profile.AtlasTexture && deserializedEntity.HasComponent<SpriteRendererComponent>())
+								{
+									int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
+									int frameIndex = profile.StartFrame;
+									int col = frameIndex % numCols;
+									int row = frameIndex / numCols;
+
+									auto subtex = SubTexture2D::CreateFromPixelCoords(
+										profile.AtlasTexture,
+										col * profile.TileSize.x, row * profile.TileSize.y,
+										profile.TileSize.x, profile.TileSize.y
+									);
+
+									deserializedEntity.GetComponent<SpriteRendererComponent>().SubTexture = subtex;
+									deserializedEntity.GetComponent<SpriteRendererComponent>().Color = glm::vec4(1.0f);
+								}
+							}
+						}
+					}
 				}
 			}
 		}

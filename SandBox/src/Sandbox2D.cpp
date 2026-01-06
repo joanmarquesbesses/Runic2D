@@ -12,7 +12,7 @@ void Sandbox2D::OnAttach()
 
     m_ActiveScene = CreateRef<Scene>();
 
-    std::string projectPath = "Projects/Arkanoid/Arkanoid.r2dproj";
+    std::string projectPath = "Projects/Survivor/Survivor.r2dproj";
 
     if (Project::Load(projectPath))
     {
@@ -25,7 +25,7 @@ void Sandbox2D::OnAttach()
     }
 
     SceneSerializer serializer(m_ActiveScene);
-    std::string scenePath = "Projects/Arkanoid/Assets/scenes/Level1.r2dscene";
+    //std::string scenePath = "Projects/Survivor/Assets/scenes/Level1.r2dscene";
 
     if (serializer.Deserialize(scenePath))
     {

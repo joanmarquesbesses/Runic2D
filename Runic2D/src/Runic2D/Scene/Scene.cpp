@@ -99,6 +99,7 @@ namespace Runic2D {
 		CopyComponent<RelationshipComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<CircleCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<TextComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<AnimationComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		auto relationshipView = dstSceneRegistry.view<RelationshipComponent>();
 		for (auto e : relationshipView)
@@ -303,31 +304,7 @@ namespace Runic2D {
 			});
 
 		//update animations
-		m_Registry.view<AnimationComponent, SpriteRendererComponent>().each([&](auto entityID, auto& anim, auto& sprite)
-			{
-				if (anim.Animation && anim.Playing)
-				{
-					anim.TimeAccumulator += ts;
-
-					if (anim.TimeAccumulator >= anim.Animation->GetFrameTime())
-					{
-						anim.TimeAccumulator -= anim.Animation->GetFrameTime();
-						anim.CurrentFrameIndex++;
-
-						if (anim.CurrentFrameIndex >= anim.Animation->GetFrameCount())
-						{
-							if (anim.Loop) {
-								anim.CurrentFrameIndex = 0;
-							}
-							else {
-								anim.CurrentFrameIndex = anim.Animation->GetFrameCount() - 1;
-								anim.Playing = false;
-							}
-						}
-						sprite.SubTexture = anim.Animation->GetFrame(anim.CurrentFrameIndex);
-					}
-				}
-			});
+		UpdateAnimation(ts);
 
 		// Render Scene
 		if (mainCamera) {
@@ -385,6 +362,8 @@ namespace Runic2D {
 				glm::mat4 worldTransform = GetWorldTransform(transform, e);
 				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
 			});
+
+		UpdateAnimation(ts);
 
 		// Draw Camera Bounds
 		SceneCamera* mainCamera = nullptr;
@@ -510,6 +489,54 @@ namespace Runic2D {
 					nsc.Instance = nsc.InstantiateScript();
 					nsc.Instance->m_Entity = Entity{ entity, this };
 					nsc.Instance->OnCreate();
+				}
+			});
+
+		m_Registry.view<AnimationComponent>().each([=](auto entity, auto& anim)
+			{
+				anim.Animations.clear();
+
+				for (auto& profile : anim.Profiles)
+				{
+					if (profile.AtlasTexture)
+					{
+						int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
+						int col = profile.StartFrame % numCols;
+						int row = profile.StartFrame / numCols;
+
+						float startX = col * profile.TileSize.x;
+						float startY = row * profile.TileSize.y;
+
+						Ref<Animation2D> animAsset = Animation2D::CreateFromAtlas(
+							profile.AtlasTexture,
+							profile.TileSize,
+							{ startX, startY },
+							profile.FrameCount,
+							profile.FrameTime
+						);
+
+						anim.Animations[profile.Name] = animAsset;
+					}
+				}
+
+				if (!anim.Animations.empty())
+				{
+					if (!anim.CurrentStateName.empty() && anim.Animations.find(anim.CurrentStateName) != anim.Animations.end())
+					{
+						anim.CurrentAnimation = anim.Animations[anim.CurrentStateName];
+					}
+					else if (anim.Animations.find("Idle") != anim.Animations.end())
+					{
+						anim.CurrentAnimation = anim.Animations["Idle"];
+						anim.CurrentStateName = "Idle";
+					}
+					else
+					{
+						anim.CurrentAnimation = anim.Animations.begin()->second;
+						anim.CurrentStateName = anim.Animations.begin()->first;
+					}
+
+					anim.Playing = true;
 				}
 			});
 	}
@@ -676,6 +703,7 @@ namespace Runic2D {
 		CopyComponentIfExists<BoxCollider2DComponent>(dst, src);
 		CopyComponentIfExists<CircleCollider2DComponent>(dst, src);
 		CopyComponentIfExists<TextComponent>(dst, src);
+		CopyComponentIfExists<AnimationComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()
@@ -882,5 +910,58 @@ namespace Runic2D {
 			});
 
 		Renderer2D::EndScene();
+	}
+
+	void Scene::UpdateAnimation(Timestep ts)
+	{
+		m_Registry.view<AnimationComponent, SpriteRendererComponent>().each([&](auto entityID, auto& anim, auto& sprite)
+			{
+				if (anim.Animations.empty() && !anim.Profiles.empty())
+				{
+					for (auto& profile : anim.Profiles)
+					{
+						if (profile.AtlasTexture)
+						{
+							int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
+							int col = profile.StartFrame % numCols;
+							int row = profile.StartFrame / numCols;
+							float startX = (float)col * profile.TileSize.x;
+							float startY = (float)row * profile.TileSize.y;
+
+							Ref<Animation2D> animAsset = Animation2D::CreateFromAtlas(
+								profile.AtlasTexture, profile.TileSize, { startX, startY },
+								profile.FrameCount, profile.FrameTime
+							);
+							anim.Animations[profile.Name] = animAsset;
+						}
+					}
+
+					if (!anim.Animations.empty() && !anim.CurrentAnimation) {
+						anim.CurrentAnimation = anim.Animations.begin()->second;
+						anim.CurrentStateName = anim.Animations.begin()->first;
+					}
+				}
+
+				if (anim.CurrentAnimation && anim.Playing)
+				{
+					anim.TimeAccumulator += ts;
+					if (anim.TimeAccumulator >= anim.CurrentAnimation->GetFrameTime())
+					{
+						anim.TimeAccumulator -= anim.CurrentAnimation->GetFrameTime();
+						anim.CurrentFrameIndex++;
+
+						if (anim.CurrentFrameIndex >= anim.CurrentAnimation->GetFrameCount())
+						{
+							if (anim.Loop) anim.CurrentFrameIndex = 0;
+							else {
+								anim.CurrentFrameIndex = anim.CurrentAnimation->GetFrameCount() - 1;
+								anim.Playing = false;
+							}
+						}
+
+						sprite.SubTexture = anim.CurrentAnimation->GetFrame(anim.CurrentFrameIndex);
+					}
+				}
+			});
 	}
 }
