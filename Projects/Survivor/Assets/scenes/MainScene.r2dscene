@@ -15,11 +15,13 @@ Entities:
         PerspectiveFOV: 0.7853982
         PerspectiveNear: 0.01
         PerspectiveFar: 1000
-        OrthographicSize: 10
+        OrthographicSize: 18
         OrthographicNear: -331
         OrthographicFar: 411
       Primary: true
       FixedAspectRatio: false
+    NativeScriptComponent:
+      ClassName: CameraController
   - EntityID: 1157622868981590110
     TagComponent:
       Tag: Player
@@ -32,8 +34,14 @@ Entities:
     SpriteRendererComponent:
       Color: [1, 1, 1, 1]
       TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Player
+    Rigidbody2DComponent:
+      BodyType: Kinematic
+      FixedRotation: false
+      GravityScale: 1
     AnimationComponent:
-      Playing: true
+      Playing: false
       Loop: true
       Profiles:
         - Name: Idle
@@ -42,9 +50,32 @@ Entities:
           StartFrame: 0
           FrameCount: 6
           FrameTime: 0.1
+          Loop: true
         - Name: Run
           TexturePath: Projects/Survivor\Assets\textures/wizard/Run.png
           TileSize: [231, 190]
           StartFrame: 0
           FrameCount: 8
           FrameTime: 0.1
+          Loop: true
+        - Name: Attack
+          TexturePath: Projects/Survivor\Assets\textures/wizard/Attack.png
+          TileSize: [231, 190]
+          StartFrame: 0
+          FrameCount: 8
+          FrameTime: 0.1
+          Loop: false
+        - Name: Hit
+          TexturePath: Projects/Survivor\Assets\textures/wizard/Hit.png
+          TileSize: [231, 190]
+          StartFrame: 0
+          FrameCount: 4
+          FrameTime: 0.1
+          Loop: false
+        - Name: Death
+          TexturePath: Projects/Survivor\Assets\textures/wizard/Death.png
+          TileSize: [230, 190]
+          StartFrame: 0
+          FrameCount: 7
+          FrameTime: 0.1
+          Loop: false

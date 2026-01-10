@@ -4,63 +4,30 @@
 #include "Runic2D/Scene/Component.h"
 
 //include here escripts to register
+#include "Player.h"
+#include "CameraController.h"
 
-#include <vector>
-#include <string>
+#define REGISTER_SCRIPT(ScriptType) \
+	if (name == #ScriptType) \
+	{ \
+		if (entity.HasComponent<Runic2D::NativeScriptComponent>()) \
+			entity.RemoveComponent<Runic2D::NativeScriptComponent>(); \
+		auto& nsc = entity.AddComponent<Runic2D::NativeScriptComponent>(); \
+		nsc.Bind<ScriptType>(); \
+		nsc.ClassName = #ScriptType; \
+		return; \
+	}
 
 namespace ScriptRegistry {
 
 	static std::vector<std::string> GetScriptNames()
 	{
-		//return { "Paddle", "Ball", "Block", "KillZone", "Score"};
-		return {};
+		return { "Player", "CameraController"};
 	}
 
 	static void BindScript(std::string name, Runic2D::Entity entity)
 	{
-		/*if (name == "Paddle")
-		{
-			if (entity.HasComponent<Runic2D::NativeScriptComponent>())
-				entity.RemoveComponent<Runic2D::NativeScriptComponent>();
-
-			auto& nsc = entity.AddComponent<Runic2D::NativeScriptComponent>();
-			nsc.Bind<Paddle>();
-			nsc.ClassName = "Paddle";
-		}
-		else if (name == "Ball")
-		{
-			if (entity.HasComponent<Runic2D::NativeScriptComponent>())
-				entity.RemoveComponent<Runic2D::NativeScriptComponent>();
-
-			auto& nsc = entity.AddComponent<Runic2D::NativeScriptComponent>();
-			nsc.Bind<Ball>();
-			nsc.ClassName = "Ball";
-		}
-		else if (name == "Block")
-		{
-			if (entity.HasComponent<Runic2D::NativeScriptComponent>())
-				entity.RemoveComponent<Runic2D::NativeScriptComponent>();
-
-			auto& nsc = entity.AddComponent<Runic2D::NativeScriptComponent>();
-			nsc.Bind<Block>();
-			nsc.ClassName = "Block";
-		}
-		else if (name == "KillZone")
-		{
-			if (entity.HasComponent<Runic2D::NativeScriptComponent>())
-				entity.RemoveComponent<Runic2D::NativeScriptComponent>();
-
-			auto& nsc = entity.AddComponent<Runic2D::NativeScriptComponent>();
-			nsc.Bind<KillZone>();
-			nsc.ClassName = "KillZone";
-		}
-		else if (name == "Score")
-		{
-			if (entity.HasComponent<Runic2D::NativeScriptComponent>())
-				entity.RemoveComponent<Runic2D::NativeScriptComponent>();
-			auto& nsc = entity.AddComponent<Runic2D::NativeScriptComponent>();
-			nsc.Bind<Score>();
-			nsc.ClassName = "Score";
-		}*/
+		REGISTER_SCRIPT(Player);
+		REGISTER_SCRIPT(CameraController);
 	}
 }

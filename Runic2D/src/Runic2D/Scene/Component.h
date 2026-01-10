@@ -228,6 +228,8 @@ namespace Runic2D {
 		int StartFrame = 0; 
 		int FrameCount = 1; 
 		float FrameTime = 0.1f; 
+
+		bool Loop = true;
 	};
 
 	struct AnimationComponent

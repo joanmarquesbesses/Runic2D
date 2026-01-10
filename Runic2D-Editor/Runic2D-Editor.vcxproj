@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\CameraController.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Player.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\ScriptRegistry.h" />
     <ClInclude Include="src\EditorLayer.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="src\Panels\ToolbarPanel.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Projects\Survivor\Assets\scripts\CameraController.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\Player.cpp" />
     <ClCompile Include="src\EditorLayer.cpp" />
     <ClCompile Include="src\Panels\ContentBrowserPanel.cpp" />

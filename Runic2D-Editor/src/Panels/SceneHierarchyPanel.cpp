@@ -554,6 +554,8 @@ namespace Runic2D
 						{
 							component.CurrentStateName = profile.Name;
 
+							component.Loop = profile.Loop;
+
 							if (profile.AtlasTexture)
 							{
 								int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
@@ -593,7 +595,7 @@ namespace Runic2D
 
 				ImGui::Text("Runtime Settings");
 				ImGui::Checkbox("Playing", &component.Playing);
-				ImGui::Checkbox("Loop", &component.Loop);
+				ImGui::Checkbox("Loop (Current)", &component.Loop);
 
 				int currentFrame = (int)component.CurrentFrameIndex;
 				int maxFrames = component.CurrentAnimation ? component.CurrentAnimation->GetFrameCount() - 1 : 0;
@@ -663,27 +665,10 @@ namespace Runic2D
 						ImGui::DragInt("Frame Count", &profile.FrameCount);
 						ImGui::DragFloat("Speed", &profile.FrameTime, 0.01f, 0.01f, 10.0f);
 
-						if (ImGui::Button("Preview This"))
+						if (ImGui::Checkbox("Loop", &profile.Loop))
 						{
-							if (profile.AtlasTexture && entity.HasComponent<SpriteRendererComponent>())
-							{
-								int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
-								int frameIndex = profile.StartFrame;
-								int col = frameIndex % numCols;
-								int row = frameIndex / numCols;
-
-								auto subtex = SubTexture2D::CreateFromPixelCoords(
-									profile.AtlasTexture,
-									(float)col * profile.TileSize.x,
-									(float)row * profile.TileSize.y,
-									profile.TileSize.x, profile.TileSize.y
-								);
-
-								entity.GetComponent<SpriteRendererComponent>().SubTexture = subtex;
-								entity.GetComponent<SpriteRendererComponent>().Color = glm::vec4(1.0f);
-
-								component.CurrentFrameIndex = 0;
-							}
+							if (component.CurrentStateName == profile.Name)
+								component.Loop = profile.Loop;
 						}
 
 						ImGui::TreePop();
