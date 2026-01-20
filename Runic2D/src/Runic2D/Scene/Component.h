@@ -227,7 +227,7 @@ namespace Runic2D {
 
 		int StartFrame = 0; 
 		int FrameCount = 1; 
-		int FramesPerRow = 1;
+		int FramesPerRow = 0;
 		float FrameTime = 0.1f; 
 
 		bool Loop = true;

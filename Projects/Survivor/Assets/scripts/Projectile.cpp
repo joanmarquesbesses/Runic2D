@@ -6,6 +6,14 @@ void Projectile::OnCreate()
 {
     if (HasComponent<Rigidbody2DComponent>())
         m_Rb = &GetComponent<Rigidbody2DComponent>();
+
+    if (HasComponent<SpriteRendererComponent>())
+    {
+        m_SpriteRenderer = &GetComponent<SpriteRendererComponent>();
+        if (m_SpriteRenderer->Texture)
+            m_SpriteRenderer->SubTexture = nullptr;
+            m_Texture = m_SpriteRenderer->Texture;
+    }
 }
 
 void Projectile::OnUpdate(Timestep ts)
@@ -13,20 +21,17 @@ void Projectile::OnUpdate(Timestep ts)
     m_TimeAlive += ts;
     if (m_TimeAlive > LifeTime)
     {
-        Destroy(); // Auto-destrucció per temps
+        Destroy(); 
         return;
     }
 
     if (m_Rb)
     {
-        /*b2BodyId bodyId = (b2BodyId)m_Rb->RuntimeBody;
-
-        float angle = b2Body_GetAngle(bodyId);
-
-        glm::vec2 velocity = { cos(angle), sin(angle) };
-
-        b2Vec2 vel = { velocity.x * Speed, velocity.y * Speed };
-        b2Body_SetLinearVelocity(bodyId, vel);*/
+        b2BodyId bodyId = (b2BodyId)m_Rb->RuntimeBody;
+        b2Rot rotation = b2Body_GetRotation(bodyId);
+        glm::vec2 direction = { rotation.c, rotation.s };
+        b2Vec2 vel = { direction.x * Speed, direction.y * Speed };
+        b2Body_SetLinearVelocity(bodyId, vel);
     }
 }
 

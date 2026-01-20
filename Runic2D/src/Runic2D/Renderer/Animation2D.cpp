@@ -14,13 +14,34 @@ namespace Runic2D {
 		return m_Frames[index];
 	}
 
-	Ref<Animation2D> Animation2D::CreateFromAtlas(Ref<Texture2D> atlas, const glm::vec2& cellSize, const glm::vec2& startCoords, int count, float frameTime)
+	Ref<Animation2D> Animation2D::CreateFromAtlas(Ref<Texture2D> atlas, const glm::vec2& cellSize, const glm::vec2& startCoords, int count, int framesPerRow, float frameTime)
 	{
-		std::vector<Ref<SubTexture2D>> frames;
-		for (int i = 0; i < count; i++)
-		{
-			frames.push_back(SubTexture2D::CreateFromPixelCoords(atlas, { startCoords.x + i * cellSize.x, startCoords.y }, cellSize));
-		}
-		return CreateRef<Animation2D>(frames, frameTime);
+        std::vector<Ref<SubTexture2D>> frames;
+
+        int validFramesPerRow = framesPerRow;
+        if (validFramesPerRow <= 0)
+            validFramesPerRow = (int)(atlas->GetWidth() / cellSize.x);
+
+        if (validFramesPerRow < 1) validFramesPerRow = 1;
+
+        int numRowsInTexture = (int)(atlas->GetHeight() / cellSize.y);
+
+        for (int i = 0; i < count; i++)
+        {
+            int col = i % validFramesPerRow;
+            int row = i / validFramesPerRow;
+
+            int glRow = (numRowsInTexture - 1) - row;
+
+            float indexX = (startCoords.x / cellSize.x) + col;
+            float indexY = (startCoords.y / cellSize.y) + glRow;
+
+            glm::vec2 coords = { indexX, indexY };
+
+            Ref<SubTexture2D> subtexture = SubTexture2D::CreateFromCoords(atlas, coords, cellSize);
+            frames.push_back(subtexture);
+        }
+
+        return CreateRef<Animation2D>(frames, frameTime);
 	}
 }

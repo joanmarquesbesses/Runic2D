@@ -15,7 +15,7 @@ namespace Runic2D {
 		uint32_t GetFrameCount() const { return (uint32_t)m_Frames.size(); }
 		float GetFrameTime() const { return m_FrameTime; }
 
-		static Ref<Animation2D> CreateFromAtlas(Ref<Texture2D> atlas, const glm::vec2& cellSize, const glm::vec2& startCoords, int count, float frameTime);
+		static Ref<Animation2D> CreateFromAtlas(Ref<Texture2D> atlas, const glm::vec2& cellSize, const glm::vec2& startCoords, int count, int framesPerRow, float frameTime);
 
 	private:
 		std::vector<Ref<SubTexture2D>> m_Frames;

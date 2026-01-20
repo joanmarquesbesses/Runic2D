@@ -571,6 +571,7 @@ namespace Runic2D
 									profile.TileSize,
 									{ (float)col * profile.TileSize.x, (float)row * profile.TileSize.y },
 									profile.FrameCount,
+									profile.FramesPerRow,
 									profile.FrameTime
 								);
 
@@ -671,6 +672,7 @@ namespace Runic2D
 						ImGui::DragInt("Start Frame", &profile.StartFrame);
 						ImGui::DragInt("Frame Count", &profile.FrameCount);
 						ImGui::DragInt("Frames Per Row", &profile.FramesPerRow, 0.1f, 1, 100);
+						if (ImGui::IsItemHovered()) ImGui::SetTooltip("0 = Auto-detect (Single Row)");
 						ImGui::DragFloat("Speed", &profile.FrameTime, 0.01f, 0.01f, 10.0f);
 
 						if (profile.AtlasTexture && ImGui::Button("Auto-Calc Size from Rows"))

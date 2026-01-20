@@ -444,6 +444,7 @@ namespace Runic2D {
 							profile.TileSize,
 							{ startX, startY },
 							profile.FrameCount,
+							profile.FramesPerRow,
 							profile.FrameTime
 						);
 
@@ -936,7 +937,7 @@ namespace Runic2D {
 
 							Ref<Animation2D> animAsset = Animation2D::CreateFromAtlas(
 								profile.AtlasTexture, profile.TileSize, { startX, startY },
-								profile.FrameCount, profile.FrameTime
+								profile.FrameCount, profile.FramesPerRow, profile.FrameTime
 							);
 							anim.Animations[profile.Name] = animAsset;
 						}

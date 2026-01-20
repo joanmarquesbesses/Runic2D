@@ -49,6 +49,7 @@ Entities:
           TileSize: [231, 190]
           StartFrame: 0
           FrameCount: 6
+          FramesPerRow: 0
           FrameTime: 0.1
           Loop: true
         - Name: Run
@@ -56,6 +57,7 @@ Entities:
           TileSize: [231, 190]
           StartFrame: 0
           FrameCount: 8
+          FramesPerRow: 0
           FrameTime: 0.1
           Loop: true
         - Name: Attack
@@ -63,6 +65,7 @@ Entities:
           TileSize: [231, 190]
           StartFrame: 0
           FrameCount: 8
+          FramesPerRow: 0
           FrameTime: 0.1
           Loop: false
         - Name: Hit
@@ -70,6 +73,7 @@ Entities:
           TileSize: [231, 190]
           StartFrame: 0
           FrameCount: 4
+          FramesPerRow: 0
           FrameTime: 0.1
           Loop: false
         - Name: Death
@@ -77,5 +81,6 @@ Entities:
           TileSize: [230, 190]
           StartFrame: 0
           FrameCount: 7
+          FramesPerRow: 0
           FrameTime: 0.1
           Loop: false

@@ -374,6 +374,7 @@ namespace Runic2D {
 				out << YAML::Key << "TileSize" << YAML::Value << profile.TileSize;
 				out << YAML::Key << "StartFrame" << YAML::Value << profile.StartFrame;
 				out << YAML::Key << "FrameCount" << YAML::Value << profile.FrameCount;
+				out << YAML::Key << "FramesPerRow" << YAML::Value << profile.FramesPerRow;
 				out << YAML::Key << "FrameTime" << YAML::Value << profile.FrameTime;
 				out << YAML::Key << "Loop" << YAML::Value << profile.Loop;
 				out << YAML::EndMap;
@@ -604,6 +605,7 @@ namespace Runic2D {
 							YAML_LOAD(profileNode, "TileSize", profile.TileSize);
 							YAML_LOAD(profileNode, "StartFrame", profile.StartFrame);
 							YAML_LOAD(profileNode, "FrameCount", profile.FrameCount);
+							YAML_LOAD(profileNode, "FramesPerRow", profile.FramesPerRow);
 							YAML_LOAD(profileNode, "FrameTime", profile.FrameTime);
 							YAML_LOAD(profileNode, "Loop", profile.Loop);
 
