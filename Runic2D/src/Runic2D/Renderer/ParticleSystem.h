@@ -21,7 +21,7 @@ namespace Runic2D {
     class ParticleSystem
     {
     public:
-        ParticleSystem(uint32_t maxParticles = 1000);
+        ParticleSystem(uint32_t maxParticles = 10000);
 
         void OnUpdate(Timestep ts);
         void OnRender();

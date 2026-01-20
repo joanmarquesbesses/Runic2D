@@ -258,4 +258,16 @@ namespace Runic2D {
 			return CurrentFrameIndex >= (CurrentAnimation->GetFrameCount() - 1);
 		}
 	};
+
+	struct ProjectileComponent
+	{
+		float Speed = 10.0f;
+		float LifeTime = 2.0f;
+		float Damage = 10.0f;
+
+		glm::vec2 Direction = { 1.0f, 0.0f };
+
+		ProjectileComponent() = default;
+		ProjectileComponent(const ProjectileComponent&) = default;
+	};
 }

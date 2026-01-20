@@ -1,5 +1,7 @@
 #include "Sandbox2D.h"
 
+#include "../../Projects/Survivor/Assets/scripts/EntityFactory.h"
+
 using namespace Runic2D;
 
 Sandbox2D::Sandbox2D() : Layer("Sandbox2D") {
@@ -25,7 +27,7 @@ void Sandbox2D::OnAttach()
     }
 
     SceneSerializer serializer(m_ActiveScene);
-    //std::string scenePath = "Projects/Survivor/Assets/scenes/Level1.r2dscene";
+    std::string scenePath = "Projects/Survivor/Assets/scenes/MainScene.r2dscene";
 
     if (serializer.Deserialize(scenePath))
     {
@@ -42,6 +44,7 @@ void Sandbox2D::OnAttach()
         }
 
         m_ActiveScene->OnRuntimeStart();
+        EntityFactory::Init(m_ActiveScene.get());
 
         auto& window = Application::Get().GetWindow();
         m_ActiveScene->OnViewportResize(window.GetWidth(), window.GetHeight());

@@ -16,6 +16,7 @@ private:
 	void PlayAnimation(const std::string& name);
 	bool IsMoving() const;
 	bool CanChangeDirection() const;
+	void TryAttack();
 
 private:
 	Runic2D::Rigidbody2DComponent* m_Rb = nullptr;
@@ -34,4 +35,6 @@ private:
 	};
 
 	State m_State = State::Idle; 
+
+	bool m_HasFired = false;
 };

@@ -14,6 +14,14 @@ void Projectile::OnCreate()
             m_SpriteRenderer->SubTexture = nullptr;
             m_Texture = m_SpriteRenderer->Texture;
     }
+
+    if (HasComponent<ProjectileComponent>())
+    {
+        auto& data = GetComponent<ProjectileComponent>();
+
+        this->Speed = data.Speed;
+        this->LifeTime = data.LifeTime;
+    }
 }
 
 void Projectile::OnUpdate(Timestep ts)
@@ -23,6 +31,27 @@ void Projectile::OnUpdate(Timestep ts)
     {
         Destroy(); 
         return;
+    }
+
+    if(HasComponent<TransformComponent>())
+    {
+
+        auto& transform = GetComponent<TransformComponent>();
+
+        ParticleProps props;
+        props.Position = transform.Translation; 
+        //props.Position.z -= 0.1f;
+
+        props.Velocity = { 0.0f, 0.0f };
+        props.VelocityVariation = { 0.5f, 0.5f };
+        props.LifeTime = 0.2f;
+        props.ColorBegin = { 0.0f, 0.7f, 1.0f, 1.0f };
+        props.ColorEnd = { 0.0f, 0.0f, 1.0f, 0.0f };
+        props.SizeBegin = 0.2f;
+        props.SizeEnd = 0.0f;
+        props.SizeVariation = 0.05f;
+
+        GetScene()->EmitParticles(props);
     }
 
     if (m_Rb)

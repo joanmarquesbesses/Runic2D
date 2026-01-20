@@ -26,8 +26,7 @@ Runic2D::Entity EntityFactory::CreatePlayerProjectile(glm::vec2 position, glm::v
     // 1. Transform
     auto& tc = entity.GetComponent<Runic2D::TransformComponent>();
     tc.Translation = { position.x, position.y, 0.0f };
-    tc.Scale = { 1.5f, 1.5f, 1.0f };
-    // Calculem la rotació aquí. El script només haurà de moure's "endavant"
+    tc.Scale = { 1.0f, 1.0f, 1.0f };
     tc.Rotation.z = atan2(direction.y, direction.x);
 
     // 2. Sprite
@@ -80,7 +79,14 @@ Runic2D::Entity EntityFactory::CreatePlayerProjectile(glm::vec2 position, glm::v
 
     s_Scene->InstantiatePhysics(entity);
 
-    // 5. Script
+	//5. Prjectile properties
+    auto& projData = entity.AddComponent<ProjectileComponent>();
+    projData.Speed = 12.0f;
+    projData.LifeTime = 1.5f;
+    projData.Damage = 10.0f;
+    projData.Direction = direction;
+
+    // 6. Script
     auto& nsc = entity.AddComponent<Runic2D::NativeScriptComponent>();
     nsc.Bind<Projectile>();
 

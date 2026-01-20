@@ -76,14 +76,9 @@ void Player::HandleAnimation()
         {
             PlayAnimation("Idle");
 
-            if (Input::IsKeyPressed(KeyCode::Space))
+            if (Input::IsMouseButtonPressed(MouseButton::Left))
             {
-                m_State = State::Attack; 
-                PlayAnimation("Attack"); 
-                glm::vec2 playerPos = { m_Transform->Translation.x, m_Transform->Translation.y };
-                float directionX = m_Transform->Scale.x > 0 ? 1.0f : -1.0f;
-                glm::vec2 spawnPos = playerPos + glm::vec2(directionX * 0.8f, 0.0f);
-                EntityFactory::CreatePlayerProjectile(spawnPos, { directionX, 0.0f });
+                TryAttack();
             }
             else if (Input::IsKeyPressed(KeyCode::T)) {
                 m_State = State::Death;
@@ -100,10 +95,9 @@ void Player::HandleAnimation()
         {
             PlayAnimation("Run");
 
-            if (Input::IsKeyPressed(KeyCode::Space))
+            if (Input::IsMouseButtonPressed(MouseButton::Left))
             {
-                m_State = State::Attack;
-                PlayAnimation("Attack");
+                TryAttack();
             }
             else if (!IsMoving())
             {
@@ -114,6 +108,36 @@ void Player::HandleAnimation()
         }
         case State::Attack:
         {
+            glm::vec2 mousePos = Runic2D::Utils::SceneUtils::GetMouseWorldPosition(GetScene());
+            glm::vec2 playerPos = { m_Transform->Translation.x, m_Transform->Translation.y };
+
+            if (mousePos.x < playerPos.x) {
+                if (m_Transform->Scale.x > 0) m_Transform->Scale.x = -fabs(m_Transform->Scale.x);
+            }
+            else {
+                if (m_Transform->Scale.x < 0) m_Transform->Scale.x = fabs(m_Transform->Scale.x);
+            }
+
+            if (m_Anim->CurrentFrameIndex >= 4 && !m_HasFired)
+            {
+                float facingDirection = (m_Transform->Scale.x > 0.0f) ? 1.0f : -1.0f;
+                float handOffsetX = 1.3f;
+                float handOffsetY = 0.0f;
+
+                glm::vec2 spawnPos = playerPos;
+                spawnPos.x += handOffsetX * facingDirection;
+                spawnPos.y += handOffsetY;
+
+                glm::vec2 direction = mousePos - spawnPos;
+                if (glm::length(direction) > 0.0f)
+                    direction = glm::normalize(direction);
+                else
+                    direction = { facingDirection, 0.0f };
+
+                EntityFactory::CreatePlayerProjectile(spawnPos, direction);
+                m_HasFired = true;
+            }
+
             if (m_Anim->IsFinished())
             {
                 if (IsMoving()) {
@@ -204,4 +228,23 @@ bool Player::CanChangeDirection() const
 		return false;
     else
 		return true;
+}
+
+void Player::TryAttack()
+{
+    m_State = State::Attack;
+    PlayAnimation("Attack");
+    m_HasFired = false;
+
+    glm::vec2 mousePos = Runic2D::Utils::SceneUtils::GetMouseWorldPosition(GetScene());
+    glm::vec2 playerPos = { m_Transform->Translation.x, m_Transform->Translation.y };
+
+    if (mousePos.x < playerPos.x)
+    {
+        if (m_Transform->Scale.x > 0) m_Transform->Scale.x = -fabs(m_Transform->Scale.x);
+    }
+    else
+    {
+        if (m_Transform->Scale.x < 0) m_Transform->Scale.x = fabs(m_Transform->Scale.x);
+    }
 }

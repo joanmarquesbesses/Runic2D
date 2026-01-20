@@ -214,6 +214,7 @@
     <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h" />
     <ClInclude Include="src\Runic2D\Utils\Random.h" />
+    <ClInclude Include="src\Runic2D\Utils\SceneUtils.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_fixes.hpp" />
@@ -684,6 +685,7 @@
     <ClCompile Include="src\Runic2D\Scene\SceneSerializer.cpp" />
     <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Runic2D\Utils\Random.cpp" />
+    <ClCompile Include="src\Runic2D\Utils\SceneUtils.cpp" />
     <ClCompile Include="vendor\stb_image\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>

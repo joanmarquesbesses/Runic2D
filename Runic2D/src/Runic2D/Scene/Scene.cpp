@@ -529,7 +529,6 @@ namespace Runic2D {
 		bodyDef.motionLocks.angularZ = rb2d.FixedRotation;
 		bodyDef.gravityScale = rb2d.GravityScale;
 
-		R2D_TRACE(m_PhysicsWorld.index1);
 		b2BodyId bodyId = b2CreateBody(m_PhysicsWorld, &bodyDef);
 		rb2d.RuntimeBody = bodyId;
 

@@ -25,6 +25,8 @@
 
 #include "Runic2D/Scripting/ScriptEngine.h"
 
+#include "Runic2D/Utils/SceneUtils.h"
+
 // Asset Management
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Audio/AudioEngine.h"
