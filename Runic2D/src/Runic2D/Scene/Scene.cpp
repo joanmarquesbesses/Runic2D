@@ -411,75 +411,7 @@ namespace Runic2D {
 		for (auto e : view)
 		{
 			Entity entity = { e, this };
-			auto& transform = entity.GetComponent<TransformComponent>();
-			auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
-
-			glm::mat4 wolrdTransform = GetWorldTransform(entity);
-
-			b2BodyDef bodyDef = b2DefaultBodyDef();
-			bodyDef.type = Rigidbody2DTypeToBox2D(rb2d.Type);
-			bodyDef.position = { wolrdTransform[3].x, wolrdTransform[3].y };
-			bodyDef.rotation = b2MakeRot(transform.Rotation.z);
-			bodyDef.enableSleep = true;
-			bodyDef.motionLocks.angularZ = rb2d.FixedRotation;
-			bodyDef.gravityScale = rb2d.GravityScale;
-
-			b2BodyId bodyId = b2CreateBody(m_PhysicsWorld, &bodyDef);
-			rb2d.RuntimeBody = bodyId;
-
-			if (entity.HasComponent<BoxCollider2DComponent>())
-			{
-				auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
-
-				b2ShapeDef shapeDef = b2DefaultShapeDef();
-				shapeDef.density = bc2d.Density;
-
-				shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
-				shapeDef.isSensor = bc2d.IsSensor;
-				shapeDef.enableSensorEvents = bc2d.EnableSensorEvents;
-				shapeDef.enableContactEvents = bc2d.EnableContactEvents;
-
-				float hx = std::abs(bc2d.Size.x * transform.Scale.x) * 0.5f;
-				float hy = std::abs(bc2d.Size.y * transform.Scale.y) * 0.5f;
-
-				b2Polygon boxPolygon = b2MakeOffsetBox(hx, hy, { bc2d.Offset.x, bc2d.Offset.y }, b2MakeRot(0.0f));
-
-				b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &boxPolygon);
-				b2Shape_SetFriction(shapeId, bc2d.Friction);
-				b2Shape_SetRestitution(shapeId, bc2d.Restitution);
-				bc2d.RuntimeShape = shapeId;
-			}
-
-			if (entity.HasComponent<CircleCollider2DComponent>())
-			{
-				auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
-
-				b2ShapeDef shapeDef = b2DefaultShapeDef();
-				shapeDef.density = cc2d.Density;
-
-				shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
-				shapeDef.isSensor = cc2d.IsSensor;
-				shapeDef.enableSensorEvents = cc2d.EnableSensorEvents;
-				shapeDef.enableContactEvents = cc2d.EnableContactEvents;
-
-				float maxScale = std::max(transform.Scale.x, transform.Scale.y);
-				float radius = cc2d.Radius * maxScale;
-
-				b2Circle circle;
-				circle.center = { cc2d.Offset.x, cc2d.Offset.y };
-				circle.radius = radius;
-
-				b2ShapeId shapeId = b2CreateCircleShape(bodyId, &shapeDef, &circle);
-				b2Shape_SetFriction(shapeId, cc2d.Friction);
-				b2Shape_SetRestitution(shapeId, cc2d.Restitution);
-				cc2d.RuntimeShape = shapeId;
-			}
-
-			if (rb2d.Type == Rigidbody2DComponent::BodyType::Dynamic)
-			{
-				b2Body_ApplyMassFromShapes(bodyId);
-				b2Body_SetAwake(bodyId, true);
-			}
+			InstantiatePhysics(entity);
 		}
 
 		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
@@ -579,6 +511,80 @@ namespace Runic2D {
 					nsc.Instance = nullptr;    
 				}
 			});
+	}
+
+	void Scene::InstantiatePhysics(Entity entity)
+	{
+		auto& transform = entity.GetComponent<TransformComponent>();
+		auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
+
+		glm::mat4 wolrdTransform = GetWorldTransform(entity);
+
+		b2BodyDef bodyDef = b2DefaultBodyDef();
+		bodyDef.type = Rigidbody2DTypeToBox2D(rb2d.Type);
+		bodyDef.position = { wolrdTransform[3].x, wolrdTransform[3].y };
+		bodyDef.rotation = b2MakeRot(transform.Rotation.z);
+		bodyDef.enableSleep = true;
+		bodyDef.motionLocks.angularZ = rb2d.FixedRotation;
+		bodyDef.gravityScale = rb2d.GravityScale;
+
+		R2D_TRACE(m_PhysicsWorld.index1);
+		b2BodyId bodyId = b2CreateBody(m_PhysicsWorld, &bodyDef);
+		rb2d.RuntimeBody = bodyId;
+
+		if (entity.HasComponent<BoxCollider2DComponent>())
+		{
+			auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+
+			b2ShapeDef shapeDef = b2DefaultShapeDef();
+			shapeDef.density = bc2d.Density;
+
+			shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
+			shapeDef.isSensor = bc2d.IsSensor;
+			shapeDef.enableSensorEvents = bc2d.EnableSensorEvents;
+			shapeDef.enableContactEvents = bc2d.EnableContactEvents;
+
+			float hx = std::abs(bc2d.Size.x * transform.Scale.x) * 0.5f;
+			float hy = std::abs(bc2d.Size.y * transform.Scale.y) * 0.5f;
+
+			b2Polygon boxPolygon = b2MakeOffsetBox(hx, hy, { bc2d.Offset.x, bc2d.Offset.y }, b2MakeRot(0.0f));
+
+			b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &boxPolygon);
+			b2Shape_SetFriction(shapeId, bc2d.Friction);
+			b2Shape_SetRestitution(shapeId, bc2d.Restitution);
+			bc2d.RuntimeShape = shapeId;
+		}
+
+		if (entity.HasComponent<CircleCollider2DComponent>())
+		{
+			auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+
+			b2ShapeDef shapeDef = b2DefaultShapeDef();
+			shapeDef.density = cc2d.Density;
+
+			shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
+			shapeDef.isSensor = cc2d.IsSensor;
+			shapeDef.enableSensorEvents = cc2d.EnableSensorEvents;
+			shapeDef.enableContactEvents = cc2d.EnableContactEvents;
+
+			float maxScale = std::max(transform.Scale.x, transform.Scale.y);
+			float radius = cc2d.Radius * maxScale;
+
+			b2Circle circle;
+			circle.center = { cc2d.Offset.x, cc2d.Offset.y };
+			circle.radius = radius;
+
+			b2ShapeId shapeId = b2CreateCircleShape(bodyId, &shapeDef, &circle);
+			b2Shape_SetFriction(shapeId, cc2d.Friction);
+			b2Shape_SetRestitution(shapeId, cc2d.Restitution);
+			cc2d.RuntimeShape = shapeId;
+		}
+
+		if (rb2d.Type == Rigidbody2DComponent::BodyType::Dynamic)
+		{
+			b2Body_ApplyMassFromShapes(bodyId);
+			b2Body_SetAwake(bodyId, true);
+		}
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)

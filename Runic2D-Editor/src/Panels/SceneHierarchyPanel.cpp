@@ -559,6 +559,10 @@ namespace Runic2D
 							if (profile.AtlasTexture)
 							{
 								int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
+
+								int framesPerRow = profile.FramesPerRow > 0 ? profile.FramesPerRow : numCols;
+								if (framesPerRow < 1) framesPerRow = 1;
+
 								int col = profile.StartFrame % numCols;
 								int row = profile.StartFrame / numCols;
 
@@ -656,6 +660,9 @@ namespace Runic2D
 
 								profile.AtlasTexture = ResourceManager::Get<Texture2D>(texturePath.string());
 								profile.TexturePath = texturePath.string();
+
+								if (profile.TileSize.x > 0)
+									profile.FramesPerRow = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
 							}
 							ImGui::EndDragDropTarget();
 						}
@@ -663,7 +670,24 @@ namespace Runic2D
 						ImGui::DragFloat2("Tile Size", glm::value_ptr(profile.TileSize));
 						ImGui::DragInt("Start Frame", &profile.StartFrame);
 						ImGui::DragInt("Frame Count", &profile.FrameCount);
+						ImGui::DragInt("Frames Per Row", &profile.FramesPerRow, 0.1f, 1, 100);
 						ImGui::DragFloat("Speed", &profile.FrameTime, 0.01f, 0.01f, 10.0f);
+
+						if (profile.AtlasTexture && ImGui::Button("Auto-Calc Size from Rows"))
+						{
+							if (profile.FramesPerRow > 0)
+							{
+								float width = (float)profile.AtlasTexture->GetWidth();
+								float height = (float)profile.AtlasTexture->GetHeight();
+
+								profile.TileSize.x = width / (float)profile.FramesPerRow;
+
+								int numRows = (profile.FrameCount / profile.FramesPerRow) + (profile.FrameCount % profile.FramesPerRow > 0 ? 1 : 0);
+								if (numRows < 1) numRows = 1;
+
+								profile.TileSize.y = height / (float)numRows;
+							}
+						}
 
 						if (ImGui::Checkbox("Loop", &profile.Loop))
 						{

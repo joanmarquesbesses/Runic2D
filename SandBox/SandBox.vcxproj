@@ -143,13 +143,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\CameraController.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\EntityFactory.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Player.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\Projectile.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\ScriptRegistry.h" />
     <ClInclude Include="src\Sandbox2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\CameraController.cpp" />
+    <ClCompile Include="..\Projects\Survivor\Assets\scripts\EntityFactory.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\Player.cpp" />
+    <ClCompile Include="..\Projects\Survivor\Assets\scripts\Projectile.cpp" />
     <ClCompile Include="src\Sandbox2D.cpp" />
     <ClCompile Include="src\SandboxApp.cpp" />
   </ItemGroup>

@@ -12,6 +12,9 @@
 
 #include "ImGuizmo.h"
 
+//Includes del joc/projecte obert
+#include "../../Projects/Survivor/Assets/scripts/EntityFactory.h"
+
 namespace Runic2D
 {
 
@@ -112,12 +115,12 @@ namespace Runic2D
 		m_ViewportPanel.SetOnSceneOpenCallback([this](const std::string& path) {
 			OpenScene(path);
 			});
-
 	}
 
 	void EditorLayer::OnDetach()
 	{
 		R2D_PROFILE_FUNCTION();
+		EntityFactory::Shutdown();
 		m_EditorScene = nullptr;
 		m_ActiveScene = nullptr;
 	}
@@ -428,6 +431,8 @@ namespace Runic2D
 			return;
 		}
 
+		EntityFactory::Shutdown();
+
 		m_EditorScene = nullptr;
 		m_ActiveScene = nullptr;
 
@@ -450,6 +455,8 @@ namespace Runic2D
 
 			m_ActiveScene = m_EditorScene;
 			m_EditorScenePath = path;
+
+			EntityFactory::Init(m_ActiveScene.get());
 
 			m_SceneHierarchyPanel.SetContext(m_EditorScene);
 		}
@@ -486,6 +493,7 @@ namespace Runic2D
 		m_ViewportPanel.SetPlayMode(true);
 		m_ActiveScene->OnRuntimeStart();
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+		EntityFactory::Init(m_ActiveScene.get());
 	}
 
 	void EditorLayer::OnSceneStop()
@@ -495,6 +503,7 @@ namespace Runic2D
 		m_ActiveScene = m_EditorScene;
 		m_ActiveScene->OnRuntimeStop();
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+		EntityFactory::Init(m_ActiveScene.get());
 	}
 
 	void EditorLayer::OnDuplicateEntity()

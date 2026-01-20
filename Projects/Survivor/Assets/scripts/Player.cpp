@@ -2,6 +2,8 @@
 
 #include <Box2D/box2d.h>
 
+#include "EntityFactory.h"
+
 using namespace Runic2D;
 
 void Player::OnCreate()
@@ -32,7 +34,7 @@ void Player::HandleMovement(Timestep ts)
 {
 	if (!m_Rb) return;
 
-    if (m_State == State::Attack || m_State == State::Dead)
+    if (m_State == State::Attack || m_State == State::Death)
     {
         b2BodyId bodyId = m_Rb->RuntimeBody;
         b2Body_SetLinearVelocity(bodyId, { 0.0f, 0.0f });
@@ -78,6 +80,14 @@ void Player::HandleAnimation()
             {
                 m_State = State::Attack; 
                 PlayAnimation("Attack"); 
+                glm::vec2 playerPos = { m_Transform->Translation.x, m_Transform->Translation.y };
+                float directionX = m_Transform->Scale.x > 0 ? 1.0f : -1.0f;
+                glm::vec2 spawnPos = playerPos + glm::vec2(directionX * 0.8f, 0.0f);
+                EntityFactory::CreatePlayerProjectile(spawnPos, { directionX, 0.0f });
+            }
+            else if (Input::IsKeyPressed(KeyCode::T)) {
+                m_State = State::Death;
+                PlayAnimation("Death");
             }
             else if (IsMoving())
             {
@@ -104,20 +114,32 @@ void Player::HandleAnimation()
         }
         case State::Attack:
         {
-            bool animationFinished = m_Anim->CurrentFrameIndex >= m_Anim->CurrentAnimation->GetFrameCount() - 1;
-
-            if (animationFinished)
+            if (m_Anim->IsFinished())
             {
                 if (IsMoving()) {
                     m_State = State::Run;
-					PlayAnimation("Run");
+                    PlayAnimation("Run");
                 }
                 else {
                     m_State = State::Idle;
-					PlayAnimation("Idle");
+                    PlayAnimation("Idle");
                 }
-
-                m_Anim->Playing = true;
+            }
+            break;
+        }
+        case State::Death:
+        {
+            if (!m_Anim->IsFinished())
+            {
+                // Encara s'està morint... esperem.
+            }
+            else
+            {
+                if (IsMoving())
+                {
+                    m_State = State::Run;
+                    PlayAnimation("Run");
+                }
             }
             break;
         }
@@ -178,7 +200,7 @@ bool Player::IsMoving() const
 
 bool Player::CanChangeDirection() const
 {
-    if (m_State == State::Attack || m_State == State::Dead)
+    if (m_State == State::Attack || m_State == State::Death)
 		return false;
     else
 		return true;

@@ -2,6 +2,7 @@
 #include <Runic2D/Core/EntryPoint.h>
 
 #include "../../Projects/Survivor/Assets/scripts/ScriptRegistry.h"
+
 #include "EditorLayer.h"
 
 namespace Runic2D

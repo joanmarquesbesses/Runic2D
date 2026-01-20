@@ -227,6 +227,7 @@ namespace Runic2D {
 
 		int StartFrame = 0; 
 		int FrameCount = 1; 
+		int FramesPerRow = 1;
 		float FrameTime = 0.1f; 
 
 		bool Loop = true;
@@ -247,5 +248,14 @@ namespace Runic2D {
 
 		AnimationComponent() = default;
 		AnimationComponent(const AnimationComponent&) = default;
+
+		bool IsFinished() const
+		{
+			if (!CurrentAnimation) return true;
+
+			if (Loop) return false;
+
+			return CurrentFrameIndex >= (CurrentAnimation->GetFrameCount() - 1);
+		}
 	};
 }

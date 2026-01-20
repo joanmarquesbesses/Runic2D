@@ -37,6 +37,8 @@ namespace Runic2D {
 		void OnRuntimeStart();
 		void OnRuntimeStop();
 
+		void InstantiatePhysics(Entity entity);
+
 		void EmitParticles(const ParticleProps& props) { m_ParticleSystem.Emit(props); }
 
 		Entity GetPrimaryCameraEntity();

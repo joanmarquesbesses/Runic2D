@@ -30,7 +30,7 @@ private:
 		Run,
 		Attack,
 		Hit, 
-		Dead 
+		Death 
 	};
 
 	State m_State = State::Idle; 

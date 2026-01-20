@@ -12,5 +12,5 @@ public:
 private:
     Entity m_Player;
     float m_SmoothSpeed = 5.0f;
-    glm::vec3 m_Offset = { 0.0f, 0.0f, 0.0f }; // Per si vols que la càmera no estigui exactament a sobre
+    glm::vec3 m_Offset = { 0.0f, 0.0f, 0.0f };
 };
