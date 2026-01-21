@@ -30,7 +30,8 @@ namespace Runic2D {
 
 			particle.LifeRemaining -= ts;
 
-			particle.Position += particle.Velocity * (float)ts;
+			particle.Position.x += particle.Velocity.x * ts;
+			particle.Position.y += particle.Velocity.y * ts;
 
 			particle.Rotation += 0.01f * ts;
 		}

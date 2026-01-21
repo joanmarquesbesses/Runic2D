@@ -45,6 +45,9 @@ uniform sampler2D u_Texture[32];
 
 void main() 
 {
-	color = texture(u_Texture[int(v_TexIndex)],v_TexCoord * v_TilingFactor) * v_Color;
-	color2 = v_EntityID;
+	vec4 texColor = texture(u_Texture[int(v_TexIndex)], v_TexCoord * v_TilingFactor) * v_Color;
+    if (texColor.a < 0.1)
+        discard;
+    color = texColor;
+    color2 = v_EntityID;
 }

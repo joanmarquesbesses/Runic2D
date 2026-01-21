@@ -118,11 +118,11 @@ void Player::HandleAnimation()
                 if (m_Transform->Scale.x < 0) m_Transform->Scale.x = fabs(m_Transform->Scale.x);
             }
 
-            if (m_Anim->CurrentFrameIndex >= 4 && !m_HasFired)
+            if (m_Anim->CurrentFrameIndex >= 5 && !m_HasFired)
             {
                 float facingDirection = (m_Transform->Scale.x > 0.0f) ? 1.0f : -1.0f;
                 float handOffsetX = 1.3f;
-                float handOffsetY = 0.0f;
+                float handOffsetY = 0.5f;
 
                 glm::vec2 spawnPos = playerPos;
                 spawnPos.x += handOffsetX * facingDirection;
