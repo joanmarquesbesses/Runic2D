@@ -330,6 +330,8 @@ namespace Runic2D {
 
 			m_Registry.view<TransformComponent, TextComponent>().each([&](auto entityID, auto& transform, auto& text)
 				{
+					if (!text.Visible)
+						return;
 					Entity e{ entityID, this };
 					glm::mat4 worldTransform = GetWorldTransform(transform, e);
 					Renderer2D::DrawString(text.TextString, text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);

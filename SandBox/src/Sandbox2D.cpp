@@ -48,6 +48,17 @@ void Sandbox2D::OnAttach()
 
         auto& window = Application::Get().GetWindow();
         m_ActiveScene->OnViewportResize(window.GetWidth(), window.GetHeight());
+      
+        m_TextFPS = m_ActiveScene->CreateEntity("Text FPS");
+        auto& tc = m_TextFPS.GetComponent<TransformComponent>();
+        tc.Translation = { -8.0f, 4.0f, 10.0f };
+        tc.Scale = { 1.0f, 1.0f, 1.0f };
+
+        auto& textComp = m_TextFPS.AddComponent<TextComponent>();
+        textComp.TextString = "FPS: 0";
+        textComp.Color = { 0.0f, 1.0f, 0.0f, 1.0f }; 
+        textComp.Kerning = 0.0f;
+        textComp.LineSpacing = 0.0f;
     }
     else
     {
@@ -72,6 +83,10 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 
     if (m_ActiveScene)
     {
+        if (showFPS)
+        {
+            ShowFPSCounter();
+        }
         m_ActiveScene->OnUpdateRunTime(ts);
     }
 }
@@ -85,6 +100,7 @@ void Sandbox2D::OnEvent(Runic2D::Event& e)
 {
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<WindowResizeEvent>(R2D_BIND_EVENT_FN(Sandbox2D::OnWindowResize));
+    dispatcher.Dispatch<KeyPressedEvent>(R2D_BIND_EVENT_FN(Sandbox2D::OnKeyPressed));
 }
 
 bool Sandbox2D::OnWindowResize(WindowResizeEvent& e)
@@ -94,4 +110,59 @@ bool Sandbox2D::OnWindowResize(WindowResizeEvent& e)
         m_ActiveScene->OnViewportResize(e.GetWidth(), e.GetHeight());
     }
     return false;
+}
+
+bool Sandbox2D::OnKeyPressed(KeyPressedEvent& e)
+{
+    switch(e.GetKeyCode()){
+        case KeyCode::F1:
+        {
+            showFPS = !showFPS;
+            auto& txt = m_TextFPS.GetComponent<TextComponent>();
+            txt.Visible = showFPS;
+            return true;
+        }
+        case KeyCode::F2: 
+        {
+            auto& window = Application::Get().GetWindow();
+            bool vsyncState = window.IsVSync();
+            window.SetVSync(!vsyncState);
+            return true;
+        }
+	}
+
+    return false;
+}
+
+void Sandbox2D::ShowFPSCounter()
+{
+    if (m_TextFPS)
+    {
+        auto& txt = m_TextFPS.GetComponent<TextComponent>();
+        txt.TextString = "FPS: " + std::to_string((int)Application::Get().GetAverageFPS());
+
+        Entity cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+        if (cameraEntity)
+        {
+            auto& camComp = cameraEntity.GetComponent<CameraComponent>();
+            auto& camTrans = cameraEntity.GetComponent<TransformComponent>();
+
+            float orthoHeight = camComp.Camera.GetOrthographicSize();
+            float aspectRatio = camComp.Camera.GetAspectRatio();
+            float orthoWidth = orthoHeight * aspectRatio;
+
+            float leftEdge = camTrans.Translation.x - (orthoWidth * 0.5f);
+            float topEdge = camTrans.Translation.y + (orthoHeight * 0.5f);
+
+            float paddingX = 0.5f;
+            float paddingY = 1.0f;
+
+            auto& textTrans = m_TextFPS.GetComponent<TransformComponent>();
+
+            textTrans.Translation.x = leftEdge + paddingX; 
+            textTrans.Translation.y = topEdge - paddingY;  
+            textTrans.Translation.z = 100.0f; 
+			textTrans.IsDirty = true;
+        }
+    }
 }

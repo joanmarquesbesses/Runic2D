@@ -210,6 +210,7 @@ namespace Runic2D {
 		Ref<Font> FontAsset = Font::GetDefault();
 		float Kerning = 0.0f;
 		float LineSpacing = 0.0f;
+		bool Visible = true;
 
 		TextComponent() = default;
 		TextComponent(const TextComponent&) = default;
