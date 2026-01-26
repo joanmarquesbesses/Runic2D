@@ -270,6 +270,9 @@
     <ClInclude Include="src\Runic2D\Utils\Random.h">
       <Filter>src\Runic2D\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Utils\SceneUtils.h">
+      <Filter>src\Runic2D\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="vendor\glm\glm\common.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
@@ -1527,7 +1530,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Utils\SceneUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1671,9 +1673,11 @@
     <ClCompile Include="src\Runic2D\Utils\Random.cpp">
       <Filter>src\Runic2D\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Utils\SceneUtils.cpp">
+      <Filter>src\Runic2D\Utils</Filter>
+    </ClCompile>
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Utils\SceneUtils.cpp" />
   </ItemGroup>
 </Project>

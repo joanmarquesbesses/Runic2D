@@ -18,9 +18,11 @@ private:
 	bool OnKeyPressed(Runic2D::KeyPressedEvent& e);
 	bool OnWindowResize(Runic2D::WindowResizeEvent& e);
 	void ShowFPSCounter();
+	void ShowColliderOverlay();
 private:
 	Runic2D::Ref<Runic2D::Scene> m_ActiveScene;
 	Runic2D::Entity m_TextFPS;
 	bool showFPS = true;
+	bool m_ShowPhysicsColliders = false;
 };
 

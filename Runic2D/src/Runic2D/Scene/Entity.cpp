@@ -14,7 +14,7 @@ namespace Runic2D {
     {
         if (m_Scene)
         {
-            m_Scene->DestroyEntity(*this);
+            m_Scene->SubmitForDestruction(*this);
         }
     }
 

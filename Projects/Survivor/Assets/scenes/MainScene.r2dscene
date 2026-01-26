@@ -66,7 +66,7 @@ Entities:
           StartFrame: 0
           FrameCount: 8
           FramesPerRow: 0
-          FrameTime: 0.1
+          FrameTime: 0.065
           Loop: false
         - Name: Hit
           TexturePath: Projects/Survivor\Assets\textures/wizard/Hit.png
@@ -84,3 +84,14 @@ Entities:
           FramesPerRow: 0
           FrameTime: 0.1
           Loop: false
+  - EntityID: 4022698343222994133
+    TagComponent:
+      Tag: GameManager
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    NativeScriptComponent:
+      ClassName: GameManager

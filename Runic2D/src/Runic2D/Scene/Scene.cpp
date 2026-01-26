@@ -159,6 +159,11 @@ namespace Runic2D {
 		m_Registry.destroy(entity);
 	}
 
+	void Scene::SubmitForDestruction(Entity entity)
+	{
+		m_DestructionQueue.push_back((entt::entity)entity);
+	}
+
 	Entity Scene::CreateEntityWithUUID(UUID uuid, const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
@@ -341,6 +346,16 @@ namespace Runic2D {
 
 			Renderer2D::EndScene();
 		}
+
+		for (auto e : m_DestructionQueue)
+		{
+			if (m_Registry.valid(e))
+			{
+				Entity entity{ e, this };
+				DestroyEntity(entity);
+			}
+		}
+		m_DestructionQueue.clear();
 	}
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)

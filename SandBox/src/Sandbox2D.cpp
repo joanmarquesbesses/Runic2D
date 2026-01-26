@@ -87,6 +87,12 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
         {
             ShowFPSCounter();
         }
+
+        if (m_ShowPhysicsColliders)
+        {
+            ShowColliderOverlay();
+        }
+
         m_ActiveScene->OnUpdateRunTime(ts);
     }
 }
@@ -129,6 +135,11 @@ bool Sandbox2D::OnKeyPressed(KeyPressedEvent& e)
             window.SetVSync(!vsyncState);
             return true;
         }
+        case KeyCode::F3:
+        {
+			m_ShowPhysicsColliders = !m_ShowPhysicsColliders;
+            return true;
+        }
 	}
 
     return false;
@@ -165,4 +176,19 @@ void Sandbox2D::ShowFPSCounter()
 			textTrans.IsDirty = true;
         }
     }
+}
+
+void Sandbox2D::ShowColliderOverlay()
+{
+    glm::mat4 viewProj;
+
+    Entity cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+    if (cameraEntity)
+    {
+        auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+        auto& tc = cameraEntity.GetComponent<TransformComponent>();
+        viewProj = camera.GetProjection() * glm::inverse(tc.GetTransform());
+    }
+
+    m_ActiveScene->OnRenderOverlay(viewProj);
 }

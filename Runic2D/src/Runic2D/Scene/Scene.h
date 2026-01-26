@@ -23,6 +23,7 @@ namespace Runic2D {
 
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
+		void SubmitForDestruction(Entity entity);
 
 		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
 		Entity GetEntityByUUID(UUID uuid);
@@ -76,6 +77,8 @@ namespace Runic2D {
 		b2WorldId m_PhysicsWorld = b2_nullWorldId;
 
 		ParticleSystem m_ParticleSystem;
+
+		std::vector<entt::entity> m_DestructionQueue;
 
 		friend class Entity;
 		friend class SceneSerializer;

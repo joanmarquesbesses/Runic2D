@@ -6,6 +6,7 @@
 //include here escripts to register
 #include "Player.h"
 #include "CameraController.h"
+#include "GameManager.h"
 
 #define REGISTER_SCRIPT(ScriptType) \
 	if (name == #ScriptType) \
@@ -22,12 +23,13 @@ namespace ScriptRegistry {
 
 	static std::vector<std::string> GetScriptNames()
 	{
-		return { "Player", "CameraController"};
+		return { "Player", "CameraController", "GameManager"};
 	}
 
 	static void BindScript(std::string name, Runic2D::Entity entity)
 	{
 		REGISTER_SCRIPT(Player);
 		REGISTER_SCRIPT(CameraController);
+		REGISTER_SCRIPT(GameManager);
 	}
 }

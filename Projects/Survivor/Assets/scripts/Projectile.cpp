@@ -1,4 +1,5 @@
 #include "Projectile.h"
+#include "Enemy.h"
 
 #include "Player.h"
 
@@ -54,14 +55,12 @@ void Projectile::OnUpdate(Timestep ts)
         GetScene()->EmitParticles(props);
     }
 
-    if (m_Rb)
-    {
-        b2BodyId bodyId = (b2BodyId)m_Rb->RuntimeBody;
-        b2Rot rotation = b2Body_GetRotation(bodyId);
-        glm::vec2 direction = { rotation.c, rotation.s };
-        b2Vec2 vel = { direction.x * Speed, direction.y * Speed };
-        b2Body_SetLinearVelocity(bodyId, vel);
-    }
+    m_Rb = &GetComponent<Rigidbody2DComponent>();
+    b2BodyId bodyId = (b2BodyId)m_Rb->RuntimeBody;
+    b2Rot rotation = b2Body_GetRotation(bodyId);
+    glm::vec2 direction = { rotation.c, rotation.s };
+    b2Vec2 vel = { direction.x * Speed, direction.y * Speed };
+    b2Body_SetLinearVelocity(bodyId, vel);
 }
 
 void Projectile::OnCollision(Entity other)
@@ -70,6 +69,22 @@ void Projectile::OnCollision(Entity other)
     {
         if (Owner == OwnerType::Player && other.HasComponent<Player>())
             return; 
+
+        if (other.HasComponent<EnemyStatsComponent>())
+        {
+            if (other.HasComponent<NativeScriptComponent>())
+            {
+                auto& nsc = other.GetComponent<NativeScriptComponent>();
+                Enemy* enemyScript = static_cast<Enemy*>(nsc.Instance);
+
+                if (enemyScript)
+                {
+                    enemyScript->TakeDamage(GetComponent<ProjectileComponent>().Damage);
+                    Destroy();
+                    return;
+                }
+            }
+        }
 
        /* if (Owner == OwnerType::Enemy && other.HasComponent<EnemyAI>())
             return; */

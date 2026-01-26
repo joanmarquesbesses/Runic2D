@@ -1,14 +1,17 @@
 #include "EntityFactory.h"
 #include "Projectile.h" 
+#include "Enemy.h"
 
 Runic2D::Scene* EntityFactory::s_Scene = nullptr;
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_ProjectileTexture = nullptr;
+Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_BatTexture = nullptr;
 
 void EntityFactory::Init(Runic2D::Scene* scene)
 {
     s_Scene = scene;
 	std::string path = Project::GetAssetDirectory().string();
     s_ProjectileTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/projectiles/wizard/WizzardProjectile.png"));
+	s_BatTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/Enemies/Bat/Run.png"));
 }
 
 void EntityFactory::Shutdown()
@@ -89,6 +92,74 @@ Runic2D::Entity EntityFactory::CreatePlayerProjectile(glm::vec2 position, glm::v
     // 6. Script
     auto& nsc = entity.AddComponent<Runic2D::NativeScriptComponent>();
     nsc.Bind<Projectile>();
+
+    return entity;
+}
+
+Runic2D::Entity EntityFactory::CreateBat(glm::vec2 pos, float difficultyMult)
+{
+    Entity entity = CreateBaseEnemy(pos, "Bat");
+
+    auto& tc = entity.GetComponent<TransformComponent>();
+	tc.Scale = { 1.5f, 1.5f, 1.0f };
+
+    auto& stats = entity.AddComponent<EnemyStatsComponent>();
+    stats.Health = 20.0f * difficultyMult;    
+    stats.MaxHealth = stats.Health;
+    stats.Speed = 2.0f + (difficultyMult * 0.1f); 
+    stats.Damage = 5.0f * difficultyMult;
+    stats.XPDrop = 10;
+
+    auto& src = entity.AddComponent<SpriteRendererComponent>();
+    src.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    src.Texture = s_BatTexture; 
+
+    auto& anim = entity.AddComponent<AnimationComponent>();
+    AnimationProfile flyAnim;
+    flyAnim.Name = "Fly";
+    flyAnim.AtlasTexture = s_BatTexture;
+    flyAnim.TileSize = { 64.0f, 64.0f };
+    flyAnim.FrameCount = 4;
+    flyAnim.FrameTime = 0.1f;
+    flyAnim.Loop = true;
+    anim.Profiles.push_back(flyAnim);
+
+    anim.CurrentStateName = "Fly";
+    anim.Playing = true;
+    anim.Loop = true;
+
+    anim.CurrentAnimation = Runic2D::Animation2D::CreateFromAtlas(
+        flyAnim.AtlasTexture,
+        flyAnim.TileSize,
+        { 0.0f, 0.0f },
+        flyAnim.FrameCount,
+        flyAnim.FramesPerRow,
+        flyAnim.FrameTime
+    );
+    anim.Animations["Fly"] = anim.CurrentAnimation;
+
+    auto& coll = entity.AddComponent<CircleCollider2DComponent>();
+    coll.Radius = 0.2f;
+    coll.IsSensor = true;
+	coll.EnableSensorEvents = true;
+	coll.EnableContactEvents = true;
+    s_Scene->InstantiatePhysics(entity);
+
+    return entity;
+}
+
+Runic2D::Entity EntityFactory::CreateBaseEnemy(glm::vec2 pos, std::string name)
+{
+    auto entity = s_Scene->CreateEntity(name);
+
+    auto& tc = entity.GetComponent<TransformComponent>();
+    tc.Translation = { pos.x, pos.y, 0.0f };
+
+    auto& rb = entity.AddComponent<Rigidbody2DComponent>();
+    rb.Type = Rigidbody2DComponent::BodyType::Dynamic;
+    rb.FixedRotation = true;
+
+    entity.AddComponent<NativeScriptComponent>().Bind<Enemy>();
 
     return entity;
 }

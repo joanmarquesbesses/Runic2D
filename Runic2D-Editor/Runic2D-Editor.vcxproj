@@ -143,7 +143,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\CameraController.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\Enemy.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\EntityFactory.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameManager.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Player.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Projectile.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\ScriptRegistry.h" />
@@ -157,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\CameraController.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\EntityFactory.cpp" />
+    <ClCompile Include="..\Projects\Survivor\Assets\scripts\GameManager.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\Player.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\Projectile.cpp" />
     <ClCompile Include="src\EditorLayer.cpp" />

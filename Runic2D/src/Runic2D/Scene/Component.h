@@ -271,4 +271,12 @@ namespace Runic2D {
 		ProjectileComponent() = default;
 		ProjectileComponent(const ProjectileComponent&) = default;
 	};
+
+	struct EnemyStatsComponent {
+		float Health = 100.0f;
+		float MaxHealth = 100.0f;
+		float Speed = 2.0f;
+		float Damage = 10.0f;
+		int XPDrop = 10;
+	};
 }
