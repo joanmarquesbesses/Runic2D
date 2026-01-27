@@ -39,6 +39,7 @@ namespace Runic2D {
 		void OnRuntimeStop();
 
 		void InstantiatePhysics(Entity entity);
+		void UpdateEntityColliders(Entity entity);
 
 		void EmitParticles(const ParticleProps& props) { m_ParticleSystem.Emit(props); }
 
@@ -62,11 +63,24 @@ namespace Runic2D {
 
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
+
 		template<typename... Components>
 		auto GetAllEntitiesWith()
 		{
 			return m_Registry.view<Components...>();
 		}
+
+		template<typename T>
+		Entity GetEntityWithComponent()
+		{
+			auto view = m_Registry.view<T>();
+			if (view.begin() != view.end())
+			{
+				return { *view.begin(), this };
+			}
+			return {}; 
+		}
+
 	private:
 		void OnCameraComponentConstruct(entt::registry& registry, entt::entity entity);
 		void CopyEntity(Entity src, Entity dst);

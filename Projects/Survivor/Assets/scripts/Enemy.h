@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Runic2D.h"
+#include "GameComponents.h"
+#include "EntityFactory.h"
 
 using namespace Runic2D;
 
@@ -63,7 +65,13 @@ public:
     }
 
     void Die() {
-        // Spawn XP Gem
+        int xpToDrop = 10;
+        if (HasComponent<EnemyStatsComponent>()) {
+            xpToDrop = GetComponent<EnemyStatsComponent>().XPDrop;
+        }
+
+        auto& transform = GetComponent<TransformComponent>();
+        EntityFactory::CreateExperienceGem(transform.Translation, xpToDrop);
         // Play death sound
         Destroy();
     }

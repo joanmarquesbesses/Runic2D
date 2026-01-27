@@ -145,6 +145,8 @@
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\CameraController.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Enemy.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\EntityFactory.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\ExperienceOrb.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameComponents.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameManager.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Player.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Projectile.h" />

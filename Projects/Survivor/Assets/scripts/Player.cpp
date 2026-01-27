@@ -2,6 +2,7 @@
 
 #include <Box2D/box2d.h>
 
+#include "GameComponents.h"
 #include "EntityFactory.h"
 
 using namespace Runic2D;
@@ -18,6 +19,26 @@ void Player::OnCreate()
 
 	if (HasComponent<TransformComponent>())
 		m_Transform = &GetComponent<TransformComponent>();
+
+    if (HasComponent<BoxCollider2DComponent>())
+    {
+        auto& bc = GetComponent<BoxCollider2DComponent>();
+        bc.Offset = { -0.150f, -0.150f };
+        bc.CategoryBits = PhysicsLayers::Player;
+		bc.MaskBits = PhysicsLayers::Default | PhysicsLayers::Enemy | PhysicsLayers::Projectile;
+	}
+
+    if (HasComponent<CircleCollider2DComponent>())
+    {
+        auto& cc = GetComponent<CircleCollider2DComponent>();
+        cc.Offset = { -0.200f, -0.1f };
+		cc.CategoryBits = PhysicsLayers::Player;
+		cc.MaskBits = PhysicsLayers::Item;
+        cc.IsSensor = true;
+        cc.EnableSensorEvents = true;
+    }
+
+	GetEntity().AddComponent<PlayerStatsComponent>();
 }
 
 void Player::OnDestroy()
@@ -60,13 +81,35 @@ void Player::HandleAnimation()
 {
     if (m_Transform && CanChangeDirection())
     {
+		auto& bc = GetComponent<BoxCollider2DComponent>();
+		auto& cc = GetComponent<CircleCollider2DComponent>();
+
+        bool changed = false;
+
         if (Input::IsKeyPressed(KeyCode::A))
         {
-            if (m_Transform->Scale.x > 0) m_Transform->Scale.x = -fabs(m_Transform->Scale.x);
+            if (m_Transform->Scale.x > 0)
+            {
+                m_Transform->Scale.x = -fabs(m_Transform->Scale.x);
+                bc.Offset.x = fabs(bc.Offset.x);
+                cc.Offset.x = fabs(cc.Offset.x);
+                changed = true;
+            }
         }
         else if (Input::IsKeyPressed(KeyCode::D))
         {
-            if (m_Transform->Scale.x < 0) m_Transform->Scale.x = fabs(m_Transform->Scale.x);
+            if (m_Transform->Scale.x < 0)
+            {
+                m_Transform->Scale.x = fabs(m_Transform->Scale.x);
+                bc.Offset.x = -fabs(bc.Offset.x);
+                cc.Offset.x = -fabs(cc.Offset.x);
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            GetScene()->UpdateEntityColliders(GetEntity());
         }
     }
 
@@ -239,12 +282,34 @@ void Player::TryAttack()
     glm::vec2 mousePos = Runic2D::Utils::SceneUtils::GetMouseWorldPosition(GetScene());
     glm::vec2 playerPos = { m_Transform->Translation.x, m_Transform->Translation.y };
 
+	auto& bc = GetComponent<BoxCollider2DComponent>();
+	auto& cc = GetComponent<CircleCollider2DComponent>();
+
+	bool changed = false;
+
     if (mousePos.x < playerPos.x)
     {
-        if (m_Transform->Scale.x > 0) m_Transform->Scale.x = -fabs(m_Transform->Scale.x);
+        if (m_Transform->Scale.x > 0)
+        {
+            m_Transform->Scale.x = -fabs(m_Transform->Scale.x);
+            bc.Offset.x = fabs(bc.Offset.x);
+            cc.Offset.x = fabs(cc.Offset.x);
+            changed = true;
+        }
     }
     else
     {
-        if (m_Transform->Scale.x < 0) m_Transform->Scale.x = fabs(m_Transform->Scale.x);
+        if (m_Transform->Scale.x < 0)
+        {
+            m_Transform->Scale.x = fabs(m_Transform->Scale.x);
+            bc.Offset.x = -fabs(bc.Offset.x);
+            cc.Offset.x = -fabs(cc.Offset.x);
+            changed = true;
+        }
+    }
+
+    if (changed)
+    {
+        GetScene()->UpdateEntityColliders(GetEntity());
     }
 }

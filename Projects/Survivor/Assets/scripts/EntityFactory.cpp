@@ -1,10 +1,16 @@
 #include "EntityFactory.h"
+#include "GameComponents.h"
 #include "Projectile.h" 
 #include "Enemy.h"
+#include "ExperienceOrb.h"
 
 Runic2D::Scene* EntityFactory::s_Scene = nullptr;
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_ProjectileTexture = nullptr;
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_BatTexture = nullptr;
+Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_WhiteGemTexture = nullptr;
+Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_GreenGemTexture = nullptr;
+Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_RedGemTexture = nullptr;
+Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_PurpleGemTexture = nullptr;
 
 void EntityFactory::Init(Runic2D::Scene* scene)
 {
@@ -12,6 +18,10 @@ void EntityFactory::Init(Runic2D::Scene* scene)
 	std::string path = Project::GetAssetDirectory().string();
     s_ProjectileTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/projectiles/wizard/WizzardProjectile.png"));
 	s_BatTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/Enemies/Bat/Run.png"));
+	s_WhiteGemTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/EXP/EXP1.png"));
+    s_GreenGemTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/EXP/EXP10.png"));
+    s_RedGemTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/EXP/EXP50.png"));
+	s_PurpleGemTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/EXP/EXP100.png"));
 }
 
 void EntityFactory::Shutdown()
@@ -76,7 +86,7 @@ Runic2D::Entity EntityFactory::CreatePlayerProjectile(glm::vec2 position, glm::v
 
     auto& bc = entity.AddComponent<Runic2D::CircleCollider2DComponent>();
     bc.IsSensor = true;
-    bc.Radius = 0.25f;
+    bc.Radius = 0.35f;
     bc.EnableContactEvents = false;
 	bc.EnableSensorEvents = true;
 
@@ -104,7 +114,7 @@ Runic2D::Entity EntityFactory::CreateBat(glm::vec2 pos, float difficultyMult)
 	tc.Scale = { 1.5f, 1.5f, 1.0f };
 
     auto& stats = entity.AddComponent<EnemyStatsComponent>();
-    stats.Health = 20.0f * difficultyMult;    
+    stats.Health = 10.0f * difficultyMult;    
     stats.MaxHealth = stats.Health;
     stats.Speed = 2.0f + (difficultyMult * 0.1f); 
     stats.Damage = 5.0f * difficultyMult;
@@ -139,11 +149,55 @@ Runic2D::Entity EntityFactory::CreateBat(glm::vec2 pos, float difficultyMult)
     anim.Animations["Fly"] = anim.CurrentAnimation;
 
     auto& coll = entity.AddComponent<CircleCollider2DComponent>();
-    coll.Radius = 0.2f;
-    coll.IsSensor = true;
+    coll.Radius = 0.15f;
+	coll.Offset = { 0.0f, -0.1f };
+    coll.CategoryBits = PhysicsLayers::Enemy;
+	coll.MaskBits = coll.MaskBits = PhysicsLayers::Default | PhysicsLayers::Player | PhysicsLayers::Projectile;
+    coll.IsSensor = false;
 	coll.EnableSensorEvents = true;
 	coll.EnableContactEvents = true;
+    coll.Density = 1.0f;
+    coll.Friction = 0.0f;    
+    coll.Restitution = 0.0f;  
     s_Scene->InstantiatePhysics(entity);
+
+    return entity;
+}
+
+Runic2D::Entity EntityFactory::CreateExperienceGem(glm::vec2 pos, int amount)
+{
+    Entity entity = s_Scene->CreateEntity("ExperienceGem");
+
+    auto& tc = entity.GetComponent<TransformComponent>();
+    tc.Translation = { pos.x, pos.y, 0.0f };
+    tc.Scale = { 0.35f, 0.35f, 1.0f };
+
+    // 2. Sprite (Lògica visual segons valor)
+    auto& src = entity.AddComponent<SpriteRendererComponent>();
+    if (amount < 2) src.Texture = s_WhiteGemTexture;      
+    else if (amount < 11) src.Texture = s_GreenGemTexture; 
+    else if (amount < 51) src.Texture = s_RedGemTexture;
+    else src.Texture = s_PurpleGemTexture;                    
+
+    auto& xpComp = entity.AddComponent<ExperienceComponent>();
+    xpComp.Amount = amount;
+
+    auto& coll = entity.AddComponent<CircleCollider2DComponent>();
+    coll.Radius = 0.25f;
+    coll.CategoryBits = PhysicsLayers::Item;
+    coll.MaskBits = coll.MaskBits = PhysicsLayers::Player;
+    coll.IsSensor = true; 
+    coll.EnableSensorEvents = true;
+
+    auto& rb = entity.AddComponent<Rigidbody2DComponent>();
+    rb.Type = Rigidbody2DComponent::BodyType::Dynamic;
+    rb.GravityScale = 0.0f;
+    rb.FixedRotation = true;
+
+    s_Scene->InstantiatePhysics(entity);
+
+    // 5. Script
+    entity.AddComponent<NativeScriptComponent>().Bind<ExperienceOrb>();
 
     return entity;
 }

@@ -170,8 +170,11 @@ namespace Runic2D {
 		float Restitution = 0.0f;
 		float RestitutionThreshold = 0.5f;
 
-		bool IsSensor = false;
+		uint32_t CategoryBits = 0x0001;
+		uint32_t MaskBits = 0xFFFFFFFF;
+		int32_t GroupIndex = 0;
 
+		bool IsSensor = false;
 		bool EnableContactEvents = true;
 		bool EnableSensorEvents = false;
 
@@ -192,8 +195,11 @@ namespace Runic2D {
 		float Restitution = 0.0f;
 		float RestitutionThreshold = 0.5f;
 
-		bool IsSensor = false;
+		uint32_t CategoryBits = 0x0001;
+		uint32_t MaskBits = 0xFFFFFFFF;
+		int32_t GroupIndex = 0;
 
+		bool IsSensor = false;
 		bool EnableContactEvents = true;
 		bool EnableSensorEvents = false;
 
@@ -258,25 +264,5 @@ namespace Runic2D {
 
 			return CurrentFrameIndex >= (CurrentAnimation->GetFrameCount() - 1);
 		}
-	};
-
-	struct ProjectileComponent
-	{
-		float Speed = 10.0f;
-		float LifeTime = 2.0f;
-		float Damage = 10.0f;
-
-		glm::vec2 Direction = { 1.0f, 0.0f };
-
-		ProjectileComponent() = default;
-		ProjectileComponent(const ProjectileComponent&) = default;
-	};
-
-	struct EnemyStatsComponent {
-		float Health = 100.0f;
-		float MaxHealth = 100.0f;
-		float Speed = 2.0f;
-		float Damage = 10.0f;
-		int XPDrop = 10;
 	};
 }

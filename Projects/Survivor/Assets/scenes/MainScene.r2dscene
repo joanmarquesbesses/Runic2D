@@ -40,6 +40,26 @@ Entities:
       BodyType: Kinematic
       FixedRotation: false
       GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, -0.1]
+      Size: [0.15, 0.4]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+      IsSensor: false
+      EnableContactEvents: true
+      EnableSensorEvents: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.3
+      Density: 0
+      Friction: 0
+      Restitution: 0
+      RestitutionThreshold: 0
+      IsSensor: true
+      EnableContactEvents: false
+      EnableSensorEvents: true
     AnimationComponent:
       Playing: false
       Loop: true
