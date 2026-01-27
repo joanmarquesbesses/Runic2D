@@ -76,10 +76,10 @@ void Projectile::OnCollision(Entity other)
             {
                 auto& nsc = other.GetComponent<NativeScriptComponent>();
                 Enemy* enemyScript = static_cast<Enemy*>(nsc.Instance);
-
+                glm::vec2 myPos = GetComponent<TransformComponent>().Translation;
                 if (enemyScript)
                 {
-                    enemyScript->TakeDamage(GetComponent<ProjectileComponent>().Damage);
+                    enemyScript->TakeDamage(GetComponent<ProjectileComponent>().Damage, myPos);
                     Destroy();
                     return;
                 }

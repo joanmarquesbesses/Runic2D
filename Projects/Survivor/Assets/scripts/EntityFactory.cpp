@@ -3,21 +3,71 @@
 #include "Projectile.h" 
 #include "Enemy.h"
 #include "ExperienceOrb.h"
+#include "FloatingText.h"
+
+#include "Runic2D/Utils/Random.h"
 
 Runic2D::Scene* EntityFactory::s_Scene = nullptr;
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_ProjectileTexture = nullptr;
+
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_BatTexture = nullptr;
+Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_BatDeathTexture = nullptr;
+
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_WhiteGemTexture = nullptr;
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_GreenGemTexture = nullptr;
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_RedGemTexture = nullptr;
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_PurpleGemTexture = nullptr;
+
+static void AddAnimationToEntity(Entity entity, const std::string& name, Ref<Texture2D> texture, int startFrame, int frameCount, glm::vec2 tileSize, float frameTime, bool loop)
+{
+    auto& anim = entity.HasComponent<AnimationComponent>() ?
+        entity.GetComponent<AnimationComponent>() :
+        entity.AddComponent<AnimationComponent>();
+
+    AnimationProfile profile;
+    profile.Name = name;
+    profile.AtlasTexture = texture;
+
+    profile.TileSize = tileSize;
+
+    profile.StartFrame = startFrame;
+    profile.FrameCount = frameCount;
+    profile.FramesPerRow = (int)(texture->GetWidth() / profile.TileSize.x);
+    profile.FrameTime = frameTime;
+    profile.Loop = loop;
+
+    anim.Profiles.push_back(profile);
+
+    int col = startFrame % profile.FramesPerRow;
+    int row = startFrame / profile.FramesPerRow;
+    glm::vec2 startPos = { col * profile.TileSize.x, row * profile.TileSize.y };
+
+    anim.Animations[name] = Runic2D::Animation2D::CreateFromAtlas(
+        texture,
+        profile.TileSize,
+        startPos,
+        frameCount,
+        profile.FramesPerRow,
+        frameTime
+    );
+
+    if (anim.CurrentStateName.empty()) {
+        anim.CurrentStateName = name;
+        anim.CurrentAnimation = anim.Animations[name];
+        anim.Playing = true;
+        anim.Loop = loop;
+    }
+}
 
 void EntityFactory::Init(Runic2D::Scene* scene)
 {
     s_Scene = scene;
 	std::string path = Project::GetAssetDirectory().string();
     s_ProjectileTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/projectiles/wizard/WizzardProjectile.png"));
+
 	s_BatTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/Enemies/Bat/Run.png"));
+    s_BatDeathTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/Enemies/Bat/Death.png"));
+
 	s_WhiteGemTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/EXP/EXP1.png"));
     s_GreenGemTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/EXP/EXP10.png"));
     s_RedGemTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/EXP/EXP50.png"));
@@ -27,6 +77,7 @@ void EntityFactory::Init(Runic2D::Scene* scene)
 void EntityFactory::Shutdown()
 {
     s_ProjectileTexture = nullptr;
+
     s_Scene = nullptr;
 }
 
@@ -124,29 +175,8 @@ Runic2D::Entity EntityFactory::CreateBat(glm::vec2 pos, float difficultyMult)
     src.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
     src.Texture = s_BatTexture; 
 
-    auto& anim = entity.AddComponent<AnimationComponent>();
-    AnimationProfile flyAnim;
-    flyAnim.Name = "Fly";
-    flyAnim.AtlasTexture = s_BatTexture;
-    flyAnim.TileSize = { 64.0f, 64.0f };
-    flyAnim.FrameCount = 4;
-    flyAnim.FrameTime = 0.1f;
-    flyAnim.Loop = true;
-    anim.Profiles.push_back(flyAnim);
-
-    anim.CurrentStateName = "Fly";
-    anim.Playing = true;
-    anim.Loop = true;
-
-    anim.CurrentAnimation = Runic2D::Animation2D::CreateFromAtlas(
-        flyAnim.AtlasTexture,
-        flyAnim.TileSize,
-        { 0.0f, 0.0f },
-        flyAnim.FrameCount,
-        flyAnim.FramesPerRow,
-        flyAnim.FrameTime
-    );
-    anim.Animations["Fly"] = anim.CurrentAnimation;
+	AddAnimationToEntity(entity, "Fly", s_BatTexture, 0, 8, { 64.0f, 64.0f }, 0.1f, true);
+	AddAnimationToEntity(entity, "Death", s_BatDeathTexture, 0, 11, { 64.0f, 64.0f }, 0.1f, false);
 
     auto& coll = entity.AddComponent<CircleCollider2DComponent>();
     coll.Radius = 0.15f;
@@ -169,7 +199,7 @@ Runic2D::Entity EntityFactory::CreateExperienceGem(glm::vec2 pos, int amount)
     Entity entity = s_Scene->CreateEntity("ExperienceGem");
 
     auto& tc = entity.GetComponent<TransformComponent>();
-    tc.Translation = { pos.x, pos.y, 0.0f };
+    tc.Translation = { pos.x, pos.y, -1.0f };
     tc.Scale = { 0.35f, 0.35f, 1.0f };
 
     // 2. Sprite (Lògica visual segons valor)
@@ -202,6 +232,39 @@ Runic2D::Entity EntityFactory::CreateExperienceGem(glm::vec2 pos, int amount)
     return entity;
 }
 
+Entity EntityFactory::CreateDamageText(glm::vec2 pos, float damageAmount, bool isCritical)
+{
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(0) << damageAmount;
+    std::string text = ss.str();
+
+    Entity entity = s_Scene->CreateEntity("DamageText");
+    
+    float scale = isCritical ? 1.0f : 0.5f;
+
+    float charWidthConstant = 0.6f;
+    float approximateWidth = text.length() * charWidthConstant * scale;
+    float centerOffset = approximateWidth / 2.0f;
+
+    float randomY = Runic2D::Random::Range(0.0f, 0.5f);
+    auto& tc = entity.GetComponent<TransformComponent>();
+    tc.Translation = { pos.x - centerOffset, pos.y + randomY, 0.1f };
+    tc.Scale = { scale, scale, 1.0f };
+
+    auto& textComp = entity.AddComponent<TextComponent>();
+    textComp.TextString = text;
+
+    if (isCritical) textComp.Color = { 1.0f, 0.8f, 0.0f, 1.0f }; 
+    else textComp.Color = { 1.0f, 1.0f, 1.0f, 1.0f };            
+
+    textComp.Kerning = 0.0f;
+    textComp.LineSpacing = 0.0f;
+
+    entity.AddComponent<NativeScriptComponent>().Bind<FloatingText>();
+
+    return entity;
+}
+
 Runic2D::Entity EntityFactory::CreateBaseEnemy(glm::vec2 pos, std::string name)
 {
     auto entity = s_Scene->CreateEntity(name);
@@ -212,6 +275,7 @@ Runic2D::Entity EntityFactory::CreateBaseEnemy(glm::vec2 pos, std::string name)
     auto& rb = entity.AddComponent<Rigidbody2DComponent>();
     rb.Type = Rigidbody2DComponent::BodyType::Dynamic;
     rb.FixedRotation = true;
+	rb.GravityScale = 0.0f;
 
     entity.AddComponent<NativeScriptComponent>().Bind<Enemy>();
 
