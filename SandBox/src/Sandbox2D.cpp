@@ -4,7 +4,7 @@
 
 using namespace Runic2D;
 
-Sandbox2D::Sandbox2D() : Layer("Sandbox2D") {
+Sandbox2D::Sandbox2D(Runic2D::Ref<GameContext> context) : Layer("Sandbox2D"), m_Context(context) {
 
 }
 
@@ -59,6 +59,7 @@ void Sandbox2D::OnAttach()
         textComp.Color = { 0.0f, 1.0f, 0.0f, 1.0f }; 
         textComp.Kerning = 0.0f;
         textComp.LineSpacing = 0.0f;
+		textComp.Visible = showFPS;
     }
     else
     {
@@ -81,12 +82,12 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
     RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
     RenderCommand::Clear();
 
+    if (m_Context) {
+        m_Context->TimeAlive += ts;
+    }
+
     if (m_ActiveScene)
     {
-        if (showFPS)
-        {
-            ShowFPSCounter();
-        }
 
         if (m_ShowPhysicsColliders)
         {
@@ -121,20 +122,6 @@ bool Sandbox2D::OnWindowResize(WindowResizeEvent& e)
 bool Sandbox2D::OnKeyPressed(KeyPressedEvent& e)
 {
     switch(e.GetKeyCode()){
-        case KeyCode::F1:
-        {
-            showFPS = !showFPS;
-            auto& txt = m_TextFPS.GetComponent<TextComponent>();
-            txt.Visible = showFPS;
-            return true;
-        }
-        case KeyCode::F2: 
-        {
-            auto& window = Application::Get().GetWindow();
-            bool vsyncState = window.IsVSync();
-            window.SetVSync(!vsyncState);
-            return true;
-        }
         case KeyCode::F3:
         {
 			m_ShowPhysicsColliders = !m_ShowPhysicsColliders;
@@ -143,39 +130,6 @@ bool Sandbox2D::OnKeyPressed(KeyPressedEvent& e)
 	}
 
     return false;
-}
-
-void Sandbox2D::ShowFPSCounter()
-{
-    if (m_TextFPS)
-    {
-        auto& txt = m_TextFPS.GetComponent<TextComponent>();
-        txt.TextString = "FPS: " + std::to_string((int)Application::Get().GetAverageFPS());
-
-        Entity cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-        if (cameraEntity)
-        {
-            auto& camComp = cameraEntity.GetComponent<CameraComponent>();
-            auto& camTrans = cameraEntity.GetComponent<TransformComponent>();
-
-            float orthoHeight = camComp.Camera.GetOrthographicSize();
-            float aspectRatio = camComp.Camera.GetAspectRatio();
-            float orthoWidth = orthoHeight * aspectRatio;
-
-            float leftEdge = camTrans.Translation.x - (orthoWidth * 0.5f);
-            float topEdge = camTrans.Translation.y + (orthoHeight * 0.5f);
-
-            float paddingX = 0.5f;
-            float paddingY = 1.0f;
-
-            auto& textTrans = m_TextFPS.GetComponent<TransformComponent>();
-
-            textTrans.Translation.x = leftEdge + paddingX; 
-            textTrans.Translation.y = topEdge - paddingY;  
-            textTrans.Translation.z = 100.0f; 
-			textTrans.IsDirty = true;
-        }
-    }
 }
 
 void Sandbox2D::ShowColliderOverlay()

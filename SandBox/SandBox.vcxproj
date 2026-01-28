@@ -148,20 +148,26 @@
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\ExperienceOrb.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\FloatingText.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameComponents.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameContext.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameManager.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\HUDManager.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Player.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Projectile.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\ScriptRegistry.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\TimerScript.h" />
     <ClInclude Include="src\Sandbox2D.h" />
+    <ClInclude Include="src\UILayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\CameraController.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\EntityFactory.cpp" />
+    <ClCompile Include="..\Projects\Survivor\Assets\scripts\GameContext.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\GameManager.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\Player.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\Projectile.cpp" />
     <ClCompile Include="src\Sandbox2D.cpp" />
     <ClCompile Include="src\SandboxApp.cpp" />
+    <ClCompile Include="src\UILayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Runic2D\Runic2D.vcxproj">

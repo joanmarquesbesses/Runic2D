@@ -54,4 +54,9 @@ namespace Runic2D {
 		glDisable(GL_SCISSOR_TEST);
 	}
 
+	void OpenGLRendererAPI::ClearDepth()
+	{
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+
 }

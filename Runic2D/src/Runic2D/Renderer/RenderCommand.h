@@ -47,6 +47,11 @@ namespace Runic2D {
 			s_RendererAPI->DisableScissor();
 		}
 
+		inline static void ClearDepth()
+		{
+			s_RendererAPI->ClearDepth();
+		}
+
 	private:
 		static RendererAPI* s_RendererAPI;
 	};

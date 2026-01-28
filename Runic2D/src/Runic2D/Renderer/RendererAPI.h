@@ -29,6 +29,7 @@ namespace Runic2D {
 		virtual void SetLineWidth(float width) = 0;
 
 		virtual void DisableScissor() = 0;
+		virtual void ClearDepth() = 0;
 
 		inline static API GetAPI() { return s_API; }
 	private:

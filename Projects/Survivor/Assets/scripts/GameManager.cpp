@@ -4,6 +4,8 @@
 void GameManager::OnUpdate(Timestep ts) {
     m_SpawnTimer -= ts;
 
+    m_GameTime += ts;
+
     // Input per testejar el spawn
     if (Input::IsKeyPressed(KeyCode::B) && m_SpawnTimer <= 0.0f) {
         SpawnEnemy();

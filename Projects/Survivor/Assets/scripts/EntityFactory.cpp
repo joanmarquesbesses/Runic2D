@@ -162,7 +162,7 @@ Runic2D::Entity EntityFactory::CreateBat(glm::vec2 pos, float difficultyMult)
     Entity entity = CreateBaseEnemy(pos, "Bat");
 
     auto& tc = entity.GetComponent<TransformComponent>();
-	tc.Scale = { 1.5f, 1.5f, 1.0f };
+	tc.Scale = { 1.75f, 1.75f, 1.0f };
 
     auto& stats = entity.AddComponent<EnemyStatsComponent>();
     stats.Health = 10.0f * difficultyMult;    
@@ -182,7 +182,7 @@ Runic2D::Entity EntityFactory::CreateBat(glm::vec2 pos, float difficultyMult)
     coll.Radius = 0.15f;
 	coll.Offset = { 0.0f, -0.1f };
     coll.CategoryBits = PhysicsLayers::Enemy;
-	coll.MaskBits = coll.MaskBits = PhysicsLayers::Default | PhysicsLayers::Player | PhysicsLayers::Projectile;
+	coll.MaskBits = coll.MaskBits = PhysicsLayers::Default | PhysicsLayers::Player | PhysicsLayers::Projectile | PhysicsLayers::Enemy;
     coll.IsSensor = false;
 	coll.EnableSensorEvents = true;
 	coll.EnableContactEvents = true;

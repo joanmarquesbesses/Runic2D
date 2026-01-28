@@ -22,5 +22,7 @@ namespace Runic2D
 		virtual void SetLineWidth(float width) override;
 
 		virtual void DisableScissor() override;
+
+		virtual void ClearDepth() override;
 	};
 }

@@ -14,21 +14,17 @@ public:
 	float m_KnockbackTime = 0.0f;
 
     bool m_IsDead = false;
-
-    AnimationComponent* m_Anim = nullptr;
+    float m_TimeDead = 0.0f;
 
     virtual void OnCreate() override {
 		m_Player = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
-
-        if (HasComponent<AnimationComponent>()) {
-            m_Anim = &GetComponent<AnimationComponent>();
-        }
     }
 
     virtual void OnUpdate(Timestep ts) override {
 
         if (m_IsDead) {
-            if (m_Anim && m_Anim->IsFinished()) {
+            auto& anim = GetComponent<AnimationComponent>();
+            if (anim.IsFinished()) {
                 Destroy(); 
             }
             return; 
@@ -144,23 +140,23 @@ public:
 
     void PlayAnimation(const std::string& name)
     {
-		m_Anim = &GetComponent<AnimationComponent>();
-        if (m_Anim->CurrentStateName == name) return;
+		auto& anim = GetComponent<AnimationComponent>();
+        if (anim.CurrentStateName == name) return;
 
-        auto it = m_Anim->Animations.find(name);
-        if (it != m_Anim->Animations.end())
+        auto it = anim.Animations.find(name);
+        if (it != anim.Animations.end())
         {
-            m_Anim->CurrentAnimation = it->second;
-            m_Anim->CurrentStateName = name;
-            m_Anim->CurrentFrameIndex = 0;
-            m_Anim->TimeAccumulator = 0.0f;
-            m_Anim->Playing = true;
+            anim.CurrentAnimation = it->second;
+            anim.CurrentStateName = name;
+            anim.CurrentFrameIndex = 0;
+            anim.TimeAccumulator = 0.0f;
+            anim.Playing = true;
 
-            for (auto& profile : m_Anim->Profiles)
+            for (auto& profile : anim.Profiles)
             {
                 if (profile.Name == name)
                 {
-                    m_Anim->Loop = profile.Loop;
+                    anim.Loop = profile.Loop;
                     break;
                 }
             }
@@ -168,7 +164,7 @@ public:
             if (HasComponent<SpriteRendererComponent>())
             {
                 auto& src = GetComponent<SpriteRendererComponent>();
-                src.SubTexture = m_Anim->CurrentAnimation->GetFrame(0);
+                src.SubTexture = anim.CurrentAnimation->GetFrame(0);
             }
         }
     }

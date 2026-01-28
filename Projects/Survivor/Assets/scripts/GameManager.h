@@ -15,5 +15,8 @@ private:
 
 private:
     float m_SpawnTimer = 0.0f;
-    float m_SpawnCooldown = 0.2f; // Cada 0.2 segons spawneja si apretes B
+    float m_SpawnCooldown = 0.2f;
+
+    Entity m_TimerEntity;   
+    float m_GameTime = 0.0f;
 };
