@@ -29,6 +29,7 @@ namespace Runic2D {
 		Entity GetEntityByUUID(UUID uuid);
 
 		void OnUpdateRunTime(Timestep ts);
+		void OnRenderRuntime();
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 		void OnViewportResize(uint32_t width, uint32_t height);
 

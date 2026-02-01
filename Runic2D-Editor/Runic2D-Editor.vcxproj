@@ -155,6 +155,8 @@
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Projectile.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\ScriptRegistry.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\TimerScript.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\UpgradeCard.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\UpgradeSystem.h" />
     <ClInclude Include="src\EditorLayer.h" />
     <ClInclude Include="src\Panels\ContentBrowserPanel.h" />
     <ClInclude Include="src\Panels\SceneHierarchyPanel.h" />

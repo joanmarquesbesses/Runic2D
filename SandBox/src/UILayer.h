@@ -19,13 +19,13 @@ public:
 private:
 	bool OnKeyPressed(Runic2D::KeyPressedEvent& e);
 	bool OnWindowResize(Runic2D::WindowResizeEvent& e);
-	void ShowFPSCounter();
+	bool OnMouseButtonPressed(Runic2D::MouseButtonPressedEvent& e);
 private:
 	Runic2D::Ref<GameContext> m_Context;
 	Runic2D::Ref<Runic2D::Scene> m_ActiveScene;
-	Runic2D::Entity m_TextFPS;
-	Runic2D::Entity m_TimerText;
-	bool showFPS = false;
 
+	//debug
+	Runic2D::Entity m_TextFPS;
+	bool showFPS = false;
 };
 

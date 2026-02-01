@@ -2,9 +2,16 @@
 #include "Runic2D/Utils/Random.h" 
 
 void GameManager::OnUpdate(Timestep ts) {
-    m_SpawnTimer -= ts;
 
-    m_GameTime += ts;
+    if (Input::IsKeyPressed(KeyCode::L)) {
+        if (GameContext::Get().State == GameState::Running) {
+            LevelUP(); // Cridem la funció màgica
+        }
+    }
+
+    if (GameContext::Get().State != GameState::Running) return;
+
+    m_SpawnTimer -= ts;
 
     // Input per testejar el spawn
     if (Input::IsKeyPressed(KeyCode::B) && m_SpawnTimer <= 0.0f) {
@@ -13,9 +20,25 @@ void GameManager::OnUpdate(Timestep ts) {
     }
 }
 
+void GameManager::LevelUP()
+{
+    R2D_INFO("GameManager: LEVEL UP! Pujant al nivell {0}", m_Level + 1);
+
+    m_Level++;
+    m_CurrentXP = 0;
+    m_MaxXP *= 1.2f;
+
+    auto& ctx = GameContext::Get();
+    ctx.CurrentLevel = m_Level;
+    ctx.CurrentXP = m_CurrentXP;
+    ctx.MaxXP = m_MaxXP;
+
+    ctx.State = GameState::LevelUp;
+    ctx.TriggerLevelUp(m_Level);
+}
+
 void GameManager::SpawnEnemy() {
     glm::vec2 spawnPos = GetRandomOffScreenPosition();
-
     EntityFactory::CreateBat(spawnPos);
 }
 

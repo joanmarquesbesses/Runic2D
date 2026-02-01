@@ -50,53 +50,6 @@ namespace Runic2D
 			m_ContentBrowserPanel.ResetToDefault();
 		}
 
-#if 0
-		m_SquareEntity = m_ActiveScene->CreateEntity("Quad");
-		m_SquareEntity.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.2f, 0.3f, 0.8f, 1.0f });
-
-		m_SecondSquareEntity = m_ActiveScene->CreateEntity("Second Quad");
-		auto& sr = m_SecondSquareEntity.AddComponent<SpriteRendererComponent>();
-		sr.Color = glm::vec4{ 0.8f, 0.3f, 0.2f, 1.0f };
-
-		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
-		auto& cameraComponent = m_CameraEntity.AddComponent<CameraComponent>();
-
-		m_SecondCameraEntity = m_ActiveScene->CreateEntity("Second Camera Entity");
-		auto& secondCameraComponent = m_SecondCameraEntity.AddComponent<CameraComponent>();
-		secondCameraComponent.Primary = false;
-
-		class CameraControler : public ScriptableEntity
-		{
-		public:
-
-			virtual void OnCreate() override {
-			}
-
-			virtual void OnDestroy() override {
-
-			}
-
-			virtual void OnUpdate(Timestep ts) override {
-				auto& tc = GetComponent<TransformComponent>();
-				float speed = 5.0f;
-
-				// Modifiquem la Translation directament
-				if (Input::IsKeyPressed(KeyCode::A))
-					tc.Translation.x -= speed * ts;
-				if (Input::IsKeyPressed(KeyCode::D))
-					tc.Translation.x += speed * ts;
-				if (Input::IsKeyPressed(KeyCode::W))
-					tc.Translation.y += speed * ts;
-				if (Input::IsKeyPressed(KeyCode::S))
-					tc.Translation.y -= speed * ts;
-
-				tc.IsDirty = true;
-			}
-		};
-
-		m_SecondCameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraControler>();
-#endif
-
 		m_ContentBrowserPanel.SetOnFileOpenCallback([this](const std::filesystem::path& path)
 			{
 				if (path.extension().string() == ".r2dscene")

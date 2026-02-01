@@ -52,18 +52,6 @@ void UILayer::OnUpdate(Runic2D::Timestep ts)
 
     RenderCommand::ClearDepth();
 
-    if (m_Context && m_TimerText) {
-        float time = m_Context->TimeAlive;
-
-        int minutes = (int)(time / 60.0f);
-        int seconds = (int)(time) % 60;
-
-        std::stringstream ss;
-        ss << minutes << ":" << std::setfill('0') << std::setw(2) << seconds;
-
-        m_TimerText.GetComponent<TextComponent>().TextString = ss.str();
-    }
-
     if (m_ActiveScene)
     {
         if (showFPS)
@@ -87,6 +75,7 @@ void UILayer::OnEvent(Runic2D::Event& e)
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<WindowResizeEvent>(R2D_BIND_EVENT_FN(UILayer::OnWindowResize));
     dispatcher.Dispatch<KeyPressedEvent>(R2D_BIND_EVENT_FN(UILayer::OnKeyPressed));
+    dispatcher.Dispatch<MouseButtonPressedEvent>(R2D_BIND_EVENT_FN(UILayer::OnMouseButtonPressed));
 }
 
 bool UILayer::OnWindowResize(WindowResizeEvent& e)
@@ -118,4 +107,14 @@ bool UILayer::OnKeyPressed(KeyPressedEvent& e)
 	}
 
     return false;
+}
+
+bool UILayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+{
+    if (m_Context && m_Context->State == GameState::LevelUp)
+    {
+        return true;
+    }
+
+    return false; 
 }

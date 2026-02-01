@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "UpgradeSystem.h"
 
 namespace PhysicsLayers {
 	enum Layer : uint32_t {
@@ -50,4 +51,11 @@ struct PlayerStatsComponent {
 		Experience += amount;
 		// Opcional: Comprovar si puja de nivell
 	}
+};
+
+struct UpgradeComponent {
+	UpgradeDef Data; 
+
+	UpgradeComponent() = default;
+	UpgradeComponent(const UpgradeDef& data) : Data(data) {}
 };

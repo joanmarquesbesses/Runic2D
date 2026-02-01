@@ -82,20 +82,20 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
     RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
     RenderCommand::Clear();
 
-    if (m_Context) {
-        m_Context->TimeAlive += ts;
-    }
-
-    if (m_ActiveScene)
-    {
+    if (m_Context && m_ActiveScene) {
+        if (m_Context->State == GameState::Running) {
+            m_ActiveScene->OnUpdateRunTime(ts); 
+            m_Context->TimeAlive += ts;         
+        }
+        else {
+            m_ActiveScene->OnRenderRuntime();
+        }
 
         if (m_ShowPhysicsColliders)
         {
             ShowColliderOverlay();
         }
-
-        m_ActiveScene->OnUpdateRunTime(ts);
-    }
+    }   
 }
 
 void Sandbox2D::OnImGuiRender()

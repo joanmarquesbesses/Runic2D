@@ -297,7 +297,22 @@ namespace Runic2D {
 
 		//Update Particles
 		m_ParticleSystem.OnUpdate(ts);
+		UpdateAnimation(ts);
+		OnRenderRuntime();
 
+		for (auto e : m_DestructionQueue)
+		{
+			if (m_Registry.valid(e))
+			{
+				Entity entity{ e, this };
+				DestroyEntity(entity);
+			}
+		}
+		m_DestructionQueue.clear();
+	}
+
+	void Scene::OnRenderRuntime()
+	{
 		//Find Main Camera
 		Camera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
@@ -307,9 +322,6 @@ namespace Runic2D {
 				cameraTransform = transformComponent.GetTransform();
 			}
 			});
-
-		//update animations
-		UpdateAnimation(ts);
 
 		// Render Scene
 		if (mainCamera) {
@@ -346,16 +358,6 @@ namespace Runic2D {
 
 			Renderer2D::EndScene();
 		}
-
-		for (auto e : m_DestructionQueue)
-		{
-			if (m_Registry.valid(e))
-			{
-				Entity entity{ e, this };
-				DestroyEntity(entity);
-			}
-		}
-		m_DestructionQueue.clear();
 	}
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
