@@ -13,6 +13,8 @@ void UILayer::OnAttach()
 {
 	R2D_PROFILE_FUNCTION();
 
+    UpgradeDatabase::Init();
+
     m_ActiveScene = CreateRef<Scene>();
     m_ActiveScene->OnRuntimeStart();
 
@@ -24,15 +26,27 @@ void UILayer::OnAttach()
     hudManager.AddComponent<NativeScriptComponent>().Bind<HUDManager>();
 
     // Debug
+	// FPS Counter
     m_TextFPS = m_ActiveScene->CreateEntity("FPSCounter");
     auto& tc = m_TextFPS.GetComponent<TransformComponent>();
-    tc.Translation = { -8.5f, 4.5f, 0.1f };
-	tc.Scale = { 0.50f, 0.50f, 1.0f };
+    tc.SetTranslation({ -8.5f, 4.5f, 0.1f });
+	tc.SetScale({ 0.50f, 0.50f, 1.0f });
 
     auto& txtFPS = m_TextFPS.AddComponent<TextComponent>();
     txtFPS.TextString = "FPS: 0";
     txtFPS.Color = { 0.0f, 1.0f, 0.0f, 1.0f };
-	txtFPS.Visible = showFPS;
+	txtFPS.Visible = showDebug;
+
+	// VSync Indicator
+	m_TextVsync = m_ActiveScene->CreateEntity("VSyncIndicator");
+	auto& tcVsync = m_TextVsync.GetComponent<TransformComponent>();
+	tcVsync.SetTranslation({ -8.5f, 4.0f, 0.1f });
+	tcVsync.SetScale({ 0.50f, 0.50f, 1.0f });
+
+	auto& txtVsync = m_TextVsync.AddComponent<TextComponent>();
+	txtVsync.TextString = "VSync";
+	txtVsync.Color = { 0.0f, 1.0f, 0.0f, 1.0f };
+	txtVsync.Visible = showDebug;
 
     auto& window = Application::Get().GetWindow();
     m_ActiveScene->OnViewportResize(window.GetWidth(), window.GetHeight());
@@ -44,6 +58,8 @@ void UILayer::OnDetach()
 
     if (m_ActiveScene)
         m_ActiveScene->OnRuntimeStop();
+
+	UpgradeDatabase::Shutdown();
 }
 
 void UILayer::OnUpdate(Runic2D::Timestep ts)
@@ -54,10 +70,16 @@ void UILayer::OnUpdate(Runic2D::Timestep ts)
 
     if (m_ActiveScene)
     {
-        if (showFPS)
+        if (showDebug)
         {
-            auto& txt = m_TextFPS.GetComponent<TextComponent>();
-            txt.TextString = "FPS: " + std::to_string((int)Application::Get().GetAverageFPS());
+			//FPS Counter
+            auto& fpsTxt = m_TextFPS.GetComponent<TextComponent>();
+            fpsTxt.TextString = "FPS: " + std::to_string((int)Application::Get().GetAverageFPS());
+
+			//Is VSync
+			auto& vsyncTxt = m_TextVsync.GetComponent<TextComponent>();
+			auto& window = Application::Get().GetWindow();
+			vsyncTxt.TextString = "VSync: " + std::string(window.IsVSync() ? "ON" : "OFF");
         }
 
         m_ActiveScene->OnUpdateRunTime(ts);
@@ -92,9 +114,16 @@ bool UILayer::OnKeyPressed(KeyPressedEvent& e)
     switch(e.GetKeyCode()){
         case KeyCode::F1:
         {
-            showFPS = !showFPS;
+			// Toggle debug info
+            showDebug = !showDebug;
+
+            // fps
             auto& txt = m_TextFPS.GetComponent<TextComponent>();
-            txt.Visible = showFPS;
+            txt.Visible = showDebug;
+
+			// vsync
+			auto& txtVsync = m_TextVsync.GetComponent<TextComponent>();
+			txtVsync.Visible = showDebug;
             return true;
         }
         case KeyCode::F2: 

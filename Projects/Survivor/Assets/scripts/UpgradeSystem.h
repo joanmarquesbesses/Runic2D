@@ -2,6 +2,11 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
+#include "Runic2D/Utils/Random.h" 
+#include <algorithm> 
+#include "Runic2D/Renderer/Texture.h"
+
+using namespace Runic2D;
 
 enum class UpgradeType {
     None = 0,
@@ -17,22 +22,22 @@ struct UpgradeDef {
     std::string Title;
     std::string Description;
     glm::vec4 Color;
+    Ref<Texture2D> CardTexture;
+	Ref<Texture2D> Icon;
 };
 
 class UpgradeDatabase {
 public:
-    static std::vector<UpgradeDef> GetAllUpgrades() {
-        return {
-            { UpgradeType::MultiShot,   "Multi-Shot",   "Fire +1 additional projectile", {0.2f, 0.8f, 1.0f, 1.0f} }, 
-            { UpgradeType::AttackSpeed, "Haste",        "Attack Speed +20%",             {1.0f, 1.0f, 0.2f, 1.0f} }, 
-            { UpgradeType::Damage,      "Might",        "Damage +20%",                   {1.0f, 0.2f, 0.2f, 1.0f} }, 
-            { UpgradeType::Speed,       "Swiftness",    "Movement Speed +15%",           {0.2f, 1.0f, 0.5f, 1.0f} }  
-        };
-    }
+    static void Init();
+    static void Shutdown();
 
-    static UpgradeDef GetRandomUpgrade() {
-        auto all = GetAllUpgrades();
-        int index = rand() % all.size();
-        return all[index];
-    }
+    static std::vector<UpgradeDef> GetAllUpgrades();
+    static std::vector<UpgradeDef> GetRandomUniqueUpgrades(int count);
+
+private:
+    static Ref<Texture2D> s_CardBaseTexture_Multishot;
+    static Ref<Texture2D> s_CardBaseTexture_AttackSpeed;
+    static Ref<Texture2D> s_CardBaseTexture_Damage;
+    static Ref<Texture2D> s_CardBaseTexture_Speed;
+    static Ref<Texture2D> s_CardBaseTexture_HealthRegen;
 };

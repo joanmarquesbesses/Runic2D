@@ -59,3 +59,18 @@ struct UpgradeComponent {
 	UpgradeComponent() = default;
 	UpgradeComponent(const UpgradeDef& data) : Data(data) {}
 };
+
+struct PlayerUpgradesComponent {
+	std::map<UpgradeType, int> Levels;
+
+	int GetLevel(UpgradeType type) {
+		if (Levels.find(type) != Levels.end()) {
+			return Levels[type];
+		}
+		return 0;
+	}
+
+	void AddLevel(UpgradeType type) {
+		Levels[type]++;
+	}
+};

@@ -26,6 +26,8 @@ namespace Runic2D {
 
 		static Ref<Font> GetDefault();
 
+		float GetStringWidth(const std::string& string, float kerning = 0.0f) const;
+
 	private:
 		std::filesystem::path m_FilePath;
 		Ref<Texture2D> m_AtlasTexture;

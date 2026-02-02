@@ -1,5 +1,6 @@
 #include "GameManager.h"
-#include "Runic2D/Utils/Random.h" 
+#include "Runic2D/Utils/Random.h"
+#include "GameComponents.h"
 
 void GameManager::OnUpdate(Timestep ts) {
 
@@ -88,4 +89,19 @@ glm::vec2 GameManager::GetRandomOffScreenPosition() {
     }
 
     return pos;
+}
+
+void GameManager::ApplyUpgradeToPlayer(UpgradeType type) {
+    Entity player = GetScene()->GetEntityWithComponent<PlayerUpgradesComponent>();
+
+    if (player) {
+        auto& upgrades = player.GetComponent<PlayerUpgradesComponent>();
+        upgrades.AddLevel(type);
+
+        R2D_INFO("GameManager: Aplicada millora {0}. Nivell nou: {1}",
+            (int)type, upgrades.GetLevel(type));
+
+        // (Opcional) Aquí podries fer spawn de partícules al voltant del player
+        // o reproduir un so de "Power Up".
+    }
 }

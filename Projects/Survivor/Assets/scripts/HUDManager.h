@@ -78,17 +78,21 @@ private:
     }
 
     void CreateUpgradeMenu() {
-        float spacing = 3.5f;
-        float startX = -spacing;
 
-        for (int i = 0; i < 3; i++) {
-            UpgradeDef data = UpgradeDatabase::GetRandomUpgrade();
+        std::vector<UpgradeDef> cards = UpgradeDatabase::GetRandomUniqueUpgrades(3);
+
+        float spacing = 3.5f;
+        int count = (int)cards.size();
+        float startX = -((count - 1) * spacing) / 2.0f;
+
+        for (int i = 0; i < count; i++) {
+            UpgradeDef data = cards[i];
 
             Entity card = GetScene()->CreateEntity("UpgradeCard");
 
             auto& tc = card.GetComponent<TransformComponent>();
             tc.SetTranslation({startX + (i * spacing), 0.0f, 0.5f});
-            tc.SetScale({ 3.0f, 4.0f, 1.0f });
+            tc.SetScale({3.0f, 4.0f, 1.0f});
 
             auto& sprite = card.AddComponent<SpriteRendererComponent>();
             sprite.Color = { 1.0f, 1.0f, 1.0f, 1.0f };

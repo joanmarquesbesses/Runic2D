@@ -26,6 +26,7 @@ private:
 
 	//debug
 	Runic2D::Entity m_TextFPS;
-	bool showFPS = false;
+	Runic2D::Entity m_TextVsync;
+	bool showDebug = false;
 };
 

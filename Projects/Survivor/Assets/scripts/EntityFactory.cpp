@@ -77,6 +77,12 @@ void EntityFactory::Init(Runic2D::Scene* scene)
 void EntityFactory::Shutdown()
 {
     s_ProjectileTexture = nullptr;
+	s_BatTexture = nullptr;
+	s_BatDeathTexture = nullptr;
+	s_WhiteGemTexture = nullptr;
+	s_GreenGemTexture = nullptr;
+	s_RedGemTexture = nullptr;
+	s_PurpleGemTexture = nullptr;
 
     s_Scene = nullptr;
 }

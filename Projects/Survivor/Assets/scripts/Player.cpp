@@ -39,6 +39,10 @@ void Player::OnCreate()
     }
 
 	GetEntity().AddComponent<PlayerStatsComponent>();
+
+    if (!HasComponent<PlayerUpgradesComponent>()) {
+        GetEntity().AddComponent<PlayerUpgradesComponent>();
+    }
 }
 
 void Player::OnDestroy()

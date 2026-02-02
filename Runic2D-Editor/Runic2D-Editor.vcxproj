@@ -171,6 +171,7 @@
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\GameManager.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\Player.cpp" />
     <ClCompile Include="..\Projects\Survivor\Assets\scripts\Projectile.cpp" />
+    <ClCompile Include="..\Projects\Survivor\Assets\scripts\UpgradeSystem.cpp" />
     <ClCompile Include="src\EditorLayer.cpp" />
     <ClCompile Include="src\Panels\ContentBrowserPanel.cpp" />
     <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp" />

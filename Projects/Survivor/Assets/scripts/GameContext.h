@@ -1,6 +1,8 @@
 #pragma once
 #include <functional>
 
+#include "UpgradeSystem.h"
+
 enum class GameState {
     Running,
     LevelUp,
@@ -26,5 +28,11 @@ struct GameContext {
 
     void TriggerLevelUp(int level) {
         if (OnLevelUp) OnLevelUp(level);
+    }
+
+    std::function<void(UpgradeType)> OnUpgradeApplied;
+
+    void TriggerUpgradeApplied(UpgradeType type) {
+        if (OnUpgradeApplied) OnUpgradeApplied(type);
     }
 };
