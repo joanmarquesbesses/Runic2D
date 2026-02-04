@@ -34,25 +34,28 @@ void Projectile::OnUpdate(Timestep ts)
         return;
     }
 
-    if(HasComponent<TransformComponent>())
-    {
+    m_TimeSinceLastEmit += ts;
+    if (m_TimeSinceLastEmit >= m_EmissionRate) {
+        if (HasComponent<TransformComponent>())
+        {
+            auto& transform = GetComponent<TransformComponent>();
 
-        auto& transform = GetComponent<TransformComponent>();
+            ParticleProps props;
+            props.Position = transform.Translation;
+            //props.Position.z -= 0.1f;
 
-        ParticleProps props;
-        props.Position = transform.Translation; 
-        //props.Position.z -= 0.1f;
+            props.Velocity = { 0.0f, 0.0f };
+            props.VelocityVariation = { 0.5f, 0.5f };
+            props.LifeTime = 0.2f;
+            props.ColorBegin = { 0.0f, 0.7f, 1.0f, 1.0f };
+            props.ColorEnd = { 0.0f, 0.0f, 1.0f, 0.0f };
+            props.SizeBegin = 0.2f;
+            props.SizeEnd = 0.0f;
+            props.SizeVariation = 0.05f;
 
-        props.Velocity = { 0.0f, 0.0f };
-        props.VelocityVariation = { 0.5f, 0.5f };
-        props.LifeTime = 0.2f;
-        props.ColorBegin = { 0.0f, 0.7f, 1.0f, 1.0f };
-        props.ColorEnd = { 0.0f, 0.0f, 1.0f, 0.0f };
-        props.SizeBegin = 0.2f;
-        props.SizeEnd = 0.0f;
-        props.SizeVariation = 0.05f;
-
-        GetScene()->EmitParticles(props);
+            GetScene()->EmitParticles(props);
+            m_TimeSinceLastEmit = 0.0f;
+        }
     }
 
     m_Rb = &GetComponent<Rigidbody2DComponent>();

@@ -14,7 +14,8 @@ enum class UpgradeType {
     AttackSpeed,  
     Damage,       
     Speed,        
-    HealthRegen   
+    HealthRegen,
+    Orbitals
 };
 
 struct UpgradeDef {
@@ -32,12 +33,21 @@ public:
     static void Shutdown();
 
     static std::vector<UpgradeDef> GetAllUpgrades();
-    static std::vector<UpgradeDef> GetRandomUniqueUpgrades(int count);
+    static std::vector<UpgradeDef> GetRandomUniqueUpgrades(int count);  
+
+    static Ref<Texture2D> GetOrbitalTexture() { return s_Orbital_Texture; }
 
 private:
+	// card base textures
     static Ref<Texture2D> s_CardBaseTexture_Multishot;
     static Ref<Texture2D> s_CardBaseTexture_AttackSpeed;
     static Ref<Texture2D> s_CardBaseTexture_Damage;
     static Ref<Texture2D> s_CardBaseTexture_Speed;
     static Ref<Texture2D> s_CardBaseTexture_HealthRegen;
+
+	// icon textures
+    //---
+
+    // gameplay textures
+    static Ref<Texture2D> s_Orbital_Texture;
 };

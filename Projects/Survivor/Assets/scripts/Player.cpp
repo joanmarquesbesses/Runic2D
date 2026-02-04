@@ -4,6 +4,7 @@
 
 #include "GameComponents.h"
 #include "EntityFactory.h"
+#include "OrbitalManager.h"
 
 using namespace Runic2D;
 
@@ -43,10 +44,16 @@ void Player::OnCreate()
     if (!HasComponent<PlayerUpgradesComponent>()) {
         GetEntity().AddComponent<PlayerUpgradesComponent>();
     }
+
+    m_OrbitalManager = GetScene()->CreateEntity("OrbitalManager");
+    m_OrbitalManager.AddComponent<NativeScriptComponent>().Bind<OrbitalManager>();
 }
 
 void Player::OnDestroy()
 {
+    if (m_OrbitalManager) {
+        GetScene()->SubmitForDestruction(m_OrbitalManager);
+    }
 }
 
 void Player::OnUpdate(Timestep ts)
@@ -181,7 +188,24 @@ void Player::HandleAnimation()
                 else
                     direction = { facingDirection, 0.0f };
 
-                EntityFactory::CreatePlayerProjectile(spawnPos, direction);
+                int multiShotLevel = 0;
+                if (HasComponent<PlayerUpgradesComponent>()) {
+                    multiShotLevel = GetComponent<PlayerUpgradesComponent>().GetLevel(UpgradeType::MultiShot);
+                }
+
+                int projectileCount = 1 + (multiShotLevel * 2);
+                glm::vec2 perpDirection = { -direction.y, direction.x };
+                float spacing = 0.6f;
+
+                for (int i = 0; i < projectileCount; i++)
+                {
+                    float offsetIndex = i - (projectileCount / 2);
+
+                    glm::vec2 finalSpawnPos = spawnPos + (perpDirection * (offsetIndex * spacing));
+
+                    EntityFactory::CreatePlayerProjectile(finalSpawnPos, direction);
+                }
+
                 m_HasFired = true;
             }
 

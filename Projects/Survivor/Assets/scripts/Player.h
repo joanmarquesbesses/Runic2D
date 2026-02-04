@@ -37,4 +37,6 @@ private:
 	State m_State = State::Idle; 
 
 	bool m_HasFired = false;
+
+	Runic2D::Entity m_OrbitalManager;
 };

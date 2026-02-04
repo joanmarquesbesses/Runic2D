@@ -151,6 +151,8 @@
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameContext.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameManager.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\HUDManager.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\OrbitalManager.h" />
+    <ClInclude Include="..\Projects\Survivor\Assets\scripts\OrbitalProjectile.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Player.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\Projectile.h" />
     <ClInclude Include="..\Projects\Survivor\Assets\scripts\ScriptRegistry.h" />

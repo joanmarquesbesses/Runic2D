@@ -131,15 +131,23 @@ namespace Runic2D {
 			{
 				entt::entity nextChild = entt::null;
 
-				// Guardem el següent perquè quan destruïm l'actual perdrem l'enllaç
 				Entity childEntity{ currentChild, this };
 				if (childEntity.HasComponent<RelationshipComponent>())
 					nextChild = childEntity.GetComponent<RelationshipComponent>().NextSibling;
 
-				// Destruïm el fill
 				DestroyEntity(childEntity);
-
 				currentChild = nextChild;
+			}
+		}
+
+		if (entity.HasComponent<NativeScriptComponent>())
+		{
+			auto& nsc = entity.GetComponent<NativeScriptComponent>();
+
+			if (nsc.Instance)
+			{
+				nsc.Instance->OnDestroy();
+				nsc.DestroyScript(&nsc);
 			}
 		}
 

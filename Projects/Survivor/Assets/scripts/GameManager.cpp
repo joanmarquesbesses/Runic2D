@@ -1,6 +1,6 @@
 #include "GameManager.h"
-#include "Runic2D/Utils/Random.h"
 #include "GameComponents.h"
+#include "OrbitalManager.h"
 
 void GameManager::OnUpdate(Timestep ts) {
 
@@ -97,11 +97,20 @@ void GameManager::ApplyUpgradeToPlayer(UpgradeType type) {
     if (player) {
         auto& upgrades = player.GetComponent<PlayerUpgradesComponent>();
         upgrades.AddLevel(type);
-
-        R2D_INFO("GameManager: Aplicada millora {0}. Nivell nou: {1}",
-            (int)type, upgrades.GetLevel(type));
+        int newLevel = upgrades.GetLevel(type);
 
         // (Opcional) Aquí podries fer spawn de partícules al voltant del player
         // o reproduir un so de "Power Up".
+
+        if (type == UpgradeType::Orbitals) { 
+            Entity managerEnt = GetScene()->FindEntityByName("OrbitalManager");
+            if (managerEnt) {
+                auto& nsc = managerEnt.GetComponent<NativeScriptComponent>();
+                auto* script = (OrbitalManager*)nsc.Instance;
+                if (script) {
+                    script->SetLevel(newLevel);
+                }
+            }
+        }
     }
 }

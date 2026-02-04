@@ -22,6 +22,9 @@ public:
 
     OwnerType Owner = OwnerType::Player;
 
+    float m_TimeSinceLastEmit = 0.0f;
+    float m_EmissionRate = 0.02f;
+
 private:
     Rigidbody2DComponent* m_Rb = nullptr;
     SpriteRendererComponent* m_SpriteRenderer = nullptr;
