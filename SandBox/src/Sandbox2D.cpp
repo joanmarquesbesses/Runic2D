@@ -79,7 +79,7 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 {
 	R2D_PROFILE_FUNCTION();
 
-    RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+    RenderCommand::SetClearColor({ 0.2f, 0.2f, 0.2f, 1 });
     RenderCommand::Clear();
 
     if (m_Context && m_ActiveScene) {
