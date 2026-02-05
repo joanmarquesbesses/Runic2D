@@ -10,7 +10,7 @@
 Currently used to develop a *Survivor-like* technical demo (Dogfooding) to validate the architecture in a production scenario.
 
 <p align="center">
-  <img src="URL_DEL_GIF_DE_L_EDITOR_AQUI.gif" alt="Runic2D Editor Interface" width="100%">
+  <img src="https://github.com/joanmarquesbesses/Runic2D/blob/main/docs/images/sceneeditor.gif" alt="Runic2D Editor Interface" width="100%">
 </p>
 
 ## ⚙️ Key Features
