@@ -6,8 +6,7 @@
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 
 **Runic2D** is a high-performance custom 2D game engine written in C++ designed with **Data-Oriented Design** principles. It features a strictly separated architecture (Core/Client), a custom ECS implementation using EnTT, and an abstract rendering API.
-
-Currently used to develop a *Survivor-like* technical demo (Dogfooding) to validate the architecture in a production scenario.
+> 🚧 **Note:** This project is currently **in active development**. Features and API may change as optimization continues.
 
 <p align="center">
   <img src="https://github.com/joanmarquesbesses/Runic2D/blob/main/docs/images/sceneeditor.gif" alt="Runic2D Editor Interface" width="100%">
@@ -29,6 +28,50 @@ Currently used to develop a *Survivor-like* technical demo (Dogfooding) to valid
 * **Editor Tools:** Built with **ImGui**, featuring Scene Hierarchy, Inspector, Content Browser, and Profiling tools.
 
 ---
+
+## 🎮 Gameplay Integration (Survivor Demo)
+
+To validate the engine's architecture, I am developing a **Survivor-like game** alongside the engine (*Dogfooding*). The gameplay logic is decoupled from the engine core using an event-driven approach.
+
+The **Game Context** manages the global state and uses `std::function` callbacks to trigger UI events (like Level Up screens) or Upgrade applications without hardcoding dependencies.
+
+```cpp
+enum class GameState {
+    Running,
+    LevelUp,
+    GameOver
+};
+
+struct GameContext {
+    static GameContext* s_Instance;  
+
+    GameContext() { s_Instance = this; }
+    ~GameContext() { s_Instance = nullptr; }
+
+    static GameContext& Get() { return *s_Instance; }
+
+    // Game State Data
+    float TimeAlive = 0.0f; 
+    GameState State = GameState::Running;
+    int CurrentLevel = 1;
+    float CurrentXP = 0.0f;
+    
+    // Event Callbacks (Decoupled Logic)
+    std::function<void(int)> OnLevelUp;
+    std::function<void(UpgradeType)> OnUpgradeApplied;
+
+    void TriggerLevelUp(int level) {
+        // Pauses the game loop and triggers the UI Layer via callback
+        State = GameState::LevelUp;
+        if (OnLevelUp) OnLevelUp(level);
+    }
+
+    void TriggerUpgradeApplied(UpgradeType type) {
+        if (OnUpgradeApplied) OnUpgradeApplied(type);
+        State = GameState::Running; // Resume game
+    }
+};
+```
 
 ## 💻 Code Highlights (Interesting Files)
 
