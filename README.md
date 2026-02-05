@@ -7,7 +7,7 @@
 
 **Runic2D** is a high-performance custom 2D game engine written in C++ designed with **Data-Oriented Design** principles. It features a strictly separated architecture (Core/Client), a custom ECS implementation using EnTT, and an abstract rendering API.
 
-Currently used to develop a *Survivor-like* technical demo (Dogfooding).
+Currently used to develop a *Survivor-like* technical demo (Dogfooding) to validate the architecture in a production scenario.
 
 <p align="center">
   <img src="URL_DEL_GIF_DE_L_EDITOR_AQUI.gif" alt="Runic2D Editor Interface" width="100%">
@@ -17,15 +17,15 @@ Currently used to develop a *Survivor-like* technical demo (Dogfooding).
 
 ### 🔧 Architecture & Memory
 * **Entity Component System (ECS):** Integrated **EnTT** for cache-friendly memory layout and systems decoupling.
-* **Modular Game Loop:** Strict separation between `Update` (Simulation) and `Render` logic.
-* **Resource Management:** RAII-based resource ownership using custom smart pointer wrappers to prevent memory leaks.
+* **Modular Game Loop:** Strict separation between `Update` (Simulation) and `Render` logic using a LayerStack approach.
+* **Resource Management:** RAII-based resource ownership using custom smart pointer aliases (`Ref`/`Scope`) to prevent memory leaks.
 * **Native Scripting:** C++ scripting bridge allowing gameplay logic to interact seamlessly with the engine core.
 
 ### 🎨 Rendering & Graphics
 * **Abstract Rendering API:** Hardware Abstraction Layer (HAL) decoupling the engine from OpenGL (extensible to Vulkan/DirectX).
-* **Batch Rendering:** Automatic geometry batching to minimize draw calls.
-* **2D Physics:** Integrated Box2D with custom debug visualization (colliders, bounds).
-* **Editor Tools:** Built with **ImGui**, featuring Scene Hierarchy, Inspector, and Content Browser.
+* **Batch Rendering:** Automatic dynamic geometry batching to minimize draw calls and maximize throughput.
+* **2D Physics:** Integrated Box2D with custom debug visualization (colliders, bounds) and event callbacks.
+* **Editor Tools:** Built with **ImGui**, featuring Scene Hierarchy, Inspector, Content Browser, and Profiling tools.
 
 ---
 
@@ -33,10 +33,10 @@ Currently used to develop a *Survivor-like* technical demo (Dogfooding).
 
 Here are some direct links to core systems implementations:
 
-* **Memory & Allocations:** [See `Core/Core.h`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Core/Core.h) - *Smart pointer wrappers and memory definitions.*
-* **Renderer Architecture:** [See `Renderer/Renderer2D.cpp`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Renderer/Renderer2D.cpp) - *Batch rendering logic and flush implementation.*
-* **ECS Integration:** [See `Scene/Scene.cpp`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Scene/Scene.cpp) - *How EnTT registers components and handles entity destruction.*
-* **Core Architecture:** [See `Core/Application.cpp`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Core/Application.cpp) - *Main loop implementing a LayerStack architecture to manage event propagation, variable timestep updates, and ImGui integration.*
+* **Memory & Macros:** [See `Core/Core.h`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Core/Core.h) - *Defines smart pointer aliases (`Ref`/`Scope`) for RAII compliance and platform-specific assertions.*
+* **Renderer Architecture:** [See `Renderer/Renderer2D.cpp`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Renderer/Renderer2D.cpp) - *Implements automatic **Batch Rendering**, texture slot management, and dynamic vertex buffer flushing.*
+* **ECS & Systems:** [See `Scene/Scene.cpp`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Scene/Scene.cpp) - *Handles entity lifecycle via EnTT, Box2D physics world integration, and runtime/editor update splits.*
+* **Core Application:** [See `Core/Application.cpp`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Core/Application.cpp) - *Main loop implementing a **LayerStack architecture** to manage event propagation, variable timestep updates, and ImGui integration.*
 
 ---
 
