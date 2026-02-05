@@ -56,7 +56,7 @@ To build Runic2D from source, follow these steps:
     ```
 
 2.  **Setup Premake:**
-    * Download the **Premake 5.0** binary (zip) from the [official website](https://premake.github.io/download.html).
+    * Download the **Premake 5.0** binary (zip) from the [official website](https://premake.github.io/).
     * Extract and place the `premake5.exe` file inside the `vendor/bin/premake` directory (create the folder structure if it doesn't exist).
 
 3.  **Generate Project Files:**
