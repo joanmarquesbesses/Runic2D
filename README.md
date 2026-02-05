@@ -17,13 +17,14 @@ Currently used to develop a *Survivor-like* technical demo (Dogfooding) to valid
 
 ### 🔧 Architecture & Memory
 * **Entity Component System (ECS):** Integrated **EnTT** for cache-friendly memory layout and systems decoupling.
-* **Modular Game Loop:** Strict separation between `Update` (Simulation) and `Render` logic using a LayerStack approach.
+* **Layered Architecture:** Application logic organized in a stack of layers, allowing precise control over update order, event propagation, and overlay rendering (ImGui).
 * **Resource Management:** RAII-based resource ownership using custom smart pointer aliases (`Ref`/`Scope`) to prevent memory leaks.
 * **Native Scripting:** C++ scripting bridge allowing gameplay logic to interact seamlessly with the engine core.
 
 ### 🎨 Rendering & Graphics
 * **Abstract Rendering API:** Hardware Abstraction Layer (HAL) decoupling the engine from OpenGL (extensible to Vulkan/DirectX).
 * **Batch Rendering:** Automatic dynamic geometry batching to minimize draw calls and maximize throughput.
+* **Advanced Text Rendering:** High-quality text rendering using MSDF (Multi-channel Signed Distance Field) font atlases with support for kerning and dynamic scaling without pixelation.
 * **2D Physics:** Integrated Box2D with custom debug visualization (colliders, bounds) and event callbacks.
 * **Editor Tools:** Built with **ImGui**, featuring Scene Hierarchy, Inspector, Content Browser, and Profiling tools.
 
@@ -34,7 +35,7 @@ Currently used to develop a *Survivor-like* technical demo (Dogfooding) to valid
 Here are some direct links to core systems implementations:
 
 * **Memory & Macros:** [See `Core/Core.h`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Core/Core.h) - *Defines smart pointer aliases (`Ref`/`Scope`) for RAII compliance and platform-specific assertions.*
-* **Renderer Architecture:** [See `Renderer/Renderer2D.cpp`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Renderer/Renderer2D.cpp) - *Implements automatic **Batch Rendering**, texture slot management, and dynamic vertex buffer flushing.*
+* **Renderer Architecture:** [See `Renderer/Renderer2D.cpp`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Renderer/Renderer2D.cpp) - *Implements automatic **Batch Rendering**, texture slot management, *MSDF Text Rendering* and dynamic vertex buffer flushing.*
 * **ECS & Systems:** [See `Scene/Scene.cpp`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Scene/Scene.cpp) - *Handles entity lifecycle via EnTT, Box2D physics world integration, and runtime/editor update splits.*
 * **Core Application:** [See `Core/Application.cpp`](https://github.com/joanmarquesbesses/Runic2D/blob/main/Runic2D/src/Runic2D/Core/Application.cpp) - *Main loop implementing a **LayerStack architecture** to manage event propagation, variable timestep updates, and ImGui integration.*
 
