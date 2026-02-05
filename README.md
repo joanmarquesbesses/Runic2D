@@ -80,6 +80,6 @@ To build Runic2D from source, follow these steps:
 
 ## 📸 Gallery
 
-| Physics Debug | Particle System |
+| Physics Debug | Demo Gameplay |
 | :---: | :---: |
-| <img src="URL_DEL_GIF_PHYSICS.gif" width="100%"> | <img src="URL_DEL_GIF_PARTICLES.gif" width="100%"> |
+| <img src="https://github.com/joanmarquesbesses/Runic2D/blob/main/docs/images/physics.gif" width="100%"> | <img src="https://github.com/joanmarquesbesses/Runic2D/blob/main/docs/images/gameplay.gif" width="100%"> |
