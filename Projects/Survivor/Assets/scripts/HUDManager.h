@@ -1,6 +1,5 @@
 #pragma once
 #include "Runic2D.h"
-#include "GameContext.h"
 #include "TimerScript.h"
 #include "UpgradeCard.h"
 #include "GameComponents.h" 
@@ -15,13 +14,45 @@ enum class UIState {
 class HUDManager : public ScriptableEntity {
 public:
     Entity m_TimerEntity;
-    UIState m_CurrentState = UIState::Gameplay;
+    Entity m_HealthBarEntity;
+    Entity m_XPBarEntity;
+    Entity m_LevelTextEntity;
 
     std::vector<Entity> m_UpgradeCards;
 
+    UIState m_CurrentState = UIState::Gameplay;
+
     void OnCreate() override {
         CreateGameplayHUD();
-        GameContext::Get().OnLevelUp = [this](int level) { ShowLevelUp(level); };
+
+		auto& ctx = GameContext::Get();
+
+        ctx.OnLevelUp = [this](int level) { ShowLevelUp(level); };
+
+        ctx.OnHealthChanged = [this](float current, float max) {
+            float percent = (max > 0) ? (current / max) : 0.0f;
+            R2D_INFO("HUD: Health Updated to {0}%", percent * 100);
+            if (m_HealthBarEntity) {
+                auto& tc = m_HealthBarEntity.GetComponent<TransformComponent>();
+                tc.Scale.x = percent * 2.0f;
+				tc.IsDirty = true;
+            }
+        };
+
+        ctx.OnXPChanged = [this](float current, float max) {
+            float percent = (max > 0) ? (current / max) : 0.0f;
+            if (m_XPBarEntity) {
+                auto& tc = m_XPBarEntity.GetComponent<TransformComponent>();
+                tc.Scale.x = percent * 5.0f;
+                tc.IsDirty = true;
+            }
+        };
+
+        ctx.OnHealthChanged(ctx.PlayerHealth, ctx.PlayerMaxHealth);
+        ctx.OnXPChanged(ctx.CurrentXP, ctx.MaxXP);
+        if (m_LevelTextEntity) {
+            m_LevelTextEntity.GetComponent<TextComponent>().TextString = "LVL " + std::to_string(ctx.CurrentLevel);
+        }
     }
 
     void OnUpdate(Timestep ts) override {
@@ -59,6 +90,7 @@ private:
     }
 
     void CreateGameplayHUD() {
+		// Timer
         m_TimerEntity = GetScene()->CreateEntity("TimerText");
         auto& tc = m_TimerEntity.GetComponent<TransformComponent>();
         tc.SetTranslation({ -0.65f, 4.5f, 0.1f });
@@ -68,6 +100,30 @@ private:
         txt.TextString = "00:00";
 
         m_TimerEntity.AddComponent<NativeScriptComponent>().Bind<TimerScript>();
+
+		// Health Bar
+        m_HealthBarEntity = GetScene()->CreateEntity("HealthBar");
+        auto& hbTc = m_HealthBarEntity.GetComponent<TransformComponent>();
+        hbTc.SetTranslation({ -4.0f, 4.0f, 0.1f });
+        hbTc.SetScale({ 2.0f, 0.3f, 1.0f });
+        auto& hbSprite = m_HealthBarEntity.AddComponent<SpriteRendererComponent>();
+		hbSprite.Color = { 1.0f, 0.2f, 0.2f, 1.0f };
+
+		// XP Bar
+        m_XPBarEntity = GetScene()->CreateEntity("XPBar");
+        auto& xpTc = m_XPBarEntity.GetComponent<TransformComponent>();
+        xpTc.SetTranslation({ 0.0f, -4.0f, 0.1f });
+        xpTc.SetScale({ 0.0f, 0.2f, 1.0f }); 
+		auto& xpSprite = m_XPBarEntity.AddComponent<SpriteRendererComponent>();
+		xpSprite.Color = { 0.2f, 0.2f, 1.0f, 1.0f };
+
+        // Level Text
+        m_LevelTextEntity = GetScene()->CreateEntity("LevelText");
+        auto& lvlTc = m_LevelTextEntity.GetComponent<TransformComponent>();
+        lvlTc.SetTranslation({ 4.0f, 4.5f, 0.1f });
+        lvlTc.SetScale({ 0.75f, 0.75f, 1.0f });
+        auto& lvlTxt = m_LevelTextEntity.AddComponent<TextComponent>();
+		lvlTxt.TextString = "LVL 1";
     }
 
     void ShowLevelUp(int level) {
@@ -75,6 +131,9 @@ private:
         SetState(UIState::LevelUp);
         CreateUpgradeMenu();
         // Aquí també podries actualitzar el text de les cartes segons el nivell
+        if (m_LevelTextEntity) {
+            m_LevelTextEntity.GetComponent<TextComponent>().TextString = "LVL " + std::to_string(level);
+        }
     }
 
     void CreateUpgradeMenu() {

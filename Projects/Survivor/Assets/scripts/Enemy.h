@@ -51,6 +51,25 @@ public:
 
         if (m_KnockbackTime > 0.0f) {
             m_KnockbackTime -= ts;
+            if (m_KnockbackTime <= 0.0f) {
+                auto& rb = GetComponent<Rigidbody2DComponent>();
+                if (B2_IS_NON_NULL(rb.RuntimeBody)) {
+                    b2Body_SetLinearVelocity(rb.RuntimeBody, { 0.0f, 0.0f });
+
+                    int shapeCount = b2Body_GetShapeCount(rb.RuntimeBody);
+                    if (shapeCount > 0) {
+                        std::vector<b2ShapeId> shapes(shapeCount);
+                        b2Body_GetShapes(rb.RuntimeBody, shapes.data(), shapeCount);
+
+                        for (auto shapeId : shapes) {
+                            b2Filter filter = b2Shape_GetFilter(shapeId);
+                            filter.maskBits |= PhysicsLayers::Enemy;
+
+                            b2Shape_SetFilter(shapeId, filter);
+                        }
+                    }
+                }
+            }
         }
         else {
             MoveTowardsPlayer(ts, stats);
@@ -103,7 +122,20 @@ public:
         auto& rb = GetComponent<Rigidbody2DComponent>();
         if (B2_IS_NON_NULL(rb.RuntimeBody)) {
             float knockbackForce = 1.5f;
-            b2Body_ApplyLinearImpulse(rb.RuntimeBody, { knockbackDir.x * knockbackForce, knockbackDir.y * knockbackForce }, {0.0,0.0}, true);
+            b2Body_ApplyLinearImpulse(rb.RuntimeBody, { knockbackDir.x * knockbackForce, knockbackDir.y * knockbackForce }, { 0.0,0.0 }, true);
+
+            int shapeCount = b2Body_GetShapeCount(rb.RuntimeBody);
+            if (shapeCount > 0) {
+                std::vector<b2ShapeId> shapes(shapeCount);
+                b2Body_GetShapes(rb.RuntimeBody, shapes.data(), shapeCount);
+
+                for (auto shapeId : shapes) {
+                    b2Filter filter = b2Shape_GetFilter(shapeId);
+                    filter.maskBits &= ~PhysicsLayers::Enemy;
+
+                    b2Shape_SetFilter(shapeId, filter);
+                }
+            }
         }
 
         bool isCrit = false;

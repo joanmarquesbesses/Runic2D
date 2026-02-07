@@ -22,6 +22,7 @@ namespace Runic2D
 		virtual void OnCreate() {}
 		virtual void OnDestroy() {}
 		virtual void OnUpdate(Timestep ts) {}
+		virtual void OnSensor(Entity other) {}
 
 		virtual void OnCollision(Entity other) {}
 

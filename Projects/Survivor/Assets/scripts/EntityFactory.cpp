@@ -219,11 +219,12 @@ Runic2D::Entity EntityFactory::CreateExperienceGem(glm::vec2 pos, int amount)
     xpComp.Amount = amount;
 
     auto& coll = entity.AddComponent<CircleCollider2DComponent>();
-    coll.Radius = 0.25f;
+    coll.Radius = 0.5f;
     coll.CategoryBits = PhysicsLayers::Item;
     coll.MaskBits = coll.MaskBits = PhysicsLayers::Player;
     coll.IsSensor = true; 
     coll.EnableSensorEvents = true;
+	coll.EnableContactEvents = false;
 
     auto& rb = entity.AddComponent<Rigidbody2DComponent>();
     rb.Type = Rigidbody2DComponent::BodyType::Dynamic;

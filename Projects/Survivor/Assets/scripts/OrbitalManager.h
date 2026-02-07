@@ -25,7 +25,7 @@ public:
 
         if (!PlayerEntity)
         {
-            PlayerEntity = GetScene()->FindEntityByName("Player");
+            PlayerEntity = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
             if (!PlayerEntity) return;
 		}
 

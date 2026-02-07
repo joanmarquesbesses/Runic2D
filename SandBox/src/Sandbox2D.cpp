@@ -84,8 +84,7 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 
     if (m_Context && m_ActiveScene) {
         if (m_Context->State == GameState::Running) {
-            m_ActiveScene->OnUpdateRunTime(ts); 
-            m_Context->TimeAlive += ts;         
+            m_ActiveScene->OnUpdateRunTime(ts);     
         }
         else {
             m_ActiveScene->OnRenderRuntime();

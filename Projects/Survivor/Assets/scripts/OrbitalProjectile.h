@@ -62,7 +62,7 @@ public:
         anim.CurrentFrameIndex = (int)Runic2D::Random::Range(0.0f, (float)spin.FrameCount - 1);
     }
 
-    void OnCollision(Entity other) {
+    void OnSensor(Entity other) {
         if (other.HasComponent<EnemyStatsComponent>())
         {
             if (other.HasComponent<NativeScriptComponent>())

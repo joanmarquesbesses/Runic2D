@@ -8,17 +8,13 @@ using namespace Runic2D;
 
 class GameManager : public ScriptableEntity {
 public:
-    // Configuració Nivell
-    int m_Level = 1;
-    float m_CurrentXP = 0.0f;
-    float m_MaxXP = 100.0f;
-
     void OnCreate() override {
         auto& ctx = GameContext::Get();
-        ctx.CurrentLevel = m_Level;
-        ctx.CurrentXP = m_CurrentXP;
-        ctx.MaxXP = m_MaxXP;
+        ctx.CurrentLevel = 1;
+        ctx.CurrentXP = 0.0f;
+        ctx.MaxXP = 100.0f;
         ctx.State = GameState::Running;
+		ctx.TimeAlive = 0.0f;
 
         ctx.OnUpgradeApplied = [this](UpgradeType type) {
             ApplyUpgradeToPlayer(type);
@@ -32,7 +28,6 @@ public:
     }
 
 private:
-    void LevelUP();
     void SpawnEnemy();
     glm::vec2 GetRandomOffScreenPosition();
     void ApplyUpgradeToPlayer(UpgradeType type);

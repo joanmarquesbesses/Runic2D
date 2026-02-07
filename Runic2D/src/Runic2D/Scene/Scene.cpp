@@ -292,13 +292,13 @@ namespace Runic2D {
 				if (entityA && entityA.HasComponent<NativeScriptComponent>())
 				{
 					auto& script = entityA.GetComponent<NativeScriptComponent>();
-					if (script.Instance) script.Instance->OnCollision(entityB);
+					if (script.Instance) script.Instance->OnSensor(entityB);
 				}
 
 				if (entityB && entityB.HasComponent<NativeScriptComponent>())
 				{
 					auto& script = entityB.GetComponent<NativeScriptComponent>();
-					if (script.Instance) script.Instance->OnCollision(entityA);
+					if (script.Instance) script.Instance->OnSensor(entityA);
 				}
 			}
 		}

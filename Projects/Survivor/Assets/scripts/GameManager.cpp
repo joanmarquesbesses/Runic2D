@@ -1,41 +1,24 @@
 #include "GameManager.h"
 #include "GameComponents.h"
-#include "OrbitalManager.h"
+#include "Player.h"
 
 void GameManager::OnUpdate(Timestep ts) {
 
     if (Input::IsKeyPressed(KeyCode::L)) {
         if (GameContext::Get().State == GameState::Running) {
-            LevelUP(); // Cridem la funció màgica
+			GameContext::Get().AddXP(GameContext::Get().MaxXP);
         }
     }
 
     if (GameContext::Get().State != GameState::Running) return;
 
-    m_SpawnTimer -= ts;
+	GameContext::Get().TimeAlive += ts;
 
-    // Input per testejar el spawn
+    m_SpawnTimer -= ts;
     if (Input::IsKeyPressed(KeyCode::B) && m_SpawnTimer <= 0.0f) {
         SpawnEnemy();
         m_SpawnTimer = m_SpawnCooldown;
     }
-}
-
-void GameManager::LevelUP()
-{
-    R2D_INFO("GameManager: LEVEL UP! Pujant al nivell {0}", m_Level + 1);
-
-    m_Level++;
-    m_CurrentXP = 0;
-    m_MaxXP *= 1.2f;
-
-    auto& ctx = GameContext::Get();
-    ctx.CurrentLevel = m_Level;
-    ctx.CurrentXP = m_CurrentXP;
-    ctx.MaxXP = m_MaxXP;
-
-    ctx.State = GameState::LevelUp;
-    ctx.TriggerLevelUp(m_Level);
 }
 
 void GameManager::SpawnEnemy() {
@@ -99,18 +82,10 @@ void GameManager::ApplyUpgradeToPlayer(UpgradeType type) {
         upgrades.AddLevel(type);
         int newLevel = upgrades.GetLevel(type);
 
-        // (Opcional) Aquí podries fer spawn de partícules al voltant del player
-        // o reproduir un so de "Power Up".
-
-        if (type == UpgradeType::Orbitals) { 
-            Entity managerEnt = GetScene()->FindEntityByName("OrbitalManager");
-            if (managerEnt) {
-                auto& nsc = managerEnt.GetComponent<NativeScriptComponent>();
-                auto* script = (OrbitalManager*)nsc.Instance;
-                if (script) {
-                    script->SetLevel(newLevel);
-                }
-            }
+        auto& nsc = player.GetComponent<NativeScriptComponent>();
+        Player* playerScript = (Player*)nsc.Instance;
+        if (playerScript) {
+            playerScript->ApplyUpgradeEffect(type, newLevel);
         }
     }
 }

@@ -8,7 +8,7 @@ class Projectile : public ScriptableEntity
 public:
     void OnCreate() override;
     void OnUpdate(Timestep ts) override;
-    void OnCollision(Entity other) override;
+    void OnSensor(Entity other) override;
 
     float Speed = 10.0f;
     float LifeTime = 2.0f;

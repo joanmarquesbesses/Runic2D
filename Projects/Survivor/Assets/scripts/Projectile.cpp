@@ -66,7 +66,7 @@ void Projectile::OnUpdate(Timestep ts)
     b2Body_SetLinearVelocity(bodyId, vel);
 }
 
-void Projectile::OnCollision(Entity other)
+void Projectile::OnSensor(Entity other)
 {
     if (other.HasComponent<NativeScriptComponent>())
     {

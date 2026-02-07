@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include "UpgradeSystem.h"
+#include "GameContext.h"
 
 namespace PhysicsLayers {
 	enum Layer : uint32_t {
@@ -19,9 +20,7 @@ struct ProjectileComponent
 	float Speed = 10.0f;
 	float LifeTime = 2.0f;
 	float Damage = 10.0f;
-
 	glm::vec2 Direction = { 1.0f, 0.0f };
-
 	ProjectileComponent() = default;
 	ProjectileComponent(const ProjectileComponent&) = default;
 };
@@ -36,8 +35,6 @@ struct EnemyStatsComponent {
 
 struct ExperienceComponent {
 	int Amount = 1;
-
-	// Opcional: Per si vols fer l'efecte imant més endavant
 	bool Magnetized = false;
 	float MoveSpeed = 5.0f;
 };
@@ -45,17 +42,26 @@ struct ExperienceComponent {
 struct PlayerStatsComponent {
 	float Health = 100.0f;
 	float MaxHealth = 100.0f;
-	int Experience = 0;
-	int Level = 1;
-	void AddExperience(int amount) {
-		Experience += amount;
-		// Opcional: Comprovar si puja de nivell
+
+	void TakeDamage(float amount) {
+		Health -= amount;
+		if (Health < 0) Health = 0;
+		GameContext::Get().UpdateHealth(Health, MaxHealth);
+	}
+
+	void Heal(float amount) {
+		Health += amount;
+		if (Health > MaxHealth) Health = MaxHealth;
+		GameContext::Get().UpdateHealth(Health, MaxHealth);
+	}
+
+	void SyncToContext() {
+		GameContext::Get().UpdateHealth(Health, MaxHealth);
 	}
 };
 
 struct UpgradeComponent {
 	UpgradeDef Data; 
-
 	UpgradeComponent() = default;
 	UpgradeComponent(const UpgradeDef& data) : Data(data) {}
 };

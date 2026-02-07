@@ -37,9 +37,11 @@ void Player::OnCreate()
 		cc.MaskBits = PhysicsLayers::Item;
         cc.IsSensor = true;
         cc.EnableSensorEvents = true;
+		cc.EnableContactEvents = false;
+        cc.Radius = cc.Radius * 2;
     }
 
-	GetEntity().AddComponent<PlayerStatsComponent>();
+	GetEntity().AddComponent<PlayerStatsComponent>().SyncToContext();
 
     if (!HasComponent<PlayerUpgradesComponent>()) {
         GetEntity().AddComponent<PlayerUpgradesComponent>();
@@ -64,6 +66,7 @@ void Player::OnUpdate(Timestep ts)
 
 void Player::HandleMovement(Timestep ts)
 {
+    m_Rb = &GetComponent<Rigidbody2DComponent>();
 	if (!m_Rb) return;
 
     if (m_State == State::Attack || m_State == State::Death)
@@ -90,6 +93,7 @@ void Player::HandleMovement(Timestep ts)
 
 void Player::HandleAnimation()
 {
+	m_Transform = &GetComponent<TransformComponent>();
     if (m_Transform && CanChangeDirection())
     {
 		auto& bc = GetComponent<BoxCollider2DComponent>();
@@ -248,6 +252,7 @@ void Player::OnCollision(Entity other)
 
 void Player::PlayAnimation(const std::string& name)
 {
+	m_Anim = &GetComponent<AnimationComponent>();
     if (m_Anim->CurrentStateName == name) return;
 
     auto it = m_Anim->Animations.find(name);
@@ -340,4 +345,23 @@ void Player::TryAttack()
     {
         GetScene()->UpdateEntityColliders(GetEntity());
     }
+}
+
+void Player::ApplyUpgradeEffect(UpgradeType type, int newLevel) {
+
+    if (type == UpgradeType::Orbitals) {
+        if (m_OrbitalManager.HasComponent<NativeScriptComponent>()) {
+            auto& nsc = m_OrbitalManager.GetComponent<NativeScriptComponent>();
+            OrbitalManager* script = (OrbitalManager*)nsc.Instance;
+
+            if (script) {
+                script->SetLevel(newLevel);
+            }
+        }
+    }
+
+    // Aquí pots posar els altres efectes (MultiShot, Speed, etc.)
+
+    // (Opcional) Aquí podries fer spawn de partícules al voltant del player
+    // o reproduir un so de "Power Up".
 }

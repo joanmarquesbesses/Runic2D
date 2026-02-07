@@ -27,7 +27,7 @@ public:
 
                 float maxScale = std::max(std::abs(tc.Scale.x), std::abs(tc.Scale.y));
                 pickupRadius = cc.Radius * maxScale;
-
+                
                 playerPos += cc.Offset; 
             }
 
@@ -36,9 +36,7 @@ public:
             float radiusSq = pickupRadius * pickupRadius;
 
             if (distSq < radiusSq) {
-                m_IsMagnetized = true;
-                m_PlayerEntity = player;
-                m_CurrentSpeed = 2.0f;
+                Magnetize(player);
             }
         }
     }
@@ -52,10 +50,7 @@ public:
             auto& myTrans = GetComponent<TransformComponent>();
             auto& playerTrans = m_PlayerEntity.GetComponent<TransformComponent>();
 
-            glm::vec2 targetPos = playerTrans.Translation;
-            glm::vec2 myPos = myTrans.Translation;
-
-            glm::vec2 diff = targetPos - myPos;
+            glm::vec2 diff = playerTrans.Translation - myTrans.Translation;
             float distSq = glm::dot(diff, diff);
 
             if (distSq < 0.25f) {
@@ -67,27 +62,37 @@ public:
 
             m_CurrentSpeed += m_Acceleration * ts;
 
-            auto& rb = GetComponent<Rigidbody2DComponent>();
-            b2BodyId bodyId = rb.RuntimeBody;
-
-            b2Body_SetLinearVelocity(bodyId, { dir.x * m_CurrentSpeed, dir.y * m_CurrentSpeed });
+            if (HasComponent<Rigidbody2DComponent>()) {
+                auto& rb = GetComponent<Rigidbody2DComponent>();
+                b2Body_SetLinearVelocity(rb.RuntimeBody, { dir.x * m_CurrentSpeed, dir.y * m_CurrentSpeed });
+            }
+            else {
+                myTrans.Translation += glm::vec3(dir * m_CurrentSpeed * (float)ts, 0.0f);
+            }
         }
     }
 
-    void OnCollision(Entity other) override {
+    void OnSensor(Entity other) override {
         if (m_IsMagnetized) return;
 
         if (other.HasComponent<PlayerStatsComponent>()) {
-            m_IsMagnetized = true;
-            m_PlayerEntity = other;
-            m_CurrentSpeed = 5.0f;
+            Magnetize(other);
         }
     }
 
 private:
+    void Magnetize(Entity player) {
+        m_IsMagnetized = true;
+        m_PlayerEntity = player;
+        m_CurrentSpeed = 2.0f; 
+    }
+
     void Collect() {
-        int xpAmount = GetComponent<ExperienceComponent>().Amount;
-        m_PlayerEntity.GetComponent<PlayerStatsComponent>().AddExperience(xpAmount);
+        int xpAmount = 1;
+        if(HasComponent<ExperienceComponent>()) 
+			xpAmount = GetComponent<ExperienceComponent>().Amount;
+
+        GameContext::Get().AddXP((float)xpAmount);
 
         // So de "Ding!"
 
