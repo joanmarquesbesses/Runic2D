@@ -5,13 +5,15 @@
 #include "GameContext.h"
 
 namespace PhysicsLayers {
-	enum Layer : uint32_t {
+	enum Layer : uint16_t { 
 		None = 0,
-		Default = 1 << 0, // 1  (Parets, coses normals)
-		Player = 1 << 1, // 2
-		Enemy = 1 << 2, // 4
-		Projectile = 1 << 3, // 8
-		Item = 1 << 4  // 16 (XP, Potions)
+		Default = 1 << 0,
+		Player = 1 << 1,
+		Projectile = 1 << 2,
+		Item = 1 << 3,
+		Enemy = 1 << 4,
+		EnemyBat = 1 << 5, 
+		EnemySlime = 1 << 6  
 	};
 }
 
@@ -21,6 +23,7 @@ struct ProjectileComponent
 	float LifeTime = 2.0f;
 	float Damage = 10.0f;
 	glm::vec2 Direction = { 1.0f, 0.0f };
+	int Penetration = 0;
 	ProjectileComponent() = default;
 	ProjectileComponent(const ProjectileComponent&) = default;
 };

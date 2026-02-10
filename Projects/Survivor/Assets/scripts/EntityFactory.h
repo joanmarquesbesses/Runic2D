@@ -13,6 +13,7 @@ public:
     static Runic2D::Entity CreateDamageText(glm::vec2 pos, float damageAmount, bool isCritical = false);
     
     static Runic2D::Entity CreateBat(glm::vec2 pos, float difficultyMult = 1.0f);
+	static Runic2D::Entity CreateSlime(glm::vec2 pos, float difficultyMult = 1.0f);
 
 private:
     static Runic2D::Entity CreateBaseEnemy(glm::vec2 pos, std::string name);
@@ -23,6 +24,7 @@ private:
 
 	static Runic2D::Ref<Runic2D::Texture2D> s_BatTexture;
 	static Runic2D::Ref<Runic2D::Texture2D> s_BatDeathTexture;
+	static Runic2D::Ref<Runic2D::Texture2D> s_SlimeTexture;
 
     static Runic2D::Ref<Runic2D::Texture2D> s_WhiteGemTexture;
     static Runic2D::Ref<Runic2D::Texture2D> s_GreenGemTexture;

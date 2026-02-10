@@ -14,7 +14,7 @@ enum class UpgradeType {
     AttackSpeed,  
     Damage,       
     Speed,        
-    HealthRegen,
+    Piercing,
     Orbitals
 };
 

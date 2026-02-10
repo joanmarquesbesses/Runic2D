@@ -12,6 +12,7 @@ Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_ProjectileTexture = nullptr;
 
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_BatTexture = nullptr;
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_BatDeathTexture = nullptr;
+Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_SlimeTexture = nullptr;
 
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_WhiteGemTexture = nullptr;
 Runic2D::Ref<Runic2D::Texture2D> EntityFactory::s_GreenGemTexture = nullptr;
@@ -67,6 +68,7 @@ void EntityFactory::Init(Runic2D::Scene* scene)
 
 	s_BatTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/Enemies/Bat/Run.png"));
     s_BatDeathTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/Enemies/Bat/Death.png"));
+	s_SlimeTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/Enemies/Slime/Slime.png"));
 
 	s_WhiteGemTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/EXP/EXP1.png"));
     s_GreenGemTexture = Runic2D::ResourceManager::Get<Runic2D::Texture2D>(Project::GetAssetFileSystemPath("textures/EXP/EXP10.png"));
@@ -187,14 +189,51 @@ Runic2D::Entity EntityFactory::CreateBat(glm::vec2 pos, float difficultyMult)
     auto& coll = entity.AddComponent<CircleCollider2DComponent>();
     coll.Radius = 0.15f;
 	coll.Offset = { 0.0f, -0.1f };
-    coll.CategoryBits = PhysicsLayers::Enemy;
-	coll.MaskBits = coll.MaskBits = PhysicsLayers::Default | PhysicsLayers::Player | PhysicsLayers::Projectile | PhysicsLayers::Enemy;
+    coll.CategoryBits = PhysicsLayers::Enemy | PhysicsLayers::EnemyBat;
+	coll.MaskBits = coll.MaskBits = PhysicsLayers::Default | PhysicsLayers::Player | PhysicsLayers::Projectile | PhysicsLayers::EnemyBat;
     coll.IsSensor = false;
 	coll.EnableSensorEvents = true;
 	coll.EnableContactEvents = true;
     coll.Density = 1.0f;
     coll.Friction = 0.0f;    
     coll.Restitution = 0.0f;  
+    s_Scene->InstantiatePhysics(entity);
+
+    return entity;
+}
+
+Runic2D::Entity EntityFactory::CreateSlime(glm::vec2 pos, float difficultyMult)
+{
+    Entity entity = CreateBaseEnemy(pos, "Slime");
+
+    auto& tc = entity.GetComponent<TransformComponent>();
+    tc.Scale = { 0.5f, 0.5f, 1.0f };
+
+    auto& stats = entity.AddComponent<EnemyStatsComponent>();
+    stats.Health = 10.0f * difficultyMult;
+    stats.MaxHealth = stats.Health;
+    stats.Speed = 1.0f + (difficultyMult * 0.1f);
+    stats.Damage = 5.0f * difficultyMult;
+    stats.XPDrop = 10;
+
+    auto& src = entity.AddComponent<SpriteRendererComponent>();
+    src.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    src.Texture = s_SlimeTexture;
+
+    AddAnimationToEntity(entity, "Walk", s_SlimeTexture, 4, 4, { 32, 25 }, 0.15f, true);
+    AddAnimationToEntity(entity, "Death", s_SlimeTexture, 17, 5, { 32, 25 }, 0.15f, false);
+
+    auto& coll = entity.AddComponent<CircleCollider2DComponent>();
+    coll.Radius = 0.30f;
+    coll.Offset = { 0.0f, -0.1f };
+    coll.CategoryBits = PhysicsLayers::Enemy | PhysicsLayers::EnemySlime;
+    coll.MaskBits = coll.MaskBits = PhysicsLayers::Default | PhysicsLayers::Player | PhysicsLayers::Projectile | PhysicsLayers::EnemySlime;
+    coll.IsSensor = false;
+    coll.EnableSensorEvents = true;
+    coll.EnableContactEvents = true;
+    coll.Density = 1.0f;
+    coll.Friction = 0.0f;
+    coll.Restitution = 0.0f;
     s_Scene->InstantiatePhysics(entity);
 
     return entity;

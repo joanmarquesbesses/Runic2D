@@ -68,29 +68,44 @@ void Projectile::OnUpdate(Timestep ts)
 
 void Projectile::OnSensor(Entity other)
 {
-    if (other.HasComponent<NativeScriptComponent>())
-    {
-        if (Owner == OwnerType::Player && other.HasComponent<Player>())
-            return; 
+    if (Owner == OwnerType::Player && other.HasComponent<Player>())
+        return; 
 
-        if (other.HasComponent<EnemyStatsComponent>())
-        {
-            if (other.HasComponent<NativeScriptComponent>())
-            {
-                auto& nsc = other.GetComponent<NativeScriptComponent>();
-                Enemy* enemyScript = static_cast<Enemy*>(nsc.Instance);
+    if (other.HasComponent<EnemyStatsComponent>()) {
+        if (std::find(m_HitList.begin(), m_HitList.end(), other) != m_HitList.end()) {
+            return;
+        }
+
+        if (other.HasComponent<NativeScriptComponent>()) {
+            auto& nsc = other.GetComponent<NativeScriptComponent>();
+            if (nsc.Instance) {
+                Enemy* enemy = (Enemy*)nsc.Instance;
+
                 glm::vec2 myPos = GetComponent<TransformComponent>().Translation;
-                if (enemyScript)
-                {
-                    enemyScript->TakeDamage(GetComponent<ProjectileComponent>().Damage, myPos);
-                    Destroy();
-                    return;
-                }
+
+                float damage = 10.0f;
+                if (HasComponent<ProjectileComponent>())
+                    damage = GetComponent<ProjectileComponent>().Damage;
+
+                enemy->TakeDamage(damage, myPos);
             }
         }
 
+        m_HitList.push_back(other);
+
+        auto& pc = GetComponent<ProjectileComponent>();
+
+        if (pc.Penetration > 0) {
+            pc.Penetration--;
+
+            // Opcional: Reduir una mica el mal o la velocitat després de travessar?
+            // pc.Damage *= 0.8f; 
+        }
+        else {
+            Destroy();
+        }
+    }
+
        /* if (Owner == OwnerType::Enemy && other.HasComponent<EnemyAI>())
             return; */
-    }
-	Destroy(); 
 }

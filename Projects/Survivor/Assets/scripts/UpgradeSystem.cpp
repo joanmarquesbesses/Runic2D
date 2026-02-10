@@ -68,9 +68,9 @@ std::vector<UpgradeDef> UpgradeDatabase::GetAllUpgrades() {
             nullptr
         },
         {
-            UpgradeType::HealthRegen,
-            "Health",
-            "Health Regen",
+            UpgradeType::Piercing,
+            "Piercing",
+            "Projectile penetration",
             {0.2f, 1.0f, 0.5f, 1.0f},
             s_CardBaseTexture_HealthRegen,
             nullptr

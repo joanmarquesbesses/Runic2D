@@ -7,23 +7,22 @@ using namespace Runic2D;
 
 class ExperienceOrb : public ScriptableEntity {
 public:
-    bool m_IsMagnetized = false;
     Entity m_PlayerEntity;
     float m_CurrentSpeed = 0.0f;
     float m_Acceleration = 15.0f;
 
     void OnCreate() override {
-        Entity player = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
+        m_PlayerEntity = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
 
-        if (player) {
+        if (m_PlayerEntity) {
             glm::vec2 myPos = GetComponent<TransformComponent>().Translation;
-            glm::vec2 playerPos = player.GetComponent<TransformComponent>().Translation;
+            glm::vec2 playerPos = m_PlayerEntity.GetComponent<TransformComponent>().Translation;
 
             float pickupRadius = 1.0f;
 
-            if (player.HasComponent<CircleCollider2DComponent>()) {
-                auto& cc = player.GetComponent<CircleCollider2DComponent>();
-                auto& tc = player.GetComponent<TransformComponent>();
+            if (m_PlayerEntity.HasComponent<CircleCollider2DComponent>()) {
+                auto& cc = m_PlayerEntity.GetComponent<CircleCollider2DComponent>();
+                auto& tc = m_PlayerEntity.GetComponent<TransformComponent>();
 
                 float maxScale = std::max(std::abs(tc.Scale.x), std::abs(tc.Scale.y));
                 pickupRadius = cc.Radius * maxScale;
@@ -36,13 +35,13 @@ public:
             float radiusSq = pickupRadius * pickupRadius;
 
             if (distSq < radiusSq) {
-                Magnetize(player);
+                Magnetize(m_PlayerEntity);
             }
         }
     }
 
     void OnUpdate(Timestep ts) override {
-        if (!m_IsMagnetized) {
+        if (!GetComponent<ExperienceComponent>().Magnetized) {
             return;
         }
 
@@ -73,7 +72,7 @@ public:
     }
 
     void OnSensor(Entity other) override {
-        if (m_IsMagnetized) return;
+        if (GetComponent<ExperienceComponent>().Magnetized) return;
 
         if (other.HasComponent<PlayerStatsComponent>()) {
             Magnetize(other);
@@ -82,7 +81,7 @@ public:
 
 private:
     void Magnetize(Entity player) {
-        m_IsMagnetized = true;
+        GetComponent<ExperienceComponent>().Magnetized = true;
         m_PlayerEntity = player;
         m_CurrentSpeed = 2.0f; 
     }

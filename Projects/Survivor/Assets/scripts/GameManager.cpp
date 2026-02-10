@@ -19,11 +19,21 @@ void GameManager::OnUpdate(Timestep ts) {
         SpawnEnemy();
         m_SpawnTimer = m_SpawnCooldown;
     }
+
+    if (Input::IsKeyPressed(KeyCode::R)) {
+        auto view = GetScene()->GetAllEntitiesWith<ExperienceComponent>();
+        for (auto e : view)
+        {
+            auto& xp = view.get<ExperienceComponent>(e);
+            xp.Magnetized = true;
+        }
+    }
 }
 
 void GameManager::SpawnEnemy() {
     glm::vec2 spawnPos = GetRandomOffScreenPosition();
     EntityFactory::CreateBat(spawnPos);
+	EntityFactory::CreateSlime(spawnPos);
 }
 
 glm::vec2 GameManager::GetRandomOffScreenPosition() {

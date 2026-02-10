@@ -42,6 +42,7 @@ namespace Runic2D {
 		for (Layer* layer : m_LayerStack) {
 			layer->OnDetach();
 		}
+		m_Window.reset();
 		Renderer::Shutdown();
 		AudioEngine::Shutdown();
 		ResourceManager::Clear();

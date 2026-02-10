@@ -15,7 +15,7 @@ workspace "Runic2D"
 	}
 
 	local activeGame = "Survivor" 
-    -- local activeGame = "Mario"
+    -- local activeGame = "Arkanoid"
     
     local gameSourcePath = "Projects/" .. activeGame .. "/Assets/scripts"
 
@@ -268,7 +268,7 @@ project "Runic2D-Editor"
 		systemversion "latest"
 
 	filter "configurations:Debug"
-		defines "R2D_DEBUG"	
+		defines "R2D_DEBUG"		
 		runtime "Debug"
 		symbols "on"
 

@@ -21,6 +21,7 @@ private:
 	bool IsMoving() const;
 	bool CanChangeDirection() const;
 	void TryAttack();
+	void Shoot(glm::vec2 mousePos, glm::vec2 spawnPos, glm::vec2 direction);
 
 private:
 	Runic2D::Rigidbody2DComponent* m_Rb = nullptr;

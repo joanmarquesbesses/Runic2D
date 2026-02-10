@@ -192,23 +192,7 @@ void Player::HandleAnimation()
                 else
                     direction = { facingDirection, 0.0f };
 
-                int multiShotLevel = 0;
-                if (HasComponent<PlayerUpgradesComponent>()) {
-                    multiShotLevel = GetComponent<PlayerUpgradesComponent>().GetLevel(UpgradeType::MultiShot);
-                }
-
-                int projectileCount = 1 + (multiShotLevel * 2);
-                glm::vec2 perpDirection = { -direction.y, direction.x };
-                float spacing = 0.6f;
-
-                for (int i = 0; i < projectileCount; i++)
-                {
-                    float offsetIndex = i - (projectileCount / 2);
-
-                    glm::vec2 finalSpawnPos = spawnPos + (perpDirection * (offsetIndex * spacing));
-
-                    EntityFactory::CreatePlayerProjectile(finalSpawnPos, direction);
-                }
+				Shoot(mousePos, spawnPos, direction);
 
                 m_HasFired = true;
             }
@@ -345,6 +329,40 @@ void Player::TryAttack()
     {
         GetScene()->UpdateEntityColliders(GetEntity());
     }
+}
+
+void Player::Shoot(glm::vec2 mousePos, glm::vec2 spawnPos, glm::vec2 direction)
+{
+    int multiShotLevel = 0;
+    int piercingLevel = 0;
+
+    if (HasComponent<PlayerUpgradesComponent>()) {
+        auto& upgrades = GetComponent<PlayerUpgradesComponent>();
+        multiShotLevel = upgrades.GetLevel(UpgradeType::MultiShot);
+        piercingLevel = upgrades.GetLevel(UpgradeType::Piercing);
+    }
+
+    int projectileCount = 1 + (multiShotLevel * 2); 
+
+    glm::vec2 perpDirection = { -direction.y, direction.x };
+    float spacing = 0.6f; 
+
+    for (int i = 0; i < projectileCount; i++)
+    {
+        float offsetIndex = i - (projectileCount / 2);
+
+        glm::vec2 finalSpawnPos = spawnPos + (perpDirection * (offsetIndex * spacing));
+
+        Entity bullet = EntityFactory::CreatePlayerProjectile(finalSpawnPos, direction);
+
+        if (bullet.HasComponent<ProjectileComponent>()) {
+            auto& pc = bullet.GetComponent<ProjectileComponent>();
+            pc.Penetration = piercingLevel; 
+        }
+    }
+
+    // So de dispar?
+    // Audio::Play("Shoot");
 }
 
 void Player::ApplyUpgradeEffect(UpgradeType type, int newLevel) {
