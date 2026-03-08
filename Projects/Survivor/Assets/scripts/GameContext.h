@@ -27,6 +27,7 @@ struct GameContext {
     ~GameContext() { s_Instance = nullptr; }
 
     static GameContext& Get() { return *s_Instance; }
+    static void Set(GameContext* context) { s_Instance = context; }
 
     // Global game state
     float TimeAlive = 0.0f; 

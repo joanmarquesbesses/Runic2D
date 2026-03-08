@@ -14,6 +14,7 @@
 
 //Includes del joc/projecte obert
 #include "../../Projects/Survivor/Assets/scripts/EntityFactory.h"
+#include "../../Projects/Survivor/Assets/scripts/GameContext.h"
 
 namespace Runic2D
 {
@@ -442,6 +443,10 @@ namespace Runic2D
 	void EditorLayer::OnScenePlay()
 	{
 		m_SceneState = SceneState::Play;
+
+		GameContext* playModeContext = new GameContext();
+		GameContext::Set(playModeContext);
+
 		m_ActiveScene = Scene::Copy(m_EditorScene);
 		m_ViewportPanel.SetPlayMode(true);
 		m_ActiveScene->OnRuntimeStart();
@@ -457,6 +462,12 @@ namespace Runic2D
 		m_ActiveScene->OnRuntimeStop();
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 		EntityFactory::Init(m_ActiveScene.get());
+
+		GameContext* ctx = &GameContext::Get();
+		if (ctx) {
+			delete ctx;
+			GameContext::Set(nullptr);
+		}
 	}
 
 	void EditorLayer::OnDuplicateEntity()
