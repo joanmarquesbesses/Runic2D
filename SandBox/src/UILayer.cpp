@@ -27,26 +27,14 @@ void UILayer::OnAttach()
 
     // Debug
 	// FPS Counter
-    m_TextFPS = m_ActiveScene->CreateEntity("FPSCounter");
-    auto& tc = m_TextFPS.GetComponent<TransformComponent>();
+    m_DebugInfo = m_ActiveScene->CreateEntity("DebugInfo");
+    auto& tc = m_DebugInfo.GetComponent<TransformComponent>();
     tc.SetTranslation({ -8.5f, 4.5f, 0.1f });
 	tc.SetScale({ 0.50f, 0.50f, 1.0f });
 
-    auto& txtFPS = m_TextFPS.AddComponent<TextComponent>();
-    txtFPS.TextString = "FPS: 0";
+    auto& txtFPS = m_DebugInfo.AddComponent<TextComponent>();
     txtFPS.Color = { 0.0f, 1.0f, 0.0f, 1.0f };
-	txtFPS.Visible = showDebug;
-
-	// VSync Indicator
-	m_TextVsync = m_ActiveScene->CreateEntity("VSyncIndicator");
-	auto& tcVsync = m_TextVsync.GetComponent<TransformComponent>();
-	tcVsync.SetTranslation({ -8.5f, 4.0f, 0.1f });
-	tcVsync.SetScale({ 0.50f, 0.50f, 1.0f });
-
-	auto& txtVsync = m_TextVsync.AddComponent<TextComponent>();
-	txtVsync.TextString = "VSync";
-	txtVsync.Color = { 0.0f, 1.0f, 0.0f, 1.0f };
-	txtVsync.Visible = showDebug;
+	txtFPS.Visible = false;
 
     auto& window = Application::Get().GetWindow();
     m_ActiveScene->OnViewportResize(window.GetWidth(), window.GetHeight());
@@ -70,20 +58,38 @@ void UILayer::OnUpdate(Runic2D::Timestep ts)
 
     if (m_ActiveScene)
     {
-        if (showDebug)
+        if (m_Context && m_Context->DebugStats.ShowStats)
         {
-			//FPS Counter
-            auto& fpsTxt = m_TextFPS.GetComponent<TextComponent>();
-            fpsTxt.TextString = "FPS: " + std::to_string((int)Application::Get().GetAverageFPS());
+            m_Context->DebugStats.UIEntities = m_ActiveScene->GetSizeOfAllEntities();
 
-			//Is VSync
-			auto& vsyncTxt = m_TextVsync.GetComponent<TextComponent>();
+            auto& debugInfo = m_DebugInfo.GetComponent<TextComponent>();
 			auto& window = Application::Get().GetWindow();
-			vsyncTxt.TextString = "VSync: " + std::string(window.IsVSync() ? "ON" : "OFF");
+
+            int totalEntities = m_Context->DebugStats.GameplayEntities + m_Context->DebugStats.UIEntities;
+
+            std::string debugString =
+                "FPS: " + std::to_string((int)Application::Get().GetAverageFPS()) + " | " +
+                "VSync: " + std::string(window.IsVSync() ? "ON" : "OFF") + "\n"
+                "Entities: " + std::to_string(totalEntities) + " (Gameplay Layer: " + std::to_string(m_Context->DebugStats.GameplayEntities) +
+                " | UI Layer: " + std::to_string(m_Context->DebugStats.UIEntities) + ")\n" +
+                "Enemies: " + std::to_string(m_Context->DebugStats.TotalEnemies) + "\n" +
+                "Bullets: " + std::to_string(m_Context->DebugStats.TotalProjectiles) + "\n" +
+                "Particles: " + std::to_string(m_Context->DebugStats.ActiveParticles) + "\n" +
+                "DrawCalls: " + std::to_string(m_Context->DebugStats.LastFrameDrawCalls) + "\n" +
+                "QuadsDrawn: " + std::to_string(m_Context->DebugStats.LastFrameQuads);
+
+            debugInfo.TextString = debugString;
         }
 
         m_ActiveScene->OnUpdateRunTime(ts);
+
+        if (m_Context && m_Context->DebugStats.ShowStats) {
+            m_Context->DebugStats.LastFrameDrawCalls = Renderer2D::GetStats().DrawCalls;
+            m_Context->DebugStats.LastFrameQuads = Renderer2D::GetStats().QuadCount;
+        }
     }
+
+    Renderer2D::ResetStats();
 
 }
 
@@ -114,16 +120,14 @@ bool UILayer::OnKeyPressed(KeyPressedEvent& e)
     switch(e.GetKeyCode()){
         case KeyCode::F1:
         {
-			// Toggle debug info
-            showDebug = !showDebug;
+            if (m_Context) {
+                // Toggle debug info
+                m_Context->DebugStats.ShowStats = !m_Context->DebugStats.ShowStats;
+                bool show = m_Context->DebugStats.ShowStats;
 
-            // fps
-            auto& txt = m_TextFPS.GetComponent<TextComponent>();
-            txt.Visible = showDebug;
-
-			// vsync
-			auto& txtVsync = m_TextVsync.GetComponent<TextComponent>();
-			txtVsync.Visible = showDebug;
+                auto& txt = m_DebugInfo.GetComponent<TextComponent>();
+                txt.Visible = show;
+            }
             return true;
         }
         case KeyCode::F2: 

@@ -19,7 +19,6 @@ public:
 private:
 	bool OnKeyPressed(Runic2D::KeyPressedEvent& e);
 	bool OnWindowResize(Runic2D::WindowResizeEvent& e);
-	void ShowFPSCounter();
 	void ShowColliderOverlay();
 private:
 	Runic2D::Ref<GameContext> m_Context;

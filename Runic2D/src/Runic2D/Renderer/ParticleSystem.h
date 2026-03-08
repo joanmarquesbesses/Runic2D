@@ -28,6 +28,8 @@ namespace Runic2D {
 
         void Emit(const ParticleProps& particleProps);
 
+        int GetActiveParticleCount() const;
+
     private:
         struct Particle
         {

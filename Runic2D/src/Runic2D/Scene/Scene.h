@@ -62,8 +62,21 @@ namespace Runic2D {
 
 		void UpdateAnimation(Timestep ts);
 
+		int GetActiveParticleCount() const { return m_ParticleSystem.GetActiveParticleCount(); }
+
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
+
+		int GetSizeOfAllEntities() const { 
+			int count = 0;
+
+			m_Registry.view<entt::entity>().each([&](auto entityID) {
+					count++;
+				}
+			);
+
+			return count;
+		}
 
 		template<typename... Components>
 		auto GetAllEntitiesWith()

@@ -1,6 +1,7 @@
 #include "Sandbox2D.h"
 
 #include "../../Projects/Survivor/Assets/scripts/EntityFactory.h"
+#include "../../Projects/Survivor/Assets/scripts/GameComponents.h"
 
 using namespace Runic2D;
 
@@ -88,6 +89,13 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
         }
         else {
             m_ActiveScene->OnRenderRuntime();
+        }
+
+        if (m_Context->DebugStats.ShowStats) {
+            m_Context->DebugStats.GameplayEntities = m_ActiveScene->GetSizeOfAllEntities();
+            m_Context->DebugStats.TotalEnemies = m_ActiveScene->GetAllEntitiesWith<EnemyStatsComponent>().size();
+            m_Context->DebugStats.TotalProjectiles = m_ActiveScene->GetAllEntitiesWith<ProjectileComponent>().size();
+            m_Context->DebugStats.ActiveParticles = m_ActiveScene->GetActiveParticleCount();
         }
 
         if (m_ShowPhysicsColliders)

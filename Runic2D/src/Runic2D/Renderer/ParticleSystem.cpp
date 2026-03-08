@@ -83,4 +83,15 @@ namespace Runic2D {
 		m_PoolIndex = --m_PoolIndex % m_ParticlePool.size();
 	}
 
+	int ParticleSystem::GetActiveParticleCount() const
+	{
+		int count = 0;
+		for (const auto& particle : m_ParticlePool)
+		{
+			if (particle.Active)
+				count++;
+		}
+		return count;
+	}
+
 }

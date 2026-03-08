@@ -3,6 +3,17 @@
 
 #include "UpgradeSystem.h"
 
+struct EngineDebugStats {
+    bool ShowStats = false;
+    int GameplayEntities = 0;
+    int UIEntities = 0;
+    int TotalEnemies = 0;
+    int TotalProjectiles = 0;
+    int ActiveParticles = 0;
+    int LastFrameDrawCalls = 0;
+    int LastFrameQuads = 0;
+};
+
 enum class GameState {
     Running,
     LevelUp,
@@ -33,8 +44,8 @@ struct GameContext {
 	// Event callbacks
     std::function<void(int)> OnLevelUp;
     std::function<void(UpgradeType)> OnUpgradeApplied;
-	std::function<void(float, float)> OnHealthChanged; // (currentHealth, maxHealth)
-	std::function<void(float, float)> OnXPChanged; // (currentXP, maxXP)
+	std::function<void(float, float)> OnHealthChanged; 
+	std::function<void(float, float)> OnXPChanged; 
 
     void TriggerLevelUp(int level) {
         State = GameState::LevelUp;
@@ -64,4 +75,7 @@ struct GameContext {
 
         if (OnXPChanged) OnXPChanged(CurrentXP, MaxXP);
 	}
+
+    //Debug
+    EngineDebugStats DebugStats;
 };

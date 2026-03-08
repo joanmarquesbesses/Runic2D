@@ -25,8 +25,6 @@ private:
 	Runic2D::Ref<Runic2D::Scene> m_ActiveScene;
 
 	//debug
-	Runic2D::Entity m_TextFPS;
-	Runic2D::Entity m_TextVsync;
-	bool showDebug = false;
+	Runic2D::Entity m_DebugInfo;
 };
 
