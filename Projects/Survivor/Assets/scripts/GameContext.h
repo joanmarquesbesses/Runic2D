@@ -12,6 +12,8 @@ struct EngineDebugStats {
     int ActiveParticles = 0;
     int LastFrameDrawCalls = 0;
     int LastFrameQuads = 0;
+    int LastVertextCount = 0;
+    int LastIndexCount = 0;
 };
 
 enum class GameState {

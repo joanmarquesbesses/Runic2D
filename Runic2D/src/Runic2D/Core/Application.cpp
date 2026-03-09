@@ -116,6 +116,7 @@ namespace Runic2D {
 
 			if (m_FrameTimeAccumulator >= 1.0f) { 
 				m_AverageFPS = m_FrameCount / m_FrameTimeAccumulator;
+				m_AverageFrameTimeMs = (m_FrameTimeAccumulator / m_FrameCount) * 1000.0f;
 				m_FrameTimeAccumulator = 0.0f; 
 				m_FrameCount = 0;              
 			}

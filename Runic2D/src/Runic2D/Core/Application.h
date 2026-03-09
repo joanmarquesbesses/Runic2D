@@ -33,6 +33,7 @@ namespace Runic2D
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 
 		float GetAverageFPS() const { return m_AverageFPS; }
+		float GetAverageFrameTimeMs() const { return m_AverageFrameTimeMs; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e)
 		{
@@ -51,6 +52,7 @@ namespace Runic2D
 		float m_FrameTimeAccumulator = 0.0f;
 		int m_FrameCount = 0;               
 		float m_AverageFPS = 0.0f;
+		float m_AverageFrameTimeMs = 0.0f;
 	private:
 		static Application* s_Instance;
 	};

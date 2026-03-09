@@ -67,8 +67,12 @@ void UILayer::OnUpdate(Runic2D::Timestep ts)
 
             int totalEntities = m_Context->DebugStats.GameplayEntities + m_Context->DebugStats.UIEntities;
 
+            std::string frameTimeStr = std::to_string(Application::Get().GetAverageFrameTimeMs());
+            frameTimeStr = frameTimeStr.substr(0, frameTimeStr.find(".") + 3);
+
             std::string debugString =
-                "FPS: " + std::to_string((int)Application::Get().GetAverageFPS()) + " | " +
+                "FPS: " + std::to_string((int)Application::Get().GetAverageFPS()) + 
+                " (" + frameTimeStr + " ms) |"
                 "VSync: " + std::string(window.IsVSync() ? "ON" : "OFF") + "\n"
                 "Entities: " + std::to_string(totalEntities) + " (Gameplay Layer: " + std::to_string(m_Context->DebugStats.GameplayEntities) +
                 " | UI Layer: " + std::to_string(m_Context->DebugStats.UIEntities) + ")\n" +
@@ -76,7 +80,9 @@ void UILayer::OnUpdate(Runic2D::Timestep ts)
                 "Bullets: " + std::to_string(m_Context->DebugStats.TotalProjectiles) + "\n" +
                 "Particles: " + std::to_string(m_Context->DebugStats.ActiveParticles) + "\n" +
                 "DrawCalls: " + std::to_string(m_Context->DebugStats.LastFrameDrawCalls) + "\n" +
-                "QuadsDrawn: " + std::to_string(m_Context->DebugStats.LastFrameQuads);
+                "QuadsDrawn: " + std::to_string(m_Context->DebugStats.LastFrameQuads) +
+                " (Vertices: " + std::to_string(m_Context->DebugStats.LastVertextCount) + " | " +
+                "Index: " + std::to_string(m_Context->DebugStats.LastIndexCount) + ")";
 
             debugInfo.TextString = debugString;
         }
@@ -86,6 +92,8 @@ void UILayer::OnUpdate(Runic2D::Timestep ts)
         if (m_Context && m_Context->DebugStats.ShowStats) {
             m_Context->DebugStats.LastFrameDrawCalls = Renderer2D::GetStats().DrawCalls;
             m_Context->DebugStats.LastFrameQuads = Renderer2D::GetStats().QuadCount;
+            m_Context->DebugStats.LastVertextCount = Renderer2D::GetStats().GetTotalVertexCount();
+            m_Context->DebugStats.LastIndexCount = Renderer2D::GetStats().GetTotalIndexCount();
         }
     }
 
