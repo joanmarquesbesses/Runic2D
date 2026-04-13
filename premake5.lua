@@ -48,7 +48,7 @@ group ""
 
 project "Runic2D"
 	location "Runic2D"
-	kind "StaticLib"
+	kind "SharedLib"
 	language "C++"
 	cppdialect "C++20"
 	staticruntime "on"
@@ -114,6 +114,12 @@ project "Runic2D"
 			"R2D_BUILD_DLL",
 			"GLFW_INCLUDE_NONE" -- Prevent GLFW from including OpenGL headers
 		}
+
+	postbuildcommands
+    {
+        ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Runic2D-Editor"),
+        ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/SandBox")
+    }
 
 	filter "configurations:Debug"
 		defines "R2D_DEBUG"
@@ -316,9 +322,13 @@ project (activeGame)
         "Projects/" .. activeGame .. "/Assets/scripts"
     }
 
-    links { "Runic2D" }
+    links { "Runic2D", "Box2D" }
 
     filter "system:windows"
         systemversion "latest"
 		buildoptions "/utf-8"
-        defines { "R2D_BUILD_DLL" } 
+
+	postbuildcommands
+    {
+        ("{COPY} ../../bin/" .. outputdir .. "/Runic2D/Runic2D.dll %{cfg.buildtarget.directory}")
+    }

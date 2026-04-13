@@ -4,7 +4,7 @@
 
 namespace Runic2D {
 
-	class RenderCommand
+	class RUNIC_API RenderCommand
 	{
 	public:
 		inline static void Init()

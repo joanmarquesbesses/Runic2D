@@ -16,7 +16,7 @@ namespace Runic2D {
 		std::filesystem::path ScriptModulePath; // Ignorar de moment
 	};
 
-	class Project
+	class RUNIC_API Project
 	{
 	public:
 		static const std::filesystem::path& GetAssetDirectory()
@@ -45,10 +45,14 @@ namespace Runic2D {
 		static Ref<Project> Load(const std::filesystem::path& path);
 		static bool SaveActive(const std::filesystem::path& path);
 
+		static bool LoadRuntimeLibrary();
+
 	private:
 		ProjectConfig m_Config;
 		std::filesystem::path m_ProjectDirectory;
 
 		inline static Ref<Project> s_ActiveProject;
+
+		inline static void* s_RuntimeLibraryHandle = nullptr; // void* per no incloure Windows.h aquí
 	};
 }

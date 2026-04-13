@@ -18,7 +18,7 @@ namespace Runic2D {
 		Ref<Texture2D> Texture = nullptr;
     };
 
-    class ParticleSystem
+    class RUNIC_API ParticleSystem
     {
     public:
         ParticleSystem(uint32_t maxParticles = 10000);

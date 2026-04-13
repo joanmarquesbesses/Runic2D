@@ -8,7 +8,7 @@ namespace Runic2D {
 
 namespace Runic2D::Utils {
 
-	class SceneUtils
+	class RUNIC_API SceneUtils
 	{
 	public:
 		static glm::vec2 GetMouseWorldPosition(Scene* scene);

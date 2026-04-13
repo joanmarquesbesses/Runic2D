@@ -14,7 +14,7 @@ namespace Runic2D {
 		msdf_atlas::FontGeometry FontGeometry;
 	};
 
-	class Font
+	class RUNIC_API Font
 	{
 	public:
 		Font(const std::filesystem::path& filepath);

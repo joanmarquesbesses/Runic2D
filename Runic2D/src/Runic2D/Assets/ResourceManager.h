@@ -10,7 +10,7 @@
 
 namespace Runic2D {
 
-	class ResourceManager
+	class RUNIC_API ResourceManager
 	{
 	public:
 

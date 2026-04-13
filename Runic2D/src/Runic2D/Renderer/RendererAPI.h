@@ -6,7 +6,7 @@
 
 namespace Runic2D {
 
-	class RendererAPI
+	class RUNIC_API RendererAPI
 	{
 	public:
 		enum class API

@@ -14,7 +14,7 @@ namespace Runic2D {
 
 	struct TransformComponent;
 
-	class Scene {
+	class RUNIC_API Scene {
 	public:
 		Scene();
 		~Scene();

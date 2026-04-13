@@ -494,6 +494,10 @@ namespace Runic2D
 	{
 		if (Project::Load(path))
 		{
+			if (Project::LoadRuntimeLibrary()) {
+				R2D_CORE_INFO("Project and DLL correctly loaded.");
+			}
+
 			auto startScenePath = Project::GetAssetFileSystemPath(Project::GetActive()->GetConfig().StartScene);
 			OpenScene(startScenePath);
 

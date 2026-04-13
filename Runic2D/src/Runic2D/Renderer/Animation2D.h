@@ -5,7 +5,7 @@
 
 namespace Runic2D {
 
-	class Animation2D
+	class RUNIC_API Animation2D
 	{
 	public:
 		Animation2D() = default;

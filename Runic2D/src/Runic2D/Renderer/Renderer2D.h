@@ -12,7 +12,7 @@
 
 namespace Runic2D {
 
-	class Renderer2D
+	class RUNIC_API Renderer2D
 	{
 	public:
 		static void Init();

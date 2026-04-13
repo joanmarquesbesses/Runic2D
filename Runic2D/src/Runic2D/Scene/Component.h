@@ -38,7 +38,7 @@ namespace Runic2D {
 		operator const std::string& () const { return Tag; }
 	};
 
-	struct TransformComponent {
+	struct RUNIC_API TransformComponent {
 		glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
@@ -108,7 +108,7 @@ namespace Runic2D {
 		CircleRendererComponent(const CircleRendererComponent&) = default;
 	};
 
-	struct CameraComponent {
+	struct RUNIC_API CameraComponent {
 		SceneCamera Camera;
 		bool Primary = true; //TODO: think about moving to scene
 		bool FixedAspectRatio = false;

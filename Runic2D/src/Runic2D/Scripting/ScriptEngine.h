@@ -6,7 +6,7 @@
 
 namespace Runic2D {
 
-	class ScriptEngine
+	class RUNIC_API ScriptEngine
 	{
 	public:
 		using ScriptBinderFn = std::function<void(std::string, Entity)>;

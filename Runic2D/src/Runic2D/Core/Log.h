@@ -8,7 +8,7 @@
 
 namespace Runic2D
 {
-	class Log
+	class RUNIC_API Log
 	{
 	public:
 

@@ -63,7 +63,14 @@ struct GameContext {
     void UpdateHealth(float currentHealth, float maxHealth) {
         PlayerHealth = currentHealth;
         PlayerMaxHealth = maxHealth;
-        if (OnHealthChanged) OnHealthChanged(currentHealth, maxHealth);
+
+        // Comprovem si el callback és vàlid abans de cridar-lo
+        if (OnHealthChanged != nullptr) {
+            OnHealthChanged(currentHealth, maxHealth);
+        }
+        else {
+            R2D_WARN("GameContext: OnHealthChanged no té cap subscripció activa!");
+        }
 	}
 
     void AddXP(float amount) {

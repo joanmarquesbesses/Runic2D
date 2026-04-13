@@ -54,7 +54,7 @@ namespace Runic2D
 		// e.g. Texture formats, depth buffer, etc.
 	};
 
-	class FrameBuffer
+	class RUNIC_API FrameBuffer
 	{
 	public:
 		virtual ~FrameBuffer() = default;

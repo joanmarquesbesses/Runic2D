@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Runic2D/Core/Core.h"
+
 #include <random>
 
 namespace Runic2D {
 
-	class Random
+	class RUNIC_API Random
 	{
 	public:
 		static void Init();

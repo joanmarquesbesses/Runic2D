@@ -24,7 +24,7 @@ namespace Runic2D
 		bool GenerateMips = true;
 	};
 
-	class Texture
+	class RUNIC_API Texture
 	{
 	public:
 		virtual ~Texture() = default;
@@ -45,7 +45,7 @@ namespace Runic2D
 		virtual bool operator==(const Texture& other) const = 0;
 	};
 
-	class Texture2D : public Texture
+	class RUNIC_API Texture2D : public Texture
 	{
 	public:
 		static Ref<Texture2D> Create(const TextureSpecification& specification);

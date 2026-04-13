@@ -4,7 +4,7 @@
 
 namespace Runic2D
 {
-	class Entity
+	class RUNIC_API Entity
 	{
 		public:
 		Entity() = default;

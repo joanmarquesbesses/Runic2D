@@ -4,7 +4,7 @@
 
 namespace Runic2D {
 	
-	class FileDialogs {
+	class RUNIC_API FileDialogs {
 	public:
 		// Returns empty string if cancelled
 		static std::string OpenFile(const char* filter);

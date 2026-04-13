@@ -4,7 +4,7 @@
 
 namespace Runic2D
 {
-	class SceneSerializer
+	class RUNIC_API SceneSerializer
 	{
 	public:
 		SceneSerializer(const Ref<Scene>& scene);

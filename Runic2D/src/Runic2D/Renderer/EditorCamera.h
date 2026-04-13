@@ -9,7 +9,7 @@
 
 namespace Runic2D {
 
-	class EditorCamera : public Camera
+	class RUNIC_API EditorCamera : public Camera
 	{
 	public:
 		enum class ProjectionType { Perspective = 0, Orthographic = 1 };
