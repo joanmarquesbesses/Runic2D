@@ -1,7 +1,7 @@
 #include "Sandbox2D.h"
 
-#include "../../Projects/Survivor/Assets/scripts/EntityFactory.h"
-#include "../../Projects/Survivor/Assets/scripts/GameComponents.h"
+//#include "../../Projects/Survivor/Assets/scripts/EntityFactory.h"
+//#include "../../Projects/Survivor/Assets/scripts/GameComponents.h"
 
 using namespace Runic2D;
 
@@ -45,7 +45,7 @@ void Sandbox2D::OnAttach()
         }
 
         m_ActiveScene->OnRuntimeStart();
-        EntityFactory::Init(m_ActiveScene.get());
+        //EntityFactory::Init(m_ActiveScene.get());
 
         auto& window = Application::Get().GetWindow();
         m_ActiveScene->OnViewportResize(window.GetWidth(), window.GetHeight());
@@ -93,8 +93,8 @@ void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
 
         if (m_Context->DebugStats.ShowStats) {
             m_Context->DebugStats.GameplayEntities = m_ActiveScene->GetSizeOfAllEntities();
-            m_Context->DebugStats.TotalEnemies = m_ActiveScene->GetAllEntitiesWith<EnemyStatsComponent>().size();
-            m_Context->DebugStats.TotalProjectiles = m_ActiveScene->GetAllEntitiesWith<ProjectileComponent>().size();
+            //m_Context->DebugStats.TotalEnemies = m_ActiveScene->GetAllEntitiesWith<EnemyStatsComponent>().size();
+            //m_Context->DebugStats.TotalProjectiles = m_ActiveScene->GetAllEntitiesWith<ProjectileComponent>().size();
             m_Context->DebugStats.ActiveParticles = m_ActiveScene->GetActiveParticleCount();
         }
 

@@ -161,9 +161,7 @@ project "SandBox"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp",
-		gameSourcePath .. "/**.h",
-        gameSourcePath .. "/**.cpp"
+		"%{prj.name}/src/**.cpp"
 	}
 
 	includedirs
@@ -175,8 +173,7 @@ project "SandBox"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.msdf_atlas_gen}",
-		"Runic2D/vendor/msdf-atlas-gen/msdfgen",
-		gameSourcePath
+		"Runic2D/vendor/msdf-atlas-gen/msdfgen"
 	}
 
 	links
@@ -229,16 +226,8 @@ project "Runic2D-Editor"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp",
-		gameSourcePath .. "/**.h",
-        gameSourcePath .. "/**.cpp"
+		"%{prj.name}/src/**.cpp"
 	}
-
-	vpaths 
-    {
-        ["src/*"] = "%{prj.name}/src/**",
-        ["Game Scripts"] = { gameSourcePath .. "/**.h", gameSourcePath .. "/**.cpp" }
-    }
 
 	defines
 	{
@@ -254,7 +243,6 @@ project "Runic2D-Editor"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Box2D}",
-		gameSourcePath,
 		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.msdfgen}"
 	}
@@ -291,3 +279,46 @@ project "Runic2D-Editor"
 	filter { "configurations:Dist", "system:windows" }
 		buildoptions "/utf-8"
         entrypoint "mainCRTStartup"
+
+
+project (activeGame)
+    location ("Projects/" .. activeGame)
+    kind "SharedLib" 
+    language "C++"
+    cppdialect "C++20"
+    staticruntime "on"
+
+    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+    files {
+        "Projects/" .. activeGame .. "/Assets/scripts/**.h",
+        "Projects/" .. activeGame .. "/Assets/scripts/**.cpp"
+    }
+
+	defines
+    {
+        "MSDFGEN_PUBLIC=",
+        "YAML_CPP_STATIC_DEFINE"
+    }
+
+    includedirs {
+        "Runic2D/src",
+        "Runic2D/vendor",
+		"Runic2D/vendor/spdlog/include",
+        "%{IncludeDir.glm}",
+        "%{IncludeDir.entt}",
+        "%{IncludeDir.Box2D}",
+		"%{IncludeDir.msdf_atlas_gen}",
+		"%{IncludeDir.msdfgen}",
+        "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdfgen/include",
+        "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdfgen/core",
+        "Projects/" .. activeGame .. "/Assets/scripts"
+    }
+
+    links { "Runic2D" }
+
+    filter "system:windows"
+        systemversion "latest"
+		buildoptions "/utf-8"
+        defines { "R2D_BUILD_DLL" } 

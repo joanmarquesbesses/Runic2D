@@ -1,8 +1,6 @@
 #include <Runic2D.h>
 #include <Runic2D/Core/EntryPoint.h>
 
-#include "../../Projects/Survivor/Assets/scripts/ScriptRegistry.h"
-
 #include "EditorLayer.h"
 
 namespace Runic2D
@@ -14,9 +12,6 @@ namespace Runic2D
 			: Application("Runic2D Editor")
 		{
 			// Constructor for SandboxApp, can be used to initialize the application.
-			//PushLayer(new ExampleLayer()); // Adding an instance of ExampleLayer to the application.
-			ScriptEngine::SetScriptBinder(ScriptRegistry::BindScript);
-			ScriptEngine::SetScriptNamesGetter(ScriptRegistry::GetScriptNames);
 			PushLayer(new EditorLayer());
 		}
 

@@ -79,7 +79,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>MSDFGEN_PUBLIC=;R2D_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\Box2D\include;..\Runic2D\vendor\msdf-atlas-gen\msdf-atlas-gen;..\Runic2D\vendor\msdf-atlas-gen\msdfgen;..\Projects\Survivor\Assets\scripts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\Box2D\include;..\Runic2D\vendor\msdf-atlas-gen\msdf-atlas-gen;..\Runic2D\vendor\msdf-atlas-gen\msdfgen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -99,7 +99,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>MSDFGEN_PUBLIC=;R2D_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\Box2D\include;..\Runic2D\vendor\msdf-atlas-gen\msdf-atlas-gen;..\Runic2D\vendor\msdf-atlas-gen\msdfgen;..\Projects\Survivor\Assets\scripts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\Box2D\include;..\Runic2D\vendor\msdf-atlas-gen\msdf-atlas-gen;..\Runic2D\vendor\msdf-atlas-gen\msdfgen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -122,7 +122,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>MSDFGEN_PUBLIC=;R2D_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\Box2D\include;..\Runic2D\vendor\msdf-atlas-gen\msdf-atlas-gen;..\Runic2D\vendor\msdf-atlas-gen\msdfgen;..\Projects\Survivor\Assets\scripts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Runic2D\vendor\spdlog\include;..\Runic2D\src;..\Runic2D\vendor;..\Runic2D\vendor\glm;..\Runic2D\vendor\entt\include;..\Runic2D\vendor\Box2D\include;..\Runic2D\vendor\msdf-atlas-gen\msdf-atlas-gen;..\Runic2D\vendor\msdf-atlas-gen\msdfgen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -142,34 +142,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\CameraController.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\Enemy.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\EntityFactory.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\ExperienceOrb.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\FloatingText.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameComponents.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameContext.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\GameManager.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\HUDManager.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\OrbitalManager.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\OrbitalProjectile.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\Player.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\Projectile.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\ScriptRegistry.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\TimerScript.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\UpgradeCard.h" />
-    <ClInclude Include="..\Projects\Survivor\Assets\scripts\UpgradeSystem.h" />
     <ClInclude Include="src\Sandbox2D.h" />
     <ClInclude Include="src\UILayer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Projects\Survivor\Assets\scripts\CameraController.cpp" />
-    <ClCompile Include="..\Projects\Survivor\Assets\scripts\EntityFactory.cpp" />
-    <ClCompile Include="..\Projects\Survivor\Assets\scripts\GameContext.cpp" />
-    <ClCompile Include="..\Projects\Survivor\Assets\scripts\GameManager.cpp" />
-    <ClCompile Include="..\Projects\Survivor\Assets\scripts\Player.cpp" />
-    <ClCompile Include="..\Projects\Survivor\Assets\scripts\Projectile.cpp" />
-    <ClCompile Include="..\Projects\Survivor\Assets\scripts\UpgradeSystem.cpp" />
     <ClCompile Include="src\Sandbox2D.cpp" />
     <ClCompile Include="src\SandboxApp.cpp" />
     <ClCompile Include="src\UILayer.cpp" />

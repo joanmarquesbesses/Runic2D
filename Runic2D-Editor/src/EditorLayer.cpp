@@ -12,10 +12,6 @@
 
 #include "ImGuizmo.h"
 
-//Includes del joc/projecte obert
-#include "../../Projects/Survivor/Assets/scripts/EntityFactory.h"
-#include "../../Projects/Survivor/Assets/scripts/GameContext.h"
-
 namespace Runic2D
 {
 
@@ -74,7 +70,7 @@ namespace Runic2D
 	void EditorLayer::OnDetach()
 	{
 		R2D_PROFILE_FUNCTION();
-		EntityFactory::Shutdown();
+		//EntityFactory::Shutdown();
 		m_EditorScene = nullptr;
 		m_ActiveScene = nullptr;
 	}
@@ -385,7 +381,7 @@ namespace Runic2D
 			return;
 		}
 
-		EntityFactory::Shutdown();
+		//EntityFactory::Shutdown();
 
 		m_EditorScene = nullptr;
 		m_ActiveScene = nullptr;
@@ -410,7 +406,7 @@ namespace Runic2D
 			m_ActiveScene = m_EditorScene;
 			m_EditorScenePath = path;
 
-			EntityFactory::Init(m_ActiveScene.get());
+			//EntityFactory::Init(m_ActiveScene.get());
 
 			m_SceneHierarchyPanel.SetContext(m_EditorScene);
 		}
@@ -444,14 +440,14 @@ namespace Runic2D
 	{
 		m_SceneState = SceneState::Play;
 
-		GameContext* playModeContext = new GameContext();
-		GameContext::Set(playModeContext);
+		//GameContext* playModeContext = new GameContext();
+		//GameContext::Set(playModeContext);
 
 		m_ActiveScene = Scene::Copy(m_EditorScene);
 		m_ViewportPanel.SetPlayMode(true);
 		m_ActiveScene->OnRuntimeStart();
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-		EntityFactory::Init(m_ActiveScene.get());
+		//EntityFactory::Init(m_ActiveScene.get());
 	}
 
 	void EditorLayer::OnSceneStop()
@@ -461,13 +457,13 @@ namespace Runic2D
 		m_ActiveScene = m_EditorScene;
 		m_ActiveScene->OnRuntimeStop();
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-		EntityFactory::Init(m_ActiveScene.get());
+		//EntityFactory::Init(m_ActiveScene.get());
 
-		GameContext* ctx = &GameContext::Get();
-		if (ctx) {
-			delete ctx;
-			GameContext::Set(nullptr);
-		}
+		//GameContext* ctx = &GameContext::Get();
+		//if (ctx) {
+			//delete ctx;
+			//GameContext::Set(nullptr);
+		//}
 	}
 
 	void EditorLayer::OnDuplicateEntity()

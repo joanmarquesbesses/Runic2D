@@ -4,6 +4,16 @@
 
 #include "Runic2D/Core/PlatformDetection.h"
 
+#ifdef R2D_PLATFORM_WINDOWS
+	#ifdef R2D_BUILD_DLL
+		#define RUNIC_API __declspec(dllexport)
+	#else
+		#define RUNIC_API __declspec(dllimport)
+	#endif
+#else
+	#define RUNIC_API
+#endif
+
 #ifdef R2D_DEBUG
 	#if defined(R2D_PLATFORM_WINDOWS)
 		#define R2D_DEBUGBREAK() __debugbreak()
