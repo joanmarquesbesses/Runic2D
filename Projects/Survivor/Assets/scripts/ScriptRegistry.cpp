@@ -3,13 +3,19 @@
 #include "Runic2D/Core/Core.h"
 
 extern "C" {
-    __declspec(dllexport) void InitRuntimeModule(GameContext* sharedContext) {
-        // Configurem el Singleton de la DLL amb el punter de l'Editor
-        GameContext::Set(sharedContext);
+    __declspec(dllexport) void InitRuntimeModule() {
+        UpgradeDatabase::Init();
 
-        Runic2D::ScriptEngine::SetScriptBinder(ScriptRegistry::BindScript);
-        Runic2D::ScriptEngine::SetScriptNamesGetter(ScriptRegistry::GetScriptNames);
+        ScriptEngine::SetScriptBinder(ScriptRegistry::BindScript);
+        ScriptEngine::SetScriptNamesGetter(ScriptRegistry::GetScriptNames);
 
-        R2D_CORE_INFO("Survivor DLL: Context shared and scripts registered!");
+        R2D_CORE_INFO("Survivor DLL: Inicialitzada i dades carregades.");
+    }
+}
+
+extern "C" {
+    __declspec(dllexport) void ShutdownRuntimeModule() {
+        UpgradeDatabase::Shutdown();
+        R2D_CORE_INFO("Survivor DLL: Shutdown correcte!");
     }
 }

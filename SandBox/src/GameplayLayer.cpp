@@ -1,29 +1,33 @@
-#include "Sandbox2D.h"
-
-//#include "../../Projects/Survivor/Assets/scripts/EntityFactory.h"
-//#include "../../Projects/Survivor/Assets/scripts/GameComponents.h"
+#include "GameplayLayer.h"
 
 using namespace Runic2D;
 
-Sandbox2D::Sandbox2D(Runic2D::Ref<GameContext> context) : Layer("Sandbox2D"), m_Context(context) {
-
+GameplayLayer::GameplayLayer(Ref<Scene> scene)
+    : Layer("Sandbox2D"), m_ActiveScene(scene) 
+{
 }
 
-void Sandbox2D::OnAttach()
+void GameplayLayer::OnAttach()
 {
 	R2D_PROFILE_FUNCTION();
-
-    m_ActiveScene = CreateRef<Scene>();
 
     std::string projectPath = "Projects/Survivor/Survivor.r2dproj";
 
     if (Project::Load(projectPath))
     {
 		R2D_INFO("Sandbox2D: Project carregat correctament des de {0}", projectPath);
+        if (Project::LoadRuntimeLibrary())
+        {
+            R2D_INFO("GameplayLayer: DLL del joc carregada i inicialitzada.");
+        }
+        else
+        {
+            R2D_ERROR("GameplayLayer: Error carregant la DLL!");
+            return;
+        }
     }
     else
     {
-        // Si falles aquí, tot petarà després, millor avisar
         R2D_ERROR("Sandbox2D: No s'ha pogut carregar el projecte a {0}", projectPath);
     }
 
@@ -45,22 +49,9 @@ void Sandbox2D::OnAttach()
         }
 
         m_ActiveScene->OnRuntimeStart();
-        //EntityFactory::Init(m_ActiveScene.get());
 
         auto& window = Application::Get().GetWindow();
         m_ActiveScene->OnViewportResize(window.GetWidth(), window.GetHeight());
-      
-        m_TextFPS = m_ActiveScene->CreateEntity("Text FPS");
-        auto& tc = m_TextFPS.GetComponent<TransformComponent>();
-        tc.Translation = { -8.0f, 4.0f, 10.0f };
-        tc.Scale = { 1.0f, 1.0f, 1.0f };
-
-        auto& textComp = m_TextFPS.AddComponent<TextComponent>();
-        textComp.TextString = "FPS: 0";
-        textComp.Color = { 0.0f, 1.0f, 0.0f, 1.0f }; 
-        textComp.Kerning = 0.0f;
-        textComp.LineSpacing = 0.0f;
-		textComp.Visible = showFPS;
     }
     else
     {
@@ -68,7 +59,7 @@ void Sandbox2D::OnAttach()
     }
 }
 
-void Sandbox2D::OnDetach()
+void GameplayLayer::OnDetach()
 {
 	R2D_PROFILE_FUNCTION();
 
@@ -76,48 +67,35 @@ void Sandbox2D::OnDetach()
         m_ActiveScene->OnRuntimeStop();
 }
 
-void Sandbox2D::OnUpdate(Runic2D::Timestep ts)
+void GameplayLayer::OnUpdate(Runic2D::Timestep ts)
 {
-	R2D_PROFILE_FUNCTION();
+    R2D_PROFILE_FUNCTION();
 
     RenderCommand::SetClearColor({ 0.2f, 0.2f, 0.2f, 1 });
     RenderCommand::Clear();
 
-    if (m_Context && m_ActiveScene) {
-        if (m_Context->State == GameState::Running) {
-            m_ActiveScene->OnUpdateRunTime(ts);     
-        }
-        else {
-            m_ActiveScene->OnRenderRuntime();
-        }
-
-        if (m_Context->DebugStats.ShowStats) {
-            m_Context->DebugStats.GameplayEntities = m_ActiveScene->GetSizeOfAllEntities();
-            //m_Context->DebugStats.TotalEnemies = m_ActiveScene->GetAllEntitiesWith<EnemyStatsComponent>().size();
-            //m_Context->DebugStats.TotalProjectiles = m_ActiveScene->GetAllEntitiesWith<ProjectileComponent>().size();
-            m_Context->DebugStats.ActiveParticles = m_ActiveScene->GetActiveParticleCount();
-        }
+    if (m_ActiveScene) {
+        m_ActiveScene->OnUpdateRunTime(ts); // Això mourà els scripts de la DLL!
+        m_ActiveScene->OnRenderRuntime();
 
         if (m_ShowPhysicsColliders)
-        {
             ShowColliderOverlay();
-        }
-    }   
+    }
 }
 
-void Sandbox2D::OnImGuiRender()
+void GameplayLayer::OnImGuiRender()
 {
 	R2D_PROFILE_FUNCTION();
 }
 
-void Sandbox2D::OnEvent(Runic2D::Event& e)
+void GameplayLayer::OnEvent(Runic2D::Event& e)
 {
     EventDispatcher dispatcher(e);
-    dispatcher.Dispatch<WindowResizeEvent>(R2D_BIND_EVENT_FN(Sandbox2D::OnWindowResize));
-    dispatcher.Dispatch<KeyPressedEvent>(R2D_BIND_EVENT_FN(Sandbox2D::OnKeyPressed));
+    dispatcher.Dispatch<WindowResizeEvent>(R2D_BIND_EVENT_FN(GameplayLayer::OnWindowResize));
+    dispatcher.Dispatch<KeyPressedEvent>(R2D_BIND_EVENT_FN(GameplayLayer::OnKeyPressed));
 }
 
-bool Sandbox2D::OnWindowResize(WindowResizeEvent& e)
+bool GameplayLayer::OnWindowResize(WindowResizeEvent& e)
 {
     if (m_ActiveScene)
     {
@@ -126,7 +104,7 @@ bool Sandbox2D::OnWindowResize(WindowResizeEvent& e)
     return false;
 }
 
-bool Sandbox2D::OnKeyPressed(KeyPressedEvent& e)
+bool GameplayLayer::OnKeyPressed(KeyPressedEvent& e)
 {
     switch(e.GetKeyCode()){
         case KeyCode::F3:
@@ -139,7 +117,7 @@ bool Sandbox2D::OnKeyPressed(KeyPressedEvent& e)
     return false;
 }
 
-void Sandbox2D::ShowColliderOverlay()
+void GameplayLayer::ShowColliderOverlay()
 {
     glm::mat4 viewProj;
 

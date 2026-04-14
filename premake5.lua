@@ -51,7 +51,7 @@ project "Runic2D"
 	kind "SharedLib"
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -73,7 +73,8 @@ project "Runic2D"
 	{
 		"_CRT_SECURE_NO_WARNINGS",
 		"YAML_CPP_STATIC_DEFINE",
-		"MSDFGEN_PUBLIC="
+		"MSDFGEN_PUBLIC=",
+		"B2_USE_DEFAULT_ALLOCATOR"
 	}
 
 	includedirs
@@ -152,7 +153,7 @@ project "SandBox"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "on"
+	staticruntime "off"
 
 	debugdir "%{wks.location}"
 
@@ -222,7 +223,7 @@ project "Runic2D-Editor"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "on"
+	staticruntime "off"
 
 	debugdir "%{wks.location}"
 
@@ -292,7 +293,7 @@ project (activeGame)
     kind "SharedLib" 
     language "C++"
     cppdialect "C++20"
-    staticruntime "on"
+    staticruntime "off"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -305,7 +306,8 @@ project (activeGame)
 	defines
     {
         "MSDFGEN_PUBLIC=",
-        "YAML_CPP_STATIC_DEFINE"
+        "YAML_CPP_STATIC_DEFINE",
+		"B2_USE_DEFAULT_ALLOCATOR"
     }
 
     includedirs {
@@ -327,6 +329,21 @@ project (activeGame)
     filter "system:windows"
         systemversion "latest"
 		buildoptions "/utf-8"
+
+	filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
+        defines { "R2D_DEBUG", "B2_USE_DEFAULT_ALLOCATOR" }
+
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "on"
+        defines { "R2D_RELEASE", "B2_USE_DEFAULT_ALLOCATOR" }
+
+    filter "configurations:Dist"
+        runtime "Release"
+        optimize "on"
+        defines { "R2D_DIST", "B2_USE_DEFAULT_ALLOCATOR" }
 
 	postbuildcommands
     {

@@ -18,7 +18,7 @@ private:
 	void HandleMovement(Runic2D::Timestep ts);
 	void HandleAnimation();
 	void PlayAnimation(const std::string& name);
-	bool IsMoving() const;
+	bool IsMoving();
 	bool CanChangeDirection() const;
 	void TryAttack();
 	void Shoot(glm::vec2 mousePos, glm::vec2 spawnPos, glm::vec2 direction);

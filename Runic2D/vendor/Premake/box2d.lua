@@ -3,7 +3,7 @@ project "Box2D"
     kind "StaticLib"
     language "C" 
     cdialect "C17"  
-    staticruntime "on"
+    staticruntime "off"
 
 	targetdir ("%{prj.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{prj.location}/bin-int/" .. outputdir .. "/%{prj.name}")
@@ -20,6 +20,11 @@ project "Box2D"
         "%{prj.location}/include",
         "%{prj.location}/src"
     }
+
+    defines
+	{
+		"B2_USE_DEFAULT_ALLOCATOR"
+	}
 
     filter "system:windows"
         systemversion "latest"

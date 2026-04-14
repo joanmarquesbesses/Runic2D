@@ -2,12 +2,10 @@
 
 #include <Runic2D.h>
 
-#include "../../Projects/Survivor/Assets/scripts/GameContext.h"
-
 class UILayer : public Runic2D::Layer
 {
 public:
-	UILayer(Runic2D::Ref<GameContext> context);
+	UILayer(Runic2D::Ref<Runic2D::Scene> context);
 	virtual ~UILayer() = default;
 
 	virtual void OnAttach() override;
@@ -21,7 +19,6 @@ private:
 	bool OnWindowResize(Runic2D::WindowResizeEvent& e);
 	bool OnMouseButtonPressed(Runic2D::MouseButtonPressedEvent& e);
 private:
-	Runic2D::Ref<GameContext> m_Context;
 	Runic2D::Ref<Runic2D::Scene> m_ActiveScene;
 
 	//debug

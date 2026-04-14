@@ -1,30 +1,34 @@
 #pragma once
 
 #include "Runic2D.h"
-#include "GameContext.h"
 #include "EntityFactory.h"
+#include "UpgradeSystem.h"
+#include "GameComponents.h"
 
 using namespace Runic2D;
 
 class GameManager : public ScriptableEntity {
 public:
     void OnCreate() override {
-        auto& ctx = GameContext::Get();
-        ctx.CurrentLevel = 1;
-        ctx.CurrentXP = 0.0f;
-        ctx.MaxXP = 100.0f;
-        ctx.State = GameState::Running;
-		ctx.TimeAlive = 0.0f;
 
-        ctx.OnUpgradeApplied = [this](UpgradeType type) {
-            ApplyUpgradeToPlayer(type);
+        auto& stats = GetEntity().AddComponent<GameStatsComponent>();
+        stats.State = GameState::Running;
+        stats.TimeAlive = 0.0f;
+
+        stats.OnUpgradeApplied = [this](UpgradeType type) 
+            {
+                ApplyUpgradeToPlayer(type);
             };
+
+        R2D_INFO("GameManager: Inicialitzat mitjançant GameStatsComponent");
     }
 
     virtual void OnUpdate(Timestep ts) override;
 
     void OnDestroy() override {
-        GameContext::Get().OnUpgradeApplied = nullptr;
+        if (HasComponent<GameStatsComponent>()) {
+            GetComponent<GameStatsComponent>().OnUpgradeApplied = nullptr;
+        }
     }
 
 private:

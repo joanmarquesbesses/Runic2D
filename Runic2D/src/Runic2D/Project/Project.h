@@ -46,6 +46,7 @@ namespace Runic2D {
 		static bool SaveActive(const std::filesystem::path& path);
 
 		static bool LoadRuntimeLibrary();
+		static void UnloadRuntimeLibrary();
 
 	private:
 		ProjectConfig m_Config;

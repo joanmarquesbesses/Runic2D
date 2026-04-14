@@ -69,11 +69,24 @@ namespace Runic2D {
 		InitFn initModule = (InitFn)GetProcAddress(hLib, "InitRuntimeModule");
 
 		if (initModule) {
-			initModule(&GameContext::Get()); // Això crida al teu ScriptRegistry::BindScript
+			initModule(); // Això crida al teu ScriptRegistry::BindScript
 			return true;
 		}
 
 		R2D_CORE_ERROR("Project: The DLL doesn't have InitRuntimeModule function!");
 		return false;
+	}
+
+	void Project::UnloadRuntimeLibrary()
+	{
+		if (s_RuntimeLibraryHandle) {
+			typedef void (*ShutdownFn)();
+			ShutdownFn shutdownModule = (ShutdownFn)GetProcAddress((HMODULE)s_RuntimeLibraryHandle, "ShutdownRuntimeModule");
+			if (shutdownModule) {
+				shutdownModule(); // Això crida al teu ScriptRegistry::ShutdownRuntimeModule
+			}
+			FreeLibrary((HMODULE)s_RuntimeLibraryHandle);
+			s_RuntimeLibraryHandle = nullptr;
+		}
 	}
 }

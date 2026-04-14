@@ -49,17 +49,6 @@ struct PlayerStatsComponent {
 	void TakeDamage(float amount) {
 		Health -= amount;
 		if (Health < 0) Health = 0;
-		GameContext::Get().UpdateHealth(Health, MaxHealth);
-	}
-
-	void Heal(float amount) {
-		Health += amount;
-		if (Health > MaxHealth) Health = MaxHealth;
-		GameContext::Get().UpdateHealth(Health, MaxHealth);
-	}
-
-	void SyncToContext() {
-		GameContext::Get().UpdateHealth(Health, MaxHealth);
 	}
 };
 
@@ -81,5 +70,38 @@ struct PlayerUpgradesComponent {
 
 	void AddLevel(UpgradeType type) {
 		Levels[type]++;
+	}
+};
+
+struct GameStatsComponent {
+	float TimeAlive = 0.0f;
+	GameState State = GameState::Running;
+
+	// Progression data
+	int CurrentLevel = 1;
+	float CurrentXP = 0.0f;
+	float MaxXP = 100.0f;
+
+	// Stats que la UI necessita consultar sovint
+	float PlayerHealth = 100.0f;
+	float PlayerMaxHealth = 100.0f;
+
+	// Callbacks (ara dins del component)
+	std::function<void(int)> OnLevelUp;
+	std::function<void(float, float)> OnHealthChanged;
+	std::function<void(float, float)> OnXPChanged;
+	std::function<void(UpgradeType)> OnUpgradeApplied;
+
+	// Mètodes d'ajuda (helper functions)
+	void AddXP(float amount) {
+		CurrentXP += amount;
+		if (CurrentXP >= MaxXP) {
+			CurrentXP -= MaxXP;
+			CurrentLevel++;
+			MaxXP *= 1.2f;
+			State = GameState::LevelUp;
+			if (OnLevelUp) OnLevelUp(CurrentLevel);
+		}
+		if (OnXPChanged) OnXPChanged(CurrentXP, MaxXP);
 	}
 };

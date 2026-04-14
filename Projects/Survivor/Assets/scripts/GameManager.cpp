@@ -4,15 +4,17 @@
 
 void GameManager::OnUpdate(Timestep ts) {
 
+    auto& stats = GetComponent<GameStatsComponent>();
+
     if (Input::IsKeyPressed(KeyCode::L)) {
-        if (GameContext::Get().State == GameState::Running) {
-			GameContext::Get().AddXP(GameContext::Get().MaxXP);
+        if (stats.State == GameState::Running) {
+            stats.AddXP(stats.MaxXP);
         }
     }
 
-    if (GameContext::Get().State != GameState::Running) return;
+    if (stats.State != GameState::Running) return;
 
-	GameContext::Get().TimeAlive += ts;
+    stats.TimeAlive += ts;
 
     m_SpawnTimer -= ts;
     if (Input::IsKeyPressed(KeyCode::B) && m_SpawnTimer <= 0.0f) {
@@ -22,8 +24,7 @@ void GameManager::OnUpdate(Timestep ts) {
 
     if (Input::IsKeyPressed(KeyCode::R)) {
         auto view = GetScene()->GetAllEntitiesWith<ExperienceComponent>();
-        for (auto e : view)
-        {
+        for (auto e : view) {
             auto& xp = view.get<ExperienceComponent>(e);
             xp.Magnetized = true;
         }
@@ -97,5 +98,7 @@ void GameManager::ApplyUpgradeToPlayer(UpgradeType type) {
         if (playerScript) {
             playerScript->ApplyUpgradeEffect(type, newLevel);
         }
+
+        GetComponent<GameStatsComponent>().State = GameState::Running;
     }
 }

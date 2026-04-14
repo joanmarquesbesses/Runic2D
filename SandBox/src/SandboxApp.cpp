@@ -1,25 +1,32 @@
 #include <Runic2D.h>
 #include <Runic2D/Core/EntryPoint.h>
 
-#include "Sandbox2D.h"
+#include "GameplayLayer.h"
 #include "UILayer.h"
 
 class SandboxApp : public Runic2D::Application
 {
 public:
-	SandboxApp()
-	{
-		//PushLayer(new Sandbox2D(m_GameContext));
-		//PushOverlay(new UILayer(m_GameContext));
-	}
+    SandboxApp()
+    {
+        if (Runic2D::Project::Load("Projects/Survivor/Survivor.r2dproj")) {
+            Runic2D::Project::LoadRuntimeLibrary();
+        }
 
-	virtual ~SandboxApp()
-	{
-		// Destructor for SandboxApp, can be used for cleanup.
-	}
+        m_ActiveScene = Runic2D::CreateRef<Runic2D::Scene>();
+
+        PushLayer(new GameplayLayer(m_ActiveScene));
+        // PushOverlay(new UILayer(m_ActiveScene));
+    }
+
+    virtual ~SandboxApp()
+    {
+        // 3. Quan l'App mor, descarreguem la DLL
+        Runic2D::Project::UnloadRuntimeLibrary();
+    }
 
 private:
-	std::shared_ptr<GameContext> m_GameContext;
+	Runic2D::Ref<Runic2D::Scene> m_ActiveScene;
 };
 
 Runic2D::Application* Runic2D::CreateApplication()

@@ -2,13 +2,11 @@
 
 #include <Runic2D.h>
 
-#include "../../Projects/Survivor/Assets/scripts/GameContext.h"
-
-class Sandbox2D : public Runic2D::Layer
+class GameplayLayer : public Runic2D::Layer
 {
 public:
-	Sandbox2D(Runic2D::Ref<GameContext> context);
-	virtual ~Sandbox2D() = default;
+	GameplayLayer(Runic2D::Ref<Runic2D::Scene> scene);
+	virtual ~GameplayLayer() = default;
 
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
@@ -21,10 +19,7 @@ private:
 	bool OnWindowResize(Runic2D::WindowResizeEvent& e);
 	void ShowColliderOverlay();
 private:
-	Runic2D::Ref<GameContext> m_Context;
 	Runic2D::Ref<Runic2D::Scene> m_ActiveScene;
-	Runic2D::Entity m_TextFPS;
-	bool showFPS = false;
 	bool m_ShowPhysicsColliders = false;
 };
 

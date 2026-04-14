@@ -41,8 +41,6 @@ void Player::OnCreate()
         cc.Radius = cc.Radius * 2;
     }
 
-	GetEntity().AddComponent<PlayerStatsComponent>().SyncToContext();
-
     if (!HasComponent<PlayerUpgradesComponent>()) {
         GetEntity().AddComponent<PlayerUpgradesComponent>();
     }
@@ -66,29 +64,31 @@ void Player::OnUpdate(Timestep ts)
 
 void Player::HandleMovement(Timestep ts)
 {
-    m_Rb = &GetComponent<Rigidbody2DComponent>();
-	if (!m_Rb) return;
+    if (!HasComponent<Rigidbody2DComponent>()) return;
+    auto& rb = GetComponent<Rigidbody2DComponent>();
 
-    if (m_State == State::Attack || m_State == State::Death)
-    {
-        b2BodyId bodyId = m_Rb->RuntimeBody;
-        b2Body_SetLinearVelocity(bodyId, { 0.0f, 0.0f });
+    if (!b2Body_IsValid(rb.RuntimeBody)) {
         return;
     }
 
-	glm::vec2 velocity = { 0.0f, 0.0f };
+    if (m_State == State::Attack || m_State == State::Death)
+    {
+        b2Body_SetLinearVelocity(rb.RuntimeBody, { 0.0f, 0.0f });
+        return;
+    }
 
-	if (Input::IsKeyPressed(KeyCode::W)) velocity.y += 1.0f;
-	if (Input::IsKeyPressed(KeyCode::S)) velocity.y -= 1.0f;
-	if (Input::IsKeyPressed(KeyCode::A)) velocity.x -= 1.0f;
-	if (Input::IsKeyPressed(KeyCode::D)) velocity.x += 1.0f;
+    glm::vec2 velocity = { 0.0f, 0.0f };
+    if (Input::IsKeyPressed(KeyCode::W)) velocity.y += 1.0f;
+    if (Input::IsKeyPressed(KeyCode::S)) velocity.y -= 1.0f;
+    if (Input::IsKeyPressed(KeyCode::A)) velocity.x -= 1.0f;
+    if (Input::IsKeyPressed(KeyCode::D)) velocity.x += 1.0f;
 
-	if (glm::length(velocity) > 0.0f)
-		velocity = glm::normalize(velocity) * m_MoveSpeed;
+    if (glm::length(velocity) > 0.0f)
+        velocity = glm::normalize(velocity) * m_MoveSpeed;
 
-	b2BodyId bodyId = m_Rb->RuntimeBody;
-	b2Vec2 newVel = { velocity.x, velocity.y };
-	b2Body_SetLinearVelocity(bodyId, newVel);
+    // 2. Aquí ja és segur cridar-ho
+    b2Vec2 newVel = { velocity.x, velocity.y };
+    b2Body_SetLinearVelocity(rb.RuntimeBody, newVel);
 }
 
 void Player::HandleAnimation()
@@ -267,11 +267,16 @@ void Player::PlayAnimation(const std::string& name)
     }
 }
 
-bool Player::IsMoving() const
+bool Player::IsMoving()
 {
+    m_Anim = &GetComponent<AnimationComponent>();
+    m_Rb = &GetComponent<Rigidbody2DComponent>();
+
     if (!m_Anim || !m_Rb) return false;
 
     b2BodyId bodyId = (b2BodyId)m_Rb->RuntimeBody;
+    if (!b2Body_IsValid(bodyId)) return false;
+
     const b2Vec2& vel = b2Body_GetLinearVelocity(bodyId);
     glm::vec2 velocity = { vel.x, vel.y };
     float speed = glm::length(velocity);
