@@ -1,9 +1,9 @@
 #include "EntityFactory.h"
-#include "GameComponents.h"
+#include "Core/GameComponents.h"
 #include "Projectile.h" 
 #include "Enemy.h"
 #include "ExperienceOrb.h"
-#include "FloatingText.h"
+#include "UI/FloatingText.h"
 
 #include "Runic2D/Utils/Random.h"
 

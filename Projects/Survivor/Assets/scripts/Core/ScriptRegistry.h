@@ -4,9 +4,12 @@
 #include "Runic2D/Scene/Component.h"
 
 //include here escripts to register
-#include "Player.h"
-#include "CameraController.h"
+#include "Entities/Player.h"
+#include "Systems/CameraController.h"
 #include "GameManager.h"
+
+namespace Survivor
+{
 
 #define REGISTER_SCRIPT(ScriptType) \
 	if (name == #ScriptType) \
@@ -19,17 +22,19 @@
 		return; \
 	}
 
-namespace ScriptRegistry {
+	namespace ScriptRegistry {
 
-	static std::vector<std::string> GetScriptNames()
-	{
-		return { "Player", "CameraController", "GameManager"};
+		static std::vector<std::string> GetScriptNames()
+		{
+			return { "Player", "CameraController", "GameManager" };
+		}
+
+		static void BindScript(std::string name, Runic2D::Entity entity)
+		{
+			REGISTER_SCRIPT(Player);
+			REGISTER_SCRIPT(CameraController);
+			REGISTER_SCRIPT(GameManager);
+		}
 	}
 
-	static void BindScript(std::string name, Runic2D::Entity entity)
-	{
-		REGISTER_SCRIPT(Player);
-		REGISTER_SCRIPT(CameraController);
-		REGISTER_SCRIPT(GameManager);
-	}
 }

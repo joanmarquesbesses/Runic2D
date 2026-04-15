@@ -1,6 +1,6 @@
 #pragma once
 #include "Runic2D.h"
-#include "GameComponents.h"
+#include "Core/GameComponents.h"
 #include "Player.h" 
 
 using namespace Runic2D;

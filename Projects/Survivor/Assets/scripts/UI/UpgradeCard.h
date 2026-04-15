@@ -1,7 +1,7 @@
 #pragma once
 #include "Runic2D.h"
-#include "GameContext.h"
-#include "GameComponents.h"
+#include "Core/GameContext.h"
+#include "Core/GameComponents.h"
 #include "Runic2D/Utils/SceneUtils.h"
 
 using namespace Runic2D;
