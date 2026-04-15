@@ -14,7 +14,7 @@ workspace "Runic2D"
 		"MultiProcessorCompile"
 	}
 
-	local activeGame = "Survivor" 
+	activeGame = "Survivor" 
     -- local activeGame = "Arkanoid"
     
     local gameSourcePath = "Projects/" .. activeGame .. "/Assets/scripts"
@@ -74,7 +74,8 @@ project "Runic2D"
 		"_CRT_SECURE_NO_WARNINGS",
 		"YAML_CPP_STATIC_DEFINE",
 		"MSDFGEN_PUBLIC=",
-		"B2_USE_DEFAULT_ALLOCATOR"
+		"B2_USE_DEFAULT_ALLOCATOR",
+		"BOX2D_DLL"
 	}
 
 	includedirs
@@ -106,6 +107,10 @@ project "Runic2D"
 		"Box2D",
 		"msdf-atlas-gen"
 	}
+
+	libdirs { 
+        "bin/" .. outputdir .. "/Box2D" 
+    }
 
 	filter "system:windows"
 		systemversion "latest"
@@ -307,7 +312,8 @@ project (activeGame)
     {
         "MSDFGEN_PUBLIC=",
         "YAML_CPP_STATIC_DEFINE",
-		"B2_USE_DEFAULT_ALLOCATOR"
+		"B2_USE_DEFAULT_ALLOCATOR",
+		"BOX2D_DLL"
     }
 
     includedirs {

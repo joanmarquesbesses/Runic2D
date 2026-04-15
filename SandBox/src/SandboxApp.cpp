@@ -21,7 +21,7 @@ public:
 
     virtual ~SandboxApp()
     {
-        // 3. Quan l'App mor, descarreguem la DLL
+        m_ActiveScene = nullptr;
         Runic2D::Project::UnloadRuntimeLibrary();
     }
 

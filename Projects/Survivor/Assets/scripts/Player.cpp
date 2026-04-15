@@ -10,16 +10,9 @@ using namespace Runic2D;
 
 void Player::OnCreate()
 {
-	if (HasComponent<Rigidbody2DComponent>())
-		m_Rb = &GetComponent<Rigidbody2DComponent>();
-
     if (HasComponent<AnimationComponent>()) {
-        m_Anim = &GetComponent<AnimationComponent>();
-        m_Anim->CurrentStateName = "";
+        GetEntity().GetComponent<AnimationComponent>().CurrentStateName = "";
     }
-
-	if (HasComponent<TransformComponent>())
-		m_Transform = &GetComponent<TransformComponent>();
 
     if (HasComponent<BoxCollider2DComponent>())
     {
@@ -66,10 +59,9 @@ void Player::HandleMovement(Timestep ts)
 {
     if (!HasComponent<Rigidbody2DComponent>()) return;
     auto& rb = GetComponent<Rigidbody2DComponent>();
+    b2BodyId bodyId = rb.RuntimeBody;
 
-    if (!b2Body_IsValid(rb.RuntimeBody)) {
-        return;
-    }
+    if (!b2Body_IsValid(bodyId)) return;
 
     if (m_State == State::Attack || m_State == State::Death)
     {
@@ -89,12 +81,13 @@ void Player::HandleMovement(Timestep ts)
     // 2. Aquí ja és segur cridar-ho
     b2Vec2 newVel = { velocity.x, velocity.y };
     b2Body_SetLinearVelocity(rb.RuntimeBody, newVel);
+    b2Body_SetAwake(bodyId, true);
 }
 
 void Player::HandleAnimation()
 {
-	m_Transform = &GetComponent<TransformComponent>();
-    if (m_Transform && CanChangeDirection())
+	auto tranform = &GetComponent<TransformComponent>();
+    if (tranform && CanChangeDirection())
     {
 		auto& bc = GetComponent<BoxCollider2DComponent>();
 		auto& cc = GetComponent<CircleCollider2DComponent>();
@@ -103,9 +96,9 @@ void Player::HandleAnimation()
 
         if (Input::IsKeyPressed(KeyCode::A))
         {
-            if (m_Transform->Scale.x > 0)
+            if (tranform->Scale.x > 0)
             {
-                m_Transform->Scale.x = -fabs(m_Transform->Scale.x);
+                tranform->Scale.x = -fabs(tranform->Scale.x);
                 bc.Offset.x = fabs(bc.Offset.x);
                 cc.Offset.x = fabs(cc.Offset.x);
                 changed = true;
@@ -113,9 +106,9 @@ void Player::HandleAnimation()
         }
         else if (Input::IsKeyPressed(KeyCode::D))
         {
-            if (m_Transform->Scale.x < 0)
+            if (tranform->Scale.x < 0)
             {
-                m_Transform->Scale.x = fabs(m_Transform->Scale.x);
+                tranform->Scale.x = fabs(tranform->Scale.x);
                 bc.Offset.x = -fabs(bc.Offset.x);
                 cc.Offset.x = -fabs(cc.Offset.x);
                 changed = true;
@@ -127,6 +120,8 @@ void Player::HandleAnimation()
             GetScene()->UpdateEntityColliders(GetEntity());
         }
     }
+
+	auto anim = &GetComponent<AnimationComponent>();
 
     switch (m_State)
     {
@@ -167,18 +162,18 @@ void Player::HandleAnimation()
         case State::Attack:
         {
             glm::vec2 mousePos = Runic2D::Utils::SceneUtils::GetMouseWorldPosition(GetScene());
-            glm::vec2 playerPos = { m_Transform->Translation.x, m_Transform->Translation.y };
+            glm::vec2 playerPos = { tranform->Translation.x, tranform->Translation.y };
 
             if (mousePos.x < playerPos.x) {
-                if (m_Transform->Scale.x > 0) m_Transform->Scale.x = -fabs(m_Transform->Scale.x);
+                if (tranform->Scale.x > 0) tranform->Scale.x = -fabs(tranform->Scale.x);
             }
             else {
-                if (m_Transform->Scale.x < 0) m_Transform->Scale.x = fabs(m_Transform->Scale.x);
+                if (tranform->Scale.x < 0) tranform->Scale.x = fabs(tranform->Scale.x);
             }
 
-            if (m_Anim->CurrentFrameIndex >= 5 && !m_HasFired)
+            if (anim->CurrentFrameIndex >= 5 && !m_HasFired)
             {
-                float facingDirection = (m_Transform->Scale.x > 0.0f) ? 1.0f : -1.0f;
+                float facingDirection = (tranform->Scale.x > 0.0f) ? 1.0f : -1.0f;
                 float handOffsetX = 1.3f;
                 float handOffsetY = 0.5f;
 
@@ -197,7 +192,7 @@ void Player::HandleAnimation()
                 m_HasFired = true;
             }
 
-            if (m_Anim->IsFinished())
+            if (anim->IsFinished())
             {
                 if (IsMoving()) {
                     m_State = State::Run;
@@ -212,7 +207,7 @@ void Player::HandleAnimation()
         }
         case State::Death:
         {
-            if (!m_Anim->IsFinished())
+            if (!anim->IsFinished())
             {
                 // Encara s'està morint... esperem.
             }
@@ -236,45 +231,44 @@ void Player::OnCollision(Entity other)
 
 void Player::PlayAnimation(const std::string& name)
 {
-	m_Anim = &GetComponent<AnimationComponent>();
-    if (m_Anim->CurrentStateName == name) return;
+	auto anim = &GetComponent<AnimationComponent>();
+    if (anim->CurrentStateName == name) return;
 
-    auto it = m_Anim->Animations.find(name);
-    if (it != m_Anim->Animations.end())
+    auto it = anim->Animations.find(name);
+    if (it != anim->Animations.end())
     {
-        m_Anim->CurrentAnimation = it->second;
-        m_Anim->CurrentStateName = name;
+        anim->CurrentAnimation = it->second;
+        anim->CurrentStateName = name;
 
-        m_Anim->CurrentFrameIndex = 0;
-        m_Anim->TimeAccumulator = 0.0f;
+        anim->CurrentFrameIndex = 0;
+        anim->TimeAccumulator = 0.0f;
 
-        m_Anim->Playing = true;
+        anim->Playing = true;
 
-        for (auto& profile : m_Anim->Profiles)
+        for (auto& profile : anim->Profiles)
         {
             if (profile.Name == name)
             {
-                m_Anim->Loop = profile.Loop;
+                anim->Loop = profile.Loop;
                 break;
             }
         }
 
-        if (m_Rb) 
+        if (HasComponent<SpriteRendererComponent>()) 
         {
             auto& src = GetComponent<SpriteRendererComponent>();
-            src.SubTexture = m_Anim->CurrentAnimation->GetFrame(0);
+            src.SubTexture = anim->CurrentAnimation->GetFrame(0);
         }
     }
 }
 
 bool Player::IsMoving()
 {
-    m_Anim = &GetComponent<AnimationComponent>();
-    m_Rb = &GetComponent<Rigidbody2DComponent>();
+    auto anim = &GetComponent<AnimationComponent>();
+    auto rb = &GetComponent<Rigidbody2DComponent>();
 
-    if (!m_Anim || !m_Rb) return false;
-
-    b2BodyId bodyId = (b2BodyId)m_Rb->RuntimeBody;
+    if (!anim || !rb) return false;
+    b2BodyId bodyId = (b2BodyId)rb->RuntimeBody;
     if (!b2Body_IsValid(bodyId)) return false;
 
     const b2Vec2& vel = b2Body_GetLinearVelocity(bodyId);
@@ -301,8 +295,10 @@ void Player::TryAttack()
     PlayAnimation("Attack");
     m_HasFired = false;
 
+	auto transform = &GetComponent<TransformComponent>();
+
     glm::vec2 mousePos = Runic2D::Utils::SceneUtils::GetMouseWorldPosition(GetScene());
-    glm::vec2 playerPos = { m_Transform->Translation.x, m_Transform->Translation.y };
+    glm::vec2 playerPos = { transform->Translation.x, transform->Translation.y };
 
 	auto& bc = GetComponent<BoxCollider2DComponent>();
 	auto& cc = GetComponent<CircleCollider2DComponent>();
@@ -311,9 +307,9 @@ void Player::TryAttack()
 
     if (mousePos.x < playerPos.x)
     {
-        if (m_Transform->Scale.x > 0)
+        if (transform->Scale.x > 0)
         {
-            m_Transform->Scale.x = -fabs(m_Transform->Scale.x);
+            transform->Scale.x = -fabs(transform->Scale.x);
             bc.Offset.x = fabs(bc.Offset.x);
             cc.Offset.x = fabs(cc.Offset.x);
             changed = true;
@@ -321,9 +317,9 @@ void Player::TryAttack()
     }
     else
     {
-        if (m_Transform->Scale.x < 0)
+        if (transform->Scale.x < 0)
         {
-            m_Transform->Scale.x = fabs(m_Transform->Scale.x);
+            transform->Scale.x = fabs(transform->Scale.x);
             bc.Offset.x = -fabs(bc.Offset.x);
             cc.Offset.x = -fabs(cc.Offset.x);
             changed = true;

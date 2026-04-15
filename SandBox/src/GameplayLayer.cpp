@@ -11,26 +11,6 @@ void GameplayLayer::OnAttach()
 {
 	R2D_PROFILE_FUNCTION();
 
-    std::string projectPath = "Projects/Survivor/Survivor.r2dproj";
-
-    if (Project::Load(projectPath))
-    {
-		R2D_INFO("Sandbox2D: Project carregat correctament des de {0}", projectPath);
-        if (Project::LoadRuntimeLibrary())
-        {
-            R2D_INFO("GameplayLayer: DLL del joc carregada i inicialitzada.");
-        }
-        else
-        {
-            R2D_ERROR("GameplayLayer: Error carregant la DLL!");
-            return;
-        }
-    }
-    else
-    {
-        R2D_ERROR("Sandbox2D: No s'ha pogut carregar el projecte a {0}", projectPath);
-    }
-
     SceneSerializer serializer(m_ActiveScene);
     std::string scenePath = "Projects/Survivor/Assets/scenes/MainScene.r2dscene";
 

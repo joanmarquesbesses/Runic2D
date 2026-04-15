@@ -79,7 +79,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>R2Dpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;MSDFGEN_PUBLIC=;B2_USE_DEFAULT_ALLOCATOR;R2D_BUILD_DLL;GLFW_INCLUDE_NONE;R2D_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;MSDFGEN_PUBLIC=;B2_USE_DEFAULT_ALLOCATOR;BOX2D_DLL;R2D_BUILD_DLL;GLFW_INCLUDE_NONE;R2D_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;vendor\Box2D\include;vendor\msdf-atlas-gen\msdf-atlas-gen;vendor\msdf-atlas-gen\msdfgen;vendor\msdf-atlas-gen;vendor\miniaudio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -94,6 +94,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\bin\Debug-windows-x86_64\Box2D;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Debug-windows-x86_64\Runic2D\Runic2D.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
@@ -106,7 +107,7 @@ IF EXIST ..\bin\Debug-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>R2Dpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;MSDFGEN_PUBLIC=;B2_USE_DEFAULT_ALLOCATOR;R2D_BUILD_DLL;GLFW_INCLUDE_NONE;R2D_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;MSDFGEN_PUBLIC=;B2_USE_DEFAULT_ALLOCATOR;BOX2D_DLL;R2D_BUILD_DLL;GLFW_INCLUDE_NONE;R2D_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;vendor\Box2D\include;vendor\msdf-atlas-gen\msdf-atlas-gen;vendor\msdf-atlas-gen\msdfgen;vendor\msdf-atlas-gen;vendor\miniaudio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -124,6 +125,7 @@ IF EXIST ..\bin\Debug-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\bin\Release-windows-x86_64\Box2D;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Release-windows-x86_64\Runic2D\Runic2D.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
@@ -136,7 +138,7 @@ IF EXIST ..\bin\Release-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I .
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>R2Dpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;MSDFGEN_PUBLIC=;B2_USE_DEFAULT_ALLOCATOR;R2D_BUILD_DLL;GLFW_INCLUDE_NONE;R2D_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;MSDFGEN_PUBLIC=;B2_USE_DEFAULT_ALLOCATOR;BOX2D_DLL;R2D_BUILD_DLL;GLFW_INCLUDE_NONE;R2D_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;vendor\Box2D\include;vendor\msdf-atlas-gen\msdf-atlas-gen;vendor\msdf-atlas-gen\msdfgen;vendor\msdf-atlas-gen;vendor\miniaudio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -154,6 +156,7 @@ IF EXIST ..\bin\Release-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I .
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\bin\Dist-windows-x86_64\Box2D;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Dist-windows-x86_64\Runic2D\Runic2D.lib</ImportLibrary>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>

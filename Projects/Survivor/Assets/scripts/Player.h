@@ -24,10 +24,6 @@ private:
 	void Shoot(glm::vec2 mousePos, glm::vec2 spawnPos, glm::vec2 direction);
 
 private:
-	Runic2D::Rigidbody2DComponent* m_Rb = nullptr;
-	Runic2D::AnimationComponent* m_Anim = nullptr;
-	Runic2D::TransformComponent* m_Transform = nullptr;
-
 	float m_MoveSpeed = 5.0f; 
 
 	enum class State
