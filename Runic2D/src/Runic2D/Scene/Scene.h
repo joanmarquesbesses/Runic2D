@@ -30,6 +30,7 @@ namespace Runic2D {
 
 		void OnUpdateRunTime(Timestep ts);
 		void OnRenderRuntime();
+		void OnRenderUI();
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 		void OnViewportResize(uint32_t width, uint32_t height);
 

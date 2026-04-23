@@ -2,6 +2,7 @@
 #include "Scene.h"
 
 #include "Runic2D/Renderer/Renderer2D.h"
+#include "Runic2D/Renderer/RenderCommand.h"
 #include "Runic2D/Math/Math.h"
 
 #include "Entity.h"
@@ -322,50 +323,91 @@ namespace Runic2D {
 	void Scene::OnRenderRuntime()
 	{
 		//Find Main Camera
-		Camera* mainCamera = nullptr;
-		glm::mat4 cameraTransform;
-		m_Registry.view<TransformComponent, CameraComponent>().each([&](auto entity, auto& transformComponent, auto& cameraComponent) {
-			if (cameraComponent.Primary) {
-				mainCamera = &cameraComponent.Camera;
-				cameraTransform = transformComponent.GetTransform();
-			}
-			});
+		auto cameraEntity = GetPrimaryCameraEntity();
+		if (!cameraEntity) return;
+
+		auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+		auto& camTransform = cameraEntity.GetComponent<TransformComponent>();
 
 		// Render Scene
-		if (mainCamera) {
-			Renderer2D::BeginScene(*mainCamera, cameraTransform);
+		Renderer2D::BeginScene(camera, camTransform.GetTransform());
 
-			auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>();
+		auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<UIComponent>);
 
-			view.each([&](auto entityID, auto& transform, auto& sprite)
-				{
-					Entity e{ entityID, this };
-					glm::mat4 worldTransform = GetWorldTransform(transform, e);
-					Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
-				});
+		view.each([&](auto entityID, auto& transform, auto& sprite)
+			{
+				Entity e{ entityID, this };
+				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
+			});
 
-			auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>();
+		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>(entt::exclude<UIComponent>);
 
-			circleView.each([&](auto entityID, auto& transform, auto& circle)
-				{
-					Entity e{ entityID, this };
-					glm::mat4 worldTransform = GetWorldTransform(transform, e);
-					Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
-				});
+		circleView.each([&](auto entityID, auto& transform, auto& circle)
+			{
+				Entity e{ entityID, this };
+				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
+			});
 
-			m_Registry.view<TransformComponent, TextComponent>().each([&](auto entityID, auto& transform, auto& text)
-				{
-					if (!text.Visible)
-						return;
-					Entity e{ entityID, this };
-					glm::mat4 worldTransform = GetWorldTransform(transform, e);
-					Renderer2D::DrawString(text.TextString, text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
-				});
+		m_Registry.view<TransformComponent, TextComponent>(entt::exclude<UIComponent>).each([&](auto entityID, auto& transform, auto& text)
+			{
+				if (!text.Visible)
+					return;
+				Entity e{ entityID, this };
+				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				Renderer2D::DrawString(text.TextString, text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
+			});
 
-			m_ParticleSystem.OnRender();
+		m_ParticleSystem.OnRender();
 
-			Renderer2D::EndScene();
-		}
+		Renderer2D::EndScene();
+	}
+
+	void Scene::OnRenderUI()
+	{
+		Entity uiCamera = {};
+
+		auto view = m_Registry.view<CameraComponent, UIComponent>();
+		view.each([&](auto entityID, auto& camera, auto& ui)
+			{
+				Entity e{ entityID, this };
+				uiCamera = e;
+			});
+
+		if (!uiCamera) return;
+
+		auto& camera = uiCamera.GetComponent<CameraComponent>().Camera;
+		auto& camTransform = uiCamera.GetComponent<TransformComponent>();
+
+		RenderCommand::ClearDepth();
+		Renderer2D::BeginScene(camera, camTransform.GetTransform());
+
+		// Només entitats amb UIComponent (excepte la càmera mateixa)
+		auto tview = m_Registry.view<TransformComponent, SpriteRendererComponent, UIComponent>();
+		tview.each([&](auto entityID, auto& transform, auto& sprite, auto& ui)
+			{
+				Entity e{ entityID, this };
+				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
+			});
+			
+		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent, UIComponent>();
+		circleView.each([&](auto entityID, auto& transform, auto& circle, auto& ui)
+			{
+				Entity e{ entityID, this };
+				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
+			});
+
+		m_Registry.view<TransformComponent, TextComponent, UIComponent>().each([&](auto entityID, auto& transform, auto& text, auto& ui)
+			{
+				Entity e{ entityID, this };
+				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				Renderer2D::DrawString(text.TextString, text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
+			});
+
+		Renderer2D::EndScene();
 	}
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)

@@ -3,29 +3,33 @@
 
 using namespace Runic2D;
 
-class Projectile : public ScriptableEntity
-{
-public:
-    void OnCreate() override;
-    void OnUpdate(Timestep ts) override;
-    void OnSensor(Entity other) override;
+namespace Survivor {
 
-    float Speed = 10.0f;
-    float LifeTime = 2.0f;
+    class Projectile : public ScriptableEntity
+    {
+    public:
+        void OnCreate() override;
+        void OnUpdate(Timestep ts) override;
+        void OnSensor(Entity other) override;
 
-    enum class OwnerType { Player, Enemy };
+        float Speed = 10.0f;
+        float LifeTime = 2.0f;
 
-    OwnerType Owner = OwnerType::Player;
+        enum class OwnerType { Player, Enemy };
 
-    float m_TimeSinceLastEmit = 0.0f;
-    float m_EmissionRate = 0.02f;
+        OwnerType Owner = OwnerType::Player;
 
-private:
-    Rigidbody2DComponent* m_Rb = nullptr;
-    SpriteRendererComponent* m_SpriteRenderer = nullptr;
-	Ref<Texture2D> m_Texture = nullptr;
-    float m_TimeAlive = 0.0f;
-    float m_AnimTimer = 0.0f;
+        float m_TimeSinceLastEmit = 0.0f;
+        float m_EmissionRate = 0.02f;
 
-    std::vector<Entity> m_HitList;
-};
+    private:
+        Rigidbody2DComponent* m_Rb = nullptr;
+        SpriteRendererComponent* m_SpriteRenderer = nullptr;
+        Ref<Texture2D> m_Texture = nullptr;
+        float m_TimeAlive = 0.0f;
+        float m_AnimTimer = 0.0f;
+
+        std::vector<Entity> m_HitList;
+    };
+
+}

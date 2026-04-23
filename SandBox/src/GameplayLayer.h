@@ -6,13 +6,11 @@ class GameplayLayer : public Runic2D::Layer
 {
 public:
 	GameplayLayer(Runic2D::Ref<Runic2D::Scene> scene);
-	virtual ~GameplayLayer() = default;
 
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
 
 	virtual void OnUpdate(Runic2D::Timestep ts) override;
-	virtual void OnImGuiRender() override;
 	virtual void OnEvent(Runic2D::Event& e) override;
 private:
 	bool OnKeyPressed(Runic2D::KeyPressedEvent& e);

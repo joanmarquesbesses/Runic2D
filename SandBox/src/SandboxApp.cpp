@@ -2,7 +2,6 @@
 #include <Runic2D/Core/EntryPoint.h>
 
 #include "GameplayLayer.h"
-#include "UILayer.h"
 
 class SandboxApp : public Runic2D::Application
 {
@@ -16,7 +15,6 @@ public:
         m_ActiveScene = Runic2D::CreateRef<Runic2D::Scene>();
 
         PushLayer(new GameplayLayer(m_ActiveScene));
-        // PushOverlay(new UILayer(m_ActiveScene));
     }
 
     virtual ~SandboxApp()

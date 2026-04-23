@@ -4,6 +4,7 @@
 #include "Entities/EntityFactory.h"
 #include "Systems/UpgradeSystem.h"
 #include "GameComponents.h"
+#include "UI/HUDManager.h"
 
 using namespace Runic2D;
 
@@ -23,6 +24,9 @@ namespace Survivor
                 };
 
             EntityFactory::Init(GetScene());
+
+			Entity HUDManagerEntity = GetScene()->CreateEntity("HUDManager");
+			HUDManagerEntity.AddComponent<NativeScriptComponent>().Bind<HUDManager>();
         }
 
         virtual void OnUpdate(Timestep ts) override;

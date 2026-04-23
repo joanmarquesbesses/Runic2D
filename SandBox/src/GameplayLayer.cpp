@@ -55,17 +55,13 @@ void GameplayLayer::OnUpdate(Runic2D::Timestep ts)
     RenderCommand::Clear();
 
     if (m_ActiveScene) {
-        m_ActiveScene->OnUpdateRunTime(ts); // Això mourà els scripts de la DLL!
+        m_ActiveScene->OnUpdateRunTime(ts); 
         m_ActiveScene->OnRenderRuntime();
+		m_ActiveScene->OnRenderUI();
 
         if (m_ShowPhysicsColliders)
             ShowColliderOverlay();
     }
-}
-
-void GameplayLayer::OnImGuiRender()
-{
-	R2D_PROFILE_FUNCTION();
 }
 
 void GameplayLayer::OnEvent(Runic2D::Event& e)

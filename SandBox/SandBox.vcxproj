@@ -143,12 +143,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\GameplayLayer.h" />
-    <ClInclude Include="src\UILayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GameplayLayer.cpp" />
     <ClCompile Include="src\SandboxApp.cpp" />
-    <ClCompile Include="src\UILayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Runic2D\Runic2D.vcxproj">

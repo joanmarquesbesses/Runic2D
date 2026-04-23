@@ -2,9 +2,15 @@
 
 #include <glm/glm.hpp>
 #include "Systems/UpgradeSystem.h"
-#include "GameContext.h"
 
 namespace Survivor {
+
+	enum class GameState {
+		Running = 0,
+		Paused,
+		LevelUp,
+		GameOver
+	};
 
 	namespace PhysicsLayers {
 		enum Layer : uint16_t {
@@ -45,13 +51,14 @@ namespace Survivor {
 	};
 
 	struct PlayerStatsComponent {
-		float Health = 100.0f;
-		float MaxHealth = 100.0f;
-
-		void TakeDamage(float amount) {
-			Health -= amount;
-			if (Health < 0) Health = 0;
-		}
+		float Health		= 100.0f;
+		float MaxHealth		= 100.0f;
+		float HealthRegen	= 0.0f;
+		float Speed			= 5.0f;
+		float Damage		= 10.0f;
+		float AttackSpeed	= 1.0f;
+		int   ProjectileCount = 1;
+		bool  Piercing		= false;
 	};
 
 	struct UpgradeComponent {
@@ -63,35 +70,22 @@ namespace Survivor {
 	struct PlayerUpgradesComponent {
 		std::map<UpgradeType, int> Levels;
 
-		int GetLevel(UpgradeType type) {
-			if (Levels.find(type) != Levels.end()) {
-				return Levels[type];
-			}
-			return 0;
-		}
+		void AddLevel(UpgradeType type) { Levels[type]++; }
 
-		void AddLevel(UpgradeType type) {
-			Levels[type]++;
+		int GetLevel(UpgradeType type) const {
+			auto it = Levels.find(type);
+			return it != Levels.end() ? it->second : 0;
 		}
 	};
 
 	struct GameStatsComponent {
-		float TimeAlive = 0.0f;
 		GameState State = GameState::Running;
 
-		// Progression data
+		float TimeAlive  = 0.0f;
+		float CurrentXP  = 0.0f;
+		float MaxXP		 = 100.0f;
 		int CurrentLevel = 1;
-		float CurrentXP = 0.0f;
-		float MaxXP = 100.0f;
 
-		// Stats que la UI necessita consultar sovint
-		float PlayerHealth = 100.0f;
-		float PlayerMaxHealth = 100.0f;
-
-		// Callbacks (ara dins del component)
-		std::function<void(int)> OnLevelUp;
-		std::function<void(float, float)> OnHealthChanged;
-		std::function<void(float, float)> OnXPChanged;
 		std::function<void(UpgradeType)> OnUpgradeApplied;
 
 		// Mètodes d'ajuda (helper functions)
@@ -102,9 +96,7 @@ namespace Survivor {
 				CurrentLevel++;
 				MaxXP *= 1.2f;
 				State = GameState::LevelUp;
-				if (OnLevelUp) OnLevelUp(CurrentLevel);
 			}
-			if (OnXPChanged) OnXPChanged(CurrentXP, MaxXP);
 		}
 	};
 

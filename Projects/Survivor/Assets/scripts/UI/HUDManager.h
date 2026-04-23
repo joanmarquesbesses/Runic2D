@@ -1,165 +1,153 @@
+// Projects/Survivor/Assets/scripts/UI/HUDManager.h
 #pragma once
 #include "Runic2D.h"
-#include "Systems/TimerScript.h"
-#include "UpgradeCard.h"
-#include "Core/GameComponents.h" 
+#include "Core/GameComponents.h"
+#include <sstream>
+#include <iomanip>
 
 using namespace Runic2D;
 
-enum class UIState {
-    Gameplay,
-    LevelUp
-};
+namespace Survivor {
 
-class HUDManager : public ScriptableEntity {
-public:
-    Entity m_TimerEntity;
-    Entity m_HealthBarEntity;
-    Entity m_XPBarEntity;
-    Entity m_LevelTextEntity;
+    class HUDManager : public ScriptableEntity {
+    public:
+        void OnCreate() override {
+            auto& window = Application::Get().GetWindow();
+            float aspect = (float)window.GetWidth() / (float)window.GetHeight();
 
-    std::vector<Entity> m_UpgradeCards;
+            // --- Càmera de UI ---
+            m_UICamera = GetScene()->CreateEntity("UICamera");
+            m_UICamera.AddComponent<UIComponent>();
+            auto& cc = m_UICamera.AddComponent<CameraComponent>();
+            cc.Camera.SetOrthographic(m_OrthoSize, -1.0f, 1.0f);
+            cc.Primary = false;
 
-    UIState m_CurrentState = UIState::Gameplay;
+            float halfH = m_OrthoSize * 0.5f;
+            float halfW = halfH * aspect;
 
-    void OnCreate() override {
-        CreateGameplayHUD();
+            // --- Timer (centre superior) ---
+            m_TimerText = CreateUIText("HUD_Timer", { 0.0f, halfH - 0.6f, 0.0f }, "0:00");
 
-		auto& ctx = GameContext::Get();
+            // --- Health (esquerra inferior) ---
+            m_HealthText = CreateUIText("HUD_Health",
+                { -halfW + 0.5f, -halfH + 0.3f, 0.0f }, "HP: 100");
+            m_HealthText.GetComponent<TextComponent>().Color = { 0.2f, 1.0f, 0.2f, 1.0f };
 
-        ctx.OnLevelUp = [this](int level) { ShowLevelUp(level); };
+            // --- XP / Nivell (dreta inferior) ---
+            m_XPText = CreateUIText("HUD_XP",
+                { halfW - 1.5f, -halfH + 0.3f, 0.0f }, "Lv.1");
+            m_XPText.GetComponent<TextComponent>().Color = { 0.4f, 0.8f, 1.0f, 1.0f };
 
-        ctx.OnHealthChanged = [this](float current, float max) {
-            float percent = (max > 0) ? (current / max) : 0.0f;
-            R2D_INFO("HUD: Health Updated to {0}%", percent * 100);
-            if (m_HealthBarEntity) {
-                auto& tc = m_HealthBarEntity.GetComponent<TransformComponent>();
-                tc.Scale.x = percent * 2.0f;
-				tc.IsDirty = true;
-            }
-        };
-
-        ctx.OnXPChanged = [this](float current, float max) {
-            float percent = (max > 0) ? (current / max) : 0.0f;
-            if (m_XPBarEntity) {
-                auto& tc = m_XPBarEntity.GetComponent<TransformComponent>();
-                tc.Scale.x = percent * 5.0f;
-                tc.IsDirty = true;
-            }
-        };
-
-        ctx.OnHealthChanged(ctx.PlayerHealth, ctx.PlayerMaxHealth);
-        ctx.OnXPChanged(ctx.CurrentXP, ctx.MaxXP);
-        if (m_LevelTextEntity) {
-            m_LevelTextEntity.GetComponent<TextComponent>().TextString = "LVL " + std::to_string(ctx.CurrentLevel);
+            // --- FPS (cantonada superior dreta, debug) ---
+            m_FPSText = CreateUIText("HUD_FPS",
+                { -halfW, halfH - 0.4f, 0.0f }, "FPS: 0");
+            m_FPSText.GetComponent<TextComponent>().Color = { 0.5f, 0.5f, 0.5f, 1.0f };
+            GetComponent<TransformComponent>().SetScale({ 0.6f, 0.6f, 1.0f });
         }
-    }
 
-    void OnUpdate(Timestep ts) override {
-        if (m_CurrentState == UIState::LevelUp && GameContext::Get().State == GameState::Running) {
-            SetState(UIState::Gameplay);
+        void OnDestroy() override {
+            // Les entitats de UI es destruiran quan l'escena pari
+            // No cal fer res manualment — l'escena gestiona el cicle de vida
         }
-    }
 
-    void OnDestroy() override {
-        GameContext::Get().OnLevelUp = nullptr;
-    }
-
-private:
-    void SetState(UIState state) {
-        m_CurrentState = state;
-        switch (state) {
-        case UIState::Gameplay:
-            if (m_TimerEntity) m_TimerEntity.GetComponent<TextComponent>().Visible = true;
-            ClearUpgradeMenu();
-            break;
-
-        case UIState::LevelUp:
-            if (m_TimerEntity) m_TimerEntity.GetComponent<TextComponent>().Visible = false;
-            break;
+        void OnUpdate(Timestep ts) override {
+            UpdateTimer();
+            UpdateHealth();
+            UpdateXP();
+            UpdateFPS();
         }
-    }
 
-    void ClearUpgradeMenu() {
-        for (auto card : m_UpgradeCards) {
-            if (card) {
-                GetScene()->DestroyEntity(card);
-            }
+    private:
+        // --- Helpers de creació ---
+        Entity CreateUIText(const std::string& name, const glm::vec3& pos,
+            const std::string& initial)
+        {
+            Entity e = GetScene()->CreateEntity(name);
+            e.AddComponent<UIComponent>();
+
+            auto& txt = e.AddComponent<TextComponent>();
+            txt.TextString = initial;
+			float width = txt.FontAsset->GetStringWidth(initial, txt.Kerning);
+
+			glm::vec3 offset = { pos.x - width/2.0f, pos.y, pos.z };
+            e.GetComponent<TransformComponent>().SetTranslation(offset);
+
+            return e;
         }
-        m_UpgradeCards.clear();
-    }
 
-    void CreateGameplayHUD() {
-		// Timer
-        m_TimerEntity = GetScene()->CreateEntity("TimerText");
-        auto& tc = m_TimerEntity.GetComponent<TransformComponent>();
-        tc.SetTranslation({ -0.65f, 4.5f, 0.1f });
-        tc.SetScale({ 0.75f, 0.75f, 1.0f });
+        // --- Actualitzacions ---
+        void UpdateTimer() {
+            if (!m_TimerText) return;
 
-        auto& txt = m_TimerEntity.AddComponent<TextComponent>();
-        txt.TextString = "00:00";
+            Entity statsEntity = GetScene()->GetEntityWithComponent<GameStatsComponent>();
+            if (!statsEntity) return;
 
-        m_TimerEntity.AddComponent<NativeScriptComponent>().Bind<TimerScript>();
+            float time = statsEntity.GetComponent<GameStatsComponent>().TimeAlive;
 
-		// Health Bar
-        m_HealthBarEntity = GetScene()->CreateEntity("HealthBar");
-        auto& hbTc = m_HealthBarEntity.GetComponent<TransformComponent>();
-        hbTc.SetTranslation({ -2.0f, 3.0f, 0.1f });
-        hbTc.SetScale({ 2.0f, 0.3f, 1.0f });
-        auto& hbSprite = m_HealthBarEntity.AddComponent<SpriteRendererComponent>();
-		hbSprite.Color = { 1.0f, 0.2f, 0.2f, 1.0f };
+            int minutes = (int)(time / 60.0f);
+            int seconds = (int)(time) % 60;
 
-		// XP Bar
-        m_XPBarEntity = GetScene()->CreateEntity("XPBar");
-        auto& xpTc = m_XPBarEntity.GetComponent<TransformComponent>();
-        xpTc.SetTranslation({ 0.0f, -4.0f, 0.1f });
-        xpTc.SetScale({ 0.0f, 0.2f, 1.0f }); 
-		auto& xpSprite = m_XPBarEntity.AddComponent<SpriteRendererComponent>();
-		xpSprite.Color = { 0.2f, 0.2f, 1.0f, 1.0f };
+			if (seconds == m_LastSeconds) return;
 
-        // Level Text
-        m_LevelTextEntity = GetScene()->CreateEntity("LevelText");
-        auto& lvlTc = m_LevelTextEntity.GetComponent<TransformComponent>();
-        lvlTc.SetTranslation({ 4.0f, 4.5f, 0.1f });
-        lvlTc.SetScale({ 0.75f, 0.75f, 1.0f });
-        auto& lvlTxt = m_LevelTextEntity.AddComponent<TextComponent>();
-		lvlTxt.TextString = "LVL 1";
-    }
+            std::stringstream ss;
+            ss << minutes << ":" << std::setfill('0') << std::setw(2) << seconds;
 
-    void ShowLevelUp(int level) {
-        R2D_INFO("HUD Manager: Canviant a mode Level Up!");
-        SetState(UIState::LevelUp);
-        CreateUpgradeMenu();
-        // Aquí també podries actualitzar el text de les cartes segons el nivell
-        if (m_LevelTextEntity) {
-            m_LevelTextEntity.GetComponent<TextComponent>().TextString = "LVL " + std::to_string(level);
+            auto& txt = m_TimerText.GetComponent<TextComponent>();
+            txt.TextString = ss.str();
+
+            float width = txt.FontAsset->GetStringWidth(txt.TextString, txt.Kerning);
+
+            glm::vec3 offset = { -width / 2.0f, 0.0f, 0.0f };
+            m_TimerText.GetComponent<TransformComponent>().SetTranslation(offset);
         }
-    }
 
-    void CreateUpgradeMenu() {
+        void UpdateHealth() {
+            if (!m_HealthText) return;
 
-        std::vector<UpgradeDef> cards = UpgradeDatabase::GetRandomUniqueUpgrades(3);
+            Entity playerEntity = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
+            if (!playerEntity) return;
 
-        float spacing = 3.5f;
-        int count = (int)cards.size();
-        float startX = -((count - 1) * spacing) / 2.0f;
+            auto& stats = playerEntity.GetComponent<PlayerStatsComponent>();
+            int hp = (int)stats.Health;
+            int maxHp = (int)stats.MaxHealth;
 
-        for (int i = 0; i < count; i++) {
-            UpgradeDef data = cards[i];
+            m_HealthText.GetComponent<TextComponent>().TextString =
+                "HP: " + std::to_string(hp) + "/" + std::to_string(maxHp);
 
-            Entity card = GetScene()->CreateEntity("UpgradeCard");
-
-            auto& tc = card.GetComponent<TransformComponent>();
-            tc.SetTranslation({startX + (i * spacing), 0.0f, 0.5f});
-            tc.SetScale({3.0f, 4.0f, 1.0f});
-
-            auto& sprite = card.AddComponent<SpriteRendererComponent>();
-            sprite.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-            card.AddComponent<UpgradeComponent>(data);
-            card.AddComponent<NativeScriptComponent>().Bind<UpgradeCard>();
-
-            m_UpgradeCards.push_back(card);
+            // Color verd -> groc -> vermell segons HP
+            float ratio = stats.Health / stats.MaxHealth;
+            m_HealthText.GetComponent<TextComponent>().Color = {
+                1.0f - ratio, ratio, 0.0f, 1.0f
+            };
         }
-    }
-};
+
+        void UpdateXP() {
+            if (!m_XPText) return;
+
+            Entity statsEntity = GetScene()->GetEntityWithComponent<GameStatsComponent>();
+            if (!statsEntity) return;
+
+            auto& stats = statsEntity.GetComponent<GameStatsComponent>();
+            m_XPText.GetComponent<TextComponent>().TextString =
+                "Lv." + std::to_string(stats.CurrentLevel) +
+                "  XP: " + std::to_string((int)stats.CurrentXP) +
+                "/" + std::to_string((int)stats.MaxXP);
+        }
+
+        void UpdateFPS() {
+            if (!m_FPSText) return;
+            m_FPSText.GetComponent<TextComponent>().TextString =
+                "FPS: " + std::to_string((int)Application::Get().GetAverageFPS());
+        }
+
+    private:
+        float m_OrthoSize = 10.0f;
+		int m_LastSeconds = -1;
+
+        Entity m_UICamera;
+        Entity m_TimerText;
+        Entity m_HealthText;
+        Entity m_XPText;
+        Entity m_FPSText;
+    };
+}

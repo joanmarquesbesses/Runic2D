@@ -6,98 +6,102 @@
 
 using namespace Runic2D;
 
-class OrbitalManager : public ScriptableEntity {
-public:
-    float RotationSpeed = 60.0f; 
-    float Radius = 2.5f;    
-    float m_CurrentAngle = 0.0f;
+namespace Survivor {
 
-    std::vector<Entity> m_Orbitals; 
+    class OrbitalManager : public ScriptableEntity {
+    public:
+        float RotationSpeed = 60.0f;
+        float Radius = 2.5f;
+        float m_CurrentAngle = 0.0f;
 
-    void OnCreate() override {
-		PlayerEntity = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
-	}
+        std::vector<Entity> m_Orbitals;
 
-    void OnUpdate(Timestep ts) override {
-
-        int count = (int)m_Orbitals.size();
-        if (count == 0) return;
-
-        if (!PlayerEntity)
-        {
+        void OnCreate() override {
             PlayerEntity = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
-            if (!PlayerEntity) return;
-		}
+        }
 
-        glm::vec2 centerPos = { PlayerEntity.GetComponent<TransformComponent>().Translation.x,
-                                PlayerEntity.GetComponent<TransformComponent>().Translation.y };
+        void OnUpdate(Timestep ts) override {
 
-        m_CurrentAngle += RotationSpeed * ts;
-        if (m_CurrentAngle > 360.0f) m_CurrentAngle -= 360.0f;
+            int count = (int)m_Orbitals.size();
+            if (count == 0) return;
 
-        float angleStep = (2.0f * 3.14159f) / (float)count; 
+            if (!PlayerEntity)
+            {
+                PlayerEntity = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
+                if (!PlayerEntity) return;
+            }
 
-        for (int i = 0; i < count; i++) {
-            Entity orbital = m_Orbitals[i];
-            if (!orbital) continue;
+            glm::vec2 centerPos = { PlayerEntity.GetComponent<TransformComponent>().Translation.x,
+                                    PlayerEntity.GetComponent<TransformComponent>().Translation.y };
 
-            float ballAngle = glm::radians(m_CurrentAngle) + (i * angleStep);
+            m_CurrentAngle += RotationSpeed * ts;
+            if (m_CurrentAngle > 360.0f) m_CurrentAngle -= 360.0f;
 
-            float x = centerPos.x + cos(ballAngle) * Radius;
-            float y = centerPos.y + sin(ballAngle) * Radius;
+            float angleStep = (2.0f * 3.14159f) / (float)count;
 
-            auto& tc = orbital.GetComponent<TransformComponent>();
-            bool bodyMoved = false;
+            for (int i = 0; i < count; i++) {
+                Entity orbital = m_Orbitals[i];
+                if (!orbital) continue;
 
-            if (orbital.HasComponent<Rigidbody2DComponent>()) {
-                auto& rb = orbital.GetComponent<Rigidbody2DComponent>();
-                b2BodyId bodyId = (b2BodyId)rb.RuntimeBody;
-                if (B2_IS_NON_NULL(bodyId)) {
-                    b2Vec2 newPos = { x, y };
-                    b2Body_SetTransform(bodyId, newPos, b2MakeRot(0.0f));
-                    bodyMoved = true;
-                }
-                if (!bodyMoved) {
-                    tc.SetTranslation({ x, y, 0.1f });
+                float ballAngle = glm::radians(m_CurrentAngle) + (i * angleStep);
+
+                float x = centerPos.x + cos(ballAngle) * Radius;
+                float y = centerPos.y + sin(ballAngle) * Radius;
+
+                auto& tc = orbital.GetComponent<TransformComponent>();
+                bool bodyMoved = false;
+
+                if (orbital.HasComponent<Rigidbody2DComponent>()) {
+                    auto& rb = orbital.GetComponent<Rigidbody2DComponent>();
+                    b2BodyId bodyId = (b2BodyId)rb.RuntimeBody;
+                    if (B2_IS_NON_NULL(bodyId)) {
+                        b2Vec2 newPos = { x, y };
+                        b2Body_SetTransform(bodyId, newPos, b2MakeRot(0.0f));
+                        bodyMoved = true;
+                    }
+                    if (!bodyMoved) {
+                        tc.SetTranslation({ x, y, 0.1f });
+                    }
                 }
             }
         }
-    }
 
-    void OnDestroy() override {
-        for (auto orbital : m_Orbitals) {
-            if (orbital) GetScene()->SubmitForDestruction(orbital);
+        void OnDestroy() override {
+            for (auto orbital : m_Orbitals) {
+                if (orbital) GetScene()->SubmitForDestruction(orbital);
+            }
+            m_Orbitals.clear();
         }
-        m_Orbitals.clear();
-    }
 
-    void SetLevel(int level) {
-        int count = level + 1;
-        RebuildOrbitals(count);
-    }
-
-private:
-
-	Entity PlayerEntity;
-
-    void RebuildOrbitals(int count) {
-        for (auto orbital : m_Orbitals) {
-            if (orbital) GetScene()->DestroyEntity(orbital);
+        void SetLevel(int level) {
+            int count = level + 1;
+            RebuildOrbitals(count);
         }
-        m_Orbitals.clear();
 
-        for (int i = 0; i < count; i++) {
-            Entity orbital = GetScene()->CreateEntity("OrbitalBall");
+    private:
 
-            auto& tc = orbital.GetComponent<TransformComponent>();
-            tc.SetScale({ 1.0f, 1.0f, 1.0f });
+        Entity PlayerEntity;
 
-            auto& sprite = orbital.AddComponent<SpriteRendererComponent>();
-			sprite.Texture = UpgradeDatabase::GetOrbitalTexture();
+        void RebuildOrbitals(int count) {
+            for (auto orbital : m_Orbitals) {
+                if (orbital) GetScene()->DestroyEntity(orbital);
+            }
+            m_Orbitals.clear();
 
-            orbital.AddComponent<NativeScriptComponent>().Bind<OrbitalProjectile>();
+            for (int i = 0; i < count; i++) {
+                Entity orbital = GetScene()->CreateEntity("OrbitalBall");
 
-            m_Orbitals.push_back(orbital);
+                auto& tc = orbital.GetComponent<TransformComponent>();
+                tc.SetScale({ 1.0f, 1.0f, 1.0f });
+
+                auto& sprite = orbital.AddComponent<SpriteRendererComponent>();
+                sprite.Texture = UpgradeDatabase::GetOrbitalTexture();
+
+                orbital.AddComponent<NativeScriptComponent>().Bind<OrbitalProjectile>();
+
+                m_Orbitals.push_back(orbital);
+            }
         }
-    }
-};
+    };
+
+}

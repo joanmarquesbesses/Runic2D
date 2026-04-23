@@ -265,4 +265,10 @@ namespace Runic2D {
 			return CurrentFrameIndex >= (CurrentAnimation->GetFrameCount() - 1);
 		}
 	};
+
+	struct UIComponent
+	{
+		UIComponent() = default;
+		bool Active = true;
+	};
 }
