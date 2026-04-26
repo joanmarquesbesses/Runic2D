@@ -9,51 +9,49 @@ namespace Runic2D {
 	struct ProjectConfig
 	{
 		std::string Name = "Untitled";
-
-		std::filesystem::path StartScene;
-
-		std::filesystem::path AssetDirectory = "Assets";
-		std::filesystem::path ScriptModulePath; // Ignorar de moment
+		std::string StartScene = "";   // relatiu a AssetDirectory
+		std::string AssetDirectory = "Assets";
+		std::string ScriptModulePath = ""; // relatiu a l'arrel del projecte
 	};
 
 	class RUNIC_API Project
 	{
-	public:
-		static const std::filesystem::path& GetAssetDirectory()
-		{
-			R2D_CORE_ASSERT(s_ActiveProject, "No active project!");
-			return s_ActiveProject->m_Config.AssetDirectory;
-		}
+    public:
+        static Ref<Project>           GetActive() { return s_ActiveProject; }
+        static const ProjectConfig&   GetConfig() { return s_ActiveProject->m_Config; }
+        static const std::filesystem::path& GetProjectDirectory() { return s_ActiveProject->m_ProjectDirectory; }
 
-		static std::filesystem::path GetAssetFileSystemPath(const std::filesystem::path& path)
-		{
-			R2D_CORE_ASSERT(s_ActiveProject, "No active project!");
-			auto assetDir = s_ActiveProject->m_Config.AssetDirectory;
-			if (path.string().find(assetDir.string()) == 0)
-			{
-				return s_ActiveProject->m_ProjectDirectory / path;
-			}
+        static std::filesystem::path GetAssetFileSystemPath(const std::filesystem::path& relativePath)
+        {
+            R2D_CORE_ASSERT(s_ActiveProject, "No hi ha cap projecte actiu!");
+            return s_ActiveProject->m_ProjectDirectory
+                / s_ActiveProject->m_Config.AssetDirectory
+                / relativePath;
+        }
 
-			return s_ActiveProject->m_ProjectDirectory / assetDir / path;
-		}
+        static std::filesystem::path GetAssetDirectory()
+        {
+            R2D_CORE_ASSERT(s_ActiveProject, "No hi ha cap projecte actiu!");
+            return s_ActiveProject->m_ProjectDirectory / s_ActiveProject->m_Config.AssetDirectory;
+        }
 
-		ProjectConfig& GetConfig() { return m_Config; }
+        static bool Load(const std::filesystem::path& filepath);
+        static bool Save(const std::filesystem::path& filepath);
+        static Ref<Project> New();
 
-		static Ref<Project> GetActive() { return s_ActiveProject; }
+        static void LoadRuntimeLibrary();
+        static void UnloadRuntimeLibrary();
 
-		static Ref<Project> New();
-		static Ref<Project> Load(const std::filesystem::path& path);
-		static bool SaveActive(const std::filesystem::path& path);
+        ProjectConfig& GetConfigMut() { return m_Config; }
 
-		static bool LoadRuntimeLibrary();
-		static void UnloadRuntimeLibrary();
+        static void Shutdown()
+        {
+            s_ActiveProject = nullptr;
+        }
 
-	private:
-		ProjectConfig m_Config;
-		std::filesystem::path m_ProjectDirectory;
-
-		inline static Ref<Project> s_ActiveProject;
-
-		inline static void* s_RuntimeLibraryHandle = nullptr; // void* per no incloure Windows.h aquí
+    private:
+        ProjectConfig          m_Config;
+        std::filesystem::path  m_ProjectDirectory; 
+        static Ref<Project>    s_ActiveProject;
 	};
 }

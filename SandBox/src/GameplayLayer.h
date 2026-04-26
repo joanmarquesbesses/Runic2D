@@ -5,7 +5,7 @@
 class GameplayLayer : public Runic2D::Layer
 {
 public:
-	GameplayLayer(Runic2D::Ref<Runic2D::Scene> scene);
+	GameplayLayer();
 
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
@@ -17,7 +17,6 @@ private:
 	bool OnWindowResize(Runic2D::WindowResizeEvent& e);
 	void ShowColliderOverlay();
 private:
-	Runic2D::Ref<Runic2D::Scene> m_ActiveScene;
 	bool m_ShowPhysicsColliders = false;
 };
 

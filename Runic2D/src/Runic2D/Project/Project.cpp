@@ -2,11 +2,14 @@
 #include "Project.h"
 #include "ProjectSerializer.h"
 
-#include "Runic2D/Scripting/ScriptEngine.h"
-
-#include <Windows.h>
+#ifdef R2D_PLATFORM_WINDOWS
+	#include <Windows.h>
+	static HMODULE s_GameDLL = nullptr;
+#endif
 
 namespace Runic2D {
+
+	Ref<Project> Project::s_ActiveProject = nullptr;
 
 	Ref<Project> Project::New()
 	{
@@ -14,79 +17,86 @@ namespace Runic2D {
 		return s_ActiveProject;
 	}
 
-	Ref<Project> Project::Load(const std::filesystem::path& path)
+	bool Project::Load(const std::filesystem::path& filepath)
 	{
-		Ref<Project> project = CreateRef<Project>();
-
+		auto project = CreateRef<Project>();
 		ProjectSerializer serializer(project);
-		if (serializer.Deserialize(path))
+
+		if (!serializer.Deserialize(filepath))
 		{
-			project->m_ProjectDirectory = path.parent_path();
-			s_ActiveProject = project;
-			return s_ActiveProject;
-		}
-
-		return nullptr;
-	}
-
-	bool Project::SaveActive(const std::filesystem::path& path)
-	{
-		ProjectSerializer serializer(s_ActiveProject);
-		if (serializer.Serialize(path))
-		{
-			s_ActiveProject->m_ProjectDirectory = path.parent_path();
-			return true;
-		}
-		return false;
-	}
-
-	bool Project::LoadRuntimeLibrary()
-	{
-		if (s_RuntimeLibraryHandle) {
-			FreeLibrary((HMODULE)s_RuntimeLibraryHandle);
-			s_RuntimeLibraryHandle = nullptr;
-		}
-
-#ifdef R2D_DEBUG
-		std::string config = "Debug";
-#elif R2D_RELEASE
-		std::string config = "Release";
-#else
-		std::string config = "Dist";
-#endif
-
-		std::string dllPath = "bin/" + config + "-windows-x86_64/Survivor/Survivor.dll";
-
-		HMODULE hLib = LoadLibraryA(dllPath.c_str());
-		if (!hLib) {
-			R2D_CORE_ERROR("Project: Game DLL couldn't be loaded {0}", dllPath);
+			R2D_CORE_ERROR("Project: No s'ha pogut carregar '{0}'", filepath.string());
 			return false;
 		}
 
-		s_RuntimeLibraryHandle = hLib;
+		project->m_ProjectDirectory = filepath.parent_path();
+		s_ActiveProject = project;
 
-		typedef void (*InitFn)();
-		InitFn initModule = (InitFn)GetProcAddress(hLib, "InitRuntimeModule");
+		R2D_CORE_INFO("Project carregat: '{0}' des de '{1}'",
+			project->m_Config.Name, filepath.string());
+		return true;
+	}
 
-		if (initModule) {
-			initModule(); // Això crida al teu ScriptRegistry::BindScript
-			return true;
+	bool Project::Save(const std::filesystem::path& filepath)
+	{
+		R2D_CORE_ASSERT(s_ActiveProject, "No hi ha projecte actiu per guardar!");
+		ProjectSerializer serializer(s_ActiveProject);
+		if (!serializer.Serialize(filepath)) return false;
+		s_ActiveProject->m_ProjectDirectory = filepath.parent_path();
+		R2D_CORE_INFO("Project guardat: '{0}'", filepath.string());
+		return true;
+	}
+
+	void Project::LoadRuntimeLibrary()
+	{
+#ifdef R2D_PLATFORM_WINDOWS
+		R2D_CORE_ASSERT(s_ActiveProject, "No hi ha projecte actiu!");
+		if (s_GameDLL) UnloadRuntimeLibrary();
+
+		std::string configName;
+#if defined(R2D_DEBUG)
+		configName = "Debug-windows-x86_64";
+#elif defined(R2D_RELEASE)
+		configName = "Release-windows-x86_64";
+#elif defined(R2D_DIST)
+		configName = "Dist-windows-x86_64";
+#endif
+
+		std::filesystem::path dllPath = std::filesystem::current_path()
+			/ "bin" / configName
+			/ s_ActiveProject->m_Config.Name
+			/ s_ActiveProject->m_Config.ScriptModulePath;
+
+		// Normalitzar per evitar //..// etc.
+		dllPath = std::filesystem::weakly_canonical(dllPath);
+
+		s_GameDLL = LoadLibraryA(dllPath.string().c_str());
+		if (!s_GameDLL)
+		{
+			R2D_CORE_ERROR("Project: No s'ha pogut carregar la DLL '{0}' (error: {1})",
+				dllPath.string(), GetLastError());
+			return;
 		}
 
-		R2D_CORE_ERROR("Project: The DLL doesn't have InitRuntimeModule function!");
-		return false;
+		using InitFn = void(*)();
+		auto initFn = (InitFn)GetProcAddress(s_GameDLL, "InitRuntimeModule");
+		if (initFn) initFn();
+
+		R2D_CORE_INFO("Project: DLL carregada correctament: '{0}'", dllPath.string());
+#endif
 	}
 
 	void Project::UnloadRuntimeLibrary()
 	{
-		if (s_RuntimeLibraryHandle) {
-			typedef void (*ShutdownFn)();
-			ShutdownFn shutdownModule = (ShutdownFn)GetProcAddress((HMODULE)s_RuntimeLibraryHandle, "ShutdownRuntimeModule");
-			if (shutdownModule) {
-				shutdownModule(); // Això crida al teu ScriptRegistry::ShutdownRuntimeModule
-			}
-			FreeLibrary((HMODULE)s_RuntimeLibraryHandle);
-			s_RuntimeLibraryHandle = nullptr;
-		}
+#ifdef R2D_PLATFORM_WINDOWS
+		if (!s_GameDLL) return;
+
+		using ShutdownFn = void(*)();
+		auto shutdownFn = (ShutdownFn)GetProcAddress(s_GameDLL, "ShutdownRuntimeModule");
+		if (shutdownFn) shutdownFn();
+
+		FreeLibrary(s_GameDLL);
+		s_GameDLL = nullptr;
+		R2D_CORE_INFO("Project: DLL descarregada.");
+#endif
 	}
 }

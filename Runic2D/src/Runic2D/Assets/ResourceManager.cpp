@@ -17,10 +17,14 @@ namespace Runic2D {
 
 	void ResourceManager::Clear()
 	{
-		for (auto& clearFunc : GetCleanupQueue())
+		auto& queue = GetCleanupQueue();
+		for (auto& clearFunc : queue)
 		{
-			clearFunc();
+			if (clearFunc) 
+				clearFunc();
 		}
+
+		queue.clear();
 
 		R2D_CORE_INFO("ResourceManager: All caches cleared.");
 	}

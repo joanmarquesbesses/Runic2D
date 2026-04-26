@@ -255,6 +255,9 @@
     <ClInclude Include="src\Runic2D\Scene\SceneCamera.h">
       <Filter>src\Runic2D\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\SceneManager.h">
+      <Filter>src\Runic2D\Scene</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Scene\SceneSerializer.h">
       <Filter>src\Runic2D\Scene</Filter>
     </ClInclude>
@@ -1662,6 +1665,9 @@
       <Filter>src\Runic2D\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Scene\SceneCamera.cpp">
+      <Filter>src\Runic2D\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Scene\SceneManager.cpp">
       <Filter>src\Runic2D\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Scene\SceneSerializer.cpp">

@@ -12,15 +12,13 @@ public:
             Runic2D::Project::LoadRuntimeLibrary();
         }
 
-        m_ActiveScene = Runic2D::CreateRef<Runic2D::Scene>();
-
-        PushLayer(new GameplayLayer(m_ActiveScene));
+        PushLayer(new GameplayLayer());
     }
 
     virtual ~SandboxApp()
     {
-        m_ActiveScene = nullptr;
-        Runic2D::Project::UnloadRuntimeLibrary();
+        Runic2D::SceneManager::Shutdown();
+        Runic2D::Project::Shutdown();
     }
 
 private:

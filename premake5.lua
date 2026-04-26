@@ -99,12 +99,12 @@ project "Runic2D"
 
 	links
 	{
+		"Box2D",
 		"GLFW",
 		"Glad",
 		"ImGui",
 		"yaml-cpp",
 		"opengl32.lib",
-		"Box2D",
 		"msdf-atlas-gen"
 	}
 

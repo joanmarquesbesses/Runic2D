@@ -2371,6 +2371,7 @@ FITXER: .\Runic2D\src\Runic2D.h
 
 #include "Runic2D/Project/Project.h"
 #include "Runic2D/Scene/Scene.h"
+#include "Runic2D/Scene/SceneManager.h"
 #include "Runic2D/Scene/Entity.h"
 #include "Runic2D/Scene/ScriptableEntity.h"
 #include "Runic2D/Scene/Component.h"
@@ -4108,10 +4109,14 @@ namespace Runic2D {
 
 	void ResourceManager::Clear()
 	{
-		for (auto& clearFunc : GetCleanupQueue())
+		auto& queue = GetCleanupQueue();
+		for (auto& clearFunc : queue)
 		{
-			clearFunc();
+			if (clearFunc) 
+				clearFunc();
 		}
+
+		queue.clear();
 
 		R2D_CORE_INFO("ResourceManager: All caches cleared.");
 	}
@@ -4309,6 +4314,7 @@ FITXER: .\Runic2D\src\Runic2D\Core\Application.cpp
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Audio/AudioEngine.h"
 #include "Runic2D/Utils/Random.h"
+#include "Runic2D/Project/Project.h"
 
 #include "Input.h"
 
@@ -4349,6 +4355,7 @@ namespace Runic2D {
 		Renderer::Shutdown();
 		AudioEngine::Shutdown();
 		ResourceManager::Clear();
+		Project::UnloadRuntimeLibrary();
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -5712,6 +5719,231 @@ FITXER: .\Runic2D\src\Runic2D\Math\Math.h
 
 namespace Runic2D::Math {
 	RUNIC_API bool DecomposeTransform(const glm::mat4& transform, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale);
+}
+
+============================================================
+FITXER: .\Runic2D\src\Runic2D\Project\Project.cpp
+============================================================
+
+#include "R2Dpch.h"
+#include "Project.h"
+#include "ProjectSerializer.h"
+
+#ifdef R2D_PLATFORM_WINDOWS
+	#include <Windows.h>
+	static HMODULE s_GameDLL = nullptr;
+#endif
+
+namespace Runic2D {
+
+	Ref<Project> Project::s_ActiveProject = nullptr;
+
+	Ref<Project> Project::New()
+	{
+		s_ActiveProject = CreateRef<Project>();
+		return s_ActiveProject;
+	}
+
+	bool Project::Load(const std::filesystem::path& filepath)
+	{
+		auto project = CreateRef<Project>();
+		ProjectSerializer serializer(project);
+
+		if (!serializer.Deserialize(filepath))
+		{
+			R2D_CORE_ERROR("Project: No s'ha pogut carregar '{0}'", filepath.string());
+			return false;
+		}
+
+		project->m_ProjectDirectory = filepath.parent_path();
+		s_ActiveProject = project;
+
+		R2D_CORE_INFO("Project carregat: '{0}' des de '{1}'",
+			project->m_Config.Name, filepath.string());
+		return true;
+	}
+
+	bool Project::Save(const std::filesystem::path& filepath)
+	{
+		R2D_CORE_ASSERT(s_ActiveProject, "No hi ha projecte actiu per guardar!");
+		ProjectSerializer serializer(s_ActiveProject);
+		if (!serializer.Serialize(filepath)) return false;
+		s_ActiveProject->m_ProjectDirectory = filepath.parent_path();
+		R2D_CORE_INFO("Project guardat: '{0}'", filepath.string());
+		return true;
+	}
+
+	void Project::LoadRuntimeLibrary()
+	{
+#ifdef R2D_PLATFORM_WINDOWS
+		R2D_CORE_ASSERT(s_ActiveProject, "No hi ha projecte actiu!");
+		if (s_GameDLL) UnloadRuntimeLibrary();
+
+		std::string configName;
+#if defined(R2D_DEBUG)
+		configName = "Debug-windows-x86_64";
+#elif defined(R2D_RELEASE)
+		configName = "Release-windows-x86_64";
+#elif defined(R2D_DIST)
+		configName = "Dist-windows-x86_64";
+#endif
+
+		std::filesystem::path dllPath = std::filesystem::current_path()
+			/ "bin" / configName
+			/ s_ActiveProject->m_Config.Name
+			/ s_ActiveProject->m_Config.ScriptModulePath;
+
+		// Normalitzar per evitar //..// etc.
+		dllPath = std::filesystem::weakly_canonical(dllPath);
+
+		s_GameDLL = LoadLibraryA(dllPath.string().c_str());
+		if (!s_GameDLL)
+		{
+			R2D_CORE_ERROR("Project: No s'ha pogut carregar la DLL '{0}' (error: {1})",
+				dllPath.string(), GetLastError());
+			return;
+		}
+
+		using InitFn = void(*)();
+		auto initFn = (InitFn)GetProcAddress(s_GameDLL, "InitRuntimeModule");
+		if (initFn) initFn();
+
+		R2D_CORE_INFO("Project: DLL carregada correctament: '{0}'", dllPath.string());
+#endif
+	}
+
+	void Project::UnloadRuntimeLibrary()
+	{
+#ifdef R2D_PLATFORM_WINDOWS
+		if (!s_GameDLL) return;
+
+		using ShutdownFn = void(*)();
+		auto shutdownFn = (ShutdownFn)GetProcAddress(s_GameDLL, "ShutdownRuntimeModule");
+		if (shutdownFn) shutdownFn();
+
+		FreeLibrary(s_GameDLL);
+		s_GameDLL = nullptr;
+		R2D_CORE_INFO("Project: DLL descarregada.");
+#endif
+	}
+}
+
+============================================================
+FITXER: .\Runic2D\src\Runic2D\Project\Project.h
+============================================================
+
+#pragma once
+
+#include <string>
+#include <filesystem>
+#include "Runic2D/Core/Core.h"
+
+namespace Runic2D {
+
+	struct ProjectConfig
+	{
+		std::string Name = "Untitled";
+		std::string StartScene = "";   // relatiu a AssetDirectory
+		std::string AssetDirectory = "Assets";
+		std::string ScriptModulePath = ""; // relatiu a l'arrel del projecte
+	};
+
+	class RUNIC_API Project
+	{
+    public:
+        static Ref<Project>           GetActive() { return s_ActiveProject; }
+        static const ProjectConfig&   GetConfig() { return s_ActiveProject->m_Config; }
+        static const std::filesystem::path& GetProjectDirectory() { return s_ActiveProject->m_ProjectDirectory; }
+
+        static std::filesystem::path GetAssetFileSystemPath(const std::filesystem::path& relativePath)
+        {
+            R2D_CORE_ASSERT(s_ActiveProject, "No hi ha cap projecte actiu!");
+            return s_ActiveProject->m_ProjectDirectory
+                / s_ActiveProject->m_Config.AssetDirectory
+                / relativePath;
+        }
+
+        static std::filesystem::path GetAssetDirectory()
+        {
+            R2D_CORE_ASSERT(s_ActiveProject, "No hi ha cap projecte actiu!");
+            return s_ActiveProject->m_ProjectDirectory / s_ActiveProject->m_Config.AssetDirectory;
+        }
+
+        static bool Load(const std::filesystem::path& filepath);
+        static bool Save(const std::filesystem::path& filepath);
+        static Ref<Project> New();
+
+        static void LoadRuntimeLibrary();
+        static void UnloadRuntimeLibrary();
+
+        ProjectConfig& GetConfigMut() { return m_Config; }
+
+    private:
+        ProjectConfig          m_Config;
+        std::filesystem::path  m_ProjectDirectory; 
+        static Ref<Project>    s_ActiveProject;
+	};
+}
+
+
+============================================================
+FITXER: .\Runic2D\src\Runic2D\Project\ProjectSerializer.cpp
+============================================================
+
+#include "R2Dpch.h"
+#include "ProjectSerializer.h"
+
+#include <fstream>
+#include <yaml-cpp/yaml.h>
+
+namespace Runic2D {
+
+	ProjectSerializer::ProjectSerializer(Ref<Project> project)
+		: m_Project(project)
+	{
+	}
+
+	bool ProjectSerializer::Serialize(const std::filesystem::path& filepath)
+	{
+		const auto& config = m_Project->GetConfig();
+
+		YAML::Emitter out;
+		out << YAML::BeginMap;
+		out << YAML::Key << "Project" << YAML::BeginMap;
+		out << YAML::Key << "Name" << YAML::Value << config.Name;
+		out << YAML::Key << "StartScene" << YAML::Value << config.StartScene;
+		out << YAML::Key << "AssetDirectory" << YAML::Value << config.AssetDirectory;
+		out << YAML::Key << "ScriptModulePath" << YAML::Value << config.ScriptModulePath;
+		out << YAML::EndMap;
+		out << YAML::EndMap;
+
+		std::ofstream fout(filepath);
+		if (!fout.is_open()) return false;
+		fout << out.c_str();
+		return true;
+	}
+
+	bool ProjectSerializer::Deserialize(const std::filesystem::path& filepath)
+	{
+		YAML::Node data;
+		try { data = YAML::LoadFile(filepath.string()); }
+		catch (const YAML::Exception& e)
+		{
+			R2D_CORE_ERROR("ProjectSerializer: Error YAML '{0}': {1}",
+				filepath.string(), e.what());
+			return false;
+		}
+
+		auto projectNode = data["Project"];
+		if (!projectNode) return false;
+
+		auto& config = m_Project->GetConfigMut();
+		config.Name = projectNode["Name"].as<std::string>("Untitled");
+		config.StartScene = projectNode["StartScene"].as<std::string>("");
+		config.AssetDirectory = projectNode["AssetDirectory"].as<std::string>("Assets");
+		config.ScriptModulePath = projectNode["ScriptModulePath"].as<std::string>("");
+		return true;
+	}
 }
 
 ============================================================
@@ -8453,6 +8685,166 @@ namespace Runic2D
 
 
 ============================================================
+FITXER: .\Runic2D\src\Runic2D\Scene\SceneManager.cpp
+============================================================
+
+#include "R2Dpch.h"
+#include "SceneManager.h"
+#include "SceneSerializer.h"
+#include "Runic2D/Project/Project.h"
+#include "Runic2D/Core/Application.h"
+#include "Runic2D/Scripting/ScriptEngine.h"
+#include "Component.h"
+
+namespace Runic2D {
+
+    Ref<Scene>                           SceneManager::s_ActiveScene = nullptr;
+    SceneManager::SceneChangedCallbackFn SceneManager::s_OnSceneChanged = nullptr;
+
+    bool SceneManager::LoadStartScene()
+    {
+        R2D_CORE_ASSERT(Project::GetActive(), "No hi ha projecte actiu!");
+
+        const std::string& startScene = Project::GetConfig().StartScene;
+        if (startScene.empty())
+        {
+            R2D_CORE_WARN("SceneManager: StartScene no definida al projecte.");
+            s_ActiveScene = CreateRef<Scene>();
+            if (s_OnSceneChanged) s_OnSceneChanged(s_ActiveScene);
+            return false;
+        }
+
+        return LoadScene(startScene);
+    }
+
+    bool SceneManager::LoadScene(const std::filesystem::path& relativePath)
+    {
+        auto absolutePath = Project::GetAssetFileSystemPath(relativePath);
+        return LoadSceneInternal(absolutePath, true);
+    }
+
+    bool SceneManager::LoadSceneAbsolute(const std::filesystem::path& absolutePath)
+    {
+        return LoadSceneInternal(absolutePath, true);
+    }
+
+    bool SceneManager::TransitionTo(const std::filesystem::path& relativePath)
+    {
+        StopActiveScene();
+        return LoadScene(relativePath);
+    }
+
+    void SceneManager::StopActiveScene()
+    {
+        if (!s_ActiveScene) return;
+        s_ActiveScene->OnRuntimeStop();
+        s_ActiveScene = nullptr;
+        R2D_CORE_INFO("SceneManager: Escena activa parada.");
+    }
+
+    bool SceneManager::LoadSceneInternal(const std::filesystem::path& absolutePath,
+        bool startRuntime)
+    {
+        if (!std::filesystem::exists(absolutePath))
+        {
+            R2D_CORE_ERROR("SceneManager: Escena no trobada: '{0}'", absolutePath.string());
+            return false;
+        }
+
+        StopActiveScene();
+
+        auto newScene = CreateRef<Scene>();
+        SceneSerializer serializer(newScene);
+
+        if (!serializer.Deserialize(absolutePath.string()))
+        {
+            R2D_CORE_ERROR("SceneManager: Error deserialitzant '{0}'", absolutePath.string());
+            return false;
+        }
+
+        s_ActiveScene = newScene;
+
+        auto view = s_ActiveScene->GetAllEntitiesWith<NativeScriptComponent>();
+        for (auto e : view)
+        {
+            Entity entity = { e, s_ActiveScene.get() };
+            auto& nsc = entity.GetComponent<NativeScriptComponent>();
+            if (!nsc.ClassName.empty())
+                ScriptEngine::BindScript(nsc.ClassName, entity);
+        }
+
+        if (startRuntime)
+        {
+            s_ActiveScene->OnRuntimeStart();
+
+            auto& window = Application::Get().GetWindow();
+            s_ActiveScene->OnViewportResize(window.GetWidth(), window.GetHeight());
+        }
+
+        R2D_CORE_INFO("SceneManager: Escena carregada: '{0}'", absolutePath.string());
+
+        if (s_OnSceneChanged) s_OnSceneChanged(s_ActiveScene);
+
+        return true;
+    }
+}
+
+============================================================
+FITXER: .\Runic2D\src\Runic2D\Scene\SceneManager.h
+============================================================
+
+#pragma once
+#include "Runic2D/Core/Core.h"
+#include "Scene.h"
+#include <filesystem>
+#include <functional>
+
+namespace Runic2D {
+
+    class RUNIC_API SceneManager
+    {
+    public:
+        using SceneChangedCallbackFn = std::function<void(Ref<Scene>)>;
+
+        static bool LoadStartScene();
+
+        static bool LoadScene(const std::filesystem::path& relativePath);
+
+        static bool LoadSceneAbsolute(const std::filesystem::path& absolutePath);
+
+        static bool TransitionTo(const std::filesystem::path& relativePath);
+
+        static Ref<Scene> GetActiveScene() { return s_ActiveScene; }
+
+        static void SetSceneChangedCallback(SceneChangedCallbackFn callback)
+        {
+            s_OnSceneChanged = callback;
+        }
+
+        static void Shutdown()
+        {
+            StopActiveScene();
+            s_ActiveScene = nullptr;
+            s_OnSceneChanged = nullptr;
+        }
+
+        static void SetActiveScene(Ref<Scene> scene)
+        {
+            StopActiveScene();
+            s_ActiveScene = scene;
+            if (s_OnSceneChanged) s_OnSceneChanged(s_ActiveScene);
+        }
+
+    private:
+        static bool LoadSceneInternal(const std::filesystem::path& absolutePath, bool startRuntime);
+        static void StopActiveScene();
+
+        static Ref<Scene>               s_ActiveScene;
+        static SceneChangedCallbackFn   s_OnSceneChanged;
+    };
+}
+
+============================================================
 FITXER: .\Runic2D\src\Runic2D\Scene\SceneSerializer.h
 ============================================================
 
@@ -9298,8 +9690,8 @@ FITXER: .\SandBox\src\GameplayLayer.cpp
 
 using namespace Runic2D;
 
-GameplayLayer::GameplayLayer(Ref<Scene> scene)
-    : Layer("Sandbox2D"), m_ActiveScene(scene) 
+GameplayLayer::GameplayLayer()
+    : Layer("GameplayLayer") 
 {
 }
 
@@ -9307,57 +9699,33 @@ void GameplayLayer::OnAttach()
 {
 	R2D_PROFILE_FUNCTION();
 
-    SceneSerializer serializer(m_ActiveScene);
-    std::string scenePath = "Projects/Survivor/Assets/scenes/MainScene.r2dscene";
-
-    if (serializer.Deserialize(scenePath))
-    {
-        auto view = m_ActiveScene->GetAllEntitiesWith<NativeScriptComponent>();
-        for (auto e : view)
-        {
-            Entity entity = { e, m_ActiveScene.get() };
-            auto& nsc = entity.GetComponent<NativeScriptComponent>();
-
-            if (!nsc.ClassName.empty())
-            {
-                ScriptEngine::BindScript(nsc.ClassName, entity);
-            }
-        }
-
-        m_ActiveScene->OnRuntimeStart();
-
-        auto& window = Application::Get().GetWindow();
-        m_ActiveScene->OnViewportResize(window.GetWidth(), window.GetHeight());
-    }
-    else
-    {
-        R2D_ERROR("Sandbox2D: Could not load scene at {0}", scenePath);
-    }
+    SceneManager::LoadStartScene();
 }
 
 void GameplayLayer::OnDetach()
 {
 	R2D_PROFILE_FUNCTION();
 
-    if (m_ActiveScene)
-        m_ActiveScene->OnRuntimeStop();
+    auto scene = SceneManager::GetActiveScene();
+    if (scene) scene->OnRuntimeStop();
 }
 
 void GameplayLayer::OnUpdate(Runic2D::Timestep ts)
 {
     R2D_PROFILE_FUNCTION();
 
+    auto scene = SceneManager::GetActiveScene();
+    if (!scene) return;
+
     RenderCommand::SetClearColor({ 0.2f, 0.2f, 0.2f, 1 });
     RenderCommand::Clear();
 
-    if (m_ActiveScene) {
-        m_ActiveScene->OnUpdateRunTime(ts); 
-        m_ActiveScene->OnRenderRuntime();
-		m_ActiveScene->OnRenderUI();
+    scene->OnUpdateRunTime(ts);
+    scene->OnRenderRuntime();
+    scene->OnRenderUI();
 
-        if (m_ShowPhysicsColliders)
-            ShowColliderOverlay();
-    }
+    if (m_ShowPhysicsColliders)
+        ShowColliderOverlay();
 }
 
 void GameplayLayer::OnEvent(Runic2D::Event& e)
@@ -9369,10 +9737,8 @@ void GameplayLayer::OnEvent(Runic2D::Event& e)
 
 bool GameplayLayer::OnWindowResize(WindowResizeEvent& e)
 {
-    if (m_ActiveScene)
-    {
-        m_ActiveScene->OnViewportResize(e.GetWidth(), e.GetHeight());
-    }
+    auto scene = SceneManager::GetActiveScene();
+    if (scene) scene->OnViewportResize(e.GetWidth(), e.GetHeight());
     return false;
 }
 
@@ -9391,17 +9757,16 @@ bool GameplayLayer::OnKeyPressed(KeyPressedEvent& e)
 
 void GameplayLayer::ShowColliderOverlay()
 {
-    glm::mat4 viewProj;
+    auto scene = SceneManager::GetActiveScene();
+    if (!scene) return;
 
-    Entity cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-    if (cameraEntity)
-    {
-        auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
-        auto& tc = cameraEntity.GetComponent<TransformComponent>();
-        viewProj = camera.GetProjection() * glm::inverse(tc.GetTransform());
-    }
+    Entity cam = scene->GetPrimaryCameraEntity();
+    if (!cam) return;
 
-    m_ActiveScene->OnRenderOverlay(viewProj);
+    auto& camera = cam.GetComponent<CameraComponent>().Camera;
+    auto& tc = cam.GetComponent<TransformComponent>();
+    glm::mat4 vp = camera.GetProjection() * glm::inverse(tc.GetTransform());
+    scene->OnRenderOverlay(vp);
 }
 
 
@@ -9416,7 +9781,7 @@ FITXER: .\SandBox\src\GameplayLayer.h
 class GameplayLayer : public Runic2D::Layer
 {
 public:
-	GameplayLayer(Runic2D::Ref<Runic2D::Scene> scene);
+	GameplayLayer();
 
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
@@ -9428,7 +9793,6 @@ private:
 	bool OnWindowResize(Runic2D::WindowResizeEvent& e);
 	void ShowColliderOverlay();
 private:
-	Runic2D::Ref<Runic2D::Scene> m_ActiveScene;
 	bool m_ShowPhysicsColliders = false;
 };
 
@@ -9452,15 +9816,12 @@ public:
             Runic2D::Project::LoadRuntimeLibrary();
         }
 
-        m_ActiveScene = Runic2D::CreateRef<Runic2D::Scene>();
-
-        PushLayer(new GameplayLayer(m_ActiveScene));
+        PushLayer(new GameplayLayer());
     }
 
     virtual ~SandboxApp()
     {
-        m_ActiveScene = nullptr;
-        Runic2D::Project::UnloadRuntimeLibrary();
+        Runic2D::SceneManager::Shutdown();
     }
 
 private:
