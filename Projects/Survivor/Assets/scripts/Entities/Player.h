@@ -2,7 +2,7 @@
 
 #include "Runic2D.h"
 
-#include "Systems/UpgradeSystem.h"
+#include "Systems/UpgradeDatabase.h"
 
 namespace Survivor {
 

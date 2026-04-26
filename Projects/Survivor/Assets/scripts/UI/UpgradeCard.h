@@ -12,111 +12,107 @@ namespace Survivor {
         UpgradeDef m_Data;
         bool m_IsPressed = false;
 
+        glm::vec3 m_BaseScale = glm::vec3(1.f);
+        glm::vec3 m_TitleBaseScale = glm::vec3(0.35f);
+        glm::vec3 m_DescBaseScale = glm::vec3(0.28f);
+        bool m_Clicked = false;
+
         void OnCreate() override {
-            if (HasComponent<UpgradeComponent>()) {
-                m_Data = GetComponent<UpgradeComponent>().Data;
-
-                if (HasComponent<SpriteRendererComponent>()) {
-                    auto& src = GetComponent<SpriteRendererComponent>();
-
-                    if (m_Data.CardTexture) {
-                        src.Texture = m_Data.CardTexture;
-                    }
-                    else {
-                        src.Color = m_Data.Color;
-                    }
-                }
-
-                CreateTextChild("TitleText", m_Data.Title, { 0.0f, 0.7f, 0.1f }, 0.1f);
-                CreateTextChild("DescText", m_Data.Description, { 0.0f, 0.05f, 0.1f }, 0.1f);
-            }
+            m_BaseScale = GetComponent<TransformComponent>().Scale;
         }
 
         void OnUpdate(Timestep ts) override {
-            bool hover = IsMouseOver();
+            glm::vec2 mouse = GetMouseUIPosition();
+            auto& tc = GetComponent<TransformComponent>();
+            auto& uc = GetComponent<UpgradeComponent>();
 
-            if (hover && Input::IsMouseButtonPressed(MouseButton::Left)) {
-                m_IsPressed = true;
-                GetComponent<TransformComponent>().SetScale({ 2.8f, 3.8f, 1.0f });
+            float halfW = std::abs(m_BaseScale.x) * 0.5f;
+            float halfH = std::abs(m_BaseScale.y) * 0.5f;
+
+            bool hovered = mouse.x > tc.Translation.x - halfW &&
+                mouse.x < tc.Translation.x + halfW &&
+                mouse.y > tc.Translation.y - halfH &&
+                mouse.y < tc.Translation.y + halfH;
+
+            float hoverMultiplier = hovered ? 1.06f : 1.0f;
+
+            tc.Scale = glm::mix(tc.Scale, m_BaseScale * hoverMultiplier, 0.15f);
+			tc.IsDirty = true;
+
+            float titleBaseY = 1.4f;
+            float descBaseY = -1.2f;
+
+            if (uc.TitleEntity) {
+                auto& titleTc = uc.TitleEntity.GetComponent<TransformComponent>();
+                titleTc.Scale = glm::mix(titleTc.Scale, m_TitleBaseScale * hoverMultiplier, 0.15f);
+                float targetY = tc.Translation.y + (titleBaseY * hoverMultiplier);
+                titleTc.Translation.y = glm::mix(titleTc.Translation.y, targetY, 0.15f);
+                titleTc.IsDirty = true;
             }
 
-            if (m_IsPressed && !Input::IsMouseButtonPressed(MouseButton::Left)) {
-                m_IsPressed = false;
-                if (hover) {
-                    ApplyUpgrade();
-                }
-                else {
-                    GetComponent<TransformComponent>().SetScale({ 3.0f, 4.0f, 1.0f });
-                }
+            if (uc.DescEntity) {
+                auto& descTc = uc.DescEntity.GetComponent<TransformComponent>();
+                descTc.Scale = glm::mix(descTc.Scale, m_DescBaseScale * hoverMultiplier, 0.15f);
+                float targetY = tc.Translation.y + (descBaseY * hoverMultiplier);
+                descTc.Translation.y = glm::mix(descTc.Translation.y, targetY, 0.15f);
+				descTc.IsDirty = true;
             }
+
+            if (hovered && Input::IsMouseButtonPressed(MouseButton::Left) && !m_Clicked)
+            {
+                m_Clicked = true;
+                SelectUpgrade();
+            }
+
+            if (!Input::IsMouseButtonPressed(MouseButton::Left))
+                m_Clicked = false;
         }
 
     private:
-        void ApplyUpgrade() {
-            R2D_INFO("Millora triada: {0}", m_Data.Title);
-            //GameContext::Get().TriggerUpgradeApplied(m_Data.Type);
-            //GameContext::Get().State = GameState::Running;
+        void SelectUpgrade()
+        {
+            if (!HasComponent<UpgradeComponent>()) return;
+
+            Entity statsEntity = GetScene()->GetEntityWithComponent<GameStatsComponent>();
+            if (!statsEntity) return;
+
+            auto& stats = statsEntity.GetComponent<GameStatsComponent>();
+            if (stats.OnUpgradeApplied)
+                stats.OnUpgradeApplied(GetComponent<UpgradeComponent>().Data.Type);
         }
 
-        bool IsMouseOver() {
-            glm::vec2 mouseWorld = Utils::SceneUtils::GetMouseWorldPosition(GetScene());
-            if (!HasComponent<TransformComponent>()) return false;
-            auto& tc = GetComponent<TransformComponent>();
-            float halfW = 0.5f * tc.Scale.x;
-            float halfH = 0.5f * tc.Scale.y;
-            return (mouseWorld.x >= tc.Translation.x - halfW && mouseWorld.x <= tc.Translation.x + halfW &&
-                mouseWorld.y >= tc.Translation.y - halfH && mouseWorld.y <= tc.Translation.y + halfH);
-        }
+        glm::vec2 GetMouseUIPosition()
+        {
+            Entity uiCam = {};
 
-        void CreateTextChild(std::string name, std::string content, glm::vec3 offset, float size) {
+            auto view = GetScene()->GetAllEntitiesWith<CameraComponent, UIComponent>();
 
-            // espai entre línies
-            float lineSpacingMultiplier = 1.0f;
+            view.each([&](auto entity, auto& cam, auto& ui) {
+                if (!uiCam) { 
+                    uiCam = { entity, GetScene() };
+                }
+                });
 
-            // 2. AJUST VERTICAL DE LA FONT (Baseline): 
-            float fontBaselineOffset = 0.4f;
+            if (!uiCam)
+                return Utils::SceneUtils::GetMouseWorldPosition(GetScene());
 
-            // 3. AJUST HORITZONTAL MANUAL (Nudge):
-            float manualXCorrection = 0.02f;
+            auto& window = Application::Get().GetWindow();
+            glm::vec2 input = Input::GetMousePosition();
+            float width = (float)window.GetWidth();
+            float height = (float)window.GetHeight();
 
-            std::vector<std::string> lines;
-            std::stringstream ss(content);
-            std::string segment;
-            while (std::getline(ss, segment, '\n')) {
-                lines.push_back(segment);
-            }
+            auto& camera = uiCam.GetComponent<CameraComponent>().Camera;
+            auto& camTrans = uiCam.GetComponent<TransformComponent>();
 
-            int totalLines = (int)lines.size();
-            float lineHeight = size * lineSpacingMultiplier;
+            float x = (2.f * input.x) / width - 1.f;
+            float y = 1.f - (2.f * input.y) / height;
 
-            float totalBlockHeight = (totalLines - 1) * lineHeight;
-            float startY = offset.y + (totalBlockHeight / 2.0f) - fontBaselineOffset;
+            glm::mat4 invViewProj = glm::inverse(
+                camera.GetProjection() * glm::inverse(camTrans.GetTransform())
+            );
 
-            auto font = Font::GetDefault();
-            float kerning = 0.05f;
-
-            for (int i = 0; i < totalLines; i++) {
-
-                Entity textEnt = GetScene()->CreateEntity(name + "_" + std::to_string(i));
-                GetScene()->ParentEntity(textEnt, GetEntity());
-
-                float rawTextWidth = font->GetStringWidth(lines[i], kerning);
-                float visualTextWidth = rawTextWidth * size;
-
-                float centeredX = offset.x - (visualTextWidth / 2.0f) + manualXCorrection;
-
-                float currentY = startY - (i * lineHeight);
-
-                auto& tc = textEnt.GetComponent<TransformComponent>();
-                tc.SetTranslation({ centeredX, currentY, offset.z });
-                tc.SetScale({ size, size, 1.0f });
-
-                auto& txt = textEnt.AddComponent<TextComponent>();
-                txt.TextString = lines[i];
-                txt.Color = { 0.0f, 0.0f, 0.0f, 1.0f };
-                txt.Kerning = kerning;
-                txt.FontAsset = font;
-            }
+            glm::vec4 worldPos = invViewProj * glm::vec4(x, y, 1.f, 1.f);
+            return { worldPos.x, worldPos.y };
         }
     };
 

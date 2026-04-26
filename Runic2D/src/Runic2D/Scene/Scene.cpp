@@ -307,7 +307,6 @@ namespace Runic2D {
 		//Update Particles
 		m_ParticleSystem.OnUpdate(ts);
 		UpdateAnimation(ts);
-		OnRenderRuntime();
 
 		for (auto e : m_DestructionQueue)
 		{

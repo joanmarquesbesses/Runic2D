@@ -115,6 +115,8 @@ namespace Runic2D
 			case SceneState::Play:
 			{
 				m_ActiveScene->OnUpdateRunTime(ts);
+				m_ActiveScene->OnRenderRuntime();
+				m_ActiveScene->OnRenderUI();
 				break;
 			}
 		}

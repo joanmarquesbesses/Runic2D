@@ -2,7 +2,7 @@
 
 #include "Runic2D.h"
 #include "Entities/EntityFactory.h"
-#include "Systems/UpgradeSystem.h"
+#include "Systems/UpgradeDatabase.h"
 #include "GameComponents.h"
 #include "UI/HUDManager.h"
 

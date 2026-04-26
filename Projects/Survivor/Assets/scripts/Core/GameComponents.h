@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "Systems/UpgradeSystem.h"
+#include "Systems/UpgradeDatabase.h"
 
 namespace Survivor {
 
@@ -65,6 +65,8 @@ namespace Survivor {
 		UpgradeDef Data;
 		UpgradeComponent() = default;
 		UpgradeComponent(const UpgradeDef& data) : Data(data) {}
+		Entity TitleEntity = {};
+		Entity DescEntity = {};
 	};
 
 	struct PlayerUpgradesComponent {

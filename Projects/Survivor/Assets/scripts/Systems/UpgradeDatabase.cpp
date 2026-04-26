@@ -1,4 +1,4 @@
-#include "UpgradeSystem.h"
+#include "UpgradeDatabase.h"
 
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Project/Project.h"
