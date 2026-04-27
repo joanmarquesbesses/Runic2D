@@ -1,16 +1,14 @@
+﻿#include "R2Dpch.h"
 #include "EditorLayer.h"
 
 #include <imgui/imgui.h>
-
-#include <glm/gtc/matrix_transform.hpp>
+#include <ImGuizmo.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Runic2D/Project/Project.h"
+#include "Runic2D/Scene/SceneManager.h"
 #include "Runic2D/Scene/SceneSerializer.h"
 #include "Runic2D/Utils/PlatformUtils.h"
-#include "Runic2D/Project/Project.h"
-#include"Runic2D/Assets/ResourceManager.h"
-
-#include "ImGuizmo.h"
 
 namespace Runic2D
 {
@@ -29,35 +27,9 @@ namespace Runic2D
 		fbSpec.Height = 720;
 		m_FrameBuffer = FrameBuffer::Create(fbSpec);
 
-		m_ActiveScene = CreateRef<Scene>();
-		m_EditorScene = m_ActiveScene;
-		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
-
-		std::filesystem::path projectPath = "Projects/Survivor/Survivor.r2dproj";
-
-		if (std::filesystem::exists(projectPath))
-		{
-			OpenProject(projectPath);
-		}
-		else
-		{
-			Project::New();
-			m_ContentBrowserPanel.ResetToDefault();
-		}
-
-		m_ContentBrowserPanel.SetOnFileOpenCallback([this](const std::filesystem::path& path)
-			{
-				if (path.extension().string() == ".r2dscene")
-				{
-					OpenScene(path);
-				}
-				else
-				{
-					R2D_CORE_WARN("File type not supported for opening: {0}", path.string());
-				}
-			});
+		m_EditorCamera.SetProjectionType(EditorCamera::ProjectionType::Orthographic);
+		m_EditorCamera.SetRotationLocked(true);
 
 		m_ToolbarPanel.SetOnPlayCallback([this]() { OnScenePlay(); });
 		m_ToolbarPanel.SetOnStopCallback([this]() { OnSceneStop(); });
@@ -65,190 +37,201 @@ namespace Runic2D
 		m_ViewportPanel.SetOnSceneOpenCallback([this](const std::string& path) {
 			OpenScene(path);
 			});
+
+		m_ContentBrowserPanel.SetOnFileOpenCallback([this](const std::filesystem::path& path) {
+			if (path.extension() == ".r2dscene")
+				OpenScene(path);
+			});
+
+		m_EditorScene = CreateRef<Scene>();
+		SceneManager::SetActiveScene(m_EditorScene);
+		m_SceneHierarchyPanel.SetContext(m_EditorScene);
 	}
 
 	void EditorLayer::OnDetach()
 	{
 		R2D_PROFILE_FUNCTION();
-		//EntityFactory::Shutdown();
+
+		if (m_SceneState == SceneState::Play)
+			SceneManager::StopActiveScene();
+
+		SceneManager::SetSceneChangedCallback(nullptr);
+
 		m_EditorScene = nullptr;
-		m_ActiveScene = nullptr;
+		m_HoveredEntity = {};
+		m_SceneHierarchyPanel.SetContext(nullptr);
 	}
 
 	void EditorLayer::OnUpdate(Timestep ts)
 	{
 		R2D_PROFILE_FUNCTION();
 
-		glm::vec2 viewportSize = m_ViewportPanel.GetSize();
-		//Resize
-		if(FrameBufferSpecification spec = m_FrameBuffer->GetSpecification();
-			viewportSize.x > 0.0f && viewportSize.y > 0.0f &&
-			(spec.Width != viewportSize.x || spec.Height != viewportSize.y))
+		glm::vec2 vpSize = m_ViewportPanel.GetSize();
+		if (vpSize.x > 0.f && vpSize.y > 0.f && vpSize != m_LastViewportSize)
 		{
-			m_FrameBuffer->Resize((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
-			m_EditorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
-			m_ActiveScene->OnViewportResize((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+			m_LastViewportSize = vpSize;
+			m_FrameBuffer->Resize((uint32_t)vpSize.x, (uint32_t)vpSize.y);
+			m_EditorCamera.SetViewportSize(vpSize.x, vpSize.y);
+
+			auto scene = SceneManager::GetActiveScene();
+			if (scene) scene->OnViewportResize((uint32_t)vpSize.x, (uint32_t)vpSize.y);
 		}
 
-		//render
-		Renderer2D::ResetStats();
+		if (m_SceneState == SceneState::Edit && m_ViewportPanel.IsFocused())
+			m_EditorCamera.OnUpdate(ts);
+
 		m_FrameBuffer->Bind();
-
-		if (m_SceneState == SceneState::Play)
-			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.2f, 1 });
-		else
-			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
-
+		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.f });
 		RenderCommand::Clear();
+		m_FrameBuffer->ClearAttachment(1, -1); // entity ID buffer
 
-		m_FrameBuffer->ClearAttachment(1, -1);
-		//update scene
-		switch (m_SceneState)
+		auto scene = SceneManager::GetActiveScene();
+		if (scene)
 		{
-			case SceneState::Edit:
+			if (m_SceneState == SceneState::Edit)
 			{
-				m_EditorCamera.OnUpdate(ts);
-				m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
-
-				break;
+				scene->OnUpdateEditor(ts, m_EditorCamera);
 			}
-			case SceneState::Play:
+			else // Play
 			{
-				m_ActiveScene->OnUpdateRunTime(ts);
-				m_ActiveScene->OnRenderRuntime();
-				m_ActiveScene->OnRenderUI();
-				break;
+				scene->OnUpdateRunTime(ts);
+				scene->OnRenderRuntime();
+				scene->OnRenderUI();
 			}
-		}
 
-		if (m_ShowPhysicsColliders)
-		{
-			glm::mat4 viewProj;
-
-			if (m_SceneState == SceneState::Play)
+			// Overlay de col·lisionadors
+			if (m_ShowPhysicsColliders)
 			{
-				Entity cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-				if (cameraEntity)
+				Entity cam = scene->GetPrimaryCameraEntity();
+				if (cam)
 				{
-					auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
-					auto& tc = cameraEntity.GetComponent<TransformComponent>();
-					viewProj = camera.GetProjection() * glm::inverse(tc.GetTransform());
-				}
-				else
-				{
-					viewProj = m_EditorCamera.GetViewProjection();
+					auto& camera = cam.GetComponent<CameraComponent>().Camera;
+					auto& tc = cam.GetComponent<TransformComponent>();
+					glm::mat4 vp = camera.GetProjection() * glm::inverse(tc.GetTransform());
+					scene->OnRenderOverlay(vp);
 				}
 			}
-			else
-			{
-				viewProj = m_EditorCamera.GetViewProjection();
-			}
 
-			m_ActiveScene->OnRenderOverlay(viewProj);
+			// Mouse picking (entity ID)
+			if (m_SceneState == SceneState::Edit)
+			{
+				auto [mx, my] = ImGui::GetMousePos();
+				mx -= m_ViewportPanel.GetBoundsMin().x;
+				my -= m_ViewportPanel.GetBoundsMin().y;
+				my = m_LastViewportSize.y - my; // flip Y
+
+				if (mx >= 0 && my >= 0 &&
+					mx < m_LastViewportSize.x && my < m_LastViewportSize.y)
+				{
+					int pixelData = m_FrameBuffer->ReadPixel(1, (int)mx, (int)my);
+					m_HoveredEntity = (pixelData == -1)
+						? Entity{}
+					: Entity{ (entt::entity)pixelData, scene.get() };
+				}
+			}
 		}
 
 		m_FrameBuffer->Unbind();
-		
 	}
 
 	void EditorLayer::OnImGuiRender()
 	{
 		R2D_PROFILE_FUNCTION();
 
-		static bool dockspaceOpen = true;
-		static bool opt_fullscreen_persistant = true;
-		bool opt_fullscreen = opt_fullscreen_persistant;
-		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+		// - DockSpace
+		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(viewport->Pos);
+		ImGui::SetNextWindowSize(viewport->Size);
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+		windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse
+			| ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+			| ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-		if (opt_fullscreen)
-		{
-			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->Pos);
-			ImGui::SetNextWindowSize(viewport->Size);
-			ImGui::SetNextWindowViewport(viewport->ID);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-		}
+		ImGui::Begin("DockSpace", nullptr, windowFlags);
+		ImGui::PopStyleVar(2);
 
-		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-			window_flags |= ImGuiWindowFlags_NoBackground;
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
-		ImGui::PopStyleVar();
-
-		if (opt_fullscreen)
-			ImGui::PopStyleVar(2);
-
-		// DockSpace
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuiStyle& style = ImGui::GetStyle();
-		style.WindowMinSize.x = 370.0f;
+		float minWinSizeX = style.WindowMinSize.x;
+		style.WindowMinSize.x = 370.f;
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-		{
-			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-		}
+			ImGui::DockSpace(ImGui::GetID("MyDockSpace"));
+		style.WindowMinSize.x = minWinSizeX;
 
-		style.WindowMinSize.x = 32.0f;
-
+		// ---- MENÚ ----
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
+				// --- Projecte ---
+				ImGui::SeparatorText("Project");
+
 				if (ImGui::MenuItem("New Project..."))
 					NewProject();
 
-				if (ImGui::MenuItem("Open Project..."))
+				if (ImGui::MenuItem("Open Project...", "Ctrl+Shift+O"))
 					OpenProject();
 
-				if (ImGui::MenuItem("Save Project"))
+				if (ImGui::MenuItem("Save Project", "Ctrl+Shift+S", false,
+					Project::GetActive() != nullptr))
 					SaveProject();
 
 				ImGui::Separator();
 
-				if(ImGui::MenuItem("New Scene", "Ctrl+N"))
+				// --- Escena ---
+				ImGui::SeparatorText("Scene");
+
+				if (ImGui::MenuItem("New Scene", "Ctrl+N", false,
+					Project::GetActive() != nullptr))
 					NewScene();
 
-				if(ImGui::MenuItem("Open Scene...", "Ctrl+O"))
+				if (ImGui::MenuItem("Open Scene...", "Ctrl+O", false,
+					Project::GetActive() != nullptr))
 					OpenScene();
 
-				if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
+				if (ImGui::MenuItem("Save Scene", "Ctrl+S", false,
+					m_EditorScene != nullptr))
 					SaveScene();
 
-				if(ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"))
+				if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S", false,
+					m_EditorScene != nullptr))
 					SaveSceneAs();
 
 				ImGui::Separator();
 
-				if (ImGui::MenuItem("Exit")) Application::Get().Close();
+				if (ImGui::MenuItem("Exit"))
+					Application::Get().Close();
+
 				ImGui::EndMenu();
 			}
 
 			ImGui::EndMenuBar();
 		}
 
-		ImGuizmo::BeginFrame();
+		// ---- PANELLS ----
+		auto scene = SceneManager::GetActiveScene();
 
-		//Panels
 		m_SceneHierarchyPanel.OnImGuiRender();
 		m_ContentBrowserPanel.OnImGuiRender();
-		m_SettingsPanel.OnImGuiRender(m_EditorCamera, m_ContentBrowserPanel, m_GizmoType, m_GizmoMode, m_ShowPhysicsColliders);
-
-		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-		m_ViewportPanel.OnImGuiRender(m_FrameBuffer, m_ActiveScene, m_EditorCamera, selectedEntity, m_GizmoType, m_GizmoMode);
-		
+		m_SettingsPanel.OnImGuiRender(m_EditorCamera, m_ContentBrowserPanel,
+			m_GizmoType, m_GizmoMode, m_ShowPhysicsColliders);
 		m_ToolbarPanel.OnImGuiRender(m_SceneState);
 
-		ImGui::End();
+		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		m_ViewportPanel.SetPlayMode(m_SceneState == SceneState::Play);
+		m_ViewportPanel.OnImGuiRender(m_FrameBuffer, scene, m_EditorCamera,
+			selectedEntity, m_GizmoType, m_GizmoMode);
+
+		ImGui::End(); // DockSpace
 	}
 
 	void EditorLayer::OnEvent(Event& e)
 	{
-		m_EditorCamera.OnEvent(e);
+		if (m_SceneState == SceneState::Edit)
+			m_EditorCamera.OnEvent(e);
 
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<KeyPressedEvent>(R2D_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
@@ -257,177 +240,141 @@ namespace Runic2D
 
 	bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
 	{
-		if(e.GetRepeatCount() > 0)
-			return false;
+		if (e.GetRepeatCount() > 0) return false;
 
-		bool control = Input::IsKeyPressed(KeyCode::LeftControl) || Input::IsKeyPressed(KeyCode::RightControl);
-		bool shift = Input::IsKeyPressed(KeyCode::LeftShift) || Input::IsKeyPressed(KeyCode::RightShift);
+		bool ctrl = Input::IsKeyPressed(KeyCode::LeftControl) ||
+			Input::IsKeyPressed(KeyCode::RightControl);
+		bool shift = Input::IsKeyPressed(KeyCode::LeftShift) ||
+			Input::IsKeyPressed(KeyCode::RightShift);
 
-		ImGuiIO& io = ImGui::GetIO();
-		if (!io.WantCaptureKeyboard) {
-			switch (e.GetKeyCode())
-			{
-			case KeyCode::N:
-				if (control)
-					NewScene();
+		switch (e.GetKeyCode())
+		{
+			// Projecte
+		case KeyCode::O:
+			if (ctrl && shift) { OpenProject(); return true; }
+			if (ctrl) { OpenScene();   return true; }
+			break;
+		case KeyCode::S:
+			if (ctrl && shift) { SaveProject(); return true; }
+			if (ctrl) { SaveScene();   return true; }
+			break;
+		case KeyCode::N:
+			if (ctrl) { NewScene(); return true; }
+			break;
+		case KeyCode::D:
+			if (ctrl) { OnDuplicateEntity(); return true; }
+			break;
 
-				break;
-			case KeyCode::O:
-				if (control)
-					OpenScene();
-
-				break;
-			case KeyCode::S:
-				if (control)
-				{
-					if (shift)
-						SaveSceneAs();
-					else
-						SaveScene();
-				}
-				break;
-			case KeyCode::D:
-				if (control)
-					OnDuplicateEntity();
-				break;
-			case KeyCode::Q:
-				if (!ImGuizmo::IsUsing()) {
-					m_GizmoType = -1;
-				}
-				break;
-			case KeyCode::W:
-				if (!ImGuizmo::IsUsing()) {
-					m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
-				}
-				break;
-			case KeyCode::E:
-				if (!ImGuizmo::IsUsing()) {
-					m_GizmoType = ImGuizmo::OPERATION::ROTATE;
-				}
-				break;
-			case KeyCode::R:
-				if (!ImGuizmo::IsUsing()) {
-					m_GizmoType = ImGuizmo::OPERATION::SCALE;
-				}
-				break;
-			default:
-				break;
-			}
-		}	
-		return true;
+			// Gizmos
+		case KeyCode::Q: m_GizmoType = -1;                   break;
+		case KeyCode::W: m_GizmoType = ImGuizmo::TRANSLATE;  break;
+		case KeyCode::E: m_GizmoType = ImGuizmo::ROTATE;     break;
+		case KeyCode::R: m_GizmoType = ImGuizmo::SCALE;      break;
+		}
+		return false;
 	}
 
 	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 	{
-		if (e.GetMouseButton() == (int)MouseButton::Left)
-		{
-			// 1. Comprovacions inicials per no fer feina si no cal
-			if ((m_GizmoType != -1 && ImGuizmo::IsOver()) || Input::IsKeyPressed(KeyCode::LeftAlt))
-				return false;
+		if (e.GetMouseButton() != (int)MouseButton::Left)   return false;
+		if (!m_ViewportPanel.IsHovered())                   return false;
+		if (ImGuizmo::IsOver())                             return false;
+		if (Input::IsKeyPressed(KeyCode::LeftAlt))          return false;
+		if (m_SceneState != SceneState::Edit)               return false;
 
-			auto [mx, my] = ImGui::GetMousePos();
-			mx -= m_ViewportPanel.GetBoundsMin().x;
-			my -= m_ViewportPanel.GetBoundsMin().y;
-			glm::vec2 viewportSize = m_ViewportPanel.GetBoundsMax() - m_ViewportPanel.GetBoundsMin();
-
-			// Invertim Y
-			int mouseX = (int)mx;
-			int mouseY = (int)viewportSize.y - (int)my;
-
-			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
-			{
-				m_FrameBuffer->Bind();
-				int pixelData = m_FrameBuffer->ReadPixel(1, mouseX, mouseY);
-				m_FrameBuffer->Unbind();
-
-				Entity clickedEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
-				m_SceneHierarchyPanel.SetSelectedEntity(clickedEntity);
-				m_HoveredEntity = clickedEntity;
-			}
-		}
+		m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
 		return false;
 	}
 
 	void EditorLayer::NewScene()
 	{
-		if (m_SceneState != SceneState::Edit)
+		if (m_SceneState == SceneState::Play)
 			OnSceneStop();
 
-		m_ActiveScene = CreateRef<Scene>();
-		m_EditorScene = m_ActiveScene;
-
-		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportPanel.GetSize().x, (uint32_t)m_ViewportPanel.GetSize().y);
-		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-		m_EditorScenePath = std::filesystem::path();
+		m_EditorScene = CreateRef<Scene>();
+		m_EditorScenePath = "";
+		SceneManager::SetActiveScene(m_EditorScene);
+		m_SceneHierarchyPanel.SetContext(m_EditorScene);
 	}
 
 	void EditorLayer::OpenScene()
 	{
-		std::string filePath = FileDialogs::OpenFile("Runic2D Scene (*.r2dscene)\0*.r2dscene\0");
-		if (!filePath.empty())
-		{
-			OpenScene(filePath);
-		}
+		// Si hi ha projecte actiu, obrir el diàleg a la seva carpeta d'assets
+		std::string initialDir;
+		if (Project::GetActive())
+			initialDir = Project::GetAssetDirectory().string();
+
+		std::string filepath = FileDialogs::OpenFile(
+			"Runic2D Scene (*.r2dscene)\0*.r2dscene\0",
+			initialDir.empty() ? nullptr : initialDir.c_str()
+		);
+
+		if (!filepath.empty())
+			OpenScene(filepath);
 	}
 
-	void EditorLayer::OpenScene(const std::filesystem::path& path)
+	void EditorLayer::OpenScene(const std::filesystem::path& absolutePath)
 	{
-
-		if (m_SceneState != SceneState::Edit) {
-			OnSceneStop();
-		}
-
-		if (path.extension().string() != ".r2dscene")
+		if (absolutePath.extension() != ".r2dscene")
 		{
-			R2D_CORE_WARN("Could not load {0} - not a scene file", path.filename().string());
+			R2D_CORE_WARN("EditorLayer: el fitxer '{0}' no és una escena vàlida.",
+				absolutePath.string());
 			return;
 		}
 
-		//EntityFactory::Shutdown();
+		if (m_SceneState == SceneState::Play)
+			OnSceneStop();
 
-		m_EditorScene = nullptr;
-		m_ActiveScene = nullptr;
-
-		m_SceneHierarchyPanel.SetContext(nullptr);
-
-		m_HoveredEntity = {};
-		m_SceneHierarchyPanel.SetSelectedEntity({});
-
-		Renderer2D::ResetTextureSlots();
-
-		ResourceManager::CleanUpUnused();
-
-		Ref<Scene> newScene = CreateRef<Scene>();
-		newScene->OnViewportResize((uint32_t)m_ViewportPanel.GetSize().x, (uint32_t)m_ViewportPanel.GetSize().y);		
-
+		auto newScene = CreateRef<Scene>();
 		SceneSerializer serializer(newScene);
-		if (serializer.Deserialize(path.string()))
+		if (!serializer.Deserialize(absolutePath.string()))
 		{
-			m_EditorScene = newScene;
-
-			m_ActiveScene = m_EditorScene;
-			m_EditorScenePath = path;
-
-			//EntityFactory::Init(m_ActiveScene.get());
-
-			m_SceneHierarchyPanel.SetContext(m_EditorScene);
+			R2D_CORE_ERROR("EditorLayer: no s'ha pogut carregar l'escena '{0}'",
+				absolutePath.string());
+			return;
 		}
+
+		m_EditorScene = newScene;
+		m_EditorScenePath = absolutePath;
+
+		auto viewportSize = m_ViewportPanel.GetSize();
+		if (viewportSize.x > 0.0f && viewportSize.y > 0.0f)
+		{
+			m_EditorScene->OnViewportResize((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+		}
+
+		SceneManager::SetActiveScene(m_EditorScene);
+		m_SceneHierarchyPanel.SetContext(m_EditorScene);
+
+		R2D_CORE_INFO("EditorLayer: Escena oberta: '{0}'", absolutePath.string());
 	}
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::string filePath = FileDialogs::SaveFile("Runic2D Scene (*.r2dscene)\0*.r2dscene\0");
-		if (!filePath.empty())
-		{
-			SerializeScene(m_ActiveScene, filePath);
-			m_EditorScenePath = filePath;
-		}
+		// Si hi ha projecte actiu, obrir el diàleg a la seva carpeta d'assets
+		std::string initialDir;
+		if (Project::GetActive())
+			initialDir = Project::GetAssetDirectory().string();
+
+		std::string filepath = FileDialogs::SaveFile(
+			"Runic2D Scene (*.r2dscene)\0*.r2dscene\0",
+			initialDir.empty() ? nullptr : initialDir.c_str()
+		);
+
+		if (filepath.empty()) return;
+
+		std::filesystem::path path = filepath;
+		if (path.extension() != ".r2dscene")
+			path += ".r2dscene";
+
+		m_EditorScenePath = path;
+		SerializeScene(m_EditorScene, path);
 	}
 
 	void EditorLayer::SaveScene()
 	{
 		if (!m_EditorScenePath.empty())
-			SerializeScene(m_ActiveScene, m_EditorScenePath);
+			SerializeScene(m_EditorScene, m_EditorScenePath);
 		else
 			SaveSceneAs();
 	}
@@ -436,79 +383,199 @@ namespace Runic2D
 	{
 		SceneSerializer serializer(scene);
 		serializer.Serialize(path.string());
+		R2D_CORE_INFO("EditorLayer: Escena guardada a '{0}'", path.string());
 	}
 
 	void EditorLayer::OnScenePlay()
 	{
+		R2D_CORE_ASSERT(m_EditorScene, "No hi ha escena d'editor!");
+
 		m_SceneState = SceneState::Play;
-
-		//GameContext* playModeContext = new GameContext();
-		//GameContext::Set(playModeContext);
-
-		m_ActiveScene = Scene::Copy(m_EditorScene);
 		m_ViewportPanel.SetPlayMode(true);
-		m_ActiveScene->OnRuntimeStart();
-		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-		//EntityFactory::Init(m_ActiveScene.get());
+
+		// Còpia de l'escena perquè el runtime no modifiqui l'original
+		Ref<Scene> runtimeScene = Scene::Copy(m_EditorScene);
+
+		// Re-binding de scripts (necessari a la còpia)
+		auto view = runtimeScene->GetAllEntitiesWith<NativeScriptComponent>();
+		for (auto e : view)
+		{
+			Entity entity = { e, runtimeScene.get() };
+			auto& nsc = entity.GetComponent<NativeScriptComponent>();
+			if (!nsc.ClassName.empty())
+				ScriptEngine::BindScript(nsc.ClassName, entity);
+		}
+
+		SceneManager::SetActiveScene(runtimeScene);
+		SceneManager::GetActiveScene()->OnRuntimeStart();
+
+		auto& window = Application::Get().GetWindow();
+		SceneManager::GetActiveScene()->OnViewportResize(
+			(uint32_t)m_LastViewportSize.x, (uint32_t)m_LastViewportSize.y);
+
+		R2D_CORE_INFO("EditorLayer: Play mode iniciat.");
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
 		m_SceneState = SceneState::Edit;
 		m_ViewportPanel.SetPlayMode(false);
-		m_ActiveScene = m_EditorScene;
-		m_ActiveScene->OnRuntimeStop();
-		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-		//EntityFactory::Init(m_ActiveScene.get());
 
-		//GameContext* ctx = &GameContext::Get();
-		//if (ctx) {
-			//delete ctx;
-			//GameContext::Set(nullptr);
-		//}
+		// Parar el runtime (física, scripts, etc.)
+		SceneManager::StopActiveScene();
+
+		// Restaurar l'escena d'editor (sense runtime)
+		SceneManager::SetActiveScene(m_EditorScene);
+		m_SceneHierarchyPanel.SetContext(m_EditorScene);
+
+		R2D_CORE_INFO("EditorLayer: Stop mode. Escena d'editor restaurada.");
 	}
 
 	void EditorLayer::OnDuplicateEntity()
 	{
-		if (m_SceneState != SceneState::Edit)
-			return;
+		if (m_SceneState != SceneState::Edit) return;
 
-		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-		if (selectedEntity)
-			m_EditorScene->DuplicateEntity(selectedEntity);
+		Entity selected = m_SceneHierarchyPanel.GetSelectedEntity();
+		if (selected)
+			m_EditorScene->DuplicateEntity(selected);
 	}
 
 	void EditorLayer::NewProject()
 	{
+		// 1. Assegurar que la carpeta "Projects" existeix
+		std::filesystem::path projectsRoot =
+			std::filesystem::current_path() / "Projects";
+		std::filesystem::create_directories(projectsRoot);
+
+		// 2. Obrir SaveFile apuntant a "Projects/"
+		std::string projectsRootStr = projectsRoot.string();
+		std::string rawPath = FileDialogs::SaveFile(
+			"Runic2D Project (*.r2dproj)\0*.r2dproj\0",
+			projectsRootStr.c_str()   // <-- initialDir: obre el diàleg a Projects/
+		);
+
+		if (rawPath.empty()) return; // l'usuari ha cancel·lat
+
+		// 3. Extreure el nom del projecte a partir del fitxer escollit
+		//    Ex: rawPath = "C:/.../Projects/MyGame.r2dproj"  → name = "MyGame"
+		std::filesystem::path chosenPath = rawPath;
+
+		// Assegurar extensió (per si l'usuari no l'ha posat)
+		if (chosenPath.extension() != ".r2dproj")
+			chosenPath += ".r2dproj";
+
+		std::string projectName = chosenPath.stem().string(); // "MyGame"
+
+		// 4. Construir la ruta REAL: Projects/MyGame/MyGame.r2dproj
+		//    (subcarpeta amb el mateix nom del projecte)
+		std::filesystem::path projectFolder = chosenPath.parent_path() / projectName;
+		std::filesystem::path finalProjFile = projectFolder / chosenPath.filename();
+		std::filesystem::path assetsFolder = projectFolder / "Assets";
+		std::filesystem::path scenesFolder = assetsFolder / "scenes";
+
+		// 5. Crear tota l'estructura de carpetes
+		std::filesystem::create_directories(projectFolder);
+		std::filesystem::create_directories(assetsFolder);
+		std::filesystem::create_directories(scenesFolder);
+
+		R2D_CORE_INFO("EditorLayer: Creant projecte '{}' a '{}'",
+			projectName, projectFolder.string());
+
+		// 6. Configurar el ProjectConfig
 		Project::New();
+		auto& config = Project::GetActive()->GetConfigMut();
+		config.Name = projectName;
+		config.AssetDirectory = "Assets";
+		config.StartScene = "scenes/MainScene.r2dscene";
+		config.ScriptModulePath = projectName + ".dll";
+
+		// 7. Guardar el .r2dproj a la subcarpeta del projecte
+		if (!Project::Save(finalProjFile))
+		{
+			R2D_CORE_ERROR("EditorLayer: Error guardant el projecte a '{}'",
+				finalProjFile.string());
+			return;
+		}
+
+		// 8. Crear una escena inicial buida i guardar-la
+		OnProjectLoaded();
+
+		UpdateWindowTitle();
 	}
 
 	void EditorLayer::OpenProject()
 	{
 		std::string filepath = FileDialogs::OpenFile("Runic2D Project (*.r2dproj)\0*.r2dproj\0");
-		if (filepath.empty())
-			return;
-
-		OpenProject(filepath);
+		if (!filepath.empty())
+			OpenProject(filepath);
 	}
 
 	void EditorLayer::OpenProject(const std::filesystem::path& path)
 	{
-		if (Project::Load(path))
-		{
-			Project::LoadRuntimeLibrary();
+		if (m_SceneState == SceneState::Play)
+			OnSceneStop();
 
-			auto startScenePath = Project::GetAssetFileSystemPath(Project::GetActive()->GetConfig().StartScene);
-			OpenScene(startScenePath);
+		// Descarregar DLL anterior si n'hi havia
+		if (Project::GetActive())
+			Project::UnloadRuntimeLibrary();
 
-			m_ContentBrowserPanel.ResetToDefault();
-		}
+		if (!Project::Load(path))
+			return;
+
+		Project::LoadRuntimeLibrary();
+		OnProjectLoaded();
 	}
 
 	void EditorLayer::SaveProject()
 	{
-		// TODO: Implementar quan tinguem panell de configuraci� del Projecte
-		// (Ex: per canviar l'escena inicial o el nom del joc des de la UI)
-		// Project::SaveActive(m_ProjectPath);
+		if (!Project::GetActive()) return;
+
+		auto projectDir = Project::GetProjectDirectory();
+		auto projectFile = projectDir / (Project::GetConfig().Name + ".r2dproj");
+		Project::Save(projectFile);
+	}
+
+	void EditorLayer::OnProjectLoaded()
+	{
+		if (Project::GetActive())
+		{
+			m_ContentBrowserPanel.SetRootDirectory(Project::GetAssetDirectory());
+		}
+
+		const auto& startScene = Project::GetConfig().StartScene;
+		if (!startScene.empty())
+		{
+			auto scenePath = Project::GetAssetFileSystemPath(startScene);
+
+			if (std::filesystem::exists(scenePath))
+			{
+				OpenScene(scenePath);
+			}
+			else
+			{
+				R2D_CORE_WARN("L'escena inicial no existeix. Creant una de nova a: {0}", scenePath.string());
+
+				NewScene();
+				std::filesystem::create_directories(scenePath.parent_path());
+				SerializeScene(m_EditorScene, scenePath);
+				m_EditorScenePath = scenePath;
+			}
+		}
+		else
+		{
+			NewScene();
+		}
+
+		UpdateWindowTitle();
+		R2D_CORE_INFO("EditorLayer: Projecte '{}' carregat.",
+			Project::GetConfig().Name);
+	}
+
+	void EditorLayer::UpdateWindowTitle()
+	{
+		std::string title = "Runic2D Editor";
+		if (Project::GetActive())
+			title += " — " + Project::GetConfig().Name;
+		Application::Get().GetWindow().SetTitle(title); // si tens aquest mètode
 	}
 }

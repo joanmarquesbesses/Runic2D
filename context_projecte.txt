@@ -104,12 +104,12 @@ project "Runic2D"
 
 	links
 	{
+		"Box2D",
 		"GLFW",
 		"Glad",
 		"ImGui",
 		"yaml-cpp",
 		"opengl32.lib",
-		"Box2D",
 		"msdf-atlas-gen"
 	}
 
@@ -1554,7 +1554,7 @@ namespace Survivor {
 FITXER: .\Projects\Survivor\Assets\scripts\Systems\CameraController.cpp
 ============================================================
 
-#include "R2Dpch.h"
+#include <R2Dpch.h>
 #include "CameraController.h"
 
 void CameraController::OnUpdate(Timestep ts)
@@ -4030,6 +4030,11 @@ namespace Runic2D {
 		return m_Data.VSync;
 	}
 
+	void WindowsWindow::SetTitle(const std::string& title)
+	{
+		glfwSetWindowTitle(m_Window, title.c_str());
+	}
+
 }
 
 ============================================================
@@ -4060,6 +4065,9 @@ namespace Runic2D {
 		void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
+
+		virtual void SetTitle(const std::string& title) override;
+
 		inline virtual void* GetNativeWindow() const override { return m_Window; }
 
 	private:
@@ -4314,7 +4322,6 @@ FITXER: .\Runic2D\src\Runic2D\Core\Application.cpp
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Audio/AudioEngine.h"
 #include "Runic2D/Utils/Random.h"
-#include "Runic2D/Project/Project.h"
 
 #include "Input.h"
 
@@ -4355,7 +4362,6 @@ namespace Runic2D {
 		Renderer::Shutdown();
 		AudioEngine::Shutdown();
 		ResourceManager::Clear();
-		Project::UnloadRuntimeLibrary();
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -5164,6 +5170,8 @@ namespace Runic2D {
 		virtual void SetVSync(bool enabled) = 0;
 		virtual bool IsVSync() const = 0;
 
+		virtual void SetTitle(const std::string& title) = 0;
+
 		virtual void* GetNativeWindow() const = 0;
 
 		static Scope<Window> Create(const WindowProps& props = WindowProps());
@@ -5877,6 +5885,11 @@ namespace Runic2D {
         static void UnloadRuntimeLibrary();
 
         ProjectConfig& GetConfigMut() { return m_Config; }
+
+        static void Shutdown()
+        {
+            s_ActiveProject = nullptr;
+        }
 
     private:
         ProjectConfig          m_Config;
@@ -8816,6 +8829,8 @@ namespace Runic2D {
 
         static Ref<Scene> GetActiveScene() { return s_ActiveScene; }
 
+        static void StopActiveScene();
+
         static void SetSceneChangedCallback(SceneChangedCallbackFn callback)
         {
             s_OnSceneChanged = callback;
@@ -8824,7 +8839,6 @@ namespace Runic2D {
         static void Shutdown()
         {
             StopActiveScene();
-            s_ActiveScene = nullptr;
             s_OnSceneChanged = nullptr;
         }
 
@@ -8837,7 +8851,6 @@ namespace Runic2D {
 
     private:
         static bool LoadSceneInternal(const std::filesystem::path& absolutePath, bool startRuntime);
-        static void StopActiveScene();
 
         static Ref<Scene>               s_ActiveScene;
         static SceneChangedCallbackFn   s_OnSceneChanged;
@@ -9165,12 +9178,14 @@ namespace Runic2D {
 
 		void NewProject();
 		void OpenProject();
-		void OpenProject(const std::filesystem::path& path);
+		void OpenProject(const std::filesystem::path& absolutePath);
 		void SaveProject();
+
+		void OnProjectLoaded(); 
+		void UpdateWindowTitle();
 	private:
 		Ref<FrameBuffer> m_FrameBuffer;
-		
-		Ref<Scene> m_ActiveScene;
+	
 		Ref<Scene> m_EditorScene;
 		std::filesystem::path m_EditorScenePath;
 
@@ -9184,12 +9199,14 @@ namespace Runic2D {
 
 		bool m_ShowPhysicsColliders = false;
 
+		glm::vec2  m_LastViewportSize = { 0.f, 0.f };
+
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		ContentBrowserPanel m_ContentBrowserPanel;
-		SettingsPanel m_SettingsPanel;
-		ToolbarPanel m_ToolbarPanel;
-		SceneViewportPanel m_ViewportPanel;
+		SettingsPanel		m_SettingsPanel;
+		ToolbarPanel		m_ToolbarPanel;
+		SceneViewportPanel  m_ViewportPanel;
 	};
 
 }
@@ -9266,6 +9283,8 @@ namespace Runic2D {
 		{
 			m_OnFileOpenCallback = callback;
 		}
+
+		void SetRootDirectory(const std::filesystem::path& path);
 
 		void ResetToDefault();
 	private:
@@ -9816,12 +9835,16 @@ public:
             Runic2D::Project::LoadRuntimeLibrary();
         }
 
+        std::string gameName = Runic2D::Project::GetConfig().Name;
+        Runic2D::Application::Get().GetWindow().SetTitle(gameName);
+
         PushLayer(new GameplayLayer());
     }
 
     virtual ~SandboxApp()
     {
         Runic2D::SceneManager::Shutdown();
+        Runic2D::Project::Shutdown();
     }
 
 private:

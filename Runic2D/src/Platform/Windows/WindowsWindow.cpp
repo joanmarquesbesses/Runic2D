@@ -182,4 +182,9 @@ namespace Runic2D {
 		return m_Data.VSync;
 	}
 
+	void WindowsWindow::SetTitle(const std::string& title)
+	{
+		glfwSetWindowTitle(m_Window, title.c_str());
+	}
+
 }

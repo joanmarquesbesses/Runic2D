@@ -31,6 +31,8 @@ namespace Runic2D {
 			m_OnFileOpenCallback = callback;
 		}
 
+		void SetRootDirectory(const std::filesystem::path& path);
+
 		void ResetToDefault();
 	private:
 		void RefreshDirectoryEntries();

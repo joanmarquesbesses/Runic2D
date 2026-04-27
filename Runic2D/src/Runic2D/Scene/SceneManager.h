@@ -21,6 +21,8 @@ namespace Runic2D {
 
         static Ref<Scene> GetActiveScene() { return s_ActiveScene; }
 
+        static void StopActiveScene();
+
         static void SetSceneChangedCallback(SceneChangedCallbackFn callback)
         {
             s_OnSceneChanged = callback;
@@ -41,7 +43,6 @@ namespace Runic2D {
 
     private:
         static bool LoadSceneInternal(const std::filesystem::path& absolutePath, bool startRuntime);
-        static void StopActiveScene();
 
         static Ref<Scene>               s_ActiveScene;
         static SceneChangedCallbackFn   s_OnSceneChanged;

@@ -394,6 +394,12 @@ namespace Runic2D {
 
 	bool SceneSerializer::Deserialize(const std::string& filepath)
 	{
+		if (!std::filesystem::exists(filepath))
+		{
+			R2D_CORE_ERROR("No s'ha pogut carregar l'escena: El fitxer no existeix ({0})", filepath);
+			return false;
+		}
+
 		YAML::Node data = YAML::LoadFile(filepath);
 		if (!data["Scene"])
 			return false;

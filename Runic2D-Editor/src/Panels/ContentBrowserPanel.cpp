@@ -15,6 +15,13 @@ namespace Runic2D {
 		m_FileIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/document.png");
 	}
 
+	void ContentBrowserPanel::SetRootDirectory(const std::filesystem::path& path)
+	{
+		m_CurrentDirectory = path;
+		RefreshTree();
+		RefreshDirectoryEntries();
+	}
+
 	void ContentBrowserPanel::ResetToDefault()
 	{
 		if (Project::GetActive()) {
@@ -98,6 +105,13 @@ namespace Runic2D {
 	void ContentBrowserPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Content Browser");
+
+		if (!Project::GetActive())
+		{
+			ImGui::TextDisabled("No hi ha cap projecte obert.");
+			ImGui::End();
+			return;
+		}
 
 		ImGui::Columns(2);
 

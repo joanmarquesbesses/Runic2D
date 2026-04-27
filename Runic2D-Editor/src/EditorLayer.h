@@ -43,12 +43,14 @@ namespace Runic2D {
 
 		void NewProject();
 		void OpenProject();
-		void OpenProject(const std::filesystem::path& path);
+		void OpenProject(const std::filesystem::path& absolutePath);
 		void SaveProject();
+
+		void OnProjectLoaded(); 
+		void UpdateWindowTitle();
 	private:
 		Ref<FrameBuffer> m_FrameBuffer;
-		
-		Ref<Scene> m_ActiveScene;
+	
 		Ref<Scene> m_EditorScene;
 		std::filesystem::path m_EditorScenePath;
 
@@ -62,12 +64,14 @@ namespace Runic2D {
 
 		bool m_ShowPhysicsColliders = false;
 
+		glm::vec2  m_LastViewportSize = { 0.f, 0.f };
+
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		ContentBrowserPanel m_ContentBrowserPanel;
-		SettingsPanel m_SettingsPanel;
-		ToolbarPanel m_ToolbarPanel;
-		SceneViewportPanel m_ViewportPanel;
+		SettingsPanel		m_SettingsPanel;
+		ToolbarPanel		m_ToolbarPanel;
+		SceneViewportPanel  m_ViewportPanel;
 	};
 
 }

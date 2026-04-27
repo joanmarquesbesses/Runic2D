@@ -12,6 +12,9 @@ public:
             Runic2D::Project::LoadRuntimeLibrary();
         }
 
+        std::string gameName = Runic2D::Project::GetConfig().Name;
+        Runic2D::Application::Get().GetWindow().SetTitle(gameName);
+
         PushLayer(new GameplayLayer());
     }
 
