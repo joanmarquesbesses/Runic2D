@@ -246,6 +246,9 @@
     <ClInclude Include="src\Runic2D\Scene\Component.h">
       <Filter>src\Runic2D\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\ComponentRegistry.h">
+      <Filter>src\Runic2D\Scene</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Scene\Entity.h">
       <Filter>src\Runic2D\Scene</Filter>
     </ClInclude>
@@ -1657,6 +1660,9 @@
     </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\VertexArray.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Scene\ComponentRegistry.cpp">
+      <Filter>src\Runic2D\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Scene\Entity.cpp">
       <Filter>src\Runic2D\Scene</Filter>

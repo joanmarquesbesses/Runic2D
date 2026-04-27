@@ -104,6 +104,11 @@ Entities:
           FramesPerRow: 0
           FrameTime: 0.1
           Loop: false
+    Player Stats:
+      Health: 100
+      Speed: 5
+      Damage: 10
+      ProjectileCount: 1
   - EntityID: 4022698343222994133
     TagComponent:
       Tag: GameManager

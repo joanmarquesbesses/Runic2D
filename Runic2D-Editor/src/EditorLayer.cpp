@@ -226,6 +226,8 @@ namespace Runic2D
 			selectedEntity, m_GizmoType, m_GizmoMode);
 
 		ImGui::End(); // DockSpace
+
+		Renderer2D::ResetStats();
 	}
 
 	void EditorLayer::OnEvent(Event& e)
@@ -299,10 +301,13 @@ namespace Runic2D
 
 	void EditorLayer::OpenScene()
 	{
-		// Si hi ha projecte actiu, obrir el diàleg a la seva carpeta d'assets
 		std::string initialDir;
 		if (Project::GetActive())
-			initialDir = Project::GetAssetDirectory().string();
+		{
+			std::filesystem::path sceneDir = Project::GetAssetDirectory() / "scenes";
+			std::filesystem::create_directories(sceneDir);
+			initialDir = sceneDir.string();
+		}
 
 		std::string filepath = FileDialogs::OpenFile(
 			"Runic2D Scene (*.r2dscene)\0*.r2dscene\0",
@@ -351,10 +356,13 @@ namespace Runic2D
 
 	void EditorLayer::SaveSceneAs()
 	{
-		// Si hi ha projecte actiu, obrir el diàleg a la seva carpeta d'assets
 		std::string initialDir;
 		if (Project::GetActive())
-			initialDir = Project::GetAssetDirectory().string();
+		{
+			std::filesystem::path sceneDir = Project::GetAssetDirectory() / "scenes";
+			std::filesystem::create_directories(sceneDir);
+			initialDir = sceneDir.string();
+		}
 
 		std::string filepath = FileDialogs::SaveFile(
 			"Runic2D Scene (*.r2dscene)\0*.r2dscene\0",
@@ -407,6 +415,7 @@ namespace Runic2D
 		}
 
 		SceneManager::SetActiveScene(runtimeScene);
+		m_SceneHierarchyPanel.SetContext(runtimeScene);
 		SceneManager::GetActiveScene()->OnRuntimeStart();
 
 		auto& window = Application::Get().GetWindow();
@@ -442,6 +451,11 @@ namespace Runic2D
 
 	void EditorLayer::NewProject()
 	{
+		if (m_SceneState != SceneState::Edit)
+			OnSceneStop();
+
+		CleanupCurrentProject();
+
 		// 1. Assegurar que la carpeta "Projects" existeix
 		std::filesystem::path projectsRoot =
 			std::filesystem::current_path() / "Projects";
@@ -505,25 +519,40 @@ namespace Runic2D
 
 	void EditorLayer::OpenProject()
 	{
-		std::string filepath = FileDialogs::OpenFile("Runic2D Project (*.r2dproj)\0*.r2dproj\0");
+		std::filesystem::path projectsDir = std::filesystem::current_path() / "Projects";
+		std::filesystem::create_directories(projectsDir);
+
+		std::string filepath = FileDialogs::OpenFile(
+			"Runic2D Project (*.r2dproj)\0*.r2dproj\0",
+			projectsDir.string().c_str()
+		);
+
 		if (!filepath.empty())
 			OpenProject(filepath);
 	}
 
 	void EditorLayer::OpenProject(const std::filesystem::path& path)
 	{
-		if (m_SceneState == SceneState::Play)
-			OnSceneStop();
-
-		// Descarregar DLL anterior si n'hi havia
-		if (Project::GetActive())
-			Project::UnloadRuntimeLibrary();
-
-		if (!Project::Load(path))
+		if (!std::filesystem::exists(path))
+		{
+			R2D_CORE_ERROR("El fitxer de projecte no existeix: {0}", path.string());
 			return;
+		}
 
-		Project::LoadRuntimeLibrary();
-		OnProjectLoaded();
+		// 2. Ara sí, desmuntem l'antic (Això evita els crashes de memòria)
+		CleanupCurrentProject();
+
+		// 3. Carreguem el nou
+		if (Project::Load(path))
+		{
+			// 4. Connectem la nova DLL i carreguem la UI/Escena
+			Project::LoadRuntimeLibrary();
+			OnProjectLoaded();
+		}
+		else
+		{
+			R2D_CORE_ERROR("Ha fallat la càrrega del projecte a: {0}", path.string());
+		}
 	}
 
 	void EditorLayer::SaveProject()
@@ -535,14 +564,32 @@ namespace Runic2D
 		Project::Save(projectFile);
 	}
 
+	void EditorLayer::CleanupCurrentProject()
+	{
+		if (m_SceneState == SceneState::Play)
+			OnSceneStop();
+
+		m_HoveredEntity = {};
+		m_SceneHierarchyPanel.SetContext(nullptr);
+		m_EditorScene = nullptr;
+		SceneManager::SetActiveScene(nullptr);
+		Runic2D::ComponentRegistry::Clear();
+
+		if (Project::GetActive())
+			Project::UnloadRuntimeLibrary();
+	}
+
 	void EditorLayer::OnProjectLoaded()
 	{
-		if (Project::GetActive())
+		if (!Project::GetActive())
 		{
-			m_ContentBrowserPanel.SetRootDirectory(Project::GetAssetDirectory());
+			R2D_CORE_ERROR("S'ha intentat cridar OnProjectLoaded però no hi ha cap projecte actiu!");
+			return;
 		}
 
-		const auto& startScene = Project::GetConfig().StartScene;
+		m_ContentBrowserPanel.SetRootDirectory(Project::GetAssetDirectory());
+
+		auto startScene = Project::GetConfig().StartScene;
 		if (!startScene.empty())
 		{
 			auto scenePath = Project::GetAssetFileSystemPath(startScene);

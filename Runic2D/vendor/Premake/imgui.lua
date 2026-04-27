@@ -4,7 +4,7 @@ project "ImGui"
 	language "C++"
 	staticruntime "off"
 
-	defines { "IMGUI_API=__declspec(dllexport)" }
+	defines { "IMGUI_API=__declspec(dllexport)", "IMGUI_IMPL_OPENGL_LOADER_GLAD" }
 
 	targetdir ("%{prj.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{prj.location}/bin-int/" .. outputdir .. "/%{prj.name}")

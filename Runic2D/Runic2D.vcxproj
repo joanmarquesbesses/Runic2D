@@ -222,6 +222,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Renderer\UniformBuffer.h" />
     <ClInclude Include="src\Runic2D\Renderer\VertexArray.h" />
     <ClInclude Include="src\Runic2D\Scene\Component.h" />
+    <ClInclude Include="src\Runic2D\Scene\ComponentRegistry.h" />
     <ClInclude Include="src\Runic2D\Scene\Entity.h" />
     <ClInclude Include="src\Runic2D\Scene\Scene.h" />
     <ClInclude Include="src\Runic2D\Scene\SceneCamera.h" />
@@ -696,6 +697,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClCompile Include="src\Runic2D\Renderer\Texture.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\UniformBuffer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\VertexArray.cpp" />
+    <ClCompile Include="src\Runic2D\Scene\ComponentRegistry.cpp" />
     <ClCompile Include="src\Runic2D\Scene\Entity.cpp" />
     <ClCompile Include="src\Runic2D\Scene\Scene.cpp" />
     <ClCompile Include="src\Runic2D\Scene\SceneCamera.cpp" />

@@ -45,6 +45,7 @@ namespace Runic2D {
 		void OpenProject();
 		void OpenProject(const std::filesystem::path& absolutePath);
 		void SaveProject();
+		void CleanupCurrentProject();
 
 		void OnProjectLoaded(); 
 		void UpdateWindowTitle();

@@ -7,6 +7,7 @@
 
 #include "Entity.h"
 #include "Component.h"
+#include "ComponentRegistry.h"
 
 namespace Runic2D {
 
@@ -101,6 +102,22 @@ namespace Runic2D {
 		CopyComponent<CircleCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<TextComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<AnimationComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+
+		for (auto e : idView)
+		{
+			UUID uuid = srcSceneRegistry.get<IDComponent>(e).ID;
+
+			Entity sourceEntity = { e, other.get() };
+			Entity targetEntity = { enttMap[uuid], newScene.get() };
+
+			for (const auto& desc : ComponentRegistry::GetAll())
+			{
+				if (desc.HasOnEntity(sourceEntity) && desc.CopyComponent)
+				{
+					desc.CopyComponent(sourceEntity, targetEntity);
+				}
+			}
+		}
 
 		auto relationshipView = dstSceneRegistry.view<RelationshipComponent>();
 		for (auto e : relationshipView)

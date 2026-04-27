@@ -1,6 +1,7 @@
 #pragma once
 #include "Runic2D/Core/Core.h"
 #include "Scene.h"
+#include "ComponentRegistry.h"
 #include <filesystem>
 #include <functional>
 
@@ -32,6 +33,7 @@ namespace Runic2D {
         {
             StopActiveScene();
             s_OnSceneChanged = nullptr;
+            Runic2D::ComponentRegistry::Clear();
         }
 
         static void SetActiveScene(Ref<Scene> scene)

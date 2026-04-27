@@ -6,6 +6,7 @@
 
 #include "Entity.h"
 #include "Component.h"
+#include "ComponentRegistry.h"
 #include "Runic2D/Project/Project.h"
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Scripting/ScriptEngine.h"
@@ -359,6 +360,17 @@ namespace Runic2D {
 			out << YAML::EndMap;
 		}
 
+		for (const auto& desc : ComponentRegistry::GetAll())
+		{
+			if (desc.HasOnEntity(entity) && desc.Serialize)
+			{
+				out << YAML::Key << desc.Name;
+				out << YAML::BeginMap;
+				desc.Serialize(out, entity); // La DLL sap quines variables escriure!
+				out << YAML::EndMap;
+			}
+		}
+
 		out << YAML::EndMap; // Entity
 	}
 
@@ -631,6 +643,16 @@ namespace Runic2D {
 						}
 					}
 				}
+
+				for (const auto& desc : ComponentRegistry::GetAll())
+				{
+					auto componentNode = entityNode[desc.Name];
+					if (componentNode && desc.Deserialize)
+					{
+						desc.Deserialize(componentNode, deserializedEntity);
+					}
+				}
+
 			}
 		}
 

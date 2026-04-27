@@ -120,6 +120,9 @@ project "Runic2D"
 			"R2D_BUILD_DLL",
 			"GLFW_INCLUDE_NONE" -- Prevent GLFW from including OpenGL headers
 		}
+		links {
+			"opengl32.lib"      
+		}
 
 	postbuildcommands
     {
@@ -196,6 +199,10 @@ project "SandBox"
 	filter "system:windows"
 		systemversion "latest"
 
+		links {
+            "opengl32.lib" 
+        }
+
 	filter "configurations:Debug"
 		defines "R2D_DEBUG"
 		runtime "Debug"
@@ -209,6 +216,7 @@ project "SandBox"
 	filter "configurations:Dist"
 		defines "R2D_DIST"
 		kind "WindowedApp"
+		entrypoint "mainCRTStartup"
 		runtime "Release"
 		optimize "on"
 
@@ -279,6 +287,8 @@ project "Runic2D-Editor"
 
 	filter "configurations:Dist"
 		defines "R2D_DIST"
+		kind "WindowedApp"           
+		entrypoint "mainCRTStartup"
 		runtime "Release"
 		optimize "on"
 
@@ -323,6 +333,7 @@ project (activeGame)
         "%{IncludeDir.glm}",
         "%{IncludeDir.entt}",
         "%{IncludeDir.Box2D}",
+		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.msdfgen}",
         "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdfgen/include",
@@ -330,7 +341,7 @@ project (activeGame)
         "Projects/" .. activeGame .. "/Assets/scripts"
     }
 
-    links { "Runic2D", "Box2D" }
+    links { "Runic2D", "Box2D", "yaml-cpp" }
 
     filter "system:windows"
         systemversion "latest"

@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Runic2D/Scene/Component.h"
+#include "Runic2D/Scene/ComponentRegistry.h"
 
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Project/Project.h"
@@ -26,7 +27,7 @@ namespace Runic2D
 {
 
 	template<typename T, typename UIFunction>
-	static void DrawComponent(const std::string& name, Entity entity, UIFunction uiFunction, bool canBeDeleted = true)
+	static void DrawNativeComponent(const std::string& name, Entity entity, UIFunction uiFunction, bool canBeDeleted = true)
 	{
 		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
 
@@ -34,6 +35,8 @@ namespace Runic2D
 		{
 			auto& component = entity.GetComponent<T>();
 			ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+			ImGui::PushID((void*)typeid(T).hash_code());
 
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
 			float lineHeight = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
@@ -71,6 +74,8 @@ namespace Runic2D
 
 			if (removeComponent && canBeDeleted)
 				entity.RemoveComponent<T>();
+
+			ImGui::PopID();
 		}
 	}
 
@@ -294,7 +299,7 @@ namespace Runic2D
 
 	void SceneHierarchyPanel::DrawComponents(Entity entity)
 	{
-		DrawComponent<TagComponent>("Tag", entity, [](auto& component)
+		DrawNativeComponent<TagComponent>("Tag", entity, [](auto& component)
 			{
 				auto& tag = component.Tag;
 				char buffer[256];
@@ -307,7 +312,7 @@ namespace Runic2D
 				}
 			}, false);
 
-		DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
+		DrawNativeComponent<TransformComponent>("Transform", entity, [](auto& component)
 			{
 				if (DrawVec3Control("Translation", component.Translation))
 					component.IsDirty = true;
@@ -324,7 +329,7 @@ namespace Runic2D
 			}, false);
 
 
-		DrawComponent<CameraComponent>("Camera", entity, [&](auto& component)
+		DrawNativeComponent<CameraComponent>("Camera", entity, [&](auto& component)
 			{
 				auto& camera = component.Camera;
 
@@ -389,7 +394,7 @@ namespace Runic2D
 			});
 
 
-		DrawComponent<NativeScriptComponent>("Script", entity, [&](auto& component)
+		DrawNativeComponent<NativeScriptComponent>("Script", entity, [&](auto& component)
 			{
 				std::vector<std::string> scriptNames = ScriptEngine::GetAvailableScripts();
 
@@ -422,7 +427,7 @@ namespace Runic2D
 				}
 			});
 
-		DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component)
+		DrawNativeComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component)
 			{
 				auto& color = component.Color;
 				ImGui::ColorEdit4("Color", glm::value_ptr(color));
@@ -454,7 +459,7 @@ namespace Runic2D
 				ImGui::DragFloat("Tiling Factor", &component.TilingFactor, 0.1f, 0.0f, 100.0f);
 			});
 
-		DrawComponent<CircleRendererComponent>("Circle Renderer", entity, [](auto& component)
+		DrawNativeComponent<CircleRendererComponent>("Circle Renderer", entity, [](auto& component)
 			{
 				auto& color = component.Color;
 				ImGui::ColorEdit4("Color", glm::value_ptr(color));
@@ -462,7 +467,7 @@ namespace Runic2D
 				ImGui::DragFloat("Fade", &component.Fade, 0.01f, 0.0f, 1.0f);
 			});
 
-		DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [](auto& component)
+		DrawNativeComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [](auto& component)
 			{
 				const char* bodyTypeStrings[] = { "Static", "Dynamic", "Kinematic" };
 				const char* currentBodyTypeString = bodyTypeStrings[(int)component.Type];
@@ -489,7 +494,7 @@ namespace Runic2D
 				ImGui::DragFloat("Gravity Scale", &component.GravityScale, 0.1f, 0.0f, 10.0f);
 			});
 
-		DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](auto& component)
+		DrawNativeComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](auto& component)
 			{
 				ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
 				ImGui::DragFloat2("Size", glm::value_ptr(component.Size));
@@ -504,7 +509,7 @@ namespace Runic2D
 				ImGui::Checkbox("Enable Sensor Events", &component.EnableSensorEvents);
 			});
 
-		DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [](auto& component)
+		DrawNativeComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [](auto& component)
 			{
 				ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
 				ImGui::DragFloat("Radius", &component.Radius);
@@ -519,7 +524,7 @@ namespace Runic2D
 				ImGui::Checkbox("Enable Sensor Events", &component.EnableSensorEvents);
 			});
 
-		DrawComponent<TextComponent>("Text Renderer", entity, [](auto& component)
+		DrawNativeComponent<TextComponent>("Text Renderer", entity, [](auto& component)
 			{
 				char buffer[256];
 				memset(buffer, 0, sizeof(buffer));
@@ -538,7 +543,7 @@ namespace Runic2D
 				ImGui::Text("Font Asset: %s", component.FontAsset ? "Default (Loaded)" : "None");
 			});
 
-		DrawComponent<AnimationComponent>("Animation", entity, [&](auto& component)
+		DrawNativeComponent<AnimationComponent>("Animation", entity, [&](auto& component)
 			{
 				ImGui::Text("Preview Controller");
 
@@ -703,6 +708,50 @@ namespace Runic2D
 				}
 			});
 
+			for (const auto& desc : ComponentRegistry::GetAll())
+			{
+				if (desc.HasOnEntity(entity))
+				{
+					// Utilitzem un estil similar al template DrawComponent per coherència visual
+					ImGui::PushID(desc.Name.c_str());
+
+					ImGui::Separator();
+					float lineHeight = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
+					ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+					const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_DefaultOpen;
+
+					bool open = ImGui::TreeNodeEx((void*)desc.Name.c_str(), treeNodeFlags, desc.Name.c_str());
+
+					// Botó per eliminar el component (el "+" o "X" a la dreta)
+					ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+					if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
+					{
+						ImGui::OpenPopup("ComponentSettings");
+					}
+
+					bool removeComponent = false;
+					if (ImGui::BeginPopup("ComponentSettings"))
+					{
+						if (ImGui::MenuItem("Remove component"))
+							removeComponent = true;
+						ImGui::EndPopup();
+					}
+
+					if (open)
+					{
+						if (desc.DrawImGui) 
+							desc.DrawImGui(entity);
+						ImGui::TreePop();
+					}
+
+					if (removeComponent)
+						desc.RemoveFromEntity(entity);
+
+					ImGui::PopID();
+				}
+			}
+
 		// BOTÓ D'AFEGIR COMPONENT
 		ImGui::Spacing();
 		ImGui::Separator();
@@ -803,6 +852,34 @@ namespace Runic2D
 				{
 					m_SelectionContext.AddComponent<AnimationComponent>();
 					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			auto& gameComponents = ComponentRegistry::GetAll();
+			if (!gameComponents.empty())
+			{
+				ImGui::Separator();
+				ImGui::TextDisabled("-- Game Components --");
+
+				std::string currentCategory = "";
+				for (const auto& desc : gameComponents)
+				{
+					// Agrupem per categoria visualment
+					if (desc.Category != currentCategory)
+					{
+						ImGui::Spacing();
+						ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), desc.Category.c_str());
+						currentCategory = desc.Category;
+					}
+
+					if (!desc.HasOnEntity(entity))
+					{
+						if (ImGui::MenuItem(desc.Name.c_str()))
+						{
+							desc.AddToEntity(entity);
+							ImGui::CloseCurrentPopup();
+						}
+					}
 				}
 			}
 

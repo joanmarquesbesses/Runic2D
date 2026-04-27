@@ -77,6 +77,11 @@ namespace Survivor {
         if (Input::IsKeyPressed(KeyCode::A)) velocity.x -= 1.0f;
         if (Input::IsKeyPressed(KeyCode::D)) velocity.x += 1.0f;
 
+        if(HasComponent<PlayerStatsComponent>())
+        {
+			m_MoveSpeed = GetComponent<PlayerStatsComponent>().Speed;
+		}
+
         if (glm::length(velocity) > 0.0f)
             velocity = glm::normalize(velocity) * m_MoveSpeed;
 
