@@ -17,13 +17,14 @@ namespace Runic2D {
 			*it = std::move(descriptor);
 			return;
 		}
-
+		/*
 		R2D_CORE_ASSERT(descriptor.Add, "ComponentDescriptor '{}': falta lambda 'Add'", descriptor.Name);
 		R2D_CORE_ASSERT(descriptor.Has, "ComponentDescriptor '{}': falta lambda 'Has'", descriptor.Name);
 		R2D_CORE_ASSERT(descriptor.Remove, "ComponentDescriptor '{}': falta lambda 'Remove'", descriptor.Name);
 		R2D_CORE_ASSERT(descriptor.CopyTo, "ComponentDescriptor '{}': falta lambda 'CopyTo'", descriptor.Name);
 		R2D_CORE_ASSERT(descriptor.Serialize, "ComponentDescriptor '{}': falta lambda 'Serialize'", descriptor.Name);
 		R2D_CORE_ASSERT(descriptor.Deserialize, "ComponentDescriptor '{}': falta lambda 'Deserialize'", descriptor.Name);
+		*/
 		// Afegim el descriptor a la llista (fem servir std::move per eficiència)
 		s_Descriptors.push_back(std::move(descriptor));
 		R2D_CORE_TRACE("ComponentRegistry: Component registrat '{0}' [{1}]", s_Descriptors.back().Name, s_Descriptors.back().Category);

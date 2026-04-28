@@ -158,7 +158,6 @@ IF EXIST ..\bin\Release-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I .
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\bin\Dist-windows-x86_64\Box2D;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Dist-windows-x86_64\Runic2D\Runic2D.lib</ImportLibrary>
-      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Dist-windows-x86_64\Runic2D-Editor &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Dist-windows-x86_64\Runic2D-Editor &gt; nul)

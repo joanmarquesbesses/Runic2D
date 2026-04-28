@@ -153,7 +153,6 @@ project "Runic2D"
 
 	filter { "system:windows", "configurations:Dist" }
         buildoptions "/utf-8"
-        entrypoint "mainCRTStartup"
 
 
 project "SandBox"

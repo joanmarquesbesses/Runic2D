@@ -23,13 +23,19 @@ project "ImGui"
 		"%{prj.location}/imstb_textedit.h",
 		"%{prj.location}/imstb_truetype.h",
 		"%{prj.location}/../ImGuizmo/ImGuizmo.h",
-		"%{prj.location}/../ImGuizmo/ImGuizmo.cpp"
+		"%{prj.location}/../ImGuizmo/ImGuizmo.cpp",
+		"%{prj.location}/backends/imgui_impl_glfw.h",
+        "%{prj.location}/backends/imgui_impl_glfw.cpp",
+        "%{prj.location}/backends/imgui_impl_opengl3.h",
+        "%{prj.location}/backends/imgui_impl_opengl3.cpp"
 	}
 
 	includedirs
     {
         "%{prj.location}",             
-        "%{prj.location}/../ImGuizmo"  
+        "%{prj.location}/../ImGuizmo",
+		"%{wks.location}/Runic2D/vendor/GLFW/include",
+		"%{wks.location}/Runic2D/vendor/Glad/include"
     }
 
 	filter "configurations:Debug"
