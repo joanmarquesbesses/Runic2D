@@ -19,7 +19,7 @@ namespace Survivor {
 
             // --- Càmera de UI ---
             m_UICamera = GetScene()->CreateEntity("UICamera");
-            m_UICamera.AddComponent<UIComponent>();
+            m_UICamera.AddComponent<RectTransformComponent>();
             auto& cc = m_UICamera.AddComponent<CameraComponent>();
             cc.Camera.SetOrthographic(m_OrthoSize, -1.0f, 1.0f);
             cc.Primary = false;
@@ -66,7 +66,7 @@ namespace Survivor {
             const std::string& initial)
         {
             Entity e = GetScene()->CreateEntity(name);
-            e.AddComponent<UIComponent>();
+            e.AddComponent<RectTransformComponent>();
 
             auto& txt = e.AddComponent<TextComponent>();
             txt.TextString = initial;
@@ -174,7 +174,7 @@ namespace Survivor {
             for (int i = 0; i < count; i++)
             {
                 Entity card = GetScene()->CreateEntity("UpgradeCard");
-                card.AddComponent<UIComponent>();
+                card.AddComponent<RectTransformComponent>();
 
                 auto& tc = card.GetComponent<TransformComponent>();
                 tc.SetTranslation({ startX + i * spacing, 0.f, 0.1f }); // Z = 0.1
@@ -185,7 +185,7 @@ namespace Survivor {
                 sprite.Color = glm::vec4(1.f);
 
                 Entity titleEnt = GetScene()->CreateEntity("Card_Title");
-                titleEnt.AddComponent<UIComponent>();
+                titleEnt.AddComponent<RectTransformComponent>();
                 auto& titleTxt = titleEnt.AddComponent<TextComponent>(cards[i].Title);
                 titleTxt.Color = { 1.f, 1.f, 1.f, 1.f };
 
@@ -196,7 +196,7 @@ namespace Survivor {
                 titleEnt.GetComponent<TransformComponent>().SetScale({ titleScale, titleScale, 1.f });
 
                 Entity descEnt = GetScene()->CreateEntity("Card_Desc");
-                descEnt.AddComponent<UIComponent>();
+                descEnt.AddComponent<RectTransformComponent>();
                 auto& descTxt = descEnt.AddComponent<TextComponent>(cards[i].Description);
                 descTxt.Color = { 0.85f, 0.85f, 0.85f, 1.f };
 

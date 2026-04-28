@@ -85,7 +85,7 @@ namespace Survivor {
         {
             Entity uiCam = {};
 
-            auto view = GetScene()->GetAllEntitiesWith<CameraComponent, UIComponent>();
+            auto view = GetScene()->GetAllEntitiesWith<CameraComponent, RectTransformComponent>();
 
             view.each([&](auto entity, auto& cam, auto& ui) {
                 if (!uiCam) { 

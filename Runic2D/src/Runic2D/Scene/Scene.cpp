@@ -931,6 +931,7 @@ namespace Runic2D {
 		CopyComponentIfExists<CircleCollider2DComponent>(dst, src);
 		CopyComponentIfExists<TextComponent>(dst, src);
 		CopyComponentIfExists<AnimationComponent>(dst, src);
+		CopyComponentIfExists<RectTransformComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

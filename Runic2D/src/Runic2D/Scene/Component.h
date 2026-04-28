@@ -17,7 +17,7 @@
 
 namespace Runic2D {
 
-	struct IDComponent
+	struct RUNIC_API IDComponent
 	{
 		UUID ID;
 
@@ -27,7 +27,7 @@ namespace Runic2D {
 		IDComponent(const UUID& uuid) : ID(uuid) {}
 	};
 
-	struct TagComponent {
+	struct RUNIC_API TagComponent {
 		std::string Tag;
 		TagComponent() = default;
 		TagComponent(const TagComponent&) = default;
@@ -86,7 +86,7 @@ namespace Runic2D {
 		}
 	};
 
-	struct SpriteRendererComponent {
+	struct RUNIC_API SpriteRendererComponent {
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Texture2D> Texture;
 		Ref<SubTexture2D> SubTexture;
@@ -98,7 +98,7 @@ namespace Runic2D {
 			: Color(color) {}
 	};
 
-	struct CircleRendererComponent
+	struct RUNIC_API CircleRendererComponent
 	{
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		float Thickness = 1.0f;
@@ -117,7 +117,7 @@ namespace Runic2D {
 		CameraComponent(const CameraComponent&) = default;
 	};
 
-	struct NativeScriptComponent {
+	struct RUNIC_API NativeScriptComponent {
 		ScriptableEntity* Instance = nullptr;
 		
 		ScriptableEntity* (*InstantiateScript)();
@@ -133,7 +133,7 @@ namespace Runic2D {
 
 	};
 
-	struct RelationshipComponent
+	struct RUNIC_API RelationshipComponent
 	{
 		entt::entity Parent = entt::null;
 		entt::entity FirstChild = entt::null;
@@ -146,7 +146,7 @@ namespace Runic2D {
 		RelationshipComponent(const RelationshipComponent&) = default;
 	};
 
-	struct Rigidbody2DComponent
+	struct RUNIC_API Rigidbody2DComponent
 	{
 		enum class BodyType { Static = 0, Dynamic, Kinematic };
 		BodyType Type = BodyType::Static;
@@ -160,7 +160,7 @@ namespace Runic2D {
 		Rigidbody2DComponent(const Rigidbody2DComponent&) = default;
 	};
 
-	struct BoxCollider2DComponent
+	struct RUNIC_API BoxCollider2DComponent
 	{
 		glm::vec2 Offset = { 0.0f, 0.0f };
 		glm::vec2 Size = { 1.0f, 1.0f };
@@ -184,7 +184,7 @@ namespace Runic2D {
 		BoxCollider2DComponent(const BoxCollider2DComponent&) = default;
 	};
 
-	struct CircleCollider2DComponent
+	struct RUNIC_API CircleCollider2DComponent
 	{
 		glm::vec2 Offset = { 0.0f, 0.0f };
 		float Radius = 0.5f;
@@ -209,7 +209,7 @@ namespace Runic2D {
 		CircleCollider2DComponent(const CircleCollider2DComponent&) = default;
 	};
 
-	struct TextComponent
+	struct RUNIC_API TextComponent
 	{
 		std::string TextString = "";
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -223,7 +223,7 @@ namespace Runic2D {
 		TextComponent(const std::string& text) : TextString(text) {}
 	};
 
-	struct AnimationProfile
+	struct RUNIC_API AnimationProfile
 	{
 		std::string Name = "New Anim";
 
@@ -240,7 +240,7 @@ namespace Runic2D {
 		bool Loop = true;
 	};
 
-	struct AnimationComponent
+	struct RUNIC_API AnimationComponent
 	{
 		std::vector<AnimationProfile> Profiles;
 
