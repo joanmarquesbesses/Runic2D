@@ -17,6 +17,9 @@ namespace Runic2D {
 
 		static void SetScriptNamesGetter(ScriptNamesFn getter) { s_NamesGetter = getter; }
 
+		// Netejar tots els callbacks per evitar dangling pointers quan es descarrega una DLL de joc
+		static void Shutdown() { s_Binder = nullptr; s_NamesGetter = nullptr; }
+
 		static void BindScript(std::string name, Entity entity)
 		{
 			if (s_Binder) s_Binder(name, entity);

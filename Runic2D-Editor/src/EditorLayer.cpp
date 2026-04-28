@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "EditorLayer.h"
 
 #include <imgui/imgui.h>
@@ -9,6 +9,8 @@
 #include "Runic2D/Scene/SceneManager.h"
 #include "Runic2D/Scene/SceneSerializer.h"
 #include "Runic2D/Utils/PlatformUtils.h"
+#include "Runic2D/Assets/ResourceManager.h"
+#include "Runic2D/Scripting/ScriptEngine.h"
 
 namespace Runic2D
 {
@@ -52,14 +54,9 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
-		if (m_SceneState == SceneState::Play)
-			SceneManager::StopActiveScene();
+		CleanupCurrentProject();
 
 		SceneManager::SetSceneChangedCallback(nullptr);
-
-		m_EditorScene = nullptr;
-		m_HoveredEntity = {};
-		m_SceneHierarchyPanel.SetContext(nullptr);
 	}
 
 	void EditorLayer::OnUpdate(Timestep ts)
@@ -574,6 +571,9 @@ namespace Runic2D
 		m_SceneHierarchyPanel.SetContext(nullptr);
 		m_EditorScene = nullptr;
 		SceneManager::SetActiveScene(nullptr);
+
+		ScriptEngine::Shutdown();
+		ResourceManager::Clear();
 		Runic2D::ComponentRegistry::Clear();
 
 		if (Project::GetActive())

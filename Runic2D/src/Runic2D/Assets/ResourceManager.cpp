@@ -25,6 +25,7 @@ namespace Runic2D {
 		}
 
 		queue.clear();
+		GetCleanUnusedQueue().clear();
 
 		R2D_CORE_INFO("ResourceManager: All caches cleared.");
 	}

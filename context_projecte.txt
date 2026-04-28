@@ -125,6 +125,9 @@ project "Runic2D"
 			"R2D_BUILD_DLL",
 			"GLFW_INCLUDE_NONE" -- Prevent GLFW from including OpenGL headers
 		}
+		links {
+			"opengl32.lib"      
+		}
 
 	postbuildcommands
     {
@@ -155,7 +158,6 @@ project "Runic2D"
 
 	filter { "system:windows", "configurations:Dist" }
         buildoptions "/utf-8"
-        entrypoint "mainCRTStartup"
 
 
 project "SandBox"
@@ -201,6 +203,10 @@ project "SandBox"
 	filter "system:windows"
 		systemversion "latest"
 
+		links {
+            "opengl32.lib" 
+        }
+
 	filter "configurations:Debug"
 		defines "R2D_DEBUG"
 		runtime "Debug"
@@ -214,6 +220,7 @@ project "SandBox"
 	filter "configurations:Dist"
 		defines "R2D_DIST"
 		kind "WindowedApp"
+		entrypoint "mainCRTStartup"
 		runtime "Release"
 		optimize "on"
 
@@ -284,6 +291,8 @@ project "Runic2D-Editor"
 
 	filter "configurations:Dist"
 		defines "R2D_DIST"
+		kind "WindowedApp"           
+		entrypoint "mainCRTStartup"
 		runtime "Release"
 		optimize "on"
 
@@ -949,15 +958,16 @@ namespace Survivor
                 "Player Stats", "Gameplay",
                 [](Runic2D::Entity e) { if (!e.HasComponent<PlayerStatsComponent>()) e.AddComponent<PlayerStatsComponent>(); },
                 [](Runic2D::Entity e) { return e.HasComponent<PlayerStatsComponent>(); },
-                [](Runic2D::Entity e) {
 #ifndef R2D_DIST
+                [](Runic2D::Entity e) {
                     auto& c = e.GetComponent<PlayerStatsComponent>();
                     ImGui::DragFloat("Health", &c.Health, 0.1f, 0.0f, 50.0f);
                     ImGui::DragFloat("Speed", &c.Speed, 0.05f, 0.1f, 10.0f);
                     ImGui::DragFloat("Damage", &c.Damage, 0.1f, 0.0f, 20.0f);
-                    ImGui::DragInt("ProjectileCount", &c.ProjectileCount, 1, 1, 100);
+                    ImGui::DragInt("ProjectileCount", &c.ProjectileCount, 1, 1, 100); },
+#else
+                    nullptr,
 #endif
-                },
                 [](Runic2D::Entity e) { e.RemoveComponent<PlayerStatsComponent>(); },
                 [](Runic2D::Entity src, Runic2D::Entity dst) {
                     auto& srcData = src.GetComponent<PlayerStatsComponent>();
@@ -987,14 +997,15 @@ namespace Survivor
                 "Enemy Component", "AI",
                 [](Runic2D::Entity e) { if (!e.HasComponent<EnemyStatsComponent>()) e.AddComponent<EnemyStatsComponent>(); },
                 [](Runic2D::Entity e) { return e.HasComponent<EnemyStatsComponent>(); },
-                [](Runic2D::Entity e) {
 #ifndef R2D_DIST
+                [](Runic2D::Entity e) {
                     auto& c = e.GetComponent<EnemyStatsComponent>();
                     ImGui::DragFloat("Speed", &c.Speed, 0.1f, 0.0f, 20.0f);
                     ImGui::DragFloat("Damage", &c.Damage, 0.5f, 0.0f, 100.0f);
-                    ImGui::DragInt("XPDrop", &c.XPDrop, 1, 0, 1000);
+                    ImGui::DragInt("XPDrop", &c.XPDrop, 1, 0, 1000); },
+#else
+                    nullptr,
 #endif
-                },
                 [](Runic2D::Entity e) { e.RemoveComponent<EnemyStatsComponent>(); }
                 });
 
@@ -2073,7 +2084,7 @@ namespace Survivor {
         {
             Entity uiCam = {};
 
-            auto view = GetScene()->GetAllEntitiesWith<CameraComponent, UIComponent>();
+            auto view = GetScene()->GetAllEntitiesWith<CameraComponent, RectTransformComponent>();
 
             view.each([&](auto entity, auto& cam, auto& ui) {
                 if (!uiCam) { 
@@ -4197,6 +4208,7 @@ namespace Runic2D {
 		}
 
 		queue.clear();
+		GetCleanUnusedQueue().clear();
 
 		R2D_CORE_INFO("ResourceManager: All caches cleared.");
 	}
@@ -4394,6 +4406,7 @@ FITXER: .\Runic2D\src\Runic2D\Core\Application.cpp
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Audio/AudioEngine.h"
 #include "Runic2D/Utils/Random.h"
+#include "Runic2D/Scene/ComponentRegistry.h"
 
 #include "Input.h"
 
@@ -4414,6 +4427,7 @@ namespace Runic2D {
 		m_Window = std::unique_ptr<Window>(Window::Create(WindowProps(name)));
 		m_Window->SetEventCallback(R2D_BIND_EVENT_FN(OnEvent));
 
+		ComponentRegistry::InitEngineComponents();
 		Random::Init();
 		Renderer::Init();
 		AudioEngine::Init();
@@ -8160,7 +8174,7 @@ FITXER: .\Runic2D\src\Runic2D\Scene\Component.h
 
 namespace Runic2D {
 
-	struct IDComponent
+	struct RUNIC_API IDComponent
 	{
 		UUID ID;
 
@@ -8170,7 +8184,7 @@ namespace Runic2D {
 		IDComponent(const UUID& uuid) : ID(uuid) {}
 	};
 
-	struct TagComponent {
+	struct RUNIC_API TagComponent {
 		std::string Tag;
 		TagComponent() = default;
 		TagComponent(const TagComponent&) = default;
@@ -8229,7 +8243,7 @@ namespace Runic2D {
 		}
 	};
 
-	struct SpriteRendererComponent {
+	struct RUNIC_API SpriteRendererComponent {
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Texture2D> Texture;
 		Ref<SubTexture2D> SubTexture;
@@ -8241,7 +8255,7 @@ namespace Runic2D {
 			: Color(color) {}
 	};
 
-	struct CircleRendererComponent
+	struct RUNIC_API CircleRendererComponent
 	{
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		float Thickness = 1.0f;
@@ -8260,7 +8274,7 @@ namespace Runic2D {
 		CameraComponent(const CameraComponent&) = default;
 	};
 
-	struct NativeScriptComponent {
+	struct RUNIC_API NativeScriptComponent {
 		ScriptableEntity* Instance = nullptr;
 		
 		ScriptableEntity* (*InstantiateScript)();
@@ -8276,7 +8290,7 @@ namespace Runic2D {
 
 	};
 
-	struct RelationshipComponent
+	struct RUNIC_API RelationshipComponent
 	{
 		entt::entity Parent = entt::null;
 		entt::entity FirstChild = entt::null;
@@ -8289,7 +8303,7 @@ namespace Runic2D {
 		RelationshipComponent(const RelationshipComponent&) = default;
 	};
 
-	struct Rigidbody2DComponent
+	struct RUNIC_API Rigidbody2DComponent
 	{
 		enum class BodyType { Static = 0, Dynamic, Kinematic };
 		BodyType Type = BodyType::Static;
@@ -8303,7 +8317,7 @@ namespace Runic2D {
 		Rigidbody2DComponent(const Rigidbody2DComponent&) = default;
 	};
 
-	struct BoxCollider2DComponent
+	struct RUNIC_API BoxCollider2DComponent
 	{
 		glm::vec2 Offset = { 0.0f, 0.0f };
 		glm::vec2 Size = { 1.0f, 1.0f };
@@ -8327,7 +8341,7 @@ namespace Runic2D {
 		BoxCollider2DComponent(const BoxCollider2DComponent&) = default;
 	};
 
-	struct CircleCollider2DComponent
+	struct RUNIC_API CircleCollider2DComponent
 	{
 		glm::vec2 Offset = { 0.0f, 0.0f };
 		float Radius = 0.5f;
@@ -8352,7 +8366,7 @@ namespace Runic2D {
 		CircleCollider2DComponent(const CircleCollider2DComponent&) = default;
 	};
 
-	struct TextComponent
+	struct RUNIC_API TextComponent
 	{
 		std::string TextString = "";
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -8366,7 +8380,7 @@ namespace Runic2D {
 		TextComponent(const std::string& text) : TextString(text) {}
 	};
 
-	struct AnimationProfile
+	struct RUNIC_API AnimationProfile
 	{
 		std::string Name = "New Anim";
 
@@ -8383,7 +8397,7 @@ namespace Runic2D {
 		bool Loop = true;
 	};
 
-	struct AnimationComponent
+	struct RUNIC_API AnimationComponent
 	{
 		std::vector<AnimationProfile> Profiles;
 
@@ -8409,10 +8423,40 @@ namespace Runic2D {
 		}
 	};
 
-	struct UIComponent
+	struct RUNIC_API RectTransformComponent
 	{
-		UIComponent() = default;
-		bool Active = true;
+		glm::vec2 Position = { 0.0f, 0.0f };
+		glm::vec2 Size = { 100.0f, 100.0f };
+
+		glm::vec2 AnchorMin = { 0.5f, 0.5f };
+		glm::vec2 AnchorMax = { 0.5f, 0.5f };
+		glm::vec2 Pivot = { 0.5f, 0.5f };
+
+		float Rotation = 0.0f;
+		glm::vec2 Scale = { 1.0f, 1.0f };
+
+		int ZIndex = 0;
+
+		RectTransformComponent() = default;
+		RectTransformComponent(const RectTransformComponent&) = default;
+
+		void CalculateTransforms(const glm::mat4& parentWorldTransform, const glm::vec2& parentSize, const glm::vec2& parentPivot,
+			glm::mat4& outWorldTransform, glm::mat4& outMeshTransform) const
+		{
+			glm::vec2 anchorPos = -parentSize * parentPivot + parentSize * AnchorMin;
+			glm::vec2 localPos = anchorPos + Position;
+
+			glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(localPos.x, localPos.y, 0.0f));
+			glm::mat4 r = glm::rotate(glm::mat4(1.0f), Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+			glm::mat4 s = glm::scale(glm::mat4(1.0f), glm::vec3(Scale.x, Scale.y, 1.0f));
+
+			outWorldTransform = parentWorldTransform * t * r * s;
+
+			glm::mat4 meshPivot = glm::translate(glm::mat4(1.0f), glm::vec3((0.5f - Pivot.x) * Size.x, (0.5f - Pivot.y) * Size.y, 0.0f));
+			glm::mat4 meshScale = glm::scale(glm::mat4(1.0f), glm::vec3(Size.x, Size.y, 1.0f));
+
+			outMeshTransform = outWorldTransform * meshPivot * meshScale;
+		}
 	};
 }
 
@@ -8932,6 +8976,330 @@ namespace Runic2D {
 }
 
 ============================================================
+FITXER: .\Runic2D\src\Runic2D\Scene\SceneSerializer.cpp
+============================================================
+
+#include "R2Dpch.h"
+#include "SceneSerializer.h"
+
+#include <fstream>
+#include <yaml-cpp/yaml.h>
+
+#include "Entity.h"
+#include "Component.h"
+#include "ComponentRegistry.h"
+#include "Runic2D/Project/Project.h"
+#include "Runic2D/Assets/ResourceManager.h"
+#include "Runic2D/Scripting/ScriptEngine.h"
+
+#include <unordered_map>
+
+#define YAML_LOAD(node, key, target) if (node[key]) target = node[key].as<decltype(target)>();
+
+namespace YAML {
+
+	template<>
+	struct convert<glm::vec2>
+	{
+		static Node encode(const glm::vec2& rhs)
+		{
+			Node node;
+			node.push_back(rhs.x);
+			node.push_back(rhs.y);
+			return node;
+		}
+
+		static bool decode(const Node& node, glm::vec2& rhs)
+		{
+			if (!node.IsSequence() || node.size() != 2)
+				return false;
+
+			rhs.x = node[0].as<float>();
+			rhs.y = node[1].as<float>();
+			return true;
+		}
+	};
+
+	template<>
+	struct convert<glm::vec3> {
+		static Node encode(const glm::vec3& rhs) {
+			Node node;
+			node.push_back(rhs.x);
+			node.push_back(rhs.y);
+			node.push_back(rhs.z);
+			return node;
+		}
+
+		static bool decode(const Node& node, glm::vec3& rhs) {
+			if (!node.IsSequence() || node.size() != 3)
+				return false;
+			rhs.x = node[0].as<float>();
+			rhs.y = node[1].as<float>();
+			rhs.z = node[2].as<float>();
+			return true;
+		}
+	};
+
+	template<>
+	struct convert<glm::vec4> {
+		static Node encode(const glm::vec4& rhs) {
+			Node node;
+			node.push_back(rhs.x);
+			node.push_back(rhs.y);
+			node.push_back(rhs.z);
+			node.push_back(rhs.w);
+			return node;
+		}
+
+		static bool decode(const Node& node, glm::vec4& rhs) {
+			if (!node.IsSequence() || node.size() != 4)
+				return false;
+			rhs.x = node[0].as<float>();
+			rhs.y = node[1].as<float>();
+			rhs.z = node[2].as<float>();
+			rhs.w = node[3].as<float>();
+			return true;
+		}
+	};
+} // namespace YAML
+
+namespace Runic2D {
+
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& v)
+	{
+		out << YAML::Flow;
+		out << YAML::BeginSeq << v.x << v.y << YAML::EndSeq;
+		return out;
+	}
+
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& vec)
+	{
+		out << YAML::Flow;
+		out << YAML::BeginSeq << vec.x << vec.y << vec.z << YAML::EndSeq;
+		return out;
+	}
+
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec4& vec)
+	{
+		out << YAML::Flow;
+		out << YAML::BeginSeq << vec.x << vec.y << vec.z << vec.w << YAML::EndSeq;
+		return out;
+	}
+
+	static std::string RigidBody2DBodyTypeToString(Rigidbody2DComponent::BodyType bodyType)
+	{
+		switch (bodyType)
+		{
+		case Rigidbody2DComponent::BodyType::Static:    return "Static";
+		case Rigidbody2DComponent::BodyType::Dynamic:   return "Dynamic";
+		case Rigidbody2DComponent::BodyType::Kinematic: return "Kinematic";
+		}
+
+		R2D_CORE_ASSERT(false, "Unknown body type");
+		return {};
+	}
+
+	static Rigidbody2DComponent::BodyType RigidBody2DBodyTypeFromString(const std::string& bodyTypeString)
+	{
+		if (bodyTypeString == "Static")    return Rigidbody2DComponent::BodyType::Static;
+		if (bodyTypeString == "Dynamic")   return Rigidbody2DComponent::BodyType::Dynamic;
+		if (bodyTypeString == "Kinematic") return Rigidbody2DComponent::BodyType::Kinematic;
+
+		R2D_CORE_ASSERT(false, "Unknown body type");
+		return Rigidbody2DComponent::BodyType::Static;
+	}
+
+	SceneSerializer::SceneSerializer(const Ref<Scene>& scene)
+		: m_Scene(scene)
+	{
+	}
+
+	static void SerializeEntity(YAML::Emitter& out, Entity entity, Scene* scene)
+	{
+		out << YAML::BeginMap;
+		out << YAML::Key << "EntityID" << YAML::Value << entity.GetUUID();
+
+		if (entity.HasComponent<TagComponent>())
+		{
+			auto& tag = entity.GetComponent<TagComponent>().Tag;
+
+			out << YAML::Key << "TagComponent";
+			out << YAML::BeginMap;
+			out << YAML::Key << "Tag" << YAML::Value << tag;
+			out << YAML::EndMap;
+		}
+
+		if(entity.HasComponent<TransformComponent>())
+		{
+			auto& transform = entity.GetComponent<TransformComponent>();
+
+			out << YAML::Key << "TransformComponent";
+			out << YAML::BeginMap;
+			out << YAML::Key << "Translation" << YAML::Value << transform.Translation;
+			out << YAML::Key << "Rotation" << YAML::Value << transform.Rotation;
+			out << YAML::Key << "Scale" << YAML::Value << transform.Scale;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<RelationshipComponent>())
+		{
+			out << YAML::Key << "RelationshipComponent";
+			out << YAML::BeginMap;
+
+			auto& rc = entity.GetComponent<RelationshipComponent>();
+
+			UUID parentUUID = 0;
+			if (rc.Parent != entt::null)
+			{
+				Entity parent = { rc.Parent, scene };
+				parentUUID = parent.GetUUID();
+			}
+			out << YAML::Key << "Parent" << YAML::Value << parentUUID;
+			out << YAML::EndMap;
+		}
+
+		for (const auto& desc : ComponentRegistry::GetAll())
+		{
+			if (desc.HasOnEntity(entity) && desc.Serialize)
+			{
+				out << YAML::Key << desc.Name;
+				out << YAML::BeginMap;
+				desc.Serialize(out, entity); // La DLL sap quines variables escriure!
+				out << YAML::EndMap;
+			}
+		}
+
+		out << YAML::EndMap; // Entity
+	}
+
+	void SceneSerializer::Serialize(const std::string& filepath)
+	{
+		YAML::Emitter out;
+		out << YAML::BeginMap;
+		out << YAML::Key << "Scene" << YAML::Value << "Scene Name";
+		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
+		
+		auto view = m_Scene->m_Registry.view<TagComponent>();
+
+		for (auto it = view.rbegin(); it != view.rend(); ++it) // Iterate in reverse to serialize in creation order
+		{
+			Entity entity = { *it, m_Scene.get() };
+			if (!entity) continue;
+
+			SerializeEntity(out, entity, m_Scene.get());
+		}
+
+		out << YAML::EndSeq;
+		out << YAML::EndMap;
+
+		std::ofstream fout(filepath);
+		fout << out.c_str();
+
+	}
+
+	void SceneSerializer::SerializeRuntime(const std::string& filepath)
+	{
+		R2D_ASSERT(false, "Not Implemented!");
+	}
+
+	bool SceneSerializer::Deserialize(const std::string& filepath)
+	{
+		if (!std::filesystem::exists(filepath))
+		{
+			R2D_CORE_ERROR("No s'ha pogut carregar l'escena: El fitxer no existeix ({0})", filepath);
+			return false;
+		}
+
+		YAML::Node data = YAML::LoadFile(filepath);
+		if (!data["Scene"])
+			return false;
+
+		std::string sceneName = data["Scene"].as<std::string>();
+		R2D_CORE_TRACE("Deserializing scene '{0}'", sceneName);
+
+		auto entities = data["Entities"];
+
+		std::unordered_map<UUID, UUID> parentMap;
+
+		if(entities)
+		{
+
+			for (auto entityNode : entities)
+			{
+				uint64_t uuid = entityNode["EntityID"].as<uint64_t>();
+				std::string name;
+				auto tagComponent = entityNode["TagComponent"];
+				if (tagComponent)
+					name = tagComponent["Tag"].as<std::string>();
+				R2D_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
+
+				Entity deserializedEntity = m_Scene->CreateEntityWithUUID(uuid, name);
+
+				auto transformComponent = entityNode["TransformComponent"];
+				if (transformComponent)
+				{
+					// entities always have transform component
+					auto& tc = deserializedEntity.GetComponent<TransformComponent>();
+					YAML_LOAD(transformComponent, "Translation", tc.Translation);
+					YAML_LOAD(transformComponent, "Rotation", tc.Rotation);
+					YAML_LOAD(transformComponent, "Scale", tc.Scale);
+				}
+
+				auto relationshipComponent = entityNode["RelationshipComponent"];
+				if (relationshipComponent)
+				{
+					UUID parentUUID = relationshipComponent["Parent"].as<uint64_t>();
+
+					if (parentUUID != 0)
+					{
+						parentMap[deserializedEntity.GetUUID()] = parentUUID;
+					}
+				}
+
+				for (const auto& desc : ComponentRegistry::GetAll())
+				{
+					auto componentNode = entityNode[desc.Name];
+					if (componentNode && desc.Deserialize)
+					{
+						desc.Deserialize(componentNode, deserializedEntity);
+					}
+				}
+
+			}
+		}
+
+		for (auto const& [childUUID, parentUUID] : parentMap)
+		{
+			Entity child = m_Scene->GetEntityByUUID(childUUID);
+			Entity parent = m_Scene->GetEntityByUUID(parentUUID);
+
+			if (child && parent)
+			{
+				auto& tc = child.GetComponent<TransformComponent>();
+				glm::vec3 oldTranslation = tc.Translation;
+				glm::vec3 oldRotation = tc.Rotation;
+				glm::vec3 oldScale = tc.Scale;
+
+				m_Scene->ParentEntity(child, parent);
+
+				tc.Translation = oldTranslation;
+				tc.Rotation = oldRotation;
+				tc.Scale = oldScale;
+				tc.IsDirty = true;
+			}
+		}
+
+		return true;
+	}
+
+	bool SceneSerializer::DeserializeRuntime(const std::string& filepath)
+	{
+		R2D_ASSERT(false, "Not Implemented!");
+		return false;
+	}
+} // namespace Runic2D
+
+============================================================
 FITXER: .\Runic2D\src\Runic2D\Scene\SceneSerializer.h
 ============================================================
 
@@ -9035,6 +9403,9 @@ namespace Runic2D {
 		static void SetScriptBinder(ScriptBinderFn binder) { s_Binder = binder; }
 
 		static void SetScriptNamesGetter(ScriptNamesFn getter) { s_NamesGetter = getter; }
+
+		// Netejar tots els callbacks per evitar dangling pointers quan es descarrega una DLL de joc
+		static void Shutdown() { s_Binder = nullptr; s_NamesGetter = nullptr; }
 
 		static void BindScript(std::string name, Entity entity)
 		{
@@ -9207,7 +9578,7 @@ namespace Runic2D::Utils {
 FITXER: .\Runic2D-Editor\src\EditorLayer.cpp
 ============================================================
 
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "EditorLayer.h"
 
 #include <imgui/imgui.h>
@@ -9218,6 +9589,8 @@ FITXER: .\Runic2D-Editor\src\EditorLayer.cpp
 #include "Runic2D/Scene/SceneManager.h"
 #include "Runic2D/Scene/SceneSerializer.h"
 #include "Runic2D/Utils/PlatformUtils.h"
+#include "Runic2D/Assets/ResourceManager.h"
+#include "Runic2D/Scripting/ScriptEngine.h"
 
 namespace Runic2D
 {
@@ -9261,14 +9634,9 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
-		if (m_SceneState == SceneState::Play)
-			SceneManager::StopActiveScene();
+		CleanupCurrentProject();
 
 		SceneManager::SetSceneChangedCallback(nullptr);
-
-		m_EditorScene = nullptr;
-		m_HoveredEntity = {};
-		m_SceneHierarchyPanel.SetContext(nullptr);
 	}
 
 	void EditorLayer::OnUpdate(Timestep ts)
@@ -9300,6 +9668,7 @@ namespace Runic2D
 			if (m_SceneState == SceneState::Edit)
 			{
 				scene->OnUpdateEditor(ts, m_EditorCamera);
+				scene->OnRenderUI();
 			}
 			else // Play
 			{
@@ -9663,10 +10032,7 @@ namespace Runic2D
 		if (m_SceneState != SceneState::Edit)
 			OnSceneStop();
 
-		m_SceneHierarchyPanel.SetContext(nullptr);
-		m_EditorScene = nullptr;
-		SceneManager::SetActiveScene(nullptr);
-		Runic2D::ComponentRegistry::Clear();
+		CleanupCurrentProject();
 
 		// 1. Assegurar que la carpeta "Projects" existeix
 		std::filesystem::path projectsRoot =
@@ -9745,23 +10111,26 @@ namespace Runic2D
 
 	void EditorLayer::OpenProject(const std::filesystem::path& path)
 	{
-		if (m_SceneState == SceneState::Play)
-			OnSceneStop();
-
-		m_SceneHierarchyPanel.SetContext(nullptr);
-		m_EditorScene = nullptr;
-		SceneManager::SetActiveScene(nullptr);
-		Runic2D::ComponentRegistry::Clear();
-
-		// Descarregar DLL anterior si n'hi havia
-		if (Project::GetActive())
-			Project::UnloadRuntimeLibrary();
-
-		if (!Project::Load(path))
+		if (!std::filesystem::exists(path))
+		{
+			R2D_CORE_ERROR("El fitxer de projecte no existeix: {0}", path.string());
 			return;
+		}
 
-		Project::LoadRuntimeLibrary();
-		OnProjectLoaded();
+		// 2. Ara sí, desmuntem l'antic (Això evita els crashes de memòria)
+		CleanupCurrentProject();
+
+		// 3. Carreguem el nou
+		if (Project::Load(path))
+		{
+			// 4. Connectem la nova DLL i carreguem la UI/Escena
+			Project::LoadRuntimeLibrary();
+			OnProjectLoaded();
+		}
+		else
+		{
+			R2D_CORE_ERROR("Ha fallat la càrrega del projecte a: {0}", path.string());
+		}
 	}
 
 	void EditorLayer::SaveProject()
@@ -9773,14 +10142,35 @@ namespace Runic2D
 		Project::Save(projectFile);
 	}
 
+	void EditorLayer::CleanupCurrentProject()
+	{
+		if (m_SceneState == SceneState::Play)
+			OnSceneStop();
+
+		m_HoveredEntity = {};
+		m_SceneHierarchyPanel.SetContext(nullptr);
+		m_EditorScene = nullptr;
+		SceneManager::SetActiveScene(nullptr);
+
+		ScriptEngine::Shutdown();
+		ResourceManager::Clear();
+		Runic2D::ComponentRegistry::Clear();
+
+		if (Project::GetActive())
+			Project::UnloadRuntimeLibrary();
+	}
+
 	void EditorLayer::OnProjectLoaded()
 	{
-		if (Project::GetActive())
+		if (!Project::GetActive())
 		{
-			m_ContentBrowserPanel.SetRootDirectory(Project::GetAssetDirectory());
+			R2D_CORE_ERROR("S'ha intentat cridar OnProjectLoaded però no hi ha cap projecte actiu!");
+			return;
 		}
 
-		const auto& startScene = Project::GetConfig().StartScene;
+		m_ContentBrowserPanel.SetRootDirectory(Project::GetAssetDirectory());
+
+		auto startScene = Project::GetConfig().StartScene;
 		if (!startScene.empty())
 		{
 			auto scenePath = Project::GetAssetFileSystemPath(startScene);
@@ -9870,6 +10260,7 @@ namespace Runic2D {
 		void OpenProject();
 		void OpenProject(const std::filesystem::path& absolutePath);
 		void SaveProject();
+		void CleanupCurrentProject();
 
 		void OnProjectLoaded(); 
 		void UpdateWindowTitle();
