@@ -792,6 +792,16 @@ namespace Runic2D
 				}
 			}
 
+			if (!entity.HasComponent<RectTransformComponent>())
+			{
+				if (ImGui::MenuItem("Rect Transform"))
+				{
+					entity.AddComponent<RectTransformComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+
 			if (!entity.HasComponent<CircleRendererComponent>())
 			{
 				if (ImGui::MenuItem("Circle Renderer"))

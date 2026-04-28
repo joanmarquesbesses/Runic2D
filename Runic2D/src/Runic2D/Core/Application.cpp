@@ -6,6 +6,7 @@
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Audio/AudioEngine.h"
 #include "Runic2D/Utils/Random.h"
+#include "Runic2D/Scene/ComponentRegistry.h"
 
 #include "Input.h"
 
@@ -26,6 +27,7 @@ namespace Runic2D {
 		m_Window = std::unique_ptr<Window>(Window::Create(WindowProps(name)));
 		m_Window->SetEventCallback(R2D_BIND_EVENT_FN(OnEvent));
 
+		ComponentRegistry::InitEngineComponents();
 		Random::Init();
 		Renderer::Init();
 		AudioEngine::Init();

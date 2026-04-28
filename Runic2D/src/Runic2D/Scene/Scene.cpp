@@ -348,7 +348,7 @@ namespace Runic2D {
 		// Render Scene
 		Renderer2D::BeginScene(camera, camTransform.GetTransform());
 
-		auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<UIComponent>);
+		auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<RectTransformComponent>);
 
 		view.each([&](auto entityID, auto& transform, auto& sprite)
 			{
@@ -357,7 +357,7 @@ namespace Runic2D {
 				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
 			});
 
-		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>(entt::exclude<UIComponent>);
+		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>(entt::exclude<RectTransformComponent>);
 
 		circleView.each([&](auto entityID, auto& transform, auto& circle)
 			{
@@ -366,7 +366,7 @@ namespace Runic2D {
 				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
 			});
 
-		m_Registry.view<TransformComponent, TextComponent>(entt::exclude<UIComponent>).each([&](auto entityID, auto& transform, auto& text)
+		m_Registry.view<TransformComponent, TextComponent>(entt::exclude<RectTransformComponent>).each([&](auto entityID, auto& transform, auto& text)
 			{
 				if (!text.Visible)
 					return;
@@ -382,46 +382,94 @@ namespace Runic2D {
 
 	void Scene::OnRenderUI()
 	{
-		Entity uiCamera = {};
+		float aspectRatio = (float)m_ViewportWidth / (float)m_ViewportHeight;
+		
+		float refHeight = 1080.0f;
+		float refWidth = refHeight * aspectRatio;
+		
+		glm::vec2 virtualViewportSize = { refWidth, refHeight };
+		glm::vec2 virtualViewportPivot = { 0.0f, 0.0f }; // Bottom-left origin
 
-		auto view = m_Registry.view<CameraComponent, UIComponent>();
-		view.each([&](auto entityID, auto& camera, auto& ui)
-			{
-				Entity e{ entityID, this };
-				uiCamera = e;
-			});
-
-		if (!uiCamera) return;
-
-		auto& camera = uiCamera.GetComponent<CameraComponent>().Camera;
-		auto& camTransform = uiCamera.GetComponent<TransformComponent>();
-
+		glm::mat4 projection = glm::ortho(0.0f, refWidth, 0.0f, refHeight, -1.0f, 1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		
 		RenderCommand::ClearDepth();
-		Renderer2D::BeginScene(camera, camTransform.GetTransform());
+		Renderer2D::BeginScene(projection * view);
 
-		// Només entitats amb UIComponent (excepte la càmera mateixa)
-		auto tview = m_Registry.view<TransformComponent, SpriteRendererComponent, UIComponent>();
-		tview.each([&](auto entityID, auto& transform, auto& sprite, auto& ui)
-			{
-				Entity e{ entityID, this };
-				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
-			});
+		glm::mat4 globalTransform = glm::mat4(1.0f); // Identity, we work in virtual pixels!
+
+		struct UIRenderCommand {
+			int ZIndex;
+			std::function<void()> RenderCall;
+		};
+		std::vector<UIRenderCommand> renderCommands;
+
+		auto processEntity = [&](Entity e, const glm::mat4& parentWorldTransform, const glm::vec2& parentSize, const glm::vec2& parentPivot, auto& processEntityRef) -> void
+		{
+			if (!e.HasComponent<RectTransformComponent>()) return;
+
+			auto& rectTransform = e.GetComponent<RectTransformComponent>();
+			glm::mat4 worldTransform, meshTransform;
+			rectTransform.CalculateTransforms(parentWorldTransform, parentSize, parentPivot, worldTransform, meshTransform);
+
+			entt::entity entityID = e;
+
+			if (e.HasComponent<SpriteRendererComponent>()) {
+				renderCommands.push_back({ rectTransform.ZIndex, [this, meshTransform, entityID]() { 
+					auto& sprite = m_Registry.get<SpriteRendererComponent>(entityID);
+					Renderer2D::DrawSprite(meshTransform, sprite, (int)(uint32_t)entityID); 
+				} });
+			}
+			if (e.HasComponent<CircleRendererComponent>()) {
+				renderCommands.push_back({ rectTransform.ZIndex, [this, meshTransform, entityID]() { 
+					auto& circle = m_Registry.get<CircleRendererComponent>(entityID);
+					Renderer2D::DrawCircle(meshTransform, circle.Color, circle.Thickness, circle.Fade, (int)(uint32_t)entityID); 
+				} });
+			}
+			if (e.HasComponent<TextComponent>()) {
+				renderCommands.push_back({ rectTransform.ZIndex, [this, meshTransform, entityID]() { 
+					auto& text = m_Registry.get<TextComponent>(entityID);
+					Renderer2D::DrawString(text.TextString, text.FontAsset, meshTransform, text.Color, text.Kerning, text.LineSpacing, (int)(uint32_t)entityID); 
+				} });
+			}
+
+			if (e.HasComponent<RelationshipComponent>()) {
+				auto& relationship = e.GetComponent<RelationshipComponent>();
+				entt::entity currentChild = relationship.FirstChild;
+				while (currentChild != entt::null) {
+					Entity childEntity{ currentChild, this };
+					processEntityRef(childEntity, worldTransform, rectTransform.Size, rectTransform.Pivot, processEntityRef);
+					currentChild = childEntity.GetComponent<RelationshipComponent>().NextSibling;
+				}
+			}
+		};
+
+		m_Registry.view<RectTransformComponent>().each([&](auto entityID, auto& rect)
+		{
+			Entity e{ entityID, this };
+			bool isRoot = true;
+			if (e.HasComponent<RelationshipComponent>()) {
+				auto parent = e.GetComponent<RelationshipComponent>().Parent;
+				if (parent != entt::null) {
+					Entity parentEntity{ parent, this };
+					if (parentEntity.HasComponent<RectTransformComponent>()) {
+						isRoot = false;
+					}
+				}
+			}
 			
-		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent, UIComponent>();
-		circleView.each([&](auto entityID, auto& transform, auto& circle, auto& ui)
-			{
-				Entity e{ entityID, this };
-				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
-			});
+			if (isRoot) {
+				processEntity(e, globalTransform, virtualViewportSize, virtualViewportPivot, processEntity);
+			}
+		});
 
-		m_Registry.view<TransformComponent, TextComponent, UIComponent>().each([&](auto entityID, auto& transform, auto& text, auto& ui)
-			{
-				Entity e{ entityID, this };
-				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawString(text.TextString, text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
-			});
+		std::sort(renderCommands.begin(), renderCommands.end(), [](const UIRenderCommand& a, const UIRenderCommand& b) {
+			return a.ZIndex < b.ZIndex;
+		});
+
+		for (const auto& cmd : renderCommands) {
+			cmd.RenderCall();
+		}
 
 		Renderer2D::EndScene();
 	}
@@ -430,7 +478,7 @@ namespace Runic2D {
 	{
 		Renderer2D::BeginScene(camera);
 
-		auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>();
+		auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<RectTransformComponent>);
 
 		view.each([&](auto entityID, auto& transform, auto& sprite)
 			{
@@ -439,7 +487,7 @@ namespace Runic2D {
 				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
 			});
 
-		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>();
+		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>(entt::exclude<RectTransformComponent>);
 
 		circleView.each([&](auto entityID, auto& transform, auto& circle)
 			{

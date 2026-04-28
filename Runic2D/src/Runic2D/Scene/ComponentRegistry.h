@@ -26,13 +26,15 @@ namespace Runic2D {
         std::function<void(Entity src, Entity dst)> CopyComponent;
         std::function<void(YAML::Emitter&, Entity)> Serialize;
         std::function<void(YAML::Node&, Entity)> Deserialize;
+        bool IsEngineComponent = false;
     };
 
     class RUNIC_API ComponentRegistry
     {
     public:
         static void Register(ComponentDescriptor&& descriptor);
-        static void Clear(); // <-- CLAU per quan es descarrega la DLL
+        static void Clear();
+        static void InitEngineComponents(); // <-- CLAU per quan es descarrega la DLL
 
         static const std::vector<ComponentDescriptor>& GetAll();
 

@@ -266,9 +266,39 @@ namespace Runic2D {
 		}
 	};
 
-	struct UIComponent
+	struct RUNIC_API RectTransformComponent
 	{
-		UIComponent() = default;
-		bool Active = true;
+		glm::vec2 Position = { 0.0f, 0.0f };
+		glm::vec2 Size = { 100.0f, 100.0f };
+
+		glm::vec2 AnchorMin = { 0.5f, 0.5f };
+		glm::vec2 AnchorMax = { 0.5f, 0.5f };
+		glm::vec2 Pivot = { 0.5f, 0.5f };
+
+		float Rotation = 0.0f;
+		glm::vec2 Scale = { 1.0f, 1.0f };
+
+		int ZIndex = 0;
+
+		RectTransformComponent() = default;
+		RectTransformComponent(const RectTransformComponent&) = default;
+
+		void CalculateTransforms(const glm::mat4& parentWorldTransform, const glm::vec2& parentSize, const glm::vec2& parentPivot,
+			glm::mat4& outWorldTransform, glm::mat4& outMeshTransform) const
+		{
+			glm::vec2 anchorPos = -parentSize * parentPivot + parentSize * AnchorMin;
+			glm::vec2 localPos = anchorPos + Position;
+
+			glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(localPos.x, localPos.y, 0.0f));
+			glm::mat4 r = glm::rotate(glm::mat4(1.0f), Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+			glm::mat4 s = glm::scale(glm::mat4(1.0f), glm::vec3(Scale.x, Scale.y, 1.0f));
+
+			outWorldTransform = parentWorldTransform * t * r * s;
+
+			glm::mat4 meshPivot = glm::translate(glm::mat4(1.0f), glm::vec3((0.5f - Pivot.x) * Size.x, (0.5f - Pivot.y) * Size.y, 0.0f));
+			glm::mat4 meshScale = glm::scale(glm::mat4(1.0f), glm::vec3(Size.x, Size.y, 1.0f));
+
+			outMeshTransform = outWorldTransform * meshPivot * meshScale;
+		}
 	};
 }
