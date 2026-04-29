@@ -111,6 +111,8 @@ namespace Runic2D {
 
 			for (const auto& desc : ComponentRegistry::GetAll())
 			{
+				if (desc.IsEngineComponent) continue;
+
 				if (desc.HasOnEntity(sourceEntity) && desc.CopyComponent)
 				{
 					desc.CopyComponent(sourceEntity, targetEntity);
@@ -468,8 +470,14 @@ namespace Runic2D {
 			return a.ZIndex < b.ZIndex;
 		});
 
+		int lastZIndex = INT_MIN;
 		for (const auto& cmd : renderCommands) {
+			if (cmd.ZIndex != lastZIndex && lastZIndex != INT_MIN) {
+				Renderer2D::Flush();
+				Renderer2D::StartBatch();
+			}
 			cmd.RenderCall();
+			lastZIndex = cmd.ZIndex;
 		}
 
 		Renderer2D::EndScene();

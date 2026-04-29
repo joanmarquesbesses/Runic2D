@@ -24,6 +24,7 @@ namespace Runic2D {
 		static void BeginScene(const glm::mat4& viewProj);
 		static void EndScene();
 		static void Flush();
+		static void StartBatch();
 
 		static void ResetTextureSlots();
 
@@ -77,8 +78,7 @@ namespace Runic2D {
 		static Ref<Texture2D> GetWhiteTexture();
 
 	private:
-		static void StartBatch();
-		static void NextBatch();
+			static void NextBatch();
 	};
 
 }
