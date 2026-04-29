@@ -76,52 +76,6 @@ namespace Runic2D {
 	void ComponentRegistry::InitEngineComponents()
 	{
 		Register({
-			"RectTransform", "UI",
-			[](Entity e) { if (!e.HasComponent<RectTransformComponent>()) e.AddComponent<RectTransformComponent>(); },
-			[](Entity e) { return e.HasComponent<RectTransformComponent>(); },
-#ifndef R2D_DIST
-			[](Entity e) {
-				auto& c = e.GetComponent<RectTransformComponent>();
-				ImGui::DragFloat2("Position", &c.Position[0], 0.1f);
-				ImGui::DragFloat2("Size", &c.Size[0], 0.1f);
-				ImGui::DragFloat2("Anchor Min", &c.AnchorMin[0], 0.05f, 0.0f, 1.0f);
-				ImGui::DragFloat2("Anchor Max", &c.AnchorMax[0], 0.05f, 0.0f, 1.0f);
-				ImGui::DragFloat2("Pivot", &c.Pivot[0], 0.05f, 0.0f, 1.0f);
-				ImGui::DragFloat("Rotation", &c.Rotation, 0.05f);
-				ImGui::DragFloat2("Scale", &c.Scale[0], 0.05f);
-				ImGui::DragInt("Z Index", &c.ZIndex, 1);
-			},
-#else
-			nullptr,
-#endif
-			[](Entity e) { e.RemoveComponent<RectTransformComponent>(); },
-			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<RectTransformComponent>(src.GetComponent<RectTransformComponent>()); },
-			[](YAML::Emitter& out, Entity e) {
-				auto& c = e.GetComponent<RectTransformComponent>();
-				out << YAML::Key << "Position" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Position.x << c.Position.y << YAML::EndSeq;
-				out << YAML::Key << "Size" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Size.x << c.Size.y << YAML::EndSeq;
-				out << YAML::Key << "AnchorMin" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.AnchorMin.x << c.AnchorMin.y << YAML::EndSeq;
-				out << YAML::Key << "AnchorMax" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.AnchorMax.x << c.AnchorMax.y << YAML::EndSeq;
-				out << YAML::Key << "Pivot" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Pivot.x << c.Pivot.y << YAML::EndSeq;
-				out << YAML::Key << "Rotation" << YAML::Value << c.Rotation;
-				out << YAML::Key << "Scale" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Scale.x << c.Scale.y << YAML::EndSeq;
-				out << YAML::Key << "ZIndex" << YAML::Value << c.ZIndex;
-			},
-			[](YAML::Node& node, Entity e) {
-				auto& c = e.AddComponent<RectTransformComponent>();
-				if (node["Position"]) { c.Position.x = node["Position"][0].as<float>(); c.Position.y = node["Position"][1].as<float>(); }
-				if (node["Size"]) { c.Size.x = node["Size"][0].as<float>(); c.Size.y = node["Size"][1].as<float>(); }
-				if (node["AnchorMin"]) { c.AnchorMin.x = node["AnchorMin"][0].as<float>(); c.AnchorMin.y = node["AnchorMin"][1].as<float>(); }
-				if (node["AnchorMax"]) { c.AnchorMax.x = node["AnchorMax"][0].as<float>(); c.AnchorMax.y = node["AnchorMax"][1].as<float>(); }
-				if (node["Pivot"]) { c.Pivot.x = node["Pivot"][0].as<float>(); c.Pivot.y = node["Pivot"][1].as<float>(); }
-				if (node["Rotation"]) c.Rotation = node["Rotation"].as<float>();
-				if (node["Scale"]) { c.Scale.x = node["Scale"][0].as<float>(); c.Scale.y = node["Scale"][1].as<float>(); }
-				if (node["ZIndex"]) c.ZIndex = node["ZIndex"].as<int>();
-			},
-			true
-		});
-
-		Register({
 			"CameraComponent", "Core",
 			[](Entity e) { if (!e.HasComponent<CameraComponent>()) e.AddComponent<CameraComponent>(); },
 			[](Entity e) { return e.HasComponent<CameraComponent>(); },
@@ -700,6 +654,84 @@ namespace Runic2D {
 						}
 					}
 				}
+			},
+			true
+		});
+
+		Register({
+			"RectTransform", "UI",
+			[](Entity e) { if (!e.HasComponent<RectTransformComponent>()) e.AddComponent<RectTransformComponent>(); },
+			[](Entity e) { return e.HasComponent<RectTransformComponent>(); },
+#ifndef R2D_DIST
+			[](Entity e) {
+				auto& c = e.GetComponent<RectTransformComponent>();
+				ImGui::DragFloat2("Position", &c.Position[0], 0.1f);
+				ImGui::DragFloat2("Size", &c.Size[0], 0.1f);
+				ImGui::DragFloat2("Anchor Min", &c.AnchorMin[0], 0.05f, 0.0f, 1.0f);
+				ImGui::DragFloat2("Anchor Max", &c.AnchorMax[0], 0.05f, 0.0f, 1.0f);
+				ImGui::DragFloat2("Pivot", &c.Pivot[0], 0.05f, 0.0f, 1.0f);
+				ImGui::DragFloat("Rotation", &c.Rotation, 0.05f);
+				ImGui::DragFloat2("Scale", &c.Scale[0], 0.05f);
+				ImGui::DragInt("Z Index", &c.ZIndex, 1);
+			},
+#else
+			nullptr,
+#endif
+			[](Entity e) { e.RemoveComponent<RectTransformComponent>(); },
+			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<RectTransformComponent>(src.GetComponent<RectTransformComponent>()); },
+			[](YAML::Emitter& out, Entity e) {
+				auto& c = e.GetComponent<RectTransformComponent>();
+				out << YAML::Key << "Position" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Position.x << c.Position.y << YAML::EndSeq;
+				out << YAML::Key << "Size" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Size.x << c.Size.y << YAML::EndSeq;
+				out << YAML::Key << "AnchorMin" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.AnchorMin.x << c.AnchorMin.y << YAML::EndSeq;
+				out << YAML::Key << "AnchorMax" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.AnchorMax.x << c.AnchorMax.y << YAML::EndSeq;
+				out << YAML::Key << "Pivot" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Pivot.x << c.Pivot.y << YAML::EndSeq;
+				out << YAML::Key << "Rotation" << YAML::Value << c.Rotation;
+				out << YAML::Key << "Scale" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Scale.x << c.Scale.y << YAML::EndSeq;
+				out << YAML::Key << "ZIndex" << YAML::Value << c.ZIndex;
+			},
+			[](YAML::Node& node, Entity e) {
+				auto& c = e.AddComponent<RectTransformComponent>();
+				if (node["Position"]) { c.Position.x = node["Position"][0].as<float>(); c.Position.y = node["Position"][1].as<float>(); }
+				if (node["Size"]) { c.Size.x = node["Size"][0].as<float>(); c.Size.y = node["Size"][1].as<float>(); }
+				if (node["AnchorMin"]) { c.AnchorMin.x = node["AnchorMin"][0].as<float>(); c.AnchorMin.y = node["AnchorMin"][1].as<float>(); }
+				if (node["AnchorMax"]) { c.AnchorMax.x = node["AnchorMax"][0].as<float>(); c.AnchorMax.y = node["AnchorMax"][1].as<float>(); }
+				if (node["Pivot"]) { c.Pivot.x = node["Pivot"][0].as<float>(); c.Pivot.y = node["Pivot"][1].as<float>(); }
+				if (node["Rotation"]) c.Rotation = node["Rotation"].as<float>();
+				if (node["Scale"]) { c.Scale.x = node["Scale"][0].as<float>(); c.Scale.y = node["Scale"][1].as<float>(); }
+				if (node["ZIndex"]) c.ZIndex = node["ZIndex"].as<int>();
+			},
+			true
+		});
+
+		Register({
+			"Button", "UI",
+			[](Entity e) { if (!e.HasComponent<ButtonComponent>()) e.AddComponent<ButtonComponent>(); },
+			[](Entity e) { return e.HasComponent<ButtonComponent>(); },
+#ifndef R2D_DIST
+			[](Entity e) {
+				auto& c = e.GetComponent<ButtonComponent>();
+				// Utilitzem &c.Color[0] per consistència i evitar problemes d'includes de GLM
+				ImGui::ColorEdit4("Normal Color", &c.NormalColor[0]);
+				ImGui::ColorEdit4("Hovered Color", &c.HoveredColor[0]);
+				ImGui::ColorEdit4("Pressed Color", &c.PressedColor[0]);
+			},
+#else
+			nullptr,
+#endif
+			[](Entity e) { e.RemoveComponent<ButtonComponent>(); },
+			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<ButtonComponent>(src.GetComponent<ButtonComponent>()); },
+			[](YAML::Emitter& out, Entity e) {
+				auto& c = e.GetComponent<ButtonComponent>();
+				out << YAML::Key << "NormalColor" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.NormalColor.r << c.NormalColor.g << c.NormalColor.b << c.NormalColor.a << YAML::EndSeq;
+				out << YAML::Key << "HoveredColor" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.HoveredColor.r << c.HoveredColor.g << c.HoveredColor.b << c.HoveredColor.a << YAML::EndSeq;
+				out << YAML::Key << "PressedColor" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.PressedColor.r << c.PressedColor.g << c.PressedColor.b << c.PressedColor.a << YAML::EndSeq;
+			},
+			[](YAML::Node& node, Entity e) {
+				auto& c = e.AddComponent<ButtonComponent>();
+				if (node["NormalColor"]) { c.NormalColor.r = node["NormalColor"][0].as<float>(); c.NormalColor.g = node["NormalColor"][1].as<float>(); c.NormalColor.b = node["NormalColor"][2].as<float>(); c.NormalColor.a = node["NormalColor"][3].as<float>(); }
+				if (node["HoveredColor"]) { c.HoveredColor.r = node["HoveredColor"][0].as<float>(); c.HoveredColor.g = node["HoveredColor"][1].as<float>(); c.HoveredColor.b = node["HoveredColor"][2].as<float>(); c.HoveredColor.a = node["HoveredColor"][3].as<float>(); }
+				if (node["PressedColor"]) { c.PressedColor.r = node["PressedColor"][0].as<float>(); c.PressedColor.g = node["PressedColor"][1].as<float>(); c.PressedColor.b = node["PressedColor"][2].as<float>(); c.PressedColor.a = node["PressedColor"][3].as<float>(); }
 			},
 			true
 		});

@@ -88,7 +88,6 @@ namespace Runic2D
 			if (m_SceneState == SceneState::Edit)
 			{
 				scene->OnUpdateEditor(ts, m_EditorCamera);
-				scene->OnRenderUI();
 			}
 			else // Play
 			{

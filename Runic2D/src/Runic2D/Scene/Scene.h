@@ -28,14 +28,22 @@ namespace Runic2D {
 		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
 		Entity GetEntityByUUID(UUID uuid);
 
+		// Runtime
 		void OnUpdateRunTime(Timestep ts);
+		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
+		void UpdateUIInteraction();
+
+		// Rendering
 		void OnRenderRuntime();
 		void OnRenderUI();
-		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
+
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		uint32_t GetViewportWidth() const { return m_ViewportWidth; }
 		uint32_t GetViewportHeight() const { return m_ViewportHeight; }
+
+		glm::vec2 GetMousePositionInUISpace();
+
 
 		void OnRuntimeStart();
 		void OnRuntimeStop();
@@ -66,7 +74,7 @@ namespace Runic2D {
 		int GetActiveParticleCount() const { return m_ParticleSystem.GetActiveParticleCount(); }
 
 		template<typename T>
-		void OnComponentAdded(Entity entity, T& component);
+		void OnComponentAdded(Entity entity, T& component) {}
 
 		int GetSizeOfAllEntities() const { 
 			int count = 0;

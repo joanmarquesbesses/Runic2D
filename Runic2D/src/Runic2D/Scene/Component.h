@@ -300,5 +300,23 @@ namespace Runic2D {
 
 			outMeshTransform = outWorldTransform * meshPivot * meshScale;
 		}
+
+		mutable glm::mat4 ComputedMeshTransform = glm::mat4(1.0f);
+	};
+
+	struct RUNIC_API ButtonComponent
+	{
+		enum class State { Normal, Hovered, Pressed };
+
+		glm::vec4 NormalColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		glm::vec4 HoveredColor = { 0.85f, 0.85f, 0.85f, 1.0f };
+		glm::vec4 PressedColor = { 0.65f, 0.65f, 0.65f, 1.0f };
+
+		State CurrentState = State::Normal;
+
+		std::function<void()> OnClick;
+
+		ButtonComponent() = default;
+		ButtonComponent(const ButtonComponent&) = default;
 	};
 }

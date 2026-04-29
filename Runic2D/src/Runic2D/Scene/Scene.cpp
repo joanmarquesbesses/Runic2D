@@ -5,6 +5,9 @@
 #include "Runic2D/Renderer/RenderCommand.h"
 #include "Runic2D/Math/Math.h"
 
+#include "Runic2D/Core/Application.h"
+#include "Runic2D/Core/Input.h"
+
 #include "Entity.h"
 #include "Component.h"
 #include "ComponentRegistry.h"
@@ -59,12 +62,6 @@ namespace Runic2D {
 			dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
 	}
 
-	template<typename T>
-	void Scene::OnComponentAdded(Entity entity, T& component)
-	{
-
-	}
-
 	Ref<Scene> Scene::Copy(Ref<Scene> other)
 	{
 		Ref<Scene> newScene = CreateRef<Scene>();
@@ -102,6 +99,8 @@ namespace Runic2D {
 		CopyComponent<CircleCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<TextComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<AnimationComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<RectTransformComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<ButtonComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		for (auto e : idView)
 		{
@@ -324,6 +323,7 @@ namespace Runic2D {
 		//Update Particles
 		m_ParticleSystem.OnUpdate(ts);
 		UpdateAnimation(ts);
+		//UpdateUIInteraction();
 
 		for (auto e : m_DestructionQueue)
 		{
@@ -411,6 +411,7 @@ namespace Runic2D {
 			auto& rectTransform = e.GetComponent<RectTransformComponent>();
 			glm::mat4 worldTransform, meshTransform;
 			rectTransform.CalculateTransforms(parentWorldTransform, parentSize, parentPivot, worldTransform, meshTransform);
+			rectTransform.ComputedMeshTransform = meshTransform;
 
 			entt::entity entityID = e;
 
@@ -524,7 +525,7 @@ namespace Runic2D {
 			Renderer2D::DrawRect(debugTransform, { 0.0f, 1.0f, 0.0f, 1.0f });
 		}
 
-		m_Registry.view<TransformComponent, TextComponent>().each([&](auto entityID, auto& transform, auto& text)
+		m_Registry.view<TransformComponent, TextComponent>(entt::exclude<RectTransformComponent>).each([&](auto entityID, auto& transform, auto& text)
 			{
 				Entity e{ entityID, this };
 				glm::mat4 worldTransform = GetWorldTransform(transform, e);
@@ -532,6 +533,74 @@ namespace Runic2D {
 			});
 
 		Renderer2D::EndScene();
+
+		OnRenderUI();
+	}
+
+	void Scene::UpdateUIInteraction()
+	{
+		glm::vec2 mouseUI = GetMousePositionInUISpace();
+
+		bool mouseDown = Input::IsMouseButtonPressed(MouseButton::Left);
+
+		auto view = m_Registry.view<ButtonComponent, RectTransformComponent>();
+
+		view.each([&](entt::entity e, ButtonComponent& btn, RectTransformComponent& rect)
+			{
+				glm::mat4 inverseMesh = glm::inverse(rect.ComputedMeshTransform);
+				glm::vec4 localMouse = inverseMesh * glm::vec4(mouseUI.x, mouseUI.y, 0.0f, 1.0f);
+
+				bool hovered = (localMouse.x >= -0.5f && localMouse.x <= 0.5f &&
+					localMouse.y >= -0.5f && localMouse.y <= 0.5f);
+
+				ButtonComponent::State prevState = btn.CurrentState;
+
+				if (!hovered)
+				{
+					btn.CurrentState = ButtonComponent::State::Normal;
+				}
+				else if (mouseDown)
+				{
+					btn.CurrentState = ButtonComponent::State::Pressed;
+				}
+				else
+				{
+					if (prevState == ButtonComponent::State::Pressed && btn.OnClick)
+						btn.OnClick();
+
+					btn.CurrentState = ButtonComponent::State::Hovered;
+				}
+
+				if (m_Registry.all_of<SpriteRendererComponent>(e))
+				{
+					auto& sprite = m_Registry.get<SpriteRendererComponent>(e);
+					if (btn.CurrentState == ButtonComponent::State::Normal)  sprite.Color = btn.NormalColor;
+					if (btn.CurrentState == ButtonComponent::State::Hovered) sprite.Color = btn.HoveredColor;
+					if (btn.CurrentState == ButtonComponent::State::Pressed) sprite.Color = btn.PressedColor;
+				}
+			});
+	}
+
+	glm::vec2 Scene::GetMousePositionInUISpace()
+	{
+		auto& window = Application::Get().GetWindow();
+		glm::vec2 mouse = Input::GetMousePosition(); 
+		float W = (float)window.GetWidth();
+		float H = (float)window.GetHeight();
+
+		float ndcX = (2.0f * mouse.x) / W - 1.0f;
+		float ndcY = 1.0f - (2.0f * mouse.y) / H;
+
+		float aspectRatio = W / H;
+		float refHeight = 1080.0f;
+		float refWidth = refHeight * aspectRatio;
+
+		glm::mat4 projection = glm::ortho(0.0f, refWidth, 0.0f, refHeight, -1.0f, 1.0f);
+
+		glm::mat4 invVP = glm::inverse(projection);
+		glm::vec4 worldPos = invVP * glm::vec4(ndcX, ndcY, 0.0f, 1.0f);
+
+		return { worldPos.x, worldPos.y };
 	}
 
 	void Scene::OnRuntimeStart()

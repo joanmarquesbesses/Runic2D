@@ -1,0 +1,166 @@
+Scene: Scene Name
+Entities:
+  - EntityID: 17659946315792279860
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.7853982
+        PerspectiveNear: 0.01
+        PerspectiveFar: 1000
+        OrthographicSize: 18
+        OrthographicNear: -331
+        OrthographicFar: 411
+      Primary: true
+      FixedAspectRatio: false
+    NativeScriptComponent:
+      ClassName: CameraController
+  - EntityID: 1157622868981590110
+    TagComponent:
+      Tag: Player
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [5, 5, 1]
+    RelationshipComponent:
+      Parent: 0
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      TilingFactor: 1
+    NativeScriptComponent:
+      ClassName: Player
+    Rigidbody2DComponent:
+      BodyType: Kinematic
+      FixedRotation: false
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, -0.1]
+      Size: [0.15, 0.4]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+      IsSensor: false
+      EnableContactEvents: true
+      EnableSensorEvents: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.3
+      Density: 0
+      Friction: 0
+      Restitution: 0
+      RestitutionThreshold: 0
+      IsSensor: true
+      EnableContactEvents: false
+      EnableSensorEvents: true
+    AnimationComponent:
+      Playing: false
+      Loop: true
+      Profiles:
+        - Name: Idle
+          TexturePath: Projects/Survivor\Assets\textures/wizard/Idle.png
+          TileSize: [231, 190]
+          StartFrame: 0
+          FrameCount: 6
+          FramesPerRow: 0
+          FrameTime: 0.1
+          Loop: true
+        - Name: Run
+          TexturePath: Projects/Survivor\Assets\textures/wizard/Run.png
+          TileSize: [231, 190]
+          StartFrame: 0
+          FrameCount: 8
+          FramesPerRow: 0
+          FrameTime: 0.1
+          Loop: true
+        - Name: Attack
+          TexturePath: Projects/Survivor\Assets\textures/wizard/Attack.png
+          TileSize: [231, 190]
+          StartFrame: 0
+          FrameCount: 8
+          FramesPerRow: 0
+          FrameTime: 0.065
+          Loop: false
+        - Name: Hit
+          TexturePath: Projects/Survivor\Assets\textures/wizard/Hit.png
+          TileSize: [231, 190]
+          StartFrame: 0
+          FrameCount: 4
+          FramesPerRow: 0
+          FrameTime: 0.1
+          Loop: false
+        - Name: Death
+          TexturePath: Projects/Survivor\Assets\textures/wizard/Death.png
+          TileSize: [230, 190]
+          StartFrame: 0
+          FrameCount: 7
+          FramesPerRow: 0
+          FrameTime: 0.1
+          Loop: false
+    Player Stats:
+      Health: 100
+      Speed: 5
+      Damage: 10
+      ProjectileCount: 1
+  - EntityID: 4022698343222994133
+    TagComponent:
+      Tag: GameManager
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    NativeScriptComponent:
+      ClassName: GameManager
+  - EntityID: 5574785589780783001
+    TagComponent:
+      Tag: text card
+    TransformComponent:
+      Translation: [-2.4955757, -0.99115074, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RelationshipComponent:
+      Parent: 966160601646866472
+    RectTransform:
+      Position: [-264.8, 0]
+      Size: [100, 100]
+      AnchorMin: [0.5, 0.5]
+      AnchorMax: [0.5, 0.5]
+      Pivot: [0.5, 0.5]
+      Rotation: 0
+      Scale: [1, 1]
+      ZIndex: -63
+    TextComponent:
+      TextString: erwerwerwree
+      Color: [0.2768787, 0.34437853, 0.8101266, 1]
+      Kerning: 0
+      LineSpacing: 0
+  - EntityID: 966160601646866472
+    TagComponent:
+      Tag: card
+    TransformComponent:
+      Translation: [-0.28318584, 0.30088484, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    RectTransform:
+      Position: [9.5, 0]
+      Size: [342.9, 329.7]
+      AnchorMin: [0.5, 0.5]
+      AnchorMax: [0.5, 0.5]
+      Pivot: [0.5, 0.5]
+      Rotation: 0
+      Scale: [2.1, 2.3]
+      ZIndex: -111
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      TilingFactor: 1
