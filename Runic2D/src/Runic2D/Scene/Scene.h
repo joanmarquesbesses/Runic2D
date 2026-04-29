@@ -44,6 +44,12 @@ namespace Runic2D {
 
 		glm::vec2 GetMousePositionInUISpace();
 
+		void SetViewportBounds(const glm::vec2& boundsMin, const glm::vec2& boundsMax) 
+		{
+			m_ViewportBoundsMin = boundsMin;
+			m_ViewportBoundsMax = boundsMax;
+		}
+
 
 		void OnRuntimeStart();
 		void OnRuntimeStop();
@@ -110,6 +116,8 @@ namespace Runic2D {
 	private:
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+		glm::vec2 m_ViewportBoundsMin = { 0.0f, 0.0f };
+		glm::vec2 m_ViewportBoundsMax = { 0.0f, 0.0f };
 
 		b2WorldId m_PhysicsWorld = b2_nullWorldId;
 

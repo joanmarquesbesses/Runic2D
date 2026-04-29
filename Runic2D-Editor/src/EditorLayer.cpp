@@ -71,7 +71,20 @@ namespace Runic2D
 			m_EditorCamera.SetViewportSize(vpSize.x, vpSize.y);
 
 			auto scene = SceneManager::GetActiveScene();
-			if (scene) scene->OnViewportResize((uint32_t)vpSize.x, (uint32_t)vpSize.y);
+			if (scene)
+				scene->OnViewportResize((uint32_t)vpSize.x, (uint32_t)vpSize.y);
+		}
+
+		{
+			auto scene = SceneManager::GetActiveScene();
+			if (scene)
+			{
+				auto* mainViewport = ImGui::GetMainViewport();
+				glm::vec2 windowPos = { mainViewport->Pos.x, mainViewport->Pos.y };
+				glm::vec2 boundsMin = m_ViewportPanel.GetBoundsMin() - windowPos;
+				glm::vec2 boundsMax = m_ViewportPanel.GetBoundsMax() - windowPos;
+				scene->SetViewportBounds(boundsMin, boundsMax);
+			}
 		}
 
 		if (m_SceneState == SceneState::Edit && m_ViewportPanel.IsFocused())

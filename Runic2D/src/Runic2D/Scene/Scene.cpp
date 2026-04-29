@@ -325,7 +325,7 @@ namespace Runic2D {
 		//Update Particles
 		m_ParticleSystem.OnUpdate(ts);
 		UpdateAnimation(ts);
-		//UpdateUIInteraction();
+		UpdateUIInteraction();
 
 		for (auto e : m_DestructionQueue)
 		{
@@ -591,22 +591,27 @@ namespace Runic2D {
 
 	glm::vec2 Scene::GetMousePositionInUISpace()
 	{
-		auto& window = Application::Get().GetWindow();
-		glm::vec2 mouse = Input::GetMousePosition(); 
-		float W = (float)window.GetWidth();
-		float H = (float)window.GetHeight();
+		float W = (float)m_ViewportWidth;
+		float H = (float)m_ViewportHeight;
+		if (W <= 0 || H <= 0) return { -1.0f, -1.0f };
 
+		// Posicio del mouse relativa al viewport (l'Editor configura m_ViewportBoundsMin)
+		glm::vec2 mouse = Input::GetMousePosition();
+		mouse.x -= m_ViewportBoundsMin.x;
+		mouse.y -= m_ViewportBoundsMin.y;
+
+		// Convertim a NDC [-1, 1]
 		float ndcX = (2.0f * mouse.x) / W - 1.0f;
 		float ndcY = 1.0f - (2.0f * mouse.y) / H;
 
+		// Projeccio UI (mateixa que a OnRenderUI)
 		float aspectRatio = W / H;
 		float refHeight = 1080.0f;
 		float refWidth = refHeight * aspectRatio;
 
+		// NDC -> coordenades UI virtuals
 		glm::mat4 projection = glm::ortho(0.0f, refWidth, 0.0f, refHeight, -1.0f, 1.0f);
-
-		glm::mat4 invVP = glm::inverse(projection);
-		glm::vec4 worldPos = invVP * glm::vec4(ndcX, ndcY, 0.0f, 1.0f);
+		glm::vec4 worldPos = glm::inverse(projection) * glm::vec4(ndcX, ndcY, 0.0f, 1.0f);
 
 		return { worldPos.x, worldPos.y };
 	}
