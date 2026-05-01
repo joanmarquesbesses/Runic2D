@@ -451,14 +451,33 @@ namespace Runic2D {
 				auto& component = e.GetComponent<TextComponent>();
 				char buffer[256];
 				memset(buffer, 0, sizeof(buffer));
-				std::strncpy(buffer, component.TextString.c_str(), sizeof(buffer));
+				std::strncpy(buffer, component.GetText().c_str(), sizeof(buffer));
 				if (ImGui::InputTextMultiline("Text String", buffer, sizeof(buffer)))
 				{
-					component.TextString = std::string(buffer);
+					component.SetText(std::string(buffer));
 				}
 				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
-				ImGui::DragFloat("Kerning", &component.Kerning, 0.025f);
+				if (ImGui::DragFloat("Kerning", &component.Kerning, 0.025f))
+					component.MarkDirty();
 				ImGui::DragFloat("Line Spacing", &component.LineSpacing, 0.025f);
+
+				const char* alignmentStrings[] = { "Left", "Center", "Right" };
+				const char* currentAlignmentString = alignmentStrings[(int)component.TextAlignment];
+
+				if (ImGui::BeginCombo("Alignment", currentAlignmentString))
+				{
+					for (int i = 0; i < 3; i++)
+					{
+						bool isSelected = (currentAlignmentString == alignmentStrings[i]);
+						if (ImGui::Selectable(alignmentStrings[i], isSelected))
+						{
+							currentAlignmentString = alignmentStrings[i];
+							component.TextAlignment = (TextComponent::Alignment)i;
+						}
+						if (isSelected) ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
 			},
 #else
 			nullptr,
@@ -467,17 +486,19 @@ namespace Runic2D {
 			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<TextComponent>(src.GetComponent<TextComponent>()); },
 			[](YAML::Emitter& out, Entity e) {
 				auto& tc = e.GetComponent<TextComponent>();
-				out << YAML::Key << "TextString" << YAML::Value << tc.TextString;
+				out << YAML::Key << "TextString" << YAML::Value << tc.GetText();
 				out << YAML::Key << "Color" << YAML::Value << YAML::Flow << YAML::BeginSeq << tc.Color.r << tc.Color.g << tc.Color.b << tc.Color.a << YAML::EndSeq;
 				out << YAML::Key << "Kerning" << YAML::Value << tc.Kerning;
 				out << YAML::Key << "LineSpacing" << YAML::Value << tc.LineSpacing;
+				out << YAML::Key << "Alignment" << YAML::Value << (int)tc.TextAlignment;
 			},
 			[](YAML::Node& node, Entity e) {
 				auto& tc = e.AddComponent<TextComponent>();
-				if (node["TextString"]) tc.TextString = node["TextString"].as<std::string>();
+				if (node["TextString"]) tc.SetText(node["TextString"].as<std::string>());
 				if (node["Color"]) { tc.Color.r = node["Color"][0].as<float>(); tc.Color.g = node["Color"][1].as<float>(); tc.Color.b = node["Color"][2].as<float>(); tc.Color.a = node["Color"][3].as<float>(); }
 				if (node["Kerning"]) tc.Kerning = node["Kerning"].as<float>();
 				if (node["LineSpacing"]) tc.LineSpacing = node["LineSpacing"].as<float>();
+				if (node["Alignment"]) tc.TextAlignment = (TextComponent::Alignment)node["Alignment"].as<int>();
 			},
 			true
 		});

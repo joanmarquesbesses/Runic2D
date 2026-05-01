@@ -374,7 +374,7 @@ namespace Runic2D {
 					return;
 				Entity e{ entityID, this };
 				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawString(text.TextString, text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
+				Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
 			});
 
 		m_ParticleSystem.OnRender();
@@ -430,9 +430,31 @@ namespace Runic2D {
 				} });
 			}
 			if (e.HasComponent<TextComponent>()) {
-				renderCommands.push_back({ rectTransform.ZIndex, [this, meshTransform, entityID]() { 
+				renderCommands.push_back({ rectTransform.ZIndex, [this, worldTransform, rectTransform, entityID]() {
 					auto& text = m_Registry.get<TextComponent>(entityID);
-					Renderer2D::DrawString(text.TextString, text.FontAsset, meshTransform, text.Color, text.Kerning, text.LineSpacing, (int)(uint32_t)entityID); 
+
+					float fontSize = rectTransform.Size.y;
+					float textWidth = text.GetTextWidth();
+					float actualTextWidth = textWidth * fontSize;
+
+					float boxLeftX = -rectTransform.Size.x * rectTransform.Pivot.x;
+
+					float offsetX = boxLeftX; 
+
+					if (text.TextAlignment == TextComponent::Alignment::Center) {
+						offsetX += (rectTransform.Size.x - actualTextWidth) * 0.5f;
+					}
+					else if (text.TextAlignment == TextComponent::Alignment::Right) {
+						offsetX += (rectTransform.Size.x - actualTextWidth);
+					}
+
+					float boxBottomY = -rectTransform.Size.y * rectTransform.Pivot.y;
+					float offsetY = boxBottomY + (fontSize * 0.25f); 
+
+					glm::mat4 finalTextTransform = glm::translate(worldTransform, glm::vec3(offsetX, offsetY, 0.0f));
+					finalTextTransform = glm::scale(finalTextTransform, glm::vec3(fontSize, fontSize, 1.0f));
+
+					Renderer2D::DrawString(text.GetText(), text.FontAsset, finalTextTransform, text.Color, text.Kerning, text.LineSpacing, (int)(uint32_t)entityID);
 				} });
 			}
 
@@ -537,7 +559,7 @@ namespace Runic2D {
 			{
 				Entity e{ entityID, this };
 				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawString(text.TextString, text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
+				Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
 			});
 
 		Renderer2D::EndScene();
@@ -1014,6 +1036,7 @@ namespace Runic2D {
 		CopyComponentIfExists<TextComponent>(dst, src);
 		CopyComponentIfExists<AnimationComponent>(dst, src);
 		CopyComponentIfExists<RectTransformComponent>(dst, src);
+		CopyComponentIfExists<ButtonComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

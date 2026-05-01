@@ -118,13 +118,12 @@ namespace Runic2D {
 
 	float Font::GetStringWidth(const std::string& string, float kerning) const
 	{
-		if (!m_Data) return 0.0f;
+		if (!m_Data || string.empty()) return 0.0f;
 
 		const auto& geometry = m_Data->FontGeometry;
 		const auto& metrics = geometry.getMetrics();
 
 		double width = 0.0;
-
 		double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
 
 		for (size_t i = 0; i < string.size(); i++)
@@ -133,21 +132,20 @@ namespace Runic2D {
 
 			if (character == '\r' || character == '\n') continue;
 
-			if (character == ' ') {
-				double spaceAdvance = geometry.getGlyph('a') ? geometry.getGlyph('a')->getAdvance() : 0.5;
-				width += spaceAdvance * fsScale;
-				continue;
-			}
-
 			auto glyph = geometry.getGlyph(character);
 			if (glyph)
 			{
-				double advance = glyph->getAdvance();
-
-				width += advance * fsScale;
-
-				if (i < string.size() - 1)
+				if (i == string.size() - 1 && character != ' ')
+				{
+					double l, b, r, t;
+					glyph->getQuadPlaneBounds(l, b, r, t);
+					width += r * fsScale;
+				}
+				else
+				{
+					width += glyph->getAdvance() * fsScale;
 					width += kerning;
+				}
 			}
 		}
 

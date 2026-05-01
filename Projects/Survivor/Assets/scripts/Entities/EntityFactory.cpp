@@ -300,7 +300,7 @@ namespace Survivor {
         tc.Scale = { scale, scale, 1.0f };
 
         auto& textComp = entity.AddComponent<TextComponent>();
-        textComp.TextString = text;
+        textComp.SetText(text);
 
         if (isCritical) textComp.Color = { 1.0f, 0.8f, 0.0f, 1.0f };
         else textComp.Color = { 1.0f, 1.0f, 1.0f, 1.0f };

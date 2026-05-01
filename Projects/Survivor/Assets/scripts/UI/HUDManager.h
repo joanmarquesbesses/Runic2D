@@ -13,38 +13,34 @@ namespace Survivor {
 
     class HUDManager : public ScriptableEntity {
     public:
-        void OnCreate() override {
-            auto& window = Application::Get().GetWindow();
-            float aspect = (float)window.GetWidth() / (float)window.GetHeight();
-
-            // --- Càmera de UI ---
-            m_UICamera = GetScene()->CreateEntity("UICamera");
-            m_UICamera.AddComponent<RectTransformComponent>();
-            auto& cc = m_UICamera.AddComponent<CameraComponent>();
-            cc.Camera.SetOrthographic(m_OrthoSize, -1.0f, 1.0f);
-            cc.Primary = false;
-
-            float halfH = m_OrthoSize * 0.5f;
-            float halfW = halfH * aspect;
-
+        void OnCreate() override {   
             // --- Timer (centre superior) ---
-            m_TimerText = CreateUIText("HUD_Timer", { 0.0f, halfH - 0.6f, 0.0f }, "0:00");
+            m_TimerText = CreateUIText("HUD_Timer", "0:00");
+            m_TimerText.GetComponent<TextComponent>().Color = { 0.27f, 0.27f, 0.27f, 1.0f };
+            m_TimerText.GetComponent<RectTransformComponent>().AnchorMin = { 0.5f, 1.0f };
+            m_TimerText.GetComponent<RectTransformComponent>().Pivot = { 0.5f, 1.0f };
 
             // --- Health (esquerra inferior) ---
-            m_HealthText = CreateUIText("HUD_Health",
-                { -halfW + 0.5f, -halfH + 0.3f, 0.0f }, "HP: 100");
+            m_HealthText = CreateUIText("HUD_Health", "HP: 100");
             m_HealthText.GetComponent<TextComponent>().Color = { 0.2f, 1.0f, 0.2f, 1.0f };
+            m_HealthText.GetComponent<TextComponent>().TextAlignment = TextComponent::Alignment::Left;
+            m_HealthText.GetComponent<RectTransformComponent>().AnchorMin = { 0.0f, 0.0f };
+            m_HealthText.GetComponent<RectTransformComponent>().Pivot = { 0.0f, 0.0f };
+            m_HealthText.GetComponent<RectTransformComponent>().Position = { 0.0f, 75.0f };
 
             // --- XP / Nivell (dreta inferior) ---
-            m_XPText = CreateUIText("HUD_XP",
-                { halfW - 1.5f, -halfH + 0.3f, 0.0f }, "Lv.1");
+            m_XPText = CreateUIText("HUD_XP", "Lv.1");
             m_XPText.GetComponent<TextComponent>().Color = { 0.4f, 0.8f, 1.0f, 1.0f };
+            m_XPText.GetComponent<TextComponent>().TextAlignment = TextComponent::Alignment::Left;
+            m_XPText.GetComponent<RectTransformComponent>().AnchorMin = { 0.0f, 0.0f };
+            m_XPText.GetComponent<RectTransformComponent>().Pivot = { 0.0f, 0.0f };
 
             // --- FPS (cantonada superior dreta, debug) ---
-            m_FPSText = CreateUIText("HUD_FPS",
-                { -halfW, halfH - 0.4f, 0.0f }, "FPS: 0");
+            m_FPSText = CreateUIText("HUD_FPS", "FPS: 000");
             m_FPSText.GetComponent<TextComponent>().Color = { 0.5f, 0.5f, 0.5f, 1.0f };
-            GetComponent<TransformComponent>().SetScale({ 0.6f, 0.6f, 1.0f });
+			m_FPSText.GetComponent<TextComponent>().TextAlignment = TextComponent::Alignment::Left;
+			m_FPSText.GetComponent<RectTransformComponent>().AnchorMin = { 0.0f, 1.0f };
+			m_FPSText.GetComponent<RectTransformComponent>().Pivot = { 0.0f, 1.0f };
         }
 
         void OnDestroy() override {
@@ -62,18 +58,14 @@ namespace Survivor {
 
     private:
         // --- Helpers de creació ---
-        Entity CreateUIText(const std::string& name, const glm::vec3& pos,
+        Entity CreateUIText(const std::string& name,
             const std::string& initial)
         {
             Entity e = GetScene()->CreateEntity(name);
-            e.AddComponent<RectTransformComponent>();
+            auto& rec = e.AddComponent<RectTransformComponent>();
 
             auto& txt = e.AddComponent<TextComponent>();
-            txt.TextString = initial;
-			float width = txt.FontAsset->GetStringWidth(initial, txt.Kerning);
-
-			glm::vec3 offset = { pos.x - width/2.0f, pos.y, pos.z };
-            e.GetComponent<TransformComponent>().SetTranslation(offset);
+			txt.SetText(initial);
 
             return e;
         }
@@ -96,12 +88,7 @@ namespace Survivor {
             ss << minutes << ":" << std::setfill('0') << std::setw(2) << seconds;
 
             auto& txt = m_TimerText.GetComponent<TextComponent>();
-            txt.TextString = ss.str();
-
-            float width = txt.FontAsset->GetStringWidth(txt.TextString, txt.Kerning);
-
-            glm::vec3 offset = { -width / 2.0f, 0.0f, 0.0f };
-            m_TimerText.GetComponent<TransformComponent>().SetTranslation(offset);
+            txt.SetText(ss.str());
         }
 
         void UpdateHealth() {
@@ -114,10 +101,9 @@ namespace Survivor {
             int hp = (int)stats.Health;
             int maxHp = (int)stats.MaxHealth;
 
-            m_HealthText.GetComponent<TextComponent>().TextString =
-                "HP: " + std::to_string(hp) + "/" + std::to_string(maxHp);
+            m_HealthText.GetComponent<TextComponent>().SetText(
+                "HP: " + std::to_string(hp) + "/" + std::to_string(maxHp));
 
-            // Color verd -> groc -> vermell segons HP
             float ratio = stats.Health / stats.MaxHealth;
             m_HealthText.GetComponent<TextComponent>().Color = {
                 1.0f - ratio, ratio, 0.0f, 1.0f
@@ -131,16 +117,16 @@ namespace Survivor {
             if (!statsEntity) return;
 
             auto& stats = statsEntity.GetComponent<GameStatsComponent>();
-            m_XPText.GetComponent<TextComponent>().TextString =
+            m_XPText.GetComponent<TextComponent>().SetText(
                 "Lv." + std::to_string(stats.CurrentLevel) +
                 "  XP: " + std::to_string((int)stats.CurrentXP) +
-                "/" + std::to_string((int)stats.MaxXP);
+                "/" + std::to_string((int)stats.MaxXP));
         }
 
         void UpdateFPS() {
             if (!m_FPSText) return;
-            m_FPSText.GetComponent<TextComponent>().TextString =
-                "FPS: " + std::to_string((int)Application::Get().GetAverageFPS());
+            m_FPSText.GetComponent<TextComponent>().SetText(
+                "FPS: " + std::to_string((int)Application::Get().GetAverageFPS()));
         }
 
         void UpdateLevelUpState()

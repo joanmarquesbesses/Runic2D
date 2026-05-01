@@ -211,16 +211,48 @@ namespace Runic2D {
 
 	struct RUNIC_API TextComponent
 	{
-		std::string TextString = "";
+		enum class Alignment { Left = 0, Center, Right };
+
+	private:
+		std::string m_TextString = "";
+		mutable float m_CachedWidth = 0.0f;
+		mutable bool m_IsDirty = true;
+
+	public:
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Font> FontAsset = Font::GetDefault();
 		float Kerning = 0.0f;
 		float LineSpacing = 0.0f;
 		bool Visible = true;
 
+		Alignment TextAlignment = Alignment::Center;
+
 		TextComponent() = default;
 		TextComponent(const TextComponent&) = default;
-		TextComponent(const std::string& text) : TextString(text) {}
+		TextComponent(const std::string& text) { SetText(text); }
+
+		void SetText(const std::string& text)
+		{
+			if (m_TextString != text)
+			{
+				m_TextString = text;
+				m_IsDirty = true;
+			}
+		}
+
+		const std::string& GetText() const { return m_TextString; }
+
+		float GetTextWidth() const
+		{
+			if (m_IsDirty && FontAsset)
+			{
+				m_CachedWidth = FontAsset->GetStringWidth(m_TextString, Kerning);
+				m_IsDirty = false;
+			}
+			return m_CachedWidth;
+		}
+
+		void MarkDirty() { m_IsDirty = true; }
 	};
 
 	struct RUNIC_API AnimationProfile
