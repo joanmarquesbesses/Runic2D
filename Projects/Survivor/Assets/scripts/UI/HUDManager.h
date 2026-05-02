@@ -153,54 +153,73 @@ namespace Survivor {
         {
             auto cards = UpgradeDatabase::GetRandomUniqueUpgrades(3);
 
-            const float spacing = 3.5f;
+            const float cardWidth = 300.0f;
+            const float cardHeight = 400.0f;
+            const float spacing = 50.0f;
             int count = (int)cards.size();
-            float startX = -((count - 1) * spacing) / 2.f;
+
+            float totalWidth = (cardWidth * count) + (spacing * (count - 1));
+            float startX = (1920.0f * 0.5f) - (totalWidth * 0.5f) + (cardWidth * 0.5f);
 
             for (int i = 0; i < count; i++)
             {
                 Entity card = GetScene()->CreateEntity("UpgradeCard");
-                card.AddComponent<RectTransformComponent>();
 
-                auto& tc = card.GetComponent<TransformComponent>();
-                tc.SetTranslation({ startX + i * spacing, 0.f, 0.1f }); // Z = 0.1
-                tc.SetScale({ 3.f, 4.f, 1.f });
+                auto& rect = card.AddComponent<RectTransformComponent>();
+                rect.AnchorMin = { 0.5f, 0.5f };
+                rect.AnchorMax = { 0.5f, 0.5f };
+                rect.Pivot = { 0.5f, 0.5f };
+                rect.Size = { cardWidth, cardHeight };
+
+                float xOffset = (float)i * (cardWidth + spacing) - ((float)(count - 1) * (cardWidth + spacing) * 0.5f);
+                rect.Position = { xOffset, 0.0f };
+                rect.ZIndex = 10;
 
                 auto& sprite = card.AddComponent<SpriteRendererComponent>();
                 sprite.Texture = cards[i].CardTexture;
-                sprite.Color = glm::vec4(1.f);
+
+                auto& btn = card.AddComponent<ButtonComponent>();
 
                 Entity titleEnt = GetScene()->CreateEntity("Card_Title");
-                titleEnt.AddComponent<RectTransformComponent>();
-                auto& titleTxt = titleEnt.AddComponent<TextComponent>(cards[i].Title);
+                GetScene()->ParentEntity(titleEnt, card);
+
+                auto& titleRect = titleEnt.AddComponent<RectTransformComponent>();
+                titleRect.AnchorMin = { 0.5f, 1.0f };
+                titleRect.AnchorMax = { 0.5f, 1.0f };
+                titleRect.Pivot = { 0.5f, 1.0f };
+                titleRect.Position = { 0.0f, -20.0f };
+                titleRect.Size = { cardWidth * 0.9f, 40.0f };
+                titleRect.ZIndex = 9;
+
+                auto& titleTxt = titleEnt.AddComponent<TextComponent>();
+                titleTxt.SetText(cards[i].Title);
+                titleTxt.TextAlignment = TextComponent::Alignment::Center;
                 titleTxt.Color = { 1.f, 1.f, 1.f, 1.f };
 
-                float titleScale = 0.35f;
-                float titleWidth = titleTxt.FontAsset->GetStringWidth(cards[i].Title, titleTxt.Kerning) * titleScale;
-
-                titleEnt.GetComponent<TransformComponent>().SetTranslation({ (startX + i * spacing) - (titleWidth / 2.0f), 1.4f, 0.2f });
-                titleEnt.GetComponent<TransformComponent>().SetScale({ titleScale, titleScale, 1.f });
 
                 Entity descEnt = GetScene()->CreateEntity("Card_Desc");
-                descEnt.AddComponent<RectTransformComponent>();
-                auto& descTxt = descEnt.AddComponent<TextComponent>(cards[i].Description);
+                GetScene()->ParentEntity(descEnt, card);
+
+                auto& descRect = descEnt.AddComponent<RectTransformComponent>();
+                descRect.AnchorMin = { 0.5f, 0.0f };
+                descRect.AnchorMax = { 0.5f, 0.0f };
+                descRect.Pivot = { 0.5f, 0.0f };
+                descRect.Position = { 0.0f, 20.0f };
+                descRect.Size = { cardWidth * 0.9f, 30.0f };
+                descRect.ZIndex = 9;
+
+                auto& descTxt = descEnt.AddComponent<TextComponent>();
+                descTxt.SetText(cards[i].Description);
+                descTxt.TextAlignment = TextComponent::Alignment::Center;
                 descTxt.Color = { 0.85f, 0.85f, 0.85f, 1.f };
 
-                float descScale = 0.28f;
-                float descWidth = descTxt.FontAsset->GetStringWidth(cards[i].Description, descTxt.Kerning) * descScale;
-
-                descEnt.GetComponent<TransformComponent>().SetTranslation({ (startX + i * spacing) - (descWidth / 2.0f), -1.2f, 0.2f });
-                descEnt.GetComponent<TransformComponent>().SetScale({ descScale, descScale, 1.f });
-
                 auto& upgradeComp = card.AddComponent<UpgradeComponent>(cards[i]);
-                upgradeComp.TitleEntity = titleEnt; // Li passem les referències!
-                upgradeComp.DescEntity = descEnt;   // Li passem les referències!
+                upgradeComp.TitleEntity = titleEnt;
+                upgradeComp.DescEntity = descEnt;
 
                 card.AddComponent<NativeScriptComponent>().Bind<UpgradeCard>();
 
                 m_UpgradeCards.push_back(card);
-                m_UpgradeCards.push_back(titleEnt);
-                m_UpgradeCards.push_back(descEnt);
             }
         }
 

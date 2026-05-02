@@ -123,32 +123,44 @@ namespace Runic2D {
 		const auto& geometry = m_Data->FontGeometry;
 		const auto& metrics = geometry.getMetrics();
 
-		double width = 0.0;
+		double maxWidth = 0.0;       
+		double currentLineWidth = 0.0; 
 		double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
 
 		for (size_t i = 0; i < string.size(); i++)
 		{
 			char character = string[i];
 
-			if (character == '\r' || character == '\n') continue;
+			if (character == '\r') continue;
+
+			if (character == '\n')
+			{
+				if (currentLineWidth > maxWidth) maxWidth = currentLineWidth;
+				currentLineWidth = 0.0;
+				continue;
+			}
 
 			auto glyph = geometry.getGlyph(character);
 			if (glyph)
 			{
-				if (i == string.size() - 1 && character != ' ')
+				bool isLastCharOfLine = (i == string.size() - 1) || (string[i + 1] == '\n' || string[i + 1] == '\r');
+
+				if (isLastCharOfLine && character != ' ')
 				{
 					double l, b, r, t;
 					glyph->getQuadPlaneBounds(l, b, r, t);
-					width += r * fsScale;
+					currentLineWidth += r * fsScale;
 				}
 				else
 				{
-					width += glyph->getAdvance() * fsScale;
-					width += kerning;
+					currentLineWidth += glyph->getAdvance() * fsScale;
+					currentLineWidth += kerning;
 				}
 			}
 		}
 
-		return (float)width;
+		if (currentLineWidth > maxWidth) maxWidth = currentLineWidth;
+
+		return (float)maxWidth;
 	}
 }
