@@ -681,38 +681,87 @@ namespace Runic2D
 		}
 	}
 
-	void Renderer2D::DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning, float lineSpacing, int entityID)
+	void Renderer2D::DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning, float lineSpacing, int entityID, int alignment)
 	{
 		const auto& fontGeometry = font->GetMSDFData()->FontGeometry;
 		const auto& metrics = fontGeometry.getMetrics();
 		Ref<Texture2D> fontAtlas = font->GetAtlasTexture();
 
 		s_Data.FontAtlasTexture = fontAtlas;
-
-		double x = 0.0;
 		double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
+
+		// --- 1. Calcular l'amplada de cada línia individual ---
+		std::vector<double> lineWidths;
+		double currentLineW = 0.0;
+		for (size_t i = 0; i < string.size(); i++)
+		{
+			char character = string[i];
+			if (character == '\r') continue;
+			if (character == '\n')
+			{
+				lineWidths.push_back(currentLineW);
+				currentLineW = 0.0;
+				continue;
+			}
+
+			auto glyph = fontGeometry.getGlyph(character);
+			if (!glyph) glyph = fontGeometry.getGlyph('?');
+			if (!glyph) continue;
+
+			bool isLastChar = (i == string.size() - 1) || (string[i + 1] == '\n' || string[i + 1] == '\r');
+
+			if (isLastChar && character != ' ' && character != '\t')
+			{
+				double pl, pb, pr, pt;
+				glyph->getQuadPlaneBounds(pl, pb, pr, pt);
+				currentLineW += pr * fsScale;
+			}
+			else
+			{
+				currentLineW += glyph->getAdvance() * fsScale;
+				if (!isLastChar) currentLineW += kerning;
+			}
+		}
+		lineWidths.push_back(currentLineW); // Guardem la darrera línia
+
+		// Busquem l'amplada màxima per tenir-la de referència
+		double maxWidth = 0.0;
+		for (double w : lineWidths) {
+			if (w > maxWidth) maxWidth = w;
+		}
+
+		// --- 2. Renderitzat del text amb alineació ---
+		double x = 0.0;
 		double y = 0.0;
+		int lineIndex = 0;
+
+		// Lambda màgica: Calcula on comença la X segons Left (0), Center (1) o Right (2)
+		auto setStartingX = [&]() {
+			if (alignment == 1) x = (maxWidth - lineWidths[lineIndex]) * 0.5;
+			else if (alignment == 2) x = (maxWidth - lineWidths[lineIndex]);
+			else x = 0.0;
+			};
+
+		setStartingX(); // Col·loquem la X per a la primera línia!
 
 		for (size_t i = 0; i < string.size(); i++)
 		{
 			char character = string[i];
-			if (character == '\r')
-				continue;
+			if (character == '\r') continue;
 
 			if (character == '\n')
 			{
-				x = 0;
+				lineIndex++;
+				setStartingX(); // Col·loquem la X cada cop que baixem de línia!
 				y -= fsScale * metrics.lineHeight + lineSpacing;
 				continue;
 			}
-			auto glyph = fontGeometry.getGlyph(character);
-			if (!glyph)
-				glyph = fontGeometry.getGlyph('?');
-			if (!glyph)
-				return;
 
-			if (character == '\t')
-				glyph = fontGeometry.getGlyph(' ');
+			auto glyph = fontGeometry.getGlyph(character);
+			if (!glyph) glyph = fontGeometry.getGlyph('?');
+			if (!glyph) return;
+
+			if (character == '\t') glyph = fontGeometry.getGlyph(' ');
 
 			double al, ab, ar, at;
 			glyph->getQuadAtlasBounds(al, ab, ar, at);
@@ -724,7 +773,7 @@ namespace Runic2D
 			glm::vec2 quadMin((float)pl, (float)pb);
 			glm::vec2 quadMax((float)pr, (float)pt);
 
-			quadMin *= fsScale, quadMax *= fsScale;
+			quadMin *= fsScale; quadMax *= fsScale;
 			quadMin += glm::vec2(x, y);
 			quadMax += glm::vec2(x, y);
 
@@ -733,29 +782,29 @@ namespace Runic2D
 			texCoordMin *= glm::vec2(texelWidth, texelHeight);
 			texCoordMax *= glm::vec2(texelWidth, texelHeight);
 
-			// render here
+			// Vèrtexs (Dibuix)
 			s_Data.TextVertexBufferPtr->Position = transform * glm::vec4(quadMin, 0.0f, 1.0f);
 			s_Data.TextVertexBufferPtr->Color = color;
 			s_Data.TextVertexBufferPtr->TexCoord = texCoordMin;
-			s_Data.TextVertexBufferPtr->EntityID = entityID; // TODO
+			s_Data.TextVertexBufferPtr->EntityID = entityID;
 			s_Data.TextVertexBufferPtr++;
 
 			s_Data.TextVertexBufferPtr->Position = transform * glm::vec4(quadMin.x, quadMax.y, 0.0f, 1.0f);
 			s_Data.TextVertexBufferPtr->Color = color;
 			s_Data.TextVertexBufferPtr->TexCoord = { texCoordMin.x, texCoordMax.y };
-			s_Data.TextVertexBufferPtr->EntityID = entityID; // TODO
+			s_Data.TextVertexBufferPtr->EntityID = entityID;
 			s_Data.TextVertexBufferPtr++;
 
 			s_Data.TextVertexBufferPtr->Position = transform * glm::vec4(quadMax, 0.0f, 1.0f);
 			s_Data.TextVertexBufferPtr->Color = color;
 			s_Data.TextVertexBufferPtr->TexCoord = texCoordMax;
-			s_Data.TextVertexBufferPtr->EntityID = entityID; // TODO
+			s_Data.TextVertexBufferPtr->EntityID = entityID;
 			s_Data.TextVertexBufferPtr++;
 
 			s_Data.TextVertexBufferPtr->Position = transform * glm::vec4(quadMax.x, quadMin.y, 0.0f, 1.0f);
 			s_Data.TextVertexBufferPtr->Color = color;
 			s_Data.TextVertexBufferPtr->TexCoord = { texCoordMax.x, texCoordMin.y };
-			s_Data.TextVertexBufferPtr->EntityID = entityID; // TODO
+			s_Data.TextVertexBufferPtr->EntityID = entityID;
 			s_Data.TextVertexBufferPtr++;
 
 			s_Data.TextIndexCount += 6;

@@ -11,6 +11,7 @@
 #include "Runic2D/Core/Input.h"
 #include "Runic2D/Core/KeyCodes.h"
 #include "Runic2D/Core/MouseButtonCodes.h"
+#include "Runic2D/Core/InputManager.h"
 
 #include "Runic2D/Renderer/OrthographicCameraController.h"
 

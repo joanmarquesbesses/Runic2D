@@ -1,8 +1,10 @@
 #include "ScriptRegistry.h"
+
 #include "Runic2D/Scripting/ScriptEngine.h" 
 #include "Runic2D/Core/Core.h"
-
 #include "Runic2D/Scene/ComponentRegistry.h"
+#include "Runic2D/Core/InputManager.h"
+
 #include "Core/GameComponents.h"
 
 #include <yaml-cpp/yaml.h>
@@ -20,6 +22,19 @@ namespace Survivor
 
 			// Runcic2D necessita que li diguem quins scripts tenim disponibles i com fer el bind d'aquests scripts a les entitats.
             ScriptEngine::SetScriptBinder(ScriptRegistry::BindScript);
+
+            Runic2D::InputManager::BindAction("Shoot", Runic2D::MouseButton::Left, 0);
+            Runic2D::InputManager::BindAction("MoveUp", Runic2D::KeyCode::W, 0);
+            Runic2D::InputManager::BindAction("MoveDown", Runic2D::KeyCode::S, 0);
+            Runic2D::InputManager::BindAction("MoveLeft", Runic2D::KeyCode::A, 0);
+            Runic2D::InputManager::BindAction("MoveRight", Runic2D::KeyCode::D, 0);
+
+            // Jugador 2 (Teclat secundari / Coop Local - Índex 1)
+            Runic2D::InputManager::BindAction("Shoot", Runic2D::KeyCode::RightControl, 1);
+            Runic2D::InputManager::BindAction("MoveUp", Runic2D::KeyCode::Up, 1);
+            Runic2D::InputManager::BindAction("MoveDown", Runic2D::KeyCode::Down, 1);
+            Runic2D::InputManager::BindAction("MoveLeft", Runic2D::KeyCode::Left, 1);
+            Runic2D::InputManager::BindAction("MoveRight", Runic2D::KeyCode::Right, 1);
 
 #ifndef R2D_DIST
 			// El editor necessita saber quins scripts hi ha disponibles per mostrar-los al desplegable de l'inspector.

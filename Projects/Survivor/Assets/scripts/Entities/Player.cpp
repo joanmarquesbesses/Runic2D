@@ -136,7 +136,7 @@ namespace Survivor {
         {
             PlayAnimation("Idle");
 
-            if (Input::IsMouseButtonPressed(MouseButton::Left))
+            if (Runic2D::InputManager::IsActionPressed("Shoot", 0))
             {
                 TryAttack();
             }

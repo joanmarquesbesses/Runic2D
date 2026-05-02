@@ -132,6 +132,9 @@
     <ClInclude Include="src\Runic2D\Core\Input.h">
       <Filter>src\Runic2D\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Core\InputManager.h">
+      <Filter>src\Runic2D\Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Core\KeyCodes.h">
       <Filter>src\Runic2D\Core</Filter>
     </ClInclude>
@@ -1581,6 +1584,9 @@
       <Filter>src\Runic2D\Audio</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Core\Application.cpp">
+      <Filter>src\Runic2D\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Core\InputManager.cpp">
       <Filter>src\Runic2D\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Core\Layer.cpp">

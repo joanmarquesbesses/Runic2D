@@ -57,7 +57,7 @@ namespace Runic2D {
 
 		static void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
 
-		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning = 0.0f, float lineSpacing = 0.0f, int entityID = -1);
+		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning, float lineSpacing, int entityID, int alignment);
 
 		// Stats
 		struct Statistics

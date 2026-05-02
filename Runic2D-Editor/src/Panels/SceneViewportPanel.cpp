@@ -6,6 +6,7 @@
 #include "Runic2D/Core/Input.h"
 #include "Runic2D/Math/Math.h" 
 #include "Runic2D/Project/Project.h"
+#include "Runic2D/Core/InputManager.h"
 
 #include <imgui/imgui.h>
 #include "ImGuizmo.h"
@@ -31,6 +32,8 @@ namespace Runic2D {
 		m_ViewportFocused = ImGui::IsWindowFocused();
 		m_ViewportHovered = ImGui::IsWindowHovered();
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused && !m_ViewportHovered);
+
+		InputManager::SetViewportFocused(m_ViewportFocused && m_ViewportHovered);
 
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_ViewportSize = { viewportSize.x, viewportSize.y };

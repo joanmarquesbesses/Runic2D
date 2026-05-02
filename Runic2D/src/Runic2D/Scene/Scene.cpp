@@ -374,7 +374,7 @@ namespace Runic2D {
 					return;
 				Entity e{ entityID, this };
 				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
+				Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID, (int)text.TextAlignment);
 			});
 
 		m_ParticleSystem.OnRender();
@@ -448,13 +448,20 @@ namespace Runic2D {
 						offsetX += (rectTransform.Size.x - actualTextWidth);
 					}
 
+					int numLines = 1;
+					for (char c : text.GetText()) {
+						if (c == '\n') numLines++;
+					}
+
 					float boxBottomY = -rectTransform.Size.y * rectTransform.Pivot.y;
-					float offsetY = boxBottomY + (fontSize * 0.25f); 
+					float extraHeight = (numLines - 1) * (fontSize + (text.LineSpacing * fontSize));
+					float verticalShift = extraHeight * (1.0f - rectTransform.Pivot.y);
+					float offsetY = boxBottomY + (fontSize * 0.25f) + verticalShift;
 
 					glm::mat4 finalTextTransform = glm::translate(worldTransform, glm::vec3(offsetX, offsetY, 0.0f));
 					finalTextTransform = glm::scale(finalTextTransform, glm::vec3(fontSize, fontSize, 1.0f));
 
-					Renderer2D::DrawString(text.GetText(), text.FontAsset, finalTextTransform, text.Color, text.Kerning, text.LineSpacing, (int)(uint32_t)entityID);
+					Renderer2D::DrawString(text.GetText(), text.FontAsset, finalTextTransform, text.Color, text.Kerning, text.LineSpacing, (int)(uint32_t)entityID, (int)text.TextAlignment);
 				} });
 			}
 
@@ -559,7 +566,7 @@ namespace Runic2D {
 			{
 				Entity e{ entityID, this };
 				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID);
+				Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID, (int)text.TextAlignment);
 			});
 
 		Renderer2D::EndScene();
