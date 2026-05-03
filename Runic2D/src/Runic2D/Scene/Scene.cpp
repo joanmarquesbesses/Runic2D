@@ -219,23 +219,50 @@ namespace Runic2D {
 
 	void Scene::OnUpdateRunTime(Timestep ts)
 	{
+		UpdateScripts(ts);
 
-		//Update Scripts
-		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc) 
+		if (!m_IsPaused)
 		{
-			//Script instantiation for created entities in runtime
-			if (!nsc.Instance) {
-				nsc.Instance = nsc.InstantiateScript();
-				nsc.Instance->m_Entity = Entity{ entity, this };
-				nsc.Instance->OnCreate();
+			UpdatePhysics(ts);
+			m_ParticleSystem.OnUpdate(ts);
+			UpdateAnimation(ts);
+		}
+
+		UpdateUIInteraction();
+
+		for (auto e : m_DestructionQueue)
+		{
+			if (m_Registry.valid(e))
+			{
+				Entity entity{ e, this };
+				DestroyEntity(entity);
 			}
+		}
+		m_DestructionQueue.clear();
+	}
 
-			//Update Script
-			if (nsc.Instance)
-				nsc.Instance->OnUpdate(ts);
-			
-		});
+	void Scene::UpdateScripts(Timestep ts)
+	{
+		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+			{
+				//Script instantiation for created entities in runtime
+				if (!nsc.Instance) {
+					nsc.Instance = nsc.InstantiateScript();
+					nsc.Instance->m_Entity = Entity{ entity, this };
+					nsc.Instance->OnCreate();
+				}
 
+				//Update Script
+				if (nsc.Instance)
+				{
+					if (!m_IsPaused || nsc.Instance->UpdateWhenPaused())
+						nsc.Instance->OnUpdate(ts);
+				}
+			});
+	}
+
+	void Scene::UpdatePhysics(Timestep ts)
+	{
 		//Physics Step
 		if (B2_IS_NON_NULL(m_PhysicsWorld))
 		{
@@ -321,21 +348,6 @@ namespace Runic2D {
 				}
 			}
 		}
-
-		//Update Particles
-		m_ParticleSystem.OnUpdate(ts);
-		UpdateAnimation(ts);
-		UpdateUIInteraction();
-
-		for (auto e : m_DestructionQueue)
-		{
-			if (m_Registry.valid(e))
-			{
-				Entity entity{ e, this };
-				DestroyEntity(entity);
-			}
-		}
-		m_DestructionQueue.clear();
 	}
 
 	void Scene::OnRenderRuntime()
@@ -594,14 +606,23 @@ namespace Runic2D {
 
 				if (!hovered)
 				{
+					if (prevState != ButtonComponent::State::Normal && btn.OnUnhover)
+						btn.OnUnhover();
+
 					btn.CurrentState = ButtonComponent::State::Normal;
 				}
 				else if (mouseDown)
 				{
+					if (prevState == ButtonComponent::State::Normal && btn.OnHover)
+						btn.OnHover();
+
 					btn.CurrentState = ButtonComponent::State::Pressed;
 				}
 				else
 				{
+					if (prevState == ButtonComponent::State::Normal && btn.OnHover)
+						btn.OnHover();
+
 					if (prevState == ButtonComponent::State::Pressed && btn.OnClick)
 						btn.OnClick();
 

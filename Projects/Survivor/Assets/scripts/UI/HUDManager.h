@@ -56,6 +56,8 @@ namespace Survivor {
             UpdateLevelUpState();
         }
 
+        bool UpdateWhenPaused() override { return true; }
+
     private:
         // --- Helpers de creació ---
         Entity CreateUIText(const std::string& name,
@@ -139,13 +141,15 @@ namespace Survivor {
             {
                 m_CurrentState = UIState::LevelUp;
                 if (m_TimerText) m_TimerText.GetComponent<TextComponent>().Visible = false;
-                CreateUpgradeMenu();
+                GetScene()->SetPaused(true);
+                  CreateUpgradeMenu();
             }
             else if (stats.State == GameState::Running && m_CurrentState == UIState::LevelUp)
             {
                 m_CurrentState = UIState::Gameplay;
                 if (m_TimerText) m_TimerText.GetComponent<TextComponent>().Visible = true;
-                ClearUpgradeMenu();
+                GetScene()->SetPaused(false);
+                  ClearUpgradeMenu();
             }
         }
 

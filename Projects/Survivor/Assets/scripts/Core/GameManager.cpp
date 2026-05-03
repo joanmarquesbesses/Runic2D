@@ -15,7 +15,6 @@ namespace Survivor
             }
         }
 
-        if (stats.State != GameState::Running) return;
 
         stats.TimeAlive += ts;
 

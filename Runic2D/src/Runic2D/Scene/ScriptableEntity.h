@@ -26,6 +26,8 @@ namespace Runic2D
 
 		virtual void OnCollision(Entity other) {}
 
+		virtual bool UpdateWhenPaused() { return false; }
+
 		void Destroy()
 		{
 			m_Entity.Destroy();

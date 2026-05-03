@@ -347,6 +347,8 @@ namespace Runic2D {
 		State CurrentState = State::Normal;
 
 		std::function<void()> OnClick;
+		std::function<void()> OnHover;
+		std::function<void()> OnUnhover;
 
 		ButtonComponent() = default;
 		ButtonComponent(const ButtonComponent&) = default;

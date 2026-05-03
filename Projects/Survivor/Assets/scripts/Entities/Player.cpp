@@ -72,10 +72,10 @@ namespace Survivor {
         }
 
         glm::vec2 velocity = { 0.0f, 0.0f };
-        if (Input::IsKeyPressed(KeyCode::W)) velocity.y += 1.0f;
-        if (Input::IsKeyPressed(KeyCode::S)) velocity.y -= 1.0f;
-        if (Input::IsKeyPressed(KeyCode::A)) velocity.x -= 1.0f;
-        if (Input::IsKeyPressed(KeyCode::D)) velocity.x += 1.0f;
+        if (InputManager::IsActionPressed("MoveUp", 0)) velocity.y += 1.0f;
+        if (InputManager::IsActionPressed("MoveDown", 0)) velocity.y -= 1.0f;
+        if (InputManager::IsActionPressed("MoveLeft", 0)) velocity.x -= 1.0f;
+        if (InputManager::IsActionPressed("MoveRight", 0)) velocity.x += 1.0f;
 
         if(HasComponent<PlayerStatsComponent>())
         {
@@ -101,7 +101,7 @@ namespace Survivor {
 
             bool changed = false;
 
-            if (Input::IsKeyPressed(KeyCode::A))
+            if (InputManager::IsActionPressed("MoveLeft", 0))
             {
                 if (tranform->Scale.x > 0)
                 {
@@ -111,7 +111,7 @@ namespace Survivor {
                     changed = true;
                 }
             }
-            else if (Input::IsKeyPressed(KeyCode::D))
+            else if (InputManager::IsActionPressed("MoveRight", 0))
             {
                 if (tranform->Scale.x < 0)
                 {
@@ -140,7 +140,7 @@ namespace Survivor {
             {
                 TryAttack();
             }
-            else if (Input::IsKeyPressed(KeyCode::T)) {
+            else if (Runic2D::InputManager::IsActionPressed("Death", 0)) {
                 m_State = State::Death;
                 PlayAnimation("Death");
             }
@@ -282,8 +282,8 @@ namespace Survivor {
         glm::vec2 velocity = { vel.x, vel.y };
         float speed = glm::length(velocity);
 
-        bool hasInput = Input::IsKeyPressed(KeyCode::W) || Input::IsKeyPressed(KeyCode::S) ||
-            Input::IsKeyPressed(KeyCode::A) || Input::IsKeyPressed(KeyCode::D);
+        bool hasInput = InputManager::IsActionPressed("MoveUp", 0) || InputManager::IsActionPressed("MoveDown", 0) ||
+            InputManager::IsActionPressed("MoveLeft", 0) || InputManager::IsActionPressed("MoveRight", 0);
 
         return speed > 0.1f || hasInput;
     }

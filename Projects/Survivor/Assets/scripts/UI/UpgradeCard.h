@@ -37,6 +37,8 @@ namespace Survivor {
             rect.Scale = glm::mix(rect.Scale, targetScale, 0.15f);
         }
 
+        bool UpdateWhenPaused() override { return true; }
+
     private:
         void SelectUpgrade()
         {
