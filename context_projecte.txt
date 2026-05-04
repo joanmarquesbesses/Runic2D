@@ -772,7 +772,6 @@ namespace Survivor
             }
         }
 
-        if (stats.State != GameState::Running) return;
 
         stats.TimeAlive += ts;
 
@@ -864,6 +863,7 @@ namespace Survivor
     }
 }
 
+
 ============================================================
 FITXER: .\Projects\Survivor\Assets\scripts\Core\GameManager.h
 ============================================================
@@ -920,110 +920,6 @@ namespace Survivor
     };
 
 }
-
-============================================================
-FITXER: .\Projects\Survivor\Assets\scripts\Core\ScriptRegistry.cpp
-============================================================
-
-#include "ScriptRegistry.h"
-#include "Runic2D/Scripting/ScriptEngine.h" 
-#include "Runic2D/Core/Core.h"
-
-#include "Runic2D/Scene/ComponentRegistry.h"
-#include "Core/GameComponents.h"
-
-#include <yaml-cpp/yaml.h>
-
-#ifndef R2D_DIST
-#include <imgui/imgui.h>
-#endif
-
-namespace Survivor
-{
-
-    extern "C" {
-        __declspec(dllexport) void InitRuntimeModule() {
-            UpgradeDatabase::Init();
-
-			// Runcic2D necessita que li diguem quins scripts tenim disponibles i com fer el bind d'aquests scripts a les entitats.
-            ScriptEngine::SetScriptBinder(ScriptRegistry::BindScript);
-
-#ifndef R2D_DIST
-			// El editor necessita saber quins scripts hi ha disponibles per mostrar-los al desplegable de l'inspector.
-            ScriptEngine::SetScriptNamesGetter(ScriptRegistry::GetScriptNames);
-#endif
-			// Li pasem al editor els components personalitzats que volem que apareguin a l'inspector.
-            // 1. PLAYER STATS (Gameplay) 
-            Runic2D::ComponentRegistry::Register({
-                "Player Stats", "Gameplay",
-                [](Runic2D::Entity e) { if (!e.HasComponent<PlayerStatsComponent>()) e.AddComponent<PlayerStatsComponent>(); },
-                [](Runic2D::Entity e) { return e.HasComponent<PlayerStatsComponent>(); },
-#ifndef R2D_DIST
-                [](Runic2D::Entity e) {
-                    auto& c = e.GetComponent<PlayerStatsComponent>();
-                    ImGui::DragFloat("Health", &c.Health, 0.1f, 0.0f, 50.0f);
-                    ImGui::DragFloat("Speed", &c.Speed, 0.05f, 0.1f, 10.0f);
-                    ImGui::DragFloat("Damage", &c.Damage, 0.1f, 0.0f, 20.0f);
-                    ImGui::DragInt("ProjectileCount", &c.ProjectileCount, 1, 1, 100); },
-#else
-                    nullptr,
-#endif
-                [](Runic2D::Entity e) { e.RemoveComponent<PlayerStatsComponent>(); },
-                [](Runic2D::Entity src, Runic2D::Entity dst) {
-                    auto& srcData = src.GetComponent<PlayerStatsComponent>();
-                    auto& dstData = dst.AddComponent<PlayerStatsComponent>();
-                    dstData = srcData; // Copiem el struct sencer
-                },
-                // SERIALITZA
-                [](YAML::Emitter& out, Runic2D::Entity e) {
-                    auto& c = e.GetComponent<PlayerStatsComponent>();
-                    out << YAML::Key << "Health" << YAML::Value << c.Health;
-                    out << YAML::Key << "Speed" << YAML::Value << c.Speed;
-                    out << YAML::Key << "Damage" << YAML::Value << c.Damage;
-                    out << YAML::Key << "ProjectileCount" << YAML::Value << c.ProjectileCount;
-                },
-                // DESERIALITZA
-                [](YAML::Node& node, Runic2D::Entity e) {
-                    auto& c = e.AddComponent<PlayerStatsComponent>();
-                    if (node["Health"]) c.Health = node["Health"].as<float>();
-                    if (node["Speed"]) c.Speed = node["Speed"].as<float>();
-                    if (node["Damage"]) c.Damage = node["Damage"].as<float>();
-                    if (node["ProjectileCount"]) c.ProjectileCount = node["ProjectileCount"].as<int>();
-                }
-                });
-
-            // 2. ENEMY (AI) 
-            Runic2D::ComponentRegistry::Register({
-                "Enemy Component", "AI",
-                [](Runic2D::Entity e) { if (!e.HasComponent<EnemyStatsComponent>()) e.AddComponent<EnemyStatsComponent>(); },
-                [](Runic2D::Entity e) { return e.HasComponent<EnemyStatsComponent>(); },
-#ifndef R2D_DIST
-                [](Runic2D::Entity e) {
-                    auto& c = e.GetComponent<EnemyStatsComponent>();
-                    ImGui::DragFloat("Speed", &c.Speed, 0.1f, 0.0f, 20.0f);
-                    ImGui::DragFloat("Damage", &c.Damage, 0.5f, 0.0f, 100.0f);
-                    ImGui::DragInt("XPDrop", &c.XPDrop, 1, 0, 1000); },
-#else
-                    nullptr,
-#endif
-                [](Runic2D::Entity e) { e.RemoveComponent<EnemyStatsComponent>(); }
-                });
-
-            R2D_CORE_INFO("Survivor DLL: Inicialitzada i dades carregades.");
-        }
-    }
-
-    extern "C" {
-        __declspec(dllexport) void ShutdownRuntimeModule() {
-            UpgradeDatabase::Shutdown();
-#ifndef R2D_DIST
-            Runic2D::ComponentRegistry::Clear();
-#endif
-            R2D_CORE_INFO("Survivor DLL: Shutdown correcte!");
-        }
-    }
-
-} // namespace Survivor
 
 ============================================================
 FITXER: .\Projects\Survivor\Assets\scripts\Core\ScriptRegistry.h
@@ -2008,64 +1904,35 @@ namespace Survivor {
 
     class UpgradeCard : public ScriptableEntity {
     public:
-        UpgradeDef m_Data;
-        bool m_IsPressed = false;
-
-        glm::vec3 m_BaseScale = glm::vec3(1.f);
-        glm::vec3 m_TitleBaseScale = glm::vec3(0.35f);
-        glm::vec3 m_DescBaseScale = glm::vec3(0.28f);
-        bool m_Clicked = false;
+        glm::vec2 m_BaseScale = glm::vec2(1.0f, 1.0f);
 
         void OnCreate() override {
-            m_BaseScale = GetComponent<TransformComponent>().Scale;
+            if (HasComponent<RectTransformComponent>()) {
+                m_BaseScale = GetComponent<RectTransformComponent>().Scale;
+            }
+
+            if (HasComponent<ButtonComponent>()) {
+                auto& btn = GetComponent<ButtonComponent>();
+                btn.OnClick = [this]() {
+                    SelectUpgrade();
+                };
+            }
         }
 
         void OnUpdate(Timestep ts) override {
-            glm::vec2 mouse = GetMouseUIPosition();
-            auto& tc = GetComponent<TransformComponent>();
-            auto& uc = GetComponent<UpgradeComponent>();
+            if (!HasComponent<ButtonComponent>() || !HasComponent<RectTransformComponent>())
+                return;
 
-            float halfW = std::abs(m_BaseScale.x) * 0.5f;
-            float halfH = std::abs(m_BaseScale.y) * 0.5f;
+            auto& btn = GetComponent<ButtonComponent>();
+            auto& rect = GetComponent<RectTransformComponent>();
+      
+            float hoverMultiplier = (btn.CurrentState != ButtonComponent::State::Normal) ? 1.15f : 1.0f;
 
-            bool hovered = mouse.x > tc.Translation.x - halfW &&
-                mouse.x < tc.Translation.x + halfW &&
-                mouse.y > tc.Translation.y - halfH &&
-                mouse.y < tc.Translation.y + halfH;
-
-            float hoverMultiplier = hovered ? 1.06f : 1.0f;
-
-            tc.Scale = glm::mix(tc.Scale, m_BaseScale * hoverMultiplier, 0.15f);
-			tc.IsDirty = true;
-
-            float titleBaseY = 1.4f;
-            float descBaseY = -1.2f;
-
-            if (uc.TitleEntity) {
-                auto& titleTc = uc.TitleEntity.GetComponent<TransformComponent>();
-                titleTc.Scale = glm::mix(titleTc.Scale, m_TitleBaseScale * hoverMultiplier, 0.15f);
-                float targetY = tc.Translation.y + (titleBaseY * hoverMultiplier);
-                titleTc.Translation.y = glm::mix(titleTc.Translation.y, targetY, 0.15f);
-                titleTc.IsDirty = true;
-            }
-
-            if (uc.DescEntity) {
-                auto& descTc = uc.DescEntity.GetComponent<TransformComponent>();
-                descTc.Scale = glm::mix(descTc.Scale, m_DescBaseScale * hoverMultiplier, 0.15f);
-                float targetY = tc.Translation.y + (descBaseY * hoverMultiplier);
-                descTc.Translation.y = glm::mix(descTc.Translation.y, targetY, 0.15f);
-				descTc.IsDirty = true;
-            }
-
-            if (hovered && Input::IsMouseButtonPressed(MouseButton::Left) && !m_Clicked)
-            {
-                m_Clicked = true;
-                SelectUpgrade();
-            }
-
-            if (!Input::IsMouseButtonPressed(MouseButton::Left))
-                m_Clicked = false;
+            glm::vec2 targetScale = m_BaseScale * hoverMultiplier;
+            rect.Scale = glm::mix(rect.Scale, targetScale, 0.15f);
         }
+
+        bool UpdateWhenPaused() override { return true; }
 
     private:
         void SelectUpgrade()
@@ -2078,40 +1945,6 @@ namespace Survivor {
             auto& stats = statsEntity.GetComponent<GameStatsComponent>();
             if (stats.OnUpgradeApplied)
                 stats.OnUpgradeApplied(GetComponent<UpgradeComponent>().Data.Type);
-        }
-
-        glm::vec2 GetMouseUIPosition()
-        {
-            Entity uiCam = {};
-
-            auto view = GetScene()->GetAllEntitiesWith<CameraComponent, RectTransformComponent>();
-
-            view.each([&](auto entity, auto& cam, auto& ui) {
-                if (!uiCam) { 
-                    uiCam = { entity, GetScene() };
-                }
-                });
-
-            if (!uiCam)
-                return Utils::SceneUtils::GetMouseWorldPosition(GetScene());
-
-            auto& window = Application::Get().GetWindow();
-            glm::vec2 input = Input::GetMousePosition();
-            float width = (float)window.GetWidth();
-            float height = (float)window.GetHeight();
-
-            auto& camera = uiCam.GetComponent<CameraComponent>().Camera;
-            auto& camTrans = uiCam.GetComponent<TransformComponent>();
-
-            float x = (2.f * input.x) / width - 1.f;
-            float y = 1.f - (2.f * input.y) / height;
-
-            glm::mat4 invViewProj = glm::inverse(
-                camera.GetProjection() * glm::inverse(camTrans.GetTransform())
-            );
-
-            glm::vec4 worldPos = invViewProj * glm::vec4(x, y, 1.f, 1.f);
-            return { worldPos.x, worldPos.y };
         }
     };
 
@@ -2447,6 +2280,7 @@ FITXER: .\Runic2D\src\Runic2D.h
 #include "Runic2D/Core/Input.h"
 #include "Runic2D/Core/KeyCodes.h"
 #include "Runic2D/Core/MouseButtonCodes.h"
+#include "Runic2D/Core/InputManager.h"
 
 #include "Runic2D/Renderer/OrthographicCameraController.h"
 
@@ -4775,6 +4609,104 @@ namespace Runic2D
 }
 
 ============================================================
+FITXER: .\Runic2D\src\Runic2D\Core\InputManager.cpp
+============================================================
+
+#include "R2Dpch.h"
+#include "InputManager.h"
+#include "Runic2D/Core/Input.h"
+#include "Runic2D/Core/Application.h"
+
+#ifndef R2D_DIST
+#include <imgui.h> 
+#endif
+
+namespace Runic2D {
+
+	std::unordered_map<int, std::unordered_map<std::string, ActionBinding>> InputManager::s_Bindings;
+
+	void InputManager::BindAction(const std::string& actionName, KeyCode key, int playerIndex)
+	{
+		s_Bindings[playerIndex][actionName] = { InputDevice::Keyboard, static_cast<int>(key) };
+	}
+
+	void InputManager::BindAction(const std::string& actionName, MouseButton button, int playerIndex)
+	{
+		s_Bindings[playerIndex][actionName] = { InputDevice::Mouse, static_cast<int>(button) };
+	}
+
+	bool InputManager::IsActionPressed(const std::string& actionName, int playerIndex)
+	{
+#ifndef R2D_DIST
+		if (!s_ViewportFocused)
+			return false;
+#endif
+
+		auto playerIt = s_Bindings.find(playerIndex);
+		if (playerIt == s_Bindings.end()) return false; 
+
+		auto actionIt = playerIt->second.find(actionName);
+		if (actionIt == playerIt->second.end()) return false; 
+
+		const ActionBinding& binding = actionIt->second;
+
+		if (binding.Device == InputDevice::Keyboard)
+		{
+			return Input::IsKeyPressed(static_cast<KeyCode>(binding.Code));
+		}
+		else if (binding.Device == InputDevice::Mouse)
+		{
+			return Input::IsMouseButtonPressed(static_cast<MouseButton>(binding.Code));
+		}
+
+		return false;
+	}
+}
+
+============================================================
+FITXER: .\Runic2D\src\Runic2D\Core\InputManager.h
+============================================================
+
+#pragma once
+
+#include "Runic2D/Core/Core.h"
+#include "Runic2D/Core/KeyCodes.h"
+#include "Runic2D/Core/MouseButtonCodes.h"
+#include <string>
+#include <unordered_map>
+
+namespace Runic2D {
+
+	enum class InputDevice { Keyboard, Mouse, Gamepad };
+
+	struct ActionBinding {
+		InputDevice Device;
+		int Code;
+	};
+
+	class RUNIC_API InputManager
+	{
+	public:
+		static void BindAction(const std::string& actionName, KeyCode key, int playerIndex = 0);
+		static void BindAction(const std::string& actionName, MouseButton button, int playerIndex = 0);
+
+		static bool IsActionPressed(const std::string& actionName, int playerIndex = 0);
+
+#ifndef R2D_DIST
+		static void SetViewportFocused(bool focused) { s_ViewportFocused = focused; }
+		static bool IsViewportFocused() { return s_ViewportFocused; }
+#endif
+
+	private:
+		static std::unordered_map<int, std::unordered_map<std::string, ActionBinding>> s_Bindings;
+
+#ifndef R2D_DIST
+		inline static bool s_ViewportFocused = true;
+#endif
+	};
+}
+
+============================================================
 FITXER: .\Runic2D\src\Runic2D\Core\KeyCodes.h
 ============================================================
 
@@ -6783,40 +6715,50 @@ namespace Runic2D {
 
 	float Font::GetStringWidth(const std::string& string, float kerning) const
 	{
-		if (!m_Data) return 0.0f;
+		if (!m_Data || string.empty()) return 0.0f;
 
 		const auto& geometry = m_Data->FontGeometry;
 		const auto& metrics = geometry.getMetrics();
 
-		double width = 0.0;
-
+		double maxWidth = 0.0;       
+		double currentLineWidth = 0.0; 
 		double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
 
 		for (size_t i = 0; i < string.size(); i++)
 		{
 			char character = string[i];
 
-			if (character == '\r' || character == '\n') continue;
+			if (character == '\r') continue;
 
-			if (character == ' ') {
-				double spaceAdvance = geometry.getGlyph('a') ? geometry.getGlyph('a')->getAdvance() : 0.5;
-				width += spaceAdvance * fsScale;
+			if (character == '\n')
+			{
+				if (currentLineWidth > maxWidth) maxWidth = currentLineWidth;
+				currentLineWidth = 0.0;
 				continue;
 			}
 
 			auto glyph = geometry.getGlyph(character);
 			if (glyph)
 			{
-				double advance = glyph->getAdvance();
+				bool isLastCharOfLine = (i == string.size() - 1) || (string[i + 1] == '\n' || string[i + 1] == '\r');
 
-				width += advance * fsScale;
-
-				if (i < string.size() - 1)
-					width += kerning;
+				if (isLastCharOfLine && character != ' ')
+				{
+					double l, b, r, t;
+					glyph->getQuadPlaneBounds(l, b, r, t);
+					currentLineWidth += r * fsScale;
+				}
+				else
+				{
+					currentLineWidth += glyph->getAdvance() * fsScale;
+					currentLineWidth += kerning;
+				}
 			}
 		}
 
-		return (float)width;
+		if (currentLineWidth > maxWidth) maxWidth = currentLineWidth;
+
+		return (float)maxWidth;
 	}
 }
 
@@ -7614,6 +7556,7 @@ namespace Runic2D {
 		static void BeginScene(const glm::mat4& viewProj);
 		static void EndScene();
 		static void Flush();
+		static void StartBatch();
 
 		static void ResetTextureSlots();
 
@@ -7646,7 +7589,7 @@ namespace Runic2D {
 
 		static void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
 
-		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning = 0.0f, float lineSpacing = 0.0f, int entityID = -1);
+		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning, float lineSpacing, int entityID, int alignment);
 
 		// Stats
 		struct Statistics
@@ -7667,8 +7610,7 @@ namespace Runic2D {
 		static Ref<Texture2D> GetWhiteTexture();
 
 	private:
-		static void StartBatch();
-		static void NextBatch();
+			static void NextBatch();
 	};
 
 }
@@ -8368,16 +8310,48 @@ namespace Runic2D {
 
 	struct RUNIC_API TextComponent
 	{
-		std::string TextString = "";
+		enum class Alignment { Left = 0, Center, Right };
+
+	private:
+		std::string m_TextString = "";
+		mutable float m_CachedWidth = 0.0f;
+		mutable bool m_IsDirty = true;
+
+	public:
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Font> FontAsset = Font::GetDefault();
 		float Kerning = 0.0f;
 		float LineSpacing = 0.0f;
 		bool Visible = true;
 
+		Alignment TextAlignment = Alignment::Center;
+
 		TextComponent() = default;
 		TextComponent(const TextComponent&) = default;
-		TextComponent(const std::string& text) : TextString(text) {}
+		TextComponent(const std::string& text) { SetText(text); }
+
+		void SetText(const std::string& text)
+		{
+			if (m_TextString != text)
+			{
+				m_TextString = text;
+				m_IsDirty = true;
+			}
+		}
+
+		const std::string& GetText() const { return m_TextString; }
+
+		float GetTextWidth() const
+		{
+			if (m_IsDirty && FontAsset)
+			{
+				m_CachedWidth = FontAsset->GetStringWidth(m_TextString, Kerning);
+				m_IsDirty = false;
+			}
+			return m_CachedWidth;
+		}
+
+		void MarkDirty() { m_IsDirty = true; }
 	};
 
 	struct RUNIC_API AnimationProfile
@@ -8457,6 +8431,26 @@ namespace Runic2D {
 
 			outMeshTransform = outWorldTransform * meshPivot * meshScale;
 		}
+
+		mutable glm::mat4 ComputedMeshTransform = glm::mat4(1.0f);
+	};
+
+	struct RUNIC_API ButtonComponent
+	{
+		enum class State { Normal, Hovered, Pressed };
+
+		glm::vec4 NormalColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		glm::vec4 HoveredColor = { 0.85f, 0.85f, 0.85f, 1.0f };
+		glm::vec4 PressedColor = { 0.65f, 0.65f, 0.65f, 1.0f };
+
+		State CurrentState = State::Normal;
+
+		std::function<void()> OnClick;
+		std::function<void()> OnHover;
+		std::function<void()> OnUnhover;
+
+		ButtonComponent() = default;
+		ButtonComponent(const ButtonComponent&) = default;
 	};
 }
 
@@ -8604,14 +8598,31 @@ namespace Runic2D {
 		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
 		Entity GetEntityByUUID(UUID uuid);
 
+		// Runtime
 		void OnUpdateRunTime(Timestep ts);
+		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
+		void UpdateUIInteraction();
+
+		void SetPaused(bool paused) { m_IsPaused = paused; }
+		bool IsPaused() const { return m_IsPaused; }
+
+		// Rendering
 		void OnRenderRuntime();
 		void OnRenderUI();
-		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
+
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		uint32_t GetViewportWidth() const { return m_ViewportWidth; }
 		uint32_t GetViewportHeight() const { return m_ViewportHeight; }
+
+		glm::vec2 GetMousePositionInUISpace();
+
+		void SetViewportBounds(const glm::vec2& boundsMin, const glm::vec2& boundsMax) 
+		{
+			m_ViewportBoundsMin = boundsMin;
+			m_ViewportBoundsMax = boundsMax;
+		}
+
 
 		void OnRuntimeStart();
 		void OnRuntimeStop();
@@ -8642,7 +8653,7 @@ namespace Runic2D {
 		int GetActiveParticleCount() const { return m_ParticleSystem.GetActiveParticleCount(); }
 
 		template<typename T>
-		void OnComponentAdded(Entity entity, T& component);
+		void OnComponentAdded(Entity entity, T& component) {}
 
 		int GetSizeOfAllEntities() const { 
 			int count = 0;
@@ -8675,9 +8686,16 @@ namespace Runic2D {
 	private:
 		void OnCameraComponentConstruct(entt::registry& registry, entt::entity entity);
 		void CopyEntity(Entity src, Entity dst);
+
+		void UpdateScripts(Timestep ts);
+		void UpdatePhysics(Timestep ts);
+
 	private:
 		entt::registry m_Registry;
+		bool m_IsPaused = false;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+		glm::vec2 m_ViewportBoundsMin = { 0.0f, 0.0f };
+		glm::vec2 m_ViewportBoundsMax = { 0.0f, 0.0f };
 
 		b2WorldId m_PhysicsWorld = b2_nullWorldId;
 
@@ -9359,6 +9377,8 @@ namespace Runic2D
 
 		virtual void OnCollision(Entity other) {}
 
+		virtual bool UpdateWhenPaused() { return false; }
+
 		void Destroy()
 		{
 			m_Entity.Destroy();
@@ -9651,7 +9671,20 @@ namespace Runic2D
 			m_EditorCamera.SetViewportSize(vpSize.x, vpSize.y);
 
 			auto scene = SceneManager::GetActiveScene();
-			if (scene) scene->OnViewportResize((uint32_t)vpSize.x, (uint32_t)vpSize.y);
+			if (scene)
+				scene->OnViewportResize((uint32_t)vpSize.x, (uint32_t)vpSize.y);
+		}
+
+		{
+			auto scene = SceneManager::GetActiveScene();
+			if (scene)
+			{
+				auto* mainViewport = ImGui::GetMainViewport();
+				glm::vec2 windowPos = { mainViewport->Pos.x, mainViewport->Pos.y };
+				glm::vec2 boundsMin = m_ViewportPanel.GetBoundsMin() - windowPos;
+				glm::vec2 boundsMax = m_ViewportPanel.GetBoundsMax() - windowPos;
+				scene->SetViewportBounds(boundsMin, boundsMax);
+			}
 		}
 
 		if (m_SceneState == SceneState::Edit && m_ViewportPanel.IsFocused())
@@ -9668,7 +9701,6 @@ namespace Runic2D
 			if (m_SceneState == SceneState::Edit)
 			{
 				scene->OnUpdateEditor(ts, m_EditorCamera);
-				scene->OnRenderUI();
 			}
 			else // Play
 			{
@@ -10438,6 +10470,7 @@ FITXER: .\Runic2D-Editor\src\Panels\SceneViewportPanel.cpp
 #include "Runic2D/Core/Input.h"
 #include "Runic2D/Math/Math.h" 
 #include "Runic2D/Project/Project.h"
+#include "Runic2D/Core/InputManager.h"
 
 #include <imgui/imgui.h>
 #include "ImGuizmo.h"
@@ -10463,6 +10496,8 @@ namespace Runic2D {
 		m_ViewportFocused = ImGui::IsWindowFocused();
 		m_ViewportHovered = ImGui::IsWindowHovered();
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused && !m_ViewportHovered);
+
+		InputManager::SetViewportFocused(m_ViewportFocused && m_ViewportHovered);
 
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_ViewportSize = { viewportSize.x, viewportSize.y };
@@ -10822,7 +10857,7 @@ void GameplayLayer::OnUpdate(Runic2D::Timestep ts)
 
     scene->OnUpdateRunTime(ts);
     scene->OnRenderRuntime();
-    scene->OnRenderUI();
+	scene->OnRenderUI();
 
     if (m_ShowPhysicsColliders)
         ShowColliderOverlay();

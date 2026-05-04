@@ -60,6 +60,16 @@ namespace Runic2D {
 		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning, float lineSpacing, int entityID, int alignment);
 
 		// Stats
+		enum class FlushReason
+		{
+			SceneEnd = 0,
+			VertexIndexLimit,
+			TextureLimit,
+			PrimitiveChange,
+			UIZIndexChange,
+			Count 
+		};
+
 		struct Statistics
 		{
 			uint32_t DrawCalls = 0;
@@ -67,6 +77,8 @@ namespace Runic2D {
 
 			uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
 			uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
+
+			uint32_t FlushReasons[(int)FlushReason::Count] = { 0 };
 		};
 
 		static float GetLineWidth();
@@ -77,8 +89,10 @@ namespace Runic2D {
 
 		static Ref<Texture2D> GetWhiteTexture();
 
+		enum class PrimitiveType { None = 0, Quad, Circle, Line, Text };
+		static void NextBatch(FlushReason reason);
 	private:
-			static void NextBatch();
+		static void CheckPrimitive(FlushReason reason, PrimitiveType type);
 	};
 
 }

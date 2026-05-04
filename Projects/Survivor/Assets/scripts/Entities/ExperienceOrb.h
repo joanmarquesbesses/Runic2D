@@ -10,11 +10,13 @@ namespace Survivor {
     class ExperienceOrb : public ScriptableEntity {
     public:
         Entity m_PlayerEntity;
+		Entity m_GameManagerEntity;
         float m_CurrentSpeed = 0.0f;
         float m_Acceleration = 15.0f;
 
         void OnCreate() override {
             m_PlayerEntity = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
+			m_GameManagerEntity = GetScene()->GetEntityWithComponent<GameStatsComponent>();
 
             if (m_PlayerEntity) {
                 glm::vec2 myPos = GetComponent<TransformComponent>().Translation;
@@ -93,7 +95,7 @@ namespace Survivor {
             if (HasComponent<ExperienceComponent>())
                 xpAmount = GetComponent<ExperienceComponent>().Amount;
 
-            //GameContext::Get().AddXP((float)xpAmount);
+			m_GameManagerEntity.GetComponent<GameStatsComponent>().AddXP(xpAmount);
 
             // So de "Ding!"
 

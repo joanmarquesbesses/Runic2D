@@ -226,7 +226,7 @@ namespace Runic2D
 
 		m_SceneHierarchyPanel.OnImGuiRender();
 		m_ContentBrowserPanel.OnImGuiRender();
-		m_SettingsPanel.OnImGuiRender(m_EditorCamera, m_ContentBrowserPanel,
+		m_SettingsPanel.OnImGuiRender(SceneManager::GetActiveScene(), m_EditorCamera, m_ContentBrowserPanel,
 			m_GizmoType, m_GizmoMode, m_ShowPhysicsColliders);
 		m_ToolbarPanel.OnImGuiRender(m_SceneState);
 

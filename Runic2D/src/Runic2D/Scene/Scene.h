@@ -14,6 +14,13 @@ namespace Runic2D {
 
 	struct TransformComponent;
 
+	struct SceneStats
+	{
+		uint32_t TotalEntities = 0;
+		uint32_t ScriptUpdates = 0;
+		uint32_t ActiveParticles = 0;
+	};
+
 	class RUNIC_API Scene {
 	public:
 		Scene();
@@ -53,7 +60,6 @@ namespace Runic2D {
 			m_ViewportBoundsMax = boundsMax;
 		}
 
-
 		void OnRuntimeStart();
 		void OnRuntimeStop();
 
@@ -81,6 +87,8 @@ namespace Runic2D {
 		void UpdateAnimation(Timestep ts);
 
 		int GetActiveParticleCount() const { return m_ParticleSystem.GetActiveParticleCount(); }
+
+		SceneStats GetStats() const;
 
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component) {}

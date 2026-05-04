@@ -514,8 +514,7 @@ namespace Runic2D {
 		int lastZIndex = INT_MIN;
 		for (const auto& cmd : renderCommands) {
 			if (cmd.ZIndex != lastZIndex && lastZIndex != INT_MIN) {
-				Renderer2D::Flush();
-				Renderer2D::StartBatch();
+				Renderer2D::NextBatch(Renderer2D::FlushReason::UIZIndexChange);
 			}
 			cmd.RenderCall();
 			lastZIndex = cmd.ZIndex;
@@ -1324,5 +1323,21 @@ namespace Runic2D {
 					}
 				}
 			});
+	}
+
+	SceneStats Scene::GetStats() const
+	{
+		SceneStats stats;
+
+		// Comptem totes les entitats vives
+		stats.TotalEntities = (uint32_t)GetSizeOfAllEntities();
+
+		// Comptem quants scripts natius s'estan actualitzant
+		stats.ScriptUpdates = (uint32_t)m_Registry.view<NativeScriptComponent>().size();
+
+		// Les partícules vives
+		stats.ActiveParticles = (uint32_t)m_ParticleSystem.GetActiveParticleCount();
+
+		return stats;
 	}
 }

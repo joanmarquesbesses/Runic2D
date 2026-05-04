@@ -33,7 +33,9 @@ namespace Runic2D {
 		m_ViewportHovered = ImGui::IsWindowHovered();
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused && !m_ViewportHovered);
 
+#ifndef R2D_DIST
 		InputManager::SetViewportFocused(m_ViewportFocused && m_ViewportHovered);
+#endif
 
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_ViewportSize = { viewportSize.x, viewportSize.y };

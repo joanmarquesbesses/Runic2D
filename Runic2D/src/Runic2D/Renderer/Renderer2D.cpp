@@ -12,7 +12,6 @@
 
 namespace Runic2D
 {
-
 	struct QuadVertex
 	{
 		glm::vec3 Position;
@@ -107,6 +106,7 @@ namespace Runic2D
 
 		glm::vec4 QuadVertexPositions[4] = { glm::vec4(0.0f) };
 
+		Renderer2D::PrimitiveType CurrentPrimitive = Renderer2D::PrimitiveType::None;
 		Renderer2D::Statistics Stats;
 
 		struct CameraData
@@ -282,10 +282,12 @@ namespace Runic2D
 		R2D_PROFILE_FUNCTION();
 
 		Flush();
+		s_Data.Stats.FlushReasons[(int)FlushReason::SceneEnd]++;
 	}
 
 	void Renderer2D::StartBatch()
 	{
+		s_Data.CurrentPrimitive = Renderer2D::PrimitiveType::None;
 		s_Data.QuadIndexCount = 0;
 		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
 
@@ -366,9 +368,21 @@ namespace Runic2D
 		s_Data.TextureSlotIndex = 1;
 	}
 
-	void Renderer2D::NextBatch()
+	void Renderer2D::CheckPrimitive(Renderer2D::FlushReason reason, PrimitiveType type)
+	{
+		if (s_Data.CurrentPrimitive != type && s_Data.CurrentPrimitive != Renderer2D::PrimitiveType::None)
+		{
+			// Només flushem si hi ha alguna cosa en els buffers
+			if (s_Data.QuadIndexCount || s_Data.CircleIndexCount || s_Data.LineVertexCount || s_Data.TextIndexCount)
+				NextBatch(Renderer2D::FlushReason::PrimitiveChange);
+		}
+		s_Data.CurrentPrimitive = type;
+	}
+
+	void Renderer2D::NextBatch(FlushReason reason)
 	{
 		Flush();
+		s_Data.Stats.FlushReasons[(int)reason]++;
 		StartBatch();
 	}
 
@@ -407,8 +421,10 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
+		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
+
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
-			NextBatch();
+			NextBatch(FlushReason::VertexIndexLimit);
 		}
 
 		constexpr size_t quadVertexCount = 4;
@@ -441,8 +457,10 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
+		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
+
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
-			NextBatch();
+			NextBatch(FlushReason::VertexIndexLimit);
 		}
 
 		constexpr size_t quadVertexCount = 4;
@@ -464,7 +482,7 @@ namespace Runic2D
 		if (textureIndex == 0.0f) {
 
 			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
-				NextBatch();// mirar de seprar quan es te que reiniciar per max index i quan per max textures
+				NextBatch(FlushReason::TextureLimit);
 
 			textureIndex = (float)s_Data.TextureSlotIndex;
 			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;
@@ -491,8 +509,10 @@ namespace Runic2D
 	{
 		R2D_PROFILE_FUNCTION();
 
+		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
+
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
-			NextBatch();
+			NextBatch(FlushReason::VertexIndexLimit);
 		}
 
 		constexpr size_t quadVertexCount = 4;
@@ -512,7 +532,7 @@ namespace Runic2D
 		// Si no hi és, l'afegim
 		if (textureIndex == 0.0f) {
 			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
-				NextBatch();
+				NextBatch(FlushReason::TextureLimit);
 
 			textureIndex = (float)s_Data.TextureSlotIndex;
 			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;
@@ -604,10 +624,11 @@ namespace Runic2D
 	void Renderer2D::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness /*= 1.0f*/, float fade /*= 0.005f*/, int entityID /*= -1*/)
 	{
 		R2D_PROFILE_FUNCTION();
+		
+		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Circle);
 
-		// TODO: implement for circles
-		// if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
-		// 	NextBatch();
+		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+		 	NextBatch(FlushReason::VertexIndexLimit);
 
 		for (size_t i = 0; i < 4; i++)
 		{
@@ -627,6 +648,7 @@ namespace Runic2D
 
 	void Renderer2D::DrawLine(const glm::vec3& p0, glm::vec3& p1, const glm::vec4& color, int entityID)
 	{
+		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Line);
 		s_Data.LineVertexBufferPtr->Position = p0;
 		s_Data.LineVertexBufferPtr->Color = color;
 		s_Data.LineVertexBufferPtr->EntityID = entityID;
@@ -683,6 +705,7 @@ namespace Runic2D
 
 	void Renderer2D::DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning, float lineSpacing, int entityID, int alignment)
 	{
+		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Text);
 		const auto& fontGeometry = font->GetMSDFData()->FontGeometry;
 		const auto& metrics = fontGeometry.getMetrics();
 		Ref<Texture2D> fontAtlas = font->GetAtlasTexture();

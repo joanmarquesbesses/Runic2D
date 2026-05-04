@@ -7,7 +7,7 @@
 
 namespace Runic2D {
 
-	void SettingsPanel::OnImGuiRender(EditorCamera& camera, ContentBrowserPanel& contentBrowser, int& gizmoType, int& gizmoMode, bool& showColliders)
+	void SettingsPanel::OnImGuiRender(Ref<Scene> activeScene, EditorCamera& camera, ContentBrowserPanel& contentBrowser, int& gizmoType, int& gizmoMode, bool& showColliders)
 	{
 		ImGui::Begin("Settings");
 
@@ -101,6 +101,24 @@ namespace Runic2D {
 			ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 			ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 			ImGui::Text("FPS: %.1f", Application::Get().GetAverageFPS());
+
+			ImGui::Separator();
+			ImGui::Text("Flush Reasons:");
+			static const char* reasons[] = { "Scene End", "Vertex/Index Limit", "Texture Limit", "Primitive Change", "UI ZIndex Change" };
+			for (int i = 0; i < (int)Renderer2D::FlushReason::Count; i++)
+			{
+				if (stats.FlushReasons[i] > 0)
+					ImGui::BulletText("%s: %d", reasons[i], stats.FlushReasons[i]);
+				else
+					ImGui::TextDisabled("  %s: 0", reasons[i]);
+			}
+
+			ImGui::Separator();
+			ImGui::Text("Scene Stats:");
+			auto sceneStats = activeScene->GetStats();
+			ImGui::BulletText("Total Entities: %d", sceneStats.TotalEntities);
+			ImGui::BulletText("Script Updates: %d", sceneStats.ScriptUpdates);
+			ImGui::BulletText("Active Particles: %d", sceneStats.ActiveParticles);
 		}
 
         // --- Physics ---
