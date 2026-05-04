@@ -962,6 +962,11 @@ namespace Runic2D {
 		m_ViewportHeight = height;
 		m_ViewportWidth = width;
 
+		// Invalidate all UI transforms because viewport size changed
+		m_Registry.view<RectTransformComponent>().each([&](auto entity, auto& rect) {
+			rect.m_IsDirty = true;
+		});
+
 		auto view = m_Registry.view<CameraComponent>();
 		for (auto entity : view) {
 			auto& cameraComponent = view.get<CameraComponent>(entity);
