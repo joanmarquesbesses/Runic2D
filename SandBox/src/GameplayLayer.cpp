@@ -26,6 +26,8 @@ void GameplayLayer::OnUpdate(Runic2D::Timestep ts)
 {
     R2D_PROFILE_FUNCTION();
 
+    Renderer2D::ResetStats();
+
     auto scene = SceneManager::GetActiveScene();
     if (!scene) return;
 
@@ -57,6 +59,12 @@ bool GameplayLayer::OnWindowResize(WindowResizeEvent& e)
 bool GameplayLayer::OnKeyPressed(KeyPressedEvent& e)
 {
     switch(e.GetKeyCode()){
+        case KeyCode::F1:
+        {
+            auto scene = SceneManager::GetActiveScene();
+			if (scene) scene->SetDebugOverlayEnabled(!scene->IsDebugOverlayEnabled());
+            return true;
+        }
         case KeyCode::F3:
         {
 			m_ShowPhysicsColliders = !m_ShowPhysicsColliders;

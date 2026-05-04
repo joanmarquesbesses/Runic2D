@@ -180,6 +180,9 @@
     <ClInclude Include="src\Runic2D\ImGui\ImGuiLayer.h">
       <Filter>src\Runic2D\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Math\Easing.h">
+      <Filter>src\Runic2D\Math</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Math\Math.h">
       <Filter>src\Runic2D\Math</Filter>
     </ClInclude>
@@ -268,6 +271,9 @@
       <Filter>src\Runic2D\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Scene\ScriptableEntity.h">
+      <Filter>src\Runic2D\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Tween.h">
       <Filter>src\Runic2D\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h">

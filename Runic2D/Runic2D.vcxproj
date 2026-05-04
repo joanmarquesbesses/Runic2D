@@ -199,6 +199,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Events\KeyEvent.h" />
     <ClInclude Include="src\Runic2D\Events\MouseEvent.h" />
     <ClInclude Include="src\Runic2D\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\Runic2D\Math\Easing.h" />
     <ClInclude Include="src\Runic2D\Math\Math.h" />
     <ClInclude Include="src\Runic2D\Project\Project.h" />
     <ClInclude Include="src\Runic2D\Project\ProjectSerializer.h" />
@@ -229,6 +230,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Scene\SceneManager.h" />
     <ClInclude Include="src\Runic2D\Scene\SceneSerializer.h" />
     <ClInclude Include="src\Runic2D\Scene\ScriptableEntity.h" />
+    <ClInclude Include="src\Runic2D\Scene\Tween.h" />
     <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h" />
     <ClInclude Include="src\Runic2D\Utils\Random.h" />

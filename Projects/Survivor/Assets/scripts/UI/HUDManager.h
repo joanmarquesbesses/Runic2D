@@ -26,7 +26,7 @@ namespace Survivor {
             m_HealthText.GetComponent<TextComponent>().TextAlignment = TextComponent::Alignment::Left;
             m_HealthText.GetComponent<RectTransformComponent>().AnchorMin = { 0.0f, 0.0f };
             m_HealthText.GetComponent<RectTransformComponent>().Pivot = { 0.0f, 0.0f };
-            m_HealthText.GetComponent<RectTransformComponent>().Position = { 0.0f, 75.0f };
+            m_HealthText.GetComponent<RectTransformComponent>().SetPosition({ 0.0f, 75.0f });
 
             // --- XP / Nivell (dreta inferior) ---
             m_XPText = CreateUIText("HUD_XP", "Lv.1");

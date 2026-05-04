@@ -18,23 +18,18 @@ namespace Survivor {
 
             if (HasComponent<ButtonComponent>()) {
                 auto& btn = GetComponent<ButtonComponent>();
-                btn.OnClick = [this]() {
-                    SelectUpgrade();
+                btn.OnClick = [this]() { SelectUpgrade(); };
+
+                btn.OnHover = [this]() {
+                    Tween::Clear(GetEntity());
+                    Tween::To(GetEntity(), TweenTarget::Scale, { m_BaseScale.x * 1.15f, m_BaseScale.y * 1.15f, 1.0f, 0.0f }, 0.2f, EaseType::EaseOutQuad);
+                };
+
+                btn.OnUnhover = [this]() {
+                    Tween::Clear(GetEntity());
+                    Tween::To(GetEntity(), TweenTarget::Scale, { m_BaseScale.x, m_BaseScale.y, 1.0f, 0.0f }, 0.2f, EaseType::EaseOutQuad);
                 };
             }
-        }
-
-        void OnUpdate(Timestep ts) override {
-            if (!HasComponent<ButtonComponent>() || !HasComponent<RectTransformComponent>())
-                return;
-
-            auto& btn = GetComponent<ButtonComponent>();
-            auto& rect = GetComponent<RectTransformComponent>();
-      
-            float hoverMultiplier = (btn.CurrentState != ButtonComponent::State::Normal) ? 1.15f : 1.0f;
-
-            glm::vec2 targetScale = m_BaseScale * hoverMultiplier;
-            rect.Scale = glm::mix(rect.Scale, targetScale, 0.15f);
         }
 
         bool UpdateWhenPaused() override { return true; }

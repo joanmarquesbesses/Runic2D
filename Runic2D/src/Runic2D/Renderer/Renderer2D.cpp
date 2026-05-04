@@ -108,6 +108,7 @@ namespace Runic2D
 
 		Renderer2D::PrimitiveType CurrentPrimitive = Renderer2D::PrimitiveType::None;
 		Renderer2D::Statistics Stats;
+		bool RecordStats = true;
 
 		struct CameraData
 		{
@@ -282,7 +283,7 @@ namespace Runic2D
 		R2D_PROFILE_FUNCTION();
 
 		Flush();
-		s_Data.Stats.FlushReasons[(int)FlushReason::SceneEnd]++;
+		if (s_Data.RecordStats) s_Data.Stats.FlushReasons[(int)FlushReason::SceneEnd]++;
 	}
 
 	void Renderer2D::StartBatch()
@@ -321,7 +322,7 @@ namespace Runic2D
 
 			RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
 
-			++s_Data.Stats.DrawCalls;
+			if (s_Data.RecordStats) ++s_Data.Stats.DrawCalls;
 		}
 
 		if (s_Data.CircleIndexCount)
@@ -331,7 +332,7 @@ namespace Runic2D
 
 			s_Data.CircleShader->Bind();
 			RenderCommand::DrawIndexed(s_Data.CircleVertexArray, s_Data.CircleIndexCount);
-			s_Data.Stats.DrawCalls++;
+			if (s_Data.RecordStats) s_Data.Stats.DrawCalls++;
 		}
 
 		if (s_Data.LineVertexCount)
@@ -342,7 +343,7 @@ namespace Runic2D
 			s_Data.LineShader->Bind();
 			RenderCommand::SetLineWidth(s_Data.LineWidth);
 			RenderCommand::DrawLines(s_Data.LineVertexArray, s_Data.LineVertexCount);
-			s_Data.Stats.DrawCalls++;
+			if (s_Data.RecordStats) s_Data.Stats.DrawCalls++;
 		}
 
 		if (s_Data.TextIndexCount)
@@ -355,7 +356,7 @@ namespace Runic2D
 
 			s_Data.TextShader->Bind();
 			RenderCommand::DrawIndexed(s_Data.TextVertexArray, s_Data.TextIndexCount);
-			s_Data.Stats.DrawCalls++;
+			if (s_Data.RecordStats) s_Data.Stats.DrawCalls++;
 		}
 	}
 
@@ -382,7 +383,7 @@ namespace Runic2D
 	void Renderer2D::NextBatch(FlushReason reason)
 	{
 		Flush();
-		s_Data.Stats.FlushReasons[(int)reason]++;
+		if (s_Data.RecordStats) s_Data.Stats.FlushReasons[(int)reason]++;
 		StartBatch();
 	}
 
@@ -643,7 +644,7 @@ namespace Runic2D
 
 		s_Data.CircleIndexCount += 6;
 
-		s_Data.Stats.QuadCount++;
+		if (s_Data.RecordStats) s_Data.Stats.QuadCount++;
 	}
 
 	void Renderer2D::DrawLine(const glm::vec3& p0, glm::vec3& p1, const glm::vec4& color, int entityID)
@@ -831,7 +832,7 @@ namespace Runic2D
 			s_Data.TextVertexBufferPtr++;
 
 			s_Data.TextIndexCount += 6;
-			s_Data.Stats.QuadCount++;
+			if (s_Data.RecordStats) s_Data.Stats.QuadCount++;
 
 			if (i < string.size() - 1)
 			{
@@ -842,6 +843,12 @@ namespace Runic2D
 				x += fsScale * advance + kerning;
 			}
 		}
+	}
+
+	
+	void Renderer2D::SetRecordStats(bool record)
+	{
+		s_Data.RecordStats = record;
 	}
 
 	float Renderer2D::GetLineWidth()

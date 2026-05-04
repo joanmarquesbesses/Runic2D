@@ -41,11 +41,15 @@ namespace Runic2D {
 		void UpdateUIInteraction();
 
 		void SetPaused(bool paused) { m_IsPaused = paused; }
+
+		bool IsDebugOverlayEnabled() const { return m_ShowDebugOverlay; }
+		void SetDebugOverlayEnabled(bool enabled) { m_ShowDebugOverlay = enabled; }
 		bool IsPaused() const { return m_IsPaused; }
 
 		// Rendering
 		void OnRenderRuntime();
 		void OnRenderUI();
+		void OnRenderDebugOverlay();
 
 		void OnViewportResize(uint32_t width, uint32_t height);
 
@@ -127,10 +131,12 @@ namespace Runic2D {
 
 		void UpdateScripts(Timestep ts);
 		void UpdatePhysics(Timestep ts);
+		void UpdateTweens(Timestep ts);
 
 	private:
 		entt::registry m_Registry;
 		bool m_IsPaused = false;
+		bool m_ShowDebugOverlay = false;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 		glm::vec2 m_ViewportBoundsMin = { 0.0f, 0.0f };
 		glm::vec2 m_ViewportBoundsMax = { 0.0f, 0.0f };

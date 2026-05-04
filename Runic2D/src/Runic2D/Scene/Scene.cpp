@@ -11,6 +11,7 @@
 #include "Entity.h"
 #include "Component.h"
 #include "ComponentRegistry.h"
+#include "Tween.h"
 
 namespace Runic2D {
 
@@ -220,6 +221,7 @@ namespace Runic2D {
 	void Scene::OnUpdateRunTime(Timestep ts)
 	{
 		UpdateScripts(ts);
+		UpdateTweens(ts);
 
 		if (!m_IsPaused)
 		{
@@ -392,6 +394,8 @@ namespace Runic2D {
 		m_ParticleSystem.OnRender();
 
 		Renderer2D::EndScene();
+
+		OnRenderDebugOverlay();
 	}
 
 	void Scene::OnRenderUI()
@@ -521,6 +525,8 @@ namespace Runic2D {
 		}
 
 		Renderer2D::EndScene();
+
+		OnRenderDebugOverlay();
 	}
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
@@ -628,12 +634,17 @@ namespace Runic2D {
 					btn.CurrentState = ButtonComponent::State::Hovered;
 				}
 
-				if (m_Registry.all_of<SpriteRendererComponent>(e))
+				if (btn.CurrentState != prevState)
 				{
-					auto& sprite = m_Registry.get<SpriteRendererComponent>(e);
-					if (btn.CurrentState == ButtonComponent::State::Normal)  sprite.Color = btn.NormalColor;
-					if (btn.CurrentState == ButtonComponent::State::Hovered) sprite.Color = btn.HoveredColor;
-					if (btn.CurrentState == ButtonComponent::State::Pressed) sprite.Color = btn.PressedColor;
+					glm::vec4 targetColor = btn.NormalColor;
+					if (btn.CurrentState == ButtonComponent::State::Hovered) targetColor = btn.HoveredColor;
+					if (btn.CurrentState == ButtonComponent::State::Pressed) targetColor = btn.PressedColor;
+
+					if (m_Registry.all_of<SpriteRendererComponent>(e))
+					{
+						Tween::ClearTarget({ e, this }, TweenTarget::Color);
+						Tween::To({ e, this }, TweenTarget::Color, targetColor, 0.15f, EaseType::EaseOutQuad);
+					}
 				}
 			});
 	}
@@ -1270,6 +1281,8 @@ namespace Runic2D {
 			});
 
 		Renderer2D::EndScene();
+
+		OnRenderDebugOverlay();
 	}
 
 	void Scene::UpdateAnimation(Timestep ts)
@@ -1339,5 +1352,128 @@ namespace Runic2D {
 		stats.ActiveParticles = (uint32_t)m_ParticleSystem.GetActiveParticleCount();
 
 		return stats;
+	}
+
+	void Scene::OnRenderDebugOverlay()
+	{
+		if (!m_ShowDebugOverlay) return;
+
+		Renderer2D::SetRecordStats(false);
+
+		auto stats = Renderer2D::GetStats();
+		auto sceneStats = GetStats();
+
+		// Overlay virtual viewport (1080p height)
+		float aspectRatio = (float)m_ViewportWidth / (float)m_ViewportHeight;
+		float refHeight = 1080.0f;
+		float refWidth = refHeight * aspectRatio;
+
+		glm::mat4 projection = glm::ortho(0.0f, refWidth, 0.0f, refHeight, -1.0f, 1.0f);
+		Renderer2D::BeginScene(projection);
+
+		std::string debugStr = "Renderer Stats:\n";
+		debugStr += "  Draw Calls: " + std::to_string(stats.DrawCalls) + "\n";
+		debugStr += "  Quads: " + std::to_string(stats.QuadCount) + "\n";
+		debugStr += "\nScene Stats:\n";
+		debugStr += "  Entities: " + std::to_string(sceneStats.TotalEntities) + "\n";
+		debugStr += "  Scripts: " + std::to_string(sceneStats.ScriptUpdates) + "\n";
+		debugStr += "  Particles: " + std::to_string(sceneStats.ActiveParticles);
+
+		float fontSize = 32.0f;
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), { 20.0f, refHeight - 100.0f, 0.0f });
+		transform = glm::scale(transform, { fontSize, fontSize, 1.0f });
+
+		Renderer2D::DrawString(debugStr, Font::GetDefault(), transform, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.0f, 0.0f, -1, 0);
+
+		Renderer2D::EndScene();
+		Renderer2D::SetRecordStats(true);
+	}
+
+	void Scene::UpdateTweens(Timestep ts)
+	{
+		std::vector<entt::entity> toRemove;
+		std::vector<entt::entity> toDestroy;
+
+		auto view = m_Registry.view<TweenComponent>();
+		for (auto entityID : view)
+		{
+			Entity entity = { entityID, this };
+			auto& tc = entity.GetComponent<TweenComponent>();
+
+			if (!tc.IsPlaying) continue;
+
+			bool allFinished = true;
+			for (auto& tween : tc.Tweens)
+			{
+				if (tween.Finished) continue;
+
+				tween.TimeElapsed += ts;
+				float t = glm::clamp(tween.TimeElapsed / tween.Duration, 0.0f, 1.0f);
+				float easedT = Easing::Interpolate(t, tween.Easing);
+
+				glm::vec4 currentVal = glm::mix(tween.StartValue, tween.EndValue, easedT);
+
+				switch (tween.Target)
+				{
+								case TweenTarget::Position:
+					if (entity.HasComponent<TransformComponent>())
+						entity.GetComponent<TransformComponent>().SetTranslation(glm::vec3(currentVal));
+					if (entity.HasComponent<RectTransformComponent>())
+						entity.GetComponent<RectTransformComponent>().SetPosition(glm::vec2(currentVal));
+					break;
+								case TweenTarget::Scale:
+					if (entity.HasComponent<TransformComponent>())
+						entity.GetComponent<TransformComponent>().SetScale(glm::vec3(currentVal));
+					if (entity.HasComponent<RectTransformComponent>())
+						entity.GetComponent<RectTransformComponent>().SetScale(glm::vec2(currentVal));
+					break;
+								case TweenTarget::Rotation:
+					if (entity.HasComponent<TransformComponent>())
+						entity.GetComponent<TransformComponent>().SetRotation(glm::vec3(currentVal));
+					if (entity.HasComponent<RectTransformComponent>())
+						entity.GetComponent<RectTransformComponent>().SetRotation(currentVal.x);
+					break;
+				case TweenTarget::Color:
+					if (entity.HasComponent<SpriteRendererComponent>())
+						entity.GetComponent<SpriteRendererComponent>().Color = currentVal;
+					else if (entity.HasComponent<CircleRendererComponent>())
+						entity.GetComponent<CircleRendererComponent>().Color = currentVal;
+					else if (entity.HasComponent<TextComponent>())
+						entity.GetComponent<TextComponent>().Color = currentVal;
+					break;
+				}
+
+				if (t >= 1.0f)
+				{
+					if (tween.PingPong)
+					{
+						tween.TimeElapsed = 0.0f;
+						std::swap(tween.StartValue, tween.EndValue);
+					}
+					else
+					{
+						tween.Finished = true;
+					}
+				}
+				else
+				{
+					allFinished = false;
+				}
+			}
+
+			if (allFinished)
+			{
+				if (tc.OnComplete)
+					tc.OnComplete(entity);
+
+				if (tc.DestroyOnComplete)
+					toDestroy.push_back(entityID);
+				else
+					toRemove.push_back(entityID);
+			}
+		}
+
+		for (auto e : toRemove) m_Registry.remove<TweenComponent>(e);
+		for (auto e : toDestroy) m_Registry.destroy(e);
 	}
 }

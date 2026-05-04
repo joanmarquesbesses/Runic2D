@@ -87,6 +87,8 @@ namespace Runic2D {
 		static void ResetStats();
 		static Statistics GetStats();
 
+		static void SetRecordStats(bool record);
+
 		static Ref<Texture2D> GetWhiteTexture();
 
 		enum class PrimitiveType { None = 0, Quad, Circle, Line, Text };

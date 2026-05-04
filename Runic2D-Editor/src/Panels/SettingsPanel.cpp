@@ -119,6 +119,11 @@ namespace Runic2D {
 			ImGui::BulletText("Total Entities: %d", sceneStats.TotalEntities);
 			ImGui::BulletText("Script Updates: %d", sceneStats.ScriptUpdates);
 			ImGui::BulletText("Active Particles: %d", sceneStats.ActiveParticles);
+
+			ImGui::Separator();
+			bool debugOverlay = activeScene->IsDebugOverlayEnabled();
+			if (ImGui::Checkbox("Show Debug Overlay", &debugOverlay))
+				activeScene->SetDebugOverlayEnabled(debugOverlay);
 		}
 
         // --- Physics ---

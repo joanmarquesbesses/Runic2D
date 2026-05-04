@@ -24,6 +24,7 @@
 #include "Runic2D/Scene/ScriptableEntity.h"
 #include "Runic2D/Scene/Component.h"
 #include "Runic2D/Scene/SceneSerializer.h"
+#include "Runic2D/Scene/Tween.h"
 
 #include "Runic2D/Scripting/ScriptEngine.h"
 

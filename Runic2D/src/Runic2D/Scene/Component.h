@@ -13,6 +13,7 @@
 #include "Runic2D/Renderer/Texture.h"
 #include "Runic2D/Renderer/SubTexture2D.h"
 #include "Runic2D/Renderer/Font.h"
+#include "Runic2D/Math/Easing.h"
 #include "Runic2D/Renderer/Animation2D.h"
 
 namespace Runic2D {
@@ -315,9 +316,15 @@ namespace Runic2D {
 		RectTransformComponent() = default;
 		RectTransformComponent(const RectTransformComponent&) = default;
 
+		// Setters to maintain dirty state
+		void SetPosition(const glm::vec2& pos) { Position = pos; m_IsDirty = true; }
+		void SetSize(const glm::vec2& size) { Size = size; m_IsDirty = true; }
+		void SetScale(const glm::vec2& scale) { Scale = scale; m_IsDirty = true; }
+		void SetRotation(float rotation) { Rotation = rotation; m_IsDirty = true; }
+
 		void CalculateTransforms(const glm::mat4& parentWorldTransform, const glm::vec2& parentSize, const glm::vec2& parentPivot,
 			glm::mat4& outWorldTransform, glm::mat4& outMeshTransform) const
-		{
+		{			
 			glm::vec2 anchorPos = -parentSize * parentPivot + parentSize * AnchorMin;
 			glm::vec2 localPos = anchorPos + Position;
 
@@ -331,9 +338,12 @@ namespace Runic2D {
 			glm::mat4 meshScale = glm::scale(glm::mat4(1.0f), glm::vec3(Size.x, Size.y, 1.0f));
 
 			outMeshTransform = outWorldTransform * meshPivot * meshScale;
+			m_IsDirty = false;
 		}
 
 		mutable glm::mat4 ComputedMeshTransform = glm::mat4(1.0f);
+	private:
+		mutable bool m_IsDirty = true;
 	};
 
 	struct RUNIC_API ButtonComponent
@@ -352,5 +362,29 @@ namespace Runic2D {
 
 		ButtonComponent() = default;
 		ButtonComponent(const ButtonComponent&) = default;
+	};
+
+	enum class TweenTarget { Position, Scale, Rotation, Color };
+
+	struct TweenData {
+		TweenTarget Target;
+		EaseType Easing;
+		glm::vec4 StartValue;
+		glm::vec4 EndValue;
+		float Duration = 1.0f;
+		float TimeElapsed = 0.0f;
+		bool PingPong = false;
+		bool Reverse = false;
+		bool Finished = false;
+	};
+
+	struct RUNIC_API TweenComponent {
+		std::vector<TweenData> Tweens;
+		bool IsPlaying = true;
+		bool DestroyOnComplete = false;
+		std::function<void(Entity)> OnComplete = nullptr;
+
+		TweenComponent() = default;
+		TweenComponent(const TweenComponent&) = default;
 	};
 }
