@@ -52,21 +52,21 @@ namespace Runic2D {
 			{
 			case TweenTarget::Position:
 				if (entity.HasComponent<TransformComponent>())
-					return glm::vec4(entity.GetComponent<TransformComponent>().Translation, 0.0f);
+					return glm::vec4(entity.GetComponent<TransformComponent>().GetTranslation(), 0.0f);
 				if (entity.HasComponent<RectTransformComponent>())
-					return glm::vec4(entity.GetComponent<RectTransformComponent>().Position, 0.0f, 0.0f);
+					return glm::vec4(entity.GetComponent<RectTransformComponent>().GetPosition(), 0.0f, 0.0f);
 				break;
 			case TweenTarget::Scale:
 				if (entity.HasComponent<TransformComponent>())
-					return glm::vec4(entity.GetComponent<TransformComponent>().Scale, 0.0f);
+					return glm::vec4(entity.GetComponent<TransformComponent>().GetScale(), 0.0f);
 				if (entity.HasComponent<RectTransformComponent>())
-					return glm::vec4(entity.GetComponent<RectTransformComponent>().Scale, 0.0f, 0.0f);
+					return glm::vec4(entity.GetComponent<RectTransformComponent>().GetScale(), 0.0f, 0.0f);
 				break;
 			case TweenTarget::Rotation:
 				if (entity.HasComponent<TransformComponent>())
-					return glm::vec4(entity.GetComponent<TransformComponent>().Rotation, 0.0f);
+					return glm::vec4(entity.GetComponent<TransformComponent>().GetRotation(), 0.0f);
 				if (entity.HasComponent<RectTransformComponent>())
-					return glm::vec4(entity.GetComponent<RectTransformComponent>().Rotation, 0.0f, 0.0f, 0.0f);
+					return glm::vec4(entity.GetComponent<RectTransformComponent>().GetRotation(), 0.0f, 0.0f, 0.0f);
 				break;
 			case TweenTarget::Color:
 				if (entity.HasComponent<SpriteRendererComponent>())

@@ -15,7 +15,9 @@ namespace Survivor {
             m_LifeTime -= ts;
 
             auto& transform = GetComponent<TransformComponent>();
-            transform.Translation.y += m_Speed * ts;
+            glm::vec3 translation = transform.GetTranslation();
+            translation.y += m_Speed * ts;
+            transform.SetTranslation(translation);
 
             if (m_LifeTime < 0.5f) {
                 auto& textComp = GetComponent<TextComponent>();

@@ -54,10 +54,10 @@ namespace Survivor
         float camHeight = orthoSize * 2.0f;
         float camWidth = camHeight * aspectRatio;
 
-        float topEdge = camTrans.Translation.y + (camHeight / 2.0f);
-        float bottomEdge = camTrans.Translation.y - (camHeight / 2.0f);
-        float rightEdge = camTrans.Translation.x + (camWidth / 2.0f);
-        float leftEdge = camTrans.Translation.x - (camWidth / 2.0f);
+        float topEdge = camTrans.GetTranslation().y + (camHeight / 2.0f);
+        float bottomEdge = camTrans.GetTranslation().y - (camHeight / 2.0f);
+        float rightEdge = camTrans.GetTranslation().x + (camWidth / 2.0f);
+        float leftEdge = camTrans.GetTranslation().x - (camWidth / 2.0f);
 
         float buffer = 2.0f;
 

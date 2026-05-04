@@ -89,8 +89,8 @@ namespace Survivor {
 
             auto& transform = GetComponent<TransformComponent>();
 
-            glm::vec2 playerPos = m_Player.GetComponent<TransformComponent>().Translation;
-            glm::vec2 myPos = transform.Translation;
+            glm::vec2 playerPos = m_Player.GetComponent<TransformComponent>().GetTranslation();
+            glm::vec2 myPos = transform.GetTranslation();
 
             glm::vec2 difference = playerPos - myPos;
             float distance = glm::length(difference);
@@ -103,8 +103,8 @@ namespace Survivor {
             b2BodyId bodyId = rb.RuntimeBody;
             b2Body_SetLinearVelocity(bodyId, { direction.x * stats.Speed, direction.y * stats.Speed });
 
-            if (direction.x < 0) transform.Scale.x = fabs(transform.Scale.x);
-            else transform.Scale.x = -fabs(transform.Scale.x);
+            if (direction.x < 0) transform.SetScale({ fabs(transform.GetScale().x), transform.GetScale().y, transform.GetScale().z });
+            else transform.SetScale({ -fabs(transform.GetScale().x), transform.GetScale().y, transform.GetScale().z });
         }
 
         void TakeDamage(float amount, glm::vec2 sourcePos) {
@@ -118,7 +118,7 @@ namespace Survivor {
             m_TintTime = 0.15f;
             m_KnockbackTime = 0.2f;
 
-            glm::vec2 myPos = GetComponent<TransformComponent>().Translation;
+            glm::vec2 myPos = GetComponent<TransformComponent>().GetTranslation();
             glm::vec2 knockbackDir = glm::normalize(myPos - sourcePos);
 
             auto& rb = GetComponent<Rigidbody2DComponent>();
@@ -153,7 +153,7 @@ namespace Survivor {
                 xpToDrop = GetComponent<EnemyStatsComponent>().XPDrop;
             }
             auto& transform = GetComponent<TransformComponent>();
-            EntityFactory::CreateExperienceGem(transform.Translation, xpToDrop);
+            EntityFactory::CreateExperienceGem(transform.GetTranslation(), xpToDrop);
 
             if (HasComponent<CircleCollider2DComponent>()) {
                 auto& coll = GetComponent<CircleCollider2DComponent>();

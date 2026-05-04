@@ -428,8 +428,15 @@ namespace Runic2D {
 
 			auto& rectTransform = e.GetComponent<RectTransformComponent>();
 			glm::mat4 worldTransform, meshTransform;
-			rectTransform.CalculateTransforms(parentWorldTransform, parentSize, parentPivot, worldTransform, meshTransform);
-			rectTransform.ComputedMeshTransform = meshTransform;
+			if (rectTransform.m_IsDirty) {
+				rectTransform.CalculateTransforms(parentWorldTransform, parentSize, parentPivot, worldTransform, meshTransform);
+				rectTransform.WorldTransform = worldTransform;
+				rectTransform.ComputedMeshTransform = meshTransform;
+				rectTransform.m_IsDirty = false;
+			} else {
+				worldTransform = rectTransform.WorldTransform;
+				meshTransform = rectTransform.ComputedMeshTransform;
+			}
 
 			entt::entity entityID = e;
 
@@ -1155,7 +1162,7 @@ namespace Runic2D {
 
 		auto& tc = entity.GetComponent<TransformComponent>();
 		Math::DecomposeTransform(newLocalTransform, tc.Translation, tc.Rotation, tc.Scale);
-		tc.IsDirty = true;
+		InvalidateTransform(entity);
 	}
 
 	void Scene::UnparentEntity(Entity entity, bool convertToWorldSpace)
@@ -1198,7 +1205,7 @@ namespace Runic2D {
 		if (convertToWorldSpace) {
 			auto& tc = entity.GetComponent<TransformComponent>();
 			Math::DecomposeTransform(worldTransform, tc.Translation, tc.Rotation, tc.Scale);
-			tc.IsDirty = true;
+			InvalidateTransform(entity);
 		}
 	}
 
@@ -1233,6 +1240,9 @@ namespace Runic2D {
 
 	glm::mat4 Scene::GetWorldTransform(const TransformComponent& transform, Entity entity)
 	{
+		if (!transform.IsDirty)
+			return transform.WorldTransform;
+
 		glm::mat4 worldTransform = transform.GetTransform();
 
 		if (entity.HasComponent<RelationshipComponent>())
@@ -1245,6 +1255,8 @@ namespace Runic2D {
 			}
 		}
 
+		const_cast<TransformComponent&>(transform).WorldTransform = worldTransform;
+		const_cast<TransformComponent&>(transform).IsDirty = false;
 		return worldTransform;
 	}
 
@@ -1403,7 +1415,7 @@ namespace Runic2D {
 			if (!tc.IsPlaying) continue;
 
 			bool allFinished = true;
-			for (auto& tween : tc.Tweens)
+			for (auto& tween : tc.Tweens) 
 			{
 				if (tween.Finished) continue;
 
@@ -1413,35 +1425,33 @@ namespace Runic2D {
 
 				glm::vec4 currentVal = glm::mix(tween.StartValue, tween.EndValue, easedT);
 
+				bool needsInvalidation = false;
 				switch (tween.Target)
 				{
-								case TweenTarget::Position:
-					if (entity.HasComponent<TransformComponent>())
-						entity.GetComponent<TransformComponent>().SetTranslation(glm::vec3(currentVal));
-					if (entity.HasComponent<RectTransformComponent>())
-						entity.GetComponent<RectTransformComponent>().SetPosition(glm::vec2(currentVal));
+				case TweenTarget::Position:
+					if (entity.HasComponent<TransformComponent>()) entity.GetComponent<TransformComponent>().SetTranslation(glm::vec3(currentVal));
+					if (entity.HasComponent<RectTransformComponent>()) entity.GetComponent<RectTransformComponent>().SetPosition(glm::vec2(currentVal));
+					needsInvalidation = true;
 					break;
-								case TweenTarget::Scale:
-					if (entity.HasComponent<TransformComponent>())
-						entity.GetComponent<TransformComponent>().SetScale(glm::vec3(currentVal));
-					if (entity.HasComponent<RectTransformComponent>())
-						entity.GetComponent<RectTransformComponent>().SetScale(glm::vec2(currentVal));
+				case TweenTarget::Scale:
+					if (entity.HasComponent<TransformComponent>()) entity.GetComponent<TransformComponent>().SetScale(glm::vec3(currentVal));
+					if (entity.HasComponent<RectTransformComponent>()) entity.GetComponent<RectTransformComponent>().SetScale(glm::vec2(currentVal));
+					needsInvalidation = true;
 					break;
-								case TweenTarget::Rotation:
-					if (entity.HasComponent<TransformComponent>())
-						entity.GetComponent<TransformComponent>().SetRotation(glm::vec3(currentVal));
-					if (entity.HasComponent<RectTransformComponent>())
-						entity.GetComponent<RectTransformComponent>().SetRotation(currentVal.x);
+				case TweenTarget::Rotation:
+					if (entity.HasComponent<TransformComponent>()) entity.GetComponent<TransformComponent>().SetRotation(glm::vec3(currentVal));
+					if (entity.HasComponent<RectTransformComponent>()) entity.GetComponent<RectTransformComponent>().SetRotation(currentVal.x);
+					needsInvalidation = true;
 					break;
 				case TweenTarget::Color:
-					if (entity.HasComponent<SpriteRendererComponent>())
-						entity.GetComponent<SpriteRendererComponent>().Color = currentVal;
-					else if (entity.HasComponent<CircleRendererComponent>())
-						entity.GetComponent<CircleRendererComponent>().Color = currentVal;
-					else if (entity.HasComponent<TextComponent>())
-						entity.GetComponent<TextComponent>().Color = currentVal;
+					if (entity.HasComponent<SpriteRendererComponent>()) entity.GetComponent<SpriteRendererComponent>().Color = currentVal;
+					else if (entity.HasComponent<CircleRendererComponent>()) entity.GetComponent<CircleRendererComponent>().Color = currentVal;
+					else if (entity.HasComponent<TextComponent>()) entity.GetComponent<TextComponent>().Color = currentVal;
 					break;
 				}
+
+				if (needsInvalidation)
+					InvalidateTransform(entity);
 
 				if (t >= 1.0f)
 				{
@@ -1449,6 +1459,7 @@ namespace Runic2D {
 					{
 						tween.TimeElapsed = 0.0f;
 						std::swap(tween.StartValue, tween.EndValue);
+						allFinished = false;
 					}
 					else
 					{
@@ -1459,7 +1470,7 @@ namespace Runic2D {
 				{
 					allFinished = false;
 				}
-			}
+			} 
 
 			if (allFinished)
 			{
@@ -1475,5 +1486,26 @@ namespace Runic2D {
 
 		for (auto e : toRemove) m_Registry.remove<TweenComponent>(e);
 		for (auto e : toDestroy) m_Registry.destroy(e);
+	}
+
+
+	void Scene::InvalidateTransform(Entity entity)
+	{
+		if (entity.HasComponent<TransformComponent>())
+			entity.GetComponent<TransformComponent>().IsDirty = true;
+		
+		if (entity.HasComponent<RectTransformComponent>())
+			entity.GetComponent<RectTransformComponent>().m_IsDirty = true;
+
+		if (entity.HasComponent<RelationshipComponent>())
+		{
+			auto& rel = entity.GetComponent<RelationshipComponent>();
+			entt::entity childID = rel.FirstChild;
+			while (childID != entt::null)
+			{
+				InvalidateTransform({ childID, this });
+				childID = m_Registry.get<RelationshipComponent>(childID).NextSibling;
+			}
+		}
 	}
 }

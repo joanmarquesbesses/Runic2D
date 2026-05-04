@@ -112,9 +112,9 @@ namespace Runic2D {
 				glm::vec3 translation, rotation, scale;
 				Math::DecomposeTransform(localTransform, translation, rotation, scale);
 
-				glm::vec3 deltaRotation = rotation - tc.Rotation;
-				tc.Translation = translation;
-				tc.Rotation += deltaRotation;
+				glm::vec3 deltaRotation = rotation - tc.GetRotation();
+				tc.SetTranslation(translation);
+				tc.SetRotation(tc.GetRotation() + deltaRotation);
 
 				auto checkScale = [](float& s) {
 					if (std::isnan(s)) s = 1.0f;
@@ -125,9 +125,8 @@ namespace Runic2D {
 				if (std::abs(scale.y) < 0.001f) scale.y = 0.001f;
 				if (std::abs(scale.z) < 0.001f) scale.z = 0.001f;
 
-				tc.Scale = scale;
-
-				tc.IsDirty = true;
+				tc.SetScale(scale);
+				scene->InvalidateTransform(selectedEntity);
 			}
 		}
 

@@ -80,10 +80,10 @@ namespace Survivor {
                         glm::vec2 pushOrigin;
 
                         if (player) {
-                            pushOrigin = player.GetComponent<TransformComponent>().Translation;
+                            pushOrigin = player.GetComponent<TransformComponent>().GetTranslation();
                         }
                         else {
-                            pushOrigin = GetComponent<TransformComponent>().Translation;
+                            pushOrigin = GetComponent<TransformComponent>().GetTranslation();
                         }
 
                         enemyScript->TakeDamage(1, pushOrigin);

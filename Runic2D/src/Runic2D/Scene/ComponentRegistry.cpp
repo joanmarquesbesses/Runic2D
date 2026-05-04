@@ -686,14 +686,37 @@ namespace Runic2D {
 #ifndef R2D_DIST
 			[](Entity e) {
 				auto& c = e.GetComponent<RectTransformComponent>();
-				ImGui::DragFloat2("Position", &c.Position[0], 0.1f);
-				ImGui::DragFloat2("Size", &c.Size[0], 0.1f);
-				ImGui::DragFloat2("Anchor Min", &c.AnchorMin[0], 0.05f, 0.0f, 1.0f);
-				ImGui::DragFloat2("Anchor Max", &c.AnchorMax[0], 0.05f, 0.0f, 1.0f);
-				ImGui::DragFloat2("Pivot", &c.Pivot[0], 0.05f, 0.0f, 1.0f);
-				ImGui::DragFloat("Rotation", &c.Rotation, 0.05f);
-				ImGui::DragFloat2("Scale", &c.Scale[0], 0.05f);
-				ImGui::DragInt("Z Index", &c.ZIndex, 1);
+				glm::vec2 pos = c.GetPosition();
+				if (ImGui::DragFloat2("Position", &pos[0], 0.1f)) {
+					c.SetPosition(pos); e.GetScene()->InvalidateTransform(e);
+				}
+				glm::vec2 size = c.GetSize();
+				if (ImGui::DragFloat2("Size", &size[0], 0.1f)) {
+					c.SetSize(size); e.GetScene()->InvalidateTransform(e);
+				}
+				glm::vec2 anchorMin = c.GetAnchorMin();
+				if(ImGui::DragFloat2("Anchor Min", &anchorMin[0], 0.05f, 0.0f, 1.0f)) {
+					c.SetAnchorMin(anchorMin); e.GetScene()->InvalidateTransform(e);
+				}
+				glm::vec2 anchorMax = c.GetAnchorMax();
+				if(ImGui::DragFloat2("Anchor Max", &anchorMax[0], 0.05f, 0.0f, 1.0f)) {
+					c.SetAnchorMax(anchorMax); e.GetScene()->InvalidateTransform(e);
+				}
+				glm::vec2 pivot = c.GetPivot();
+				if(ImGui::DragFloat2("Pivot", &pivot[0], 0.05f, 0.0f, 1.0f)) {
+					c.SetPivot(pivot); e.GetScene()->InvalidateTransform(e);
+				}
+				float rotation = c.GetRotation();
+				if(ImGui::DragFloat("Rotation", &rotation, 0.05f)) {
+					c.SetRotation(rotation); e.GetScene()->InvalidateTransform(e);
+				}
+				glm::vec2 scale = c.GetScale();
+				if(ImGui::DragFloat2("Scale", &scale[0], 0.05f)) {
+					c.SetScale(scale); e.GetScene()->InvalidateTransform(e);
+				}
+				if(ImGui::DragInt("Z Index", &c.ZIndex)) {
+					c.ZIndex = c.ZIndex;
+				}
 			},
 #else
 			nullptr,
@@ -702,24 +725,24 @@ namespace Runic2D {
 			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<RectTransformComponent>(src.GetComponent<RectTransformComponent>()); },
 			[](YAML::Emitter& out, Entity e) {
 				auto& c = e.GetComponent<RectTransformComponent>();
-				out << YAML::Key << "Position" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Position.x << c.Position.y << YAML::EndSeq;
-				out << YAML::Key << "Size" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Size.x << c.Size.y << YAML::EndSeq;
-				out << YAML::Key << "AnchorMin" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.AnchorMin.x << c.AnchorMin.y << YAML::EndSeq;
-				out << YAML::Key << "AnchorMax" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.AnchorMax.x << c.AnchorMax.y << YAML::EndSeq;
-				out << YAML::Key << "Pivot" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Pivot.x << c.Pivot.y << YAML::EndSeq;
-				out << YAML::Key << "Rotation" << YAML::Value << c.Rotation;
-				out << YAML::Key << "Scale" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Scale.x << c.Scale.y << YAML::EndSeq;
+				out << YAML::Key << "Position" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.GetPosition().x << c.GetPosition().y << YAML::EndSeq;
+				out << YAML::Key << "Size" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.GetSize().x << c.GetSize().y << YAML::EndSeq;
+				out << YAML::Key << "AnchorMin" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.GetAnchorMin().x << c.GetAnchorMin().y << YAML::EndSeq;
+				out << YAML::Key << "AnchorMax" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.GetAnchorMax().x << c.GetAnchorMax().y << YAML::EndSeq;
+				out << YAML::Key << "Pivot" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.GetPivot().x << c.GetPivot().y << YAML::EndSeq;
+				out << YAML::Key << "Rotation" << YAML::Value << c.GetRotation();
+				out << YAML::Key << "Scale" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.GetScale().x << c.GetScale().y << YAML::EndSeq;
 				out << YAML::Key << "ZIndex" << YAML::Value << c.ZIndex;
 			},
 			[](YAML::Node& node, Entity e) {
 				auto& c = e.AddComponent<RectTransformComponent>();
-				if (node["Position"]) { c.Position.x = node["Position"][0].as<float>(); c.Position.y = node["Position"][1].as<float>(); }
-				if (node["Size"]) { c.Size.x = node["Size"][0].as<float>(); c.Size.y = node["Size"][1].as<float>(); }
-				if (node["AnchorMin"]) { c.AnchorMin.x = node["AnchorMin"][0].as<float>(); c.AnchorMin.y = node["AnchorMin"][1].as<float>(); }
-				if (node["AnchorMax"]) { c.AnchorMax.x = node["AnchorMax"][0].as<float>(); c.AnchorMax.y = node["AnchorMax"][1].as<float>(); }
-				if (node["Pivot"]) { c.Pivot.x = node["Pivot"][0].as<float>(); c.Pivot.y = node["Pivot"][1].as<float>(); }
-				if (node["Rotation"]) c.Rotation = node["Rotation"].as<float>();
-				if (node["Scale"]) { c.Scale.x = node["Scale"][0].as<float>(); c.Scale.y = node["Scale"][1].as<float>(); }
+				if (node["Position"]) { c.SetPosition({node["Position"][0].as<float>(), node["Position"][1].as<float>()}); }
+				if (node["Size"]) { c.SetSize({node["Size"][0].as<float>(), node["Size"][1].as<float>()}); }
+				if (node["AnchorMin"]) { c.SetAnchorMin({node["AnchorMin"][0].as<float>(), node["AnchorMin"][1].as<float>()}); }
+				if (node["AnchorMax"]) { c.SetAnchorMax({node["AnchorMax"][0].as<float>(), node["AnchorMax"][1].as<float>()}); }
+				if (node["Pivot"]) { c.SetPivot({node["Pivot"][0].as<float>(), node["Pivot"][1].as<float>()}); }
+				if (node["Rotation"]) c.SetRotation(node["Rotation"].as<float>());
+				if (node["Scale"]) { c.SetScale({node["Scale"][0].as<float>(), node["Scale"][1].as<float>()}); }
 				if (node["ZIndex"]) c.ZIndex = node["ZIndex"].as<int>();
 			},
 			true

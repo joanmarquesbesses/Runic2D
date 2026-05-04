@@ -31,8 +31,8 @@ namespace Survivor {
                 if (!PlayerEntity) return;
             }
 
-            glm::vec2 centerPos = { PlayerEntity.GetComponent<TransformComponent>().Translation.x,
-                                    PlayerEntity.GetComponent<TransformComponent>().Translation.y };
+            glm::vec2 centerPos = { PlayerEntity.GetComponent<TransformComponent>().GetTranslation().x,
+                                    PlayerEntity.GetComponent<TransformComponent>().GetTranslation().y };
 
             m_CurrentAngle += RotationSpeed * ts;
             if (m_CurrentAngle > 360.0f) m_CurrentAngle -= 360.0f;

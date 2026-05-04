@@ -40,39 +40,26 @@ namespace Runic2D {
 	};
 
 	struct RUNIC_API TransformComponent {
-		glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
-
-		mutable glm::mat4 Transform = glm::mat4(1.0f);
-		mutable bool IsDirty = true;
-
+	public:
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
+		TransformComponent(const glm::vec3& translation)
+			: Translation(translation), IsDirty(true) {
+		}
 		TransformComponent(const glm::mat4& transform)
 			: Transform(transform), IsDirty(true) {
 		}
-		TransformComponent(const glm::mat4&& transform)
-			: Transform(transform), IsDirty(true) {
-		}
 
-		void SetTranslation(const glm::vec3& translation) {
-			Translation = translation;
-			IsDirty = true;
-		}
+		const glm::vec3& GetTranslation() const { return Translation; }
+		const glm::vec3& GetRotation() const { return Rotation; }
+		const glm::vec3& GetScale() const { return Scale; }
 
-		void SetRotation(const glm::vec3& rotation) {
-			Rotation = rotation;
-			IsDirty = true;
-		}
+		void SetTranslation(const glm::vec3& translation) { Translation = translation; IsDirty = true; }
+		void SetRotation(const glm::vec3& rotation) { Rotation = rotation; IsDirty = true; }
+		void SetScale(const glm::vec3& scale) { Scale = scale; IsDirty = true; }
 
-		void SetScale(const glm::vec3& scale) {
-			Scale = scale;
-			IsDirty = true;
-		}
-
-		operator glm::mat4& () { return Transform; }
-		operator const glm::mat4& () const { return Transform; }
+		operator glm::mat4& () { return const_cast<glm::mat4&>(GetTransform()); }
+		operator const glm::mat4& () const { return GetTransform(); }
 
 		const glm::mat4& GetTransform() const {
 			if (IsDirty) {
@@ -81,10 +68,22 @@ namespace Runic2D {
 					* rot
 					* glm::scale(glm::mat4(1.0f), Scale);
 
-				IsDirty = false;
+				// IsDirty cleared by Scene
 			}
 			return Transform;
 		}
+
+	private:
+		glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
+
+		mutable glm::mat4 Transform = glm::mat4(1.0f);
+		mutable glm::mat4 WorldTransform = glm::mat4(1.0f);
+		mutable bool IsDirty = true;
+
+		friend class Scene;
+		friend class SceneSerializer;
 	};
 
 	struct RUNIC_API SpriteRendererComponent {
@@ -248,7 +247,6 @@ namespace Runic2D {
 			if (m_IsDirty && FontAsset)
 			{
 				m_CachedWidth = FontAsset->GetStringWidth(m_TextString, Kerning);
-				m_IsDirty = false;
 			}
 			return m_CachedWidth;
 		}
@@ -301,30 +299,33 @@ namespace Runic2D {
 
 	struct RUNIC_API RectTransformComponent
 	{
-		glm::vec2 Position = { 0.0f, 0.0f };
-		glm::vec2 Size = { 100.0f, 100.0f };
-
-		glm::vec2 AnchorMin = { 0.5f, 0.5f };
-		glm::vec2 AnchorMax = { 0.5f, 0.5f };
-		glm::vec2 Pivot = { 0.5f, 0.5f };
-
-		float Rotation = 0.0f;
-		glm::vec2 Scale = { 1.0f, 1.0f };
-
-		int ZIndex = 0;
-
+	public:
 		RectTransformComponent() = default;
 		RectTransformComponent(const RectTransformComponent&) = default;
 
-		// Setters to maintain dirty state
+		// Getters
+		const glm::vec2& GetPosition() const { return Position; }
+		const glm::vec2& GetSize() const { return Size; }
+		const glm::vec2& GetScale() const { return Scale; }
+		float GetRotation() const { return Rotation; }
+		
+		const glm::vec2& GetAnchorMin() const { return AnchorMin; }
+		const glm::vec2& GetAnchorMax() const { return AnchorMax; }
+		const glm::vec2& GetPivot() const { return Pivot; }
+
+		// Setters
 		void SetPosition(const glm::vec2& pos) { Position = pos; m_IsDirty = true; }
 		void SetSize(const glm::vec2& size) { Size = size; m_IsDirty = true; }
 		void SetScale(const glm::vec2& scale) { Scale = scale; m_IsDirty = true; }
 		void SetRotation(float rotation) { Rotation = rotation; m_IsDirty = true; }
+		
+		void SetAnchorMin(const glm::vec2& anchor) { AnchorMin = anchor; m_IsDirty = true; }
+		void SetAnchorMax(const glm::vec2& anchor) { AnchorMax = anchor; m_IsDirty = true; }
+		void SetPivot(const glm::vec2& pivot) { Pivot = pivot; m_IsDirty = true; }
 
 		void CalculateTransforms(const glm::mat4& parentWorldTransform, const glm::vec2& parentSize, const glm::vec2& parentPivot,
 			glm::mat4& outWorldTransform, glm::mat4& outMeshTransform) const
-		{			
+		{
 			glm::vec2 anchorPos = -parentSize * parentPivot + parentSize * AnchorMin;
 			glm::vec2 localPos = anchorPos + Position;
 
@@ -338,12 +339,25 @@ namespace Runic2D {
 			glm::mat4 meshScale = glm::scale(glm::mat4(1.0f), glm::vec3(Size.x, Size.y, 1.0f));
 
 			outMeshTransform = outWorldTransform * meshPivot * meshScale;
-			m_IsDirty = false;
 		}
 
 		mutable glm::mat4 ComputedMeshTransform = glm::mat4(1.0f);
+		int ZIndex = 0;
+
 	private:
+		glm::vec2 Position = { 0.0f, 0.0f };
+		glm::vec2 Size = { 100.0f, 100.0f };
+		glm::vec2 AnchorMin = { 0.5f, 0.5f };
+		glm::vec2 AnchorMax = { 0.5f, 0.5f };
+		glm::vec2 Pivot = { 0.5f, 0.5f };
+		float Rotation = 0.0f;
+		glm::vec2 Scale = { 1.0f, 1.0f };
+
+		mutable glm::mat4 WorldTransform = glm::mat4(1.0f);
 		mutable bool m_IsDirty = true;
+
+		friend class Scene;
+		friend class SceneSerializer;
 	};
 
 	struct RUNIC_API ButtonComponent

@@ -99,9 +99,9 @@ namespace Survivor {
 
         // 1. Transform
         auto& tc = entity.GetComponent<Runic2D::TransformComponent>();
-        tc.Translation = { position.x, position.y, 0.0f };
-        tc.Scale = { 1.0f, 1.0f, 1.0f };
-        tc.Rotation.z = atan2(direction.y, direction.x);
+        tc.SetTranslation({ position.x, position.y, 0.0f });
+        tc.SetScale({ 1.0f, 1.0f, 1.0f });
+        tc.SetRotation({ 0.0f, 0.0f, atan2(direction.y, direction.x) });
 
         // 2. Sprite
         auto& src = entity.AddComponent<Runic2D::SpriteRendererComponent>();
@@ -172,7 +172,7 @@ namespace Survivor {
         Entity entity = CreateBaseEnemy(pos, "Bat");
 
         auto& tc = entity.GetComponent<TransformComponent>();
-        tc.Scale = { 1.75f, 1.75f, 1.0f };
+        tc.SetScale({ 1.75f, 1.75f, 1.0f });
 
         auto& stats = entity.AddComponent<EnemyStatsComponent>();
         stats.Health = 10.0f * difficultyMult;
@@ -209,7 +209,7 @@ namespace Survivor {
         Entity entity = CreateBaseEnemy(pos, "Slime");
 
         auto& tc = entity.GetComponent<TransformComponent>();
-        tc.Scale = { 0.5f, 0.5f, 1.0f };
+        tc.SetScale({ 0.5f, 0.5f, 1.0f });
 
         auto& stats = entity.AddComponent<EnemyStatsComponent>();
         stats.Health = 10.0f * difficultyMult;
@@ -246,8 +246,8 @@ namespace Survivor {
         Entity entity = s_Scene->CreateEntity("ExperienceGem");
 
         auto& tc = entity.GetComponent<TransformComponent>();
-        tc.Translation = { pos.x, pos.y, -1.0f };
-        tc.Scale = { 0.35f, 0.35f, 1.0f };
+        tc.SetTranslation({pos.x, pos.y, -1.0f});
+        tc.SetScale({ 0.35f, 0.35f, 1.0f });
 
         // 2. Sprite (Lògica visual segons valor)
         auto& src = entity.AddComponent<SpriteRendererComponent>();
@@ -296,8 +296,8 @@ namespace Survivor {
 
         float randomY = Runic2D::Random::Range(0.0f, 0.5f);
         auto& tc = entity.GetComponent<TransformComponent>();
-        tc.Translation = { pos.x - centerOffset, pos.y + randomY, 0.1f };
-        tc.Scale = { scale, scale, 1.0f };
+        tc.SetTranslation({ pos.x - centerOffset, pos.y + randomY, 0.1f });
+        tc.SetScale({ scale, scale, 1.0f });
 
         auto& textComp = entity.AddComponent<TextComponent>();
         textComp.SetText(text);
@@ -318,7 +318,7 @@ namespace Survivor {
         auto entity = s_Scene->CreateEntity(name);
 
         auto& tc = entity.GetComponent<TransformComponent>();
-        tc.Translation = { pos.x, pos.y, 0.0f };
+        tc.SetTranslation({pos.x, pos.y, 0.0f});
 
         auto& rb = entity.AddComponent<Rigidbody2DComponent>();
         rb.Type = Rigidbody2DComponent::BodyType::Dynamic;

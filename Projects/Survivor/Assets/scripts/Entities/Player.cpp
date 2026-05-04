@@ -103,9 +103,9 @@ namespace Survivor {
 
             if (InputManager::IsActionPressed("MoveLeft", 0))
             {
-                if (tranform->Scale.x > 0)
+                if (tranform->GetScale().x > 0)
                 {
-                    tranform->Scale.x = -fabs(tranform->Scale.x);
+                    tranform->SetScale({ -fabs(tranform->GetScale().x), tranform->GetScale().y, tranform->GetScale().z });
                     bc.Offset.x = fabs(bc.Offset.x);
                     cc.Offset.x = fabs(cc.Offset.x);
                     changed = true;
@@ -113,9 +113,9 @@ namespace Survivor {
             }
             else if (InputManager::IsActionPressed("MoveRight", 0))
             {
-                if (tranform->Scale.x < 0)
+                if (tranform->GetScale().x < 0)
                 {
-                    tranform->Scale.x = fabs(tranform->Scale.x);
+                    tranform->SetScale({ fabs(tranform->GetScale().x), tranform->GetScale().y, tranform->GetScale().z });
                     bc.Offset.x = -fabs(bc.Offset.x);
                     cc.Offset.x = -fabs(cc.Offset.x);
                     changed = true;
@@ -169,18 +169,18 @@ namespace Survivor {
         case State::Attack:
         {
             glm::vec2 mousePos = Runic2D::Utils::SceneUtils::GetMouseWorldPosition(GetScene());
-            glm::vec2 playerPos = { tranform->Translation.x, tranform->Translation.y };
+            glm::vec2 playerPos = { tranform->GetTranslation().x, tranform->GetTranslation().y };
 
             if (mousePos.x < playerPos.x) {
-                if (tranform->Scale.x > 0) tranform->Scale.x = -fabs(tranform->Scale.x);
+                if (tranform->GetScale().x > 0) tranform->SetScale({ -fabs(tranform->GetScale().x), tranform->GetScale().y, tranform->GetScale().z });
             }
             else {
-                if (tranform->Scale.x < 0) tranform->Scale.x = fabs(tranform->Scale.x);
+                if (tranform->GetScale().x < 0) tranform->SetScale({ fabs(tranform->GetScale().x), tranform->GetScale().y, tranform->GetScale().z });
             }
 
             if (anim->CurrentFrameIndex >= 5 && !m_HasFired)
             {
-                float facingDirection = (tranform->Scale.x > 0.0f) ? 1.0f : -1.0f;
+                float facingDirection = (tranform->GetScale().x > 0.0f) ? 1.0f : -1.0f;
                 float handOffsetX = 1.3f;
                 float handOffsetY = 0.5f;
 
@@ -305,7 +305,7 @@ namespace Survivor {
         auto transform = &GetComponent<TransformComponent>();
 
         glm::vec2 mousePos = Runic2D::Utils::SceneUtils::GetMouseWorldPosition(GetScene());
-        glm::vec2 playerPos = { transform->Translation.x, transform->Translation.y };
+        glm::vec2 playerPos = { transform->GetTranslation().x, transform->GetTranslation().y };
 
         auto& bc = GetComponent<BoxCollider2DComponent>();
         auto& cc = GetComponent<CircleCollider2DComponent>();
@@ -314,9 +314,9 @@ namespace Survivor {
 
         if (mousePos.x < playerPos.x)
         {
-            if (transform->Scale.x > 0)
+            if (transform->GetScale().x > 0)
             {
-                transform->Scale.x = -fabs(transform->Scale.x);
+                transform->SetScale({ -fabs(transform->GetScale().x), transform->GetScale().y, transform->GetScale().z });
                 bc.Offset.x = fabs(bc.Offset.x);
                 cc.Offset.x = fabs(cc.Offset.x);
                 changed = true;
@@ -324,9 +324,9 @@ namespace Survivor {
         }
         else
         {
-            if (transform->Scale.x < 0)
+            if (transform->GetScale().x < 0)
             {
-                transform->Scale.x = fabs(transform->Scale.x);
+                transform->SetScale({ fabs(transform->GetScale().x), transform->GetScale().y, transform->GetScale().z });
                 bc.Offset.x = -fabs(bc.Offset.x);
                 cc.Offset.x = -fabs(cc.Offset.x);
                 changed = true;

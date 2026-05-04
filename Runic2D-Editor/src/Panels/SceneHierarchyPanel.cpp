@@ -312,20 +312,28 @@ namespace Runic2D
 				}
 			}, false);
 
-		DrawNativeComponent<TransformComponent>("Transform", entity, [](auto& component)
+		DrawNativeComponent<TransformComponent>("Transform", entity, [this, entity](auto& component)
 			{
-				if (DrawVec3Control("Translation", component.Translation))
-					component.IsDirty = true;
-
-				glm::vec3 rotation = glm::degrees(component.Rotation);
-				if (DrawVec3Control("Rotation", rotation))
+				glm::vec3 translation = component.GetTranslation();
+				if (DrawVec3Control("Translation", translation))
 				{
-					component.Rotation = glm::radians(rotation);
-					component.IsDirty = true;
+					component.SetTranslation(translation);
+					m_Context->InvalidateTransform(entity);
 				}
 
-				if (DrawVec3Control("Scale", component.Scale, 1.0f))
-					component.IsDirty = true;
+				glm::vec3 rotation = glm::degrees(component.GetRotation());
+				if (DrawVec3Control("Rotation", rotation))
+				{
+					component.SetRotation(glm::radians(rotation));
+					m_Context->InvalidateTransform(entity);
+				}
+
+				glm::vec3 scale = component.GetScale();
+				if (DrawVec3Control("Scale", scale, 1.0f))
+				{
+					component.SetScale(scale);
+					m_Context->InvalidateTransform(entity);
+				}
 			}, false);
 
 
@@ -487,7 +495,7 @@ namespace Runic2D
 					}
 				}
 			}
-ImGui::EndPopup();
+			ImGui::EndPopup();
 		}
 
 	}

@@ -9,12 +9,12 @@ void CameraController::OnUpdate(Timestep ts)
         if (!m_Player) return;
     }
 
-    auto& playerTrans = m_Player.GetComponent<TransformComponent>().Translation;
+    auto playerTrans = m_Player.GetComponent<TransformComponent>().GetTranslation();
     auto& cameraTransComp = GetComponent<TransformComponent>();
 
     float t = m_SmoothSpeed * ts;
 
-    cameraTransComp.Translation.x += (playerTrans.x - cameraTransComp.Translation.x) * t;
-    cameraTransComp.Translation.y += (playerTrans.y - cameraTransComp.Translation.y) * t;
-	cameraTransComp.IsDirty = true;
+    cameraTransComp.SetTranslation({ cameraTransComp.GetTranslation().x + (playerTrans.x - cameraTransComp.GetTranslation().x) * t,
+                                     cameraTransComp.GetTranslation().y + (playerTrans.y - cameraTransComp.GetTranslation().y) * t,
+                                     cameraTransComp.GetTranslation().z });
 }

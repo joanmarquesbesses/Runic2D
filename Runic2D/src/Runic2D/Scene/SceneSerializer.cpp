@@ -154,9 +154,9 @@ namespace Runic2D {
 
 			out << YAML::Key << "TransformComponent";
 			out << YAML::BeginMap;
-			out << YAML::Key << "Translation" << YAML::Value << transform.Translation;
-			out << YAML::Key << "Rotation" << YAML::Value << transform.Rotation;
-			out << YAML::Key << "Scale" << YAML::Value << transform.Scale;
+			out << YAML::Key << "Translation" << YAML::Value << transform.GetTranslation();
+			out << YAML::Key << "Rotation" << YAML::Value << transform.GetRotation();
+			out << YAML::Key << "Scale" << YAML::Value << transform.GetScale();
 			out << YAML::EndMap;
 		}
 

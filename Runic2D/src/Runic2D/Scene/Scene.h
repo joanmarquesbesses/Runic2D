@@ -50,6 +50,7 @@ namespace Runic2D {
 		void OnRenderRuntime();
 		void OnRenderUI();
 		void OnRenderDebugOverlay();
+		void InvalidateTransform(Entity entity);
 
 		void OnViewportResize(uint32_t width, uint32_t height);
 

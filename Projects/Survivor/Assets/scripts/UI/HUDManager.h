@@ -17,30 +17,30 @@ namespace Survivor {
             // --- Timer (centre superior) ---
             m_TimerText = CreateUIText("HUD_Timer", "0:00");
             m_TimerText.GetComponent<TextComponent>().Color = { 0.27f, 0.27f, 0.27f, 1.0f };
-            m_TimerText.GetComponent<RectTransformComponent>().AnchorMin = { 0.5f, 1.0f };
-            m_TimerText.GetComponent<RectTransformComponent>().Pivot = { 0.5f, 1.0f };
+            m_TimerText.GetComponent<RectTransformComponent>().SetAnchorMin({ 0.5f, 1.0f });
+            m_TimerText.GetComponent<RectTransformComponent>().SetPivot({ 0.5f, 1.0f });
 
             // --- Health (esquerra inferior) ---
             m_HealthText = CreateUIText("HUD_Health", "HP: 100");
             m_HealthText.GetComponent<TextComponent>().Color = { 0.2f, 1.0f, 0.2f, 1.0f };
             m_HealthText.GetComponent<TextComponent>().TextAlignment = TextComponent::Alignment::Left;
-            m_HealthText.GetComponent<RectTransformComponent>().AnchorMin = { 0.0f, 0.0f };
-            m_HealthText.GetComponent<RectTransformComponent>().Pivot = { 0.0f, 0.0f };
+            m_HealthText.GetComponent<RectTransformComponent>().SetAnchorMin({ 0.0f, 0.0f });
+            m_HealthText.GetComponent<RectTransformComponent>().SetPivot({ 0.0f, 0.0f });
             m_HealthText.GetComponent<RectTransformComponent>().SetPosition({ 0.0f, 75.0f });
 
             // --- XP / Nivell (dreta inferior) ---
             m_XPText = CreateUIText("HUD_XP", "Lv.1");
             m_XPText.GetComponent<TextComponent>().Color = { 0.4f, 0.8f, 1.0f, 1.0f };
             m_XPText.GetComponent<TextComponent>().TextAlignment = TextComponent::Alignment::Left;
-            m_XPText.GetComponent<RectTransformComponent>().AnchorMin = { 0.0f, 0.0f };
-            m_XPText.GetComponent<RectTransformComponent>().Pivot = { 0.0f, 0.0f };
+            m_XPText.GetComponent<RectTransformComponent>().SetAnchorMin({ 0.0f, 0.0f });
+            m_XPText.GetComponent<RectTransformComponent>().SetPivot({ 0.0f, 0.0f });
 
             // --- FPS (cantonada superior dreta, debug) ---
             m_FPSText = CreateUIText("HUD_FPS", "FPS: 000");
             m_FPSText.GetComponent<TextComponent>().Color = { 0.5f, 0.5f, 0.5f, 1.0f };
 			m_FPSText.GetComponent<TextComponent>().TextAlignment = TextComponent::Alignment::Left;
-			m_FPSText.GetComponent<RectTransformComponent>().AnchorMin = { 0.0f, 1.0f };
-			m_FPSText.GetComponent<RectTransformComponent>().Pivot = { 0.0f, 1.0f };
+			m_FPSText.GetComponent<RectTransformComponent>().SetAnchorMin({ 0.0f, 1.0f });
+			m_FPSText.GetComponent<RectTransformComponent>().SetPivot({ 0.0f, 1.0f });
         }
 
         void OnDestroy() override {
@@ -170,15 +170,14 @@ namespace Survivor {
                 Entity card = GetScene()->CreateEntity("UpgradeCard");
 
                 auto& rect = card.AddComponent<RectTransformComponent>();
-                rect.AnchorMin = { 0.5f, 0.5f };
-                rect.AnchorMax = { 0.5f, 0.5f };
-                rect.Pivot = { 0.5f, 0.5f };
-                rect.Size = { cardWidth, cardHeight };
+                rect.SetAnchorMin({ 0.5f, 0.5f });
+                rect.SetAnchorMax({ 0.5f, 0.5f });
+                rect.SetPivot({ 0.5f, 0.5f });
+                rect.SetSize({ cardWidth, cardHeight });
 
                 float xOffset = (float)i * (cardWidth + spacing) - ((float)(count - 1) * (cardWidth + spacing) * 0.5f);
-                rect.Position = { xOffset, 0.0f };
-                rect.ZIndex = 10;
-
+                rect.SetPosition({ xOffset, 0.0f });
+				rect.ZIndex = 10;
                 auto& sprite = card.AddComponent<SpriteRendererComponent>();
                 sprite.Texture = cards[i].CardTexture;
 
@@ -188,11 +187,11 @@ namespace Survivor {
                 GetScene()->ParentEntity(titleEnt, card);
 
                 auto& titleRect = titleEnt.AddComponent<RectTransformComponent>();
-                titleRect.AnchorMin = { 0.5f, 1.0f };
-                titleRect.AnchorMax = { 0.5f, 1.0f };
-                titleRect.Pivot = { 0.5f, 1.0f };
-                titleRect.Position = { 0.0f, -20.0f };
-                titleRect.Size = { cardWidth * 0.9f, 40.0f };
+                titleRect.SetAnchorMin({ 0.5f, 1.0f });
+                titleRect.SetAnchorMax({ 0.5f, 1.0f });
+                titleRect.SetPivot({ 0.5f, 1.0f });
+                titleRect.SetPosition({ 0.0f, -20.0f });
+                titleRect.SetSize({ cardWidth * 0.9f, 40.0f });
                 titleRect.ZIndex = 9;
 
                 auto& titleTxt = titleEnt.AddComponent<TextComponent>();
@@ -205,11 +204,11 @@ namespace Survivor {
                 GetScene()->ParentEntity(descEnt, card);
 
                 auto& descRect = descEnt.AddComponent<RectTransformComponent>();
-                descRect.AnchorMin = { 0.5f, 0.0f };
-                descRect.AnchorMax = { 0.5f, 0.0f };
-                descRect.Pivot = { 0.5f, 0.0f };
-                descRect.Position = { 0.0f, 20.0f };
-                descRect.Size = { cardWidth * 0.9f, 30.0f };
+                descRect.SetAnchorMin({ 0.5f, 0.0f });
+                descRect.SetAnchorMax({ 0.5f, 0.0f });
+                descRect.SetPivot({ 0.5f, 0.0f });
+                descRect.SetPosition({ 0.0f, 20.0f });
+                descRect.SetSize({ cardWidth * 0.9f, 30.0f });
                 descRect.ZIndex = 9;
 
                 auto& descTxt = descEnt.AddComponent<TextComponent>();

@@ -43,7 +43,7 @@ namespace Survivor {
                 auto& transform = GetComponent<TransformComponent>();
 
                 ParticleProps props;
-                props.Position = transform.Translation;
+                props.Position = transform.GetTranslation();
                 //props.Position.z -= 0.1f;
 
                 props.Velocity = { 0.0f, 0.0f };
@@ -83,7 +83,7 @@ namespace Survivor {
                 if (nsc.Instance) {
                     Enemy* enemy = (Enemy*)nsc.Instance;
 
-                    glm::vec2 myPos = GetComponent<TransformComponent>().Translation;
+                    glm::vec2 myPos = GetComponent<TransformComponent>().GetTranslation();
 
                     float damage = 10.0f;
                     if (HasComponent<ProjectileComponent>())

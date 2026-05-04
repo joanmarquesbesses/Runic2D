@@ -19,8 +19,8 @@ namespace Survivor {
 			m_GameManagerEntity = GetScene()->GetEntityWithComponent<GameStatsComponent>();
 
             if (m_PlayerEntity) {
-                glm::vec2 myPos = GetComponent<TransformComponent>().Translation;
-                glm::vec2 playerPos = m_PlayerEntity.GetComponent<TransformComponent>().Translation;
+                glm::vec2 myPos = GetComponent<TransformComponent>().GetTranslation();
+                glm::vec2 playerPos = m_PlayerEntity.GetComponent<TransformComponent>().GetTranslation();
 
                 float pickupRadius = 1.0f;
 
@@ -28,7 +28,7 @@ namespace Survivor {
                     auto& cc = m_PlayerEntity.GetComponent<CircleCollider2DComponent>();
                     auto& tc = m_PlayerEntity.GetComponent<TransformComponent>();
 
-                    float maxScale = std::max(std::abs(tc.Scale.x), std::abs(tc.Scale.y));
+                    float maxScale = std::max(std::abs(tc.GetScale().x), std::abs(tc.GetScale().y));
                     pickupRadius = cc.Radius * maxScale;
 
                     playerPos += cc.Offset;
@@ -53,7 +53,7 @@ namespace Survivor {
                 auto& myTrans = GetComponent<TransformComponent>();
                 auto& playerTrans = m_PlayerEntity.GetComponent<TransformComponent>();
 
-                glm::vec2 diff = playerTrans.Translation - myTrans.Translation;
+                glm::vec2 diff = playerTrans.GetTranslation() - myTrans.GetTranslation();
                 float distSq = glm::dot(diff, diff);
 
                 if (distSq < 0.25f) {
@@ -70,7 +70,7 @@ namespace Survivor {
                     b2Body_SetLinearVelocity(rb.RuntimeBody, { dir.x * m_CurrentSpeed, dir.y * m_CurrentSpeed });
                 }
                 else {
-                    myTrans.Translation += glm::vec3(dir * m_CurrentSpeed * (float)ts, 0.0f);
+                    myTrans.SetTranslation(myTrans.GetTranslation() + glm::vec3(dir * m_CurrentSpeed * (float)ts, 0.0f));
                 }
             }
         }

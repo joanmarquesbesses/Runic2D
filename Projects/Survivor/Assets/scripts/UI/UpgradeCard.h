@@ -13,7 +13,7 @@ namespace Survivor {
 
         void OnCreate() override {
             if (HasComponent<RectTransformComponent>()) {
-                m_BaseScale = GetComponent<RectTransformComponent>().Scale;
+                m_BaseScale = GetComponent<RectTransformComponent>().GetScale();
             }
 
             if (HasComponent<ButtonComponent>()) {
