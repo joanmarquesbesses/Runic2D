@@ -229,6 +229,27 @@ namespace Runic2D {
 
 	void Scene::OnUpdateRunTime(Timestep ts)
 	{
+		// Physics Interpolation
+		if (!m_IsPaused && B2_IS_NON_NULL(m_PhysicsWorld))
+		{
+			float alpha = Application::Get().GetFixedUpdateAlpha();
+			m_Registry.view<TransformComponent, Rigidbody2DComponent>().each([&](auto entity, auto& transform, auto& rb)
+			{
+				if (B2_IS_NON_NULL(rb.RuntimeBody))
+				{
+					b2Vec2 currentPos = b2Body_GetPosition(rb.RuntimeBody);
+					float currentRot = b2Rot_GetAngle(b2Body_GetRotation(rb.RuntimeBody));
+
+					transform.Translation.x = glm::mix(rb.PreviousTranslation.x, currentPos.x, alpha);
+					transform.Translation.y = glm::mix(rb.PreviousTranslation.y, currentPos.y, alpha);
+				
+					transform.Rotation.z = glm::mix(rb.PreviousRotation, currentRot, alpha);
+					
+					transform.IsDirty = true;
+				}
+			});
+		}
+
 		UpdateScripts(ts);
 		UpdateTweens(ts);
 
@@ -254,33 +275,33 @@ namespace Runic2D {
 	void Scene::UpdateScripts(Timestep ts)
 	{
 		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-			{
-				//Script instantiation for created entities in runtime
-				if (!nsc.Instance) {
-					nsc.Instance = nsc.InstantiateScript();
-					nsc.Instance->m_Entity = Entity{ entity, this };
-					nsc.Instance->OnCreate();
-				}
+		{
+			//Script instantiation for created entities in runtime
+			if (!nsc.Instance) {
+				nsc.Instance = nsc.InstantiateScript();
+				nsc.Instance->m_Entity = Entity{ entity, this };
+				nsc.Instance->OnCreate();
+			}
 
-				//Update Script
-				if (nsc.Instance)
-				{
-					if (!m_IsPaused || nsc.Instance->UpdateWhenPaused())
-						nsc.Instance->OnUpdate(ts);
-				}
-			});
+			//Update Script
+			if (nsc.Instance)
+			{
+				if (!m_IsPaused || nsc.Instance->UpdateWhenPaused())
+					nsc.Instance->OnUpdate(ts);
+			}
+		});
 	}
 
 	void Scene::UpdateScriptsFixed(Timestep ts)
 	{
 		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+		{
+			if (nsc.Instance)
 			{
-				if (nsc.Instance)
-				{
-					if (!m_IsPaused || nsc.Instance->UpdateWhenPaused())
-						nsc.Instance->OnFixedUpdate(ts);
-				}
-			});
+				if (!m_IsPaused || nsc.Instance->UpdateWhenPaused())
+					nsc.Instance->OnFixedUpdate(ts);
+			}
+		});
 	}
 
 	void Scene::UpdatePhysics(Timestep ts)
@@ -288,30 +309,30 @@ namespace Runic2D {
 		//Physics Step
 		if (B2_IS_NON_NULL(m_PhysicsWorld))
 		{
+			// Store previous state for interpolation before stepping the world
+			auto rbView = m_Registry.view<Rigidbody2DComponent>();
+			for (auto e : rbView)
+			{
+				auto& rb2d = rbView.get<Rigidbody2DComponent>(e);
+				if (B2_IS_NON_NULL(rb2d.RuntimeBody))
+				{
+					b2Vec2 pos = b2Body_GetPosition(rb2d.RuntimeBody);
+					rb2d.PreviousTranslation = { pos.x, pos.y };
+					rb2d.PreviousRotation = b2Rot_GetAngle(b2Body_GetRotation(rb2d.RuntimeBody));
+				}
+			}
+
 			b2World_Step(m_PhysicsWorld, ts, 4);
 
-			auto view = m_Registry.view<Rigidbody2DComponent>();
-			for (auto e : view)
+			for (auto e : rbView)
 			{
-				Entity entity = { e, this };
-				auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
+				auto& rb2d = rbView.get<Rigidbody2DComponent>(e);
 
 				if (B2_IS_NULL(rb2d.RuntimeBody))
 					continue;
 
 				b2BodyId bodyId = rb2d.RuntimeBody;
 				b2Body_SetAwake(bodyId, true);
-				if (!b2Body_IsAwake(bodyId))
-					continue;
-
-				b2Vec2 position = b2Body_GetPosition(bodyId);
-				b2Rot rotation = b2Body_GetRotation(bodyId);
-
-				auto& transform = entity.GetComponent<TransformComponent>();
-				transform.Translation.x = position.x;
-				transform.Translation.y = position.y;
-				transform.Rotation.z = b2Rot_GetAngle(rotation);
-				transform.IsDirty = true;
 			}
 
 			b2ContactEvents events = b2World_GetContactEvents(m_PhysicsWorld);
@@ -563,20 +584,20 @@ namespace Runic2D {
 		auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<RectTransformComponent>);
 
 		view.each([&](auto entityID, auto& transform, auto& sprite)
-			{
-				Entity e{ entityID, this };
-				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
-			});
+		{
+			Entity e{ entityID, this };
+			glm::mat4 worldTransform = GetWorldTransform(transform, e);
+			Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
+		});
 
 		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>(entt::exclude<RectTransformComponent>);
 
 		circleView.each([&](auto entityID, auto& transform, auto& circle)
-			{
-				Entity e{ entityID, this };
-				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
-			});
+		{
+			Entity e{ entityID, this };
+			glm::mat4 worldTransform = GetWorldTransform(transform, e);
+			Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
+		});
 
 		UpdateAnimation(ts);
 
@@ -585,13 +606,13 @@ namespace Runic2D {
 		glm::mat4 cameraTransform;
 
 		m_Registry.view<TransformComponent, CameraComponent>().each([&](auto entity, auto& tc, auto& cc)
+		{
+			if (cc.Primary)
 			{
-				if (cc.Primary)
-				{
-					mainCamera = &cc.Camera;
-					cameraTransform = tc.GetTransform();
-				}
-			});
+				mainCamera = &cc.Camera;
+				cameraTransform = tc.GetTransform();
+			}
+		});
 
 		if (mainCamera)
 		{
@@ -607,11 +628,11 @@ namespace Runic2D {
 		}
 
 		m_Registry.view<TransformComponent, TextComponent>(entt::exclude<RectTransformComponent>).each([&](auto entityID, auto& transform, auto& text)
-			{
-				Entity e{ entityID, this };
-				glm::mat4 worldTransform = GetWorldTransform(transform, e);
-				Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID, (int)text.TextAlignment);
-			});
+		{
+			Entity e{ entityID, this };
+			glm::mat4 worldTransform = GetWorldTransform(transform, e);
+			Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID, (int)text.TextAlignment);
+		});
 
 		Renderer2D::EndScene();
 
@@ -627,53 +648,53 @@ namespace Runic2D {
 		auto view = m_Registry.view<ButtonComponent, RectTransformComponent>();
 
 		view.each([&](entt::entity e, ButtonComponent& btn, RectTransformComponent& rect)
+		{
+			glm::mat4 inverseMesh = glm::inverse(rect.ComputedMeshTransform);
+			glm::vec4 localMouse = inverseMesh * glm::vec4(mouseUI.x, mouseUI.y, 0.0f, 1.0f);
+
+			bool hovered = (localMouse.x >= -0.5f && localMouse.x <= 0.5f &&
+				localMouse.y >= -0.5f && localMouse.y <= 0.5f);
+
+			ButtonComponent::State prevState = btn.CurrentState;
+
+			if (!hovered)
 			{
-				glm::mat4 inverseMesh = glm::inverse(rect.ComputedMeshTransform);
-				glm::vec4 localMouse = inverseMesh * glm::vec4(mouseUI.x, mouseUI.y, 0.0f, 1.0f);
+				if (prevState != ButtonComponent::State::Normal && btn.OnUnhover)
+					btn.OnUnhover();
 
-				bool hovered = (localMouse.x >= -0.5f && localMouse.x <= 0.5f &&
-					localMouse.y >= -0.5f && localMouse.y <= 0.5f);
+				btn.CurrentState = ButtonComponent::State::Normal;
+			}
+			else if (mouseDown)
+			{
+				if (prevState == ButtonComponent::State::Normal && btn.OnHover)
+					btn.OnHover();
 
-				ButtonComponent::State prevState = btn.CurrentState;
+				btn.CurrentState = ButtonComponent::State::Pressed;
+			}
+			else
+			{
+				if (prevState == ButtonComponent::State::Normal && btn.OnHover)
+					btn.OnHover();
 
-				if (!hovered)
+				if (prevState == ButtonComponent::State::Pressed && btn.OnClick)
+					btn.OnClick();
+
+				btn.CurrentState = ButtonComponent::State::Hovered;
+			}
+
+			if (btn.CurrentState != prevState)
+			{
+				glm::vec4 targetColor = btn.NormalColor;
+				if (btn.CurrentState == ButtonComponent::State::Hovered) targetColor = btn.HoveredColor;
+				if (btn.CurrentState == ButtonComponent::State::Pressed) targetColor = btn.PressedColor;
+
+				if (m_Registry.all_of<SpriteRendererComponent>(e))
 				{
-					if (prevState != ButtonComponent::State::Normal && btn.OnUnhover)
-						btn.OnUnhover();
-
-					btn.CurrentState = ButtonComponent::State::Normal;
+					Tween::ClearTarget({ e, this }, TweenTarget::Color);
+					Tween::To({ e, this }, TweenTarget::Color, targetColor, 0.15f, EaseType::EaseOutQuad);
 				}
-				else if (mouseDown)
-				{
-					if (prevState == ButtonComponent::State::Normal && btn.OnHover)
-						btn.OnHover();
-
-					btn.CurrentState = ButtonComponent::State::Pressed;
-				}
-				else
-				{
-					if (prevState == ButtonComponent::State::Normal && btn.OnHover)
-						btn.OnHover();
-
-					if (prevState == ButtonComponent::State::Pressed && btn.OnClick)
-						btn.OnClick();
-
-					btn.CurrentState = ButtonComponent::State::Hovered;
-				}
-
-				if (btn.CurrentState != prevState)
-				{
-					glm::vec4 targetColor = btn.NormalColor;
-					if (btn.CurrentState == ButtonComponent::State::Hovered) targetColor = btn.HoveredColor;
-					if (btn.CurrentState == ButtonComponent::State::Pressed) targetColor = btn.PressedColor;
-
-					if (m_Registry.all_of<SpriteRendererComponent>(e))
-					{
-						Tween::ClearTarget({ e, this }, TweenTarget::Color);
-						Tween::To({ e, this }, TweenTarget::Color, targetColor, 0.15f, EaseType::EaseOutQuad);
-					}
-				}
-			});
+			}
+		});
 	}
 
 	glm::vec2 Scene::GetMousePositionInUISpace()
@@ -717,63 +738,63 @@ namespace Runic2D {
 		}
 
 		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-			{
-				//Script instantiation
-				if (!nsc.Instance) {
-					nsc.Instance = nsc.InstantiateScript();
-					nsc.Instance->m_Entity = Entity{ entity, this };
-					nsc.Instance->OnCreate();
-				}
-			});
+		{
+			//Script instantiation
+			if (!nsc.Instance) {
+				nsc.Instance = nsc.InstantiateScript();
+				nsc.Instance->m_Entity = Entity{ entity, this };
+				nsc.Instance->OnCreate();
+			}
+		});
 
 		m_Registry.view<AnimationComponent>().each([=](auto entity, auto& anim)
+		{
+			anim.Animations.clear();
+
+			for (auto& profile : anim.Profiles)
 			{
-				anim.Animations.clear();
-
-				for (auto& profile : anim.Profiles)
+				if (profile.AtlasTexture)
 				{
-					if (profile.AtlasTexture)
-					{
-						int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
-						int col = profile.StartFrame % numCols;
-						int row = profile.StartFrame / numCols;
+					int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
+					int col = profile.StartFrame % numCols;
+					int row = profile.StartFrame / numCols;
 
-						float startX = col * profile.TileSize.x;
-						float startY = row * profile.TileSize.y;
+					float startX = col * profile.TileSize.x;
+					float startY = row * profile.TileSize.y;
 
-						Ref<Animation2D> animAsset = Animation2D::CreateFromAtlas(
-							profile.AtlasTexture,
-							profile.TileSize,
-							{ startX, startY },
-							profile.FrameCount,
-							profile.FramesPerRow,
-							profile.FrameTime
-						);
+					Ref<Animation2D> animAsset = Animation2D::CreateFromAtlas(
+						profile.AtlasTexture,
+						profile.TileSize,
+						{ startX, startY },
+						profile.FrameCount,
+						profile.FramesPerRow,
+						profile.FrameTime
+					);
 
-						anim.Animations[profile.Name] = animAsset;
-					}
+					anim.Animations[profile.Name] = animAsset;
+				}
+			}
+
+			if (!anim.Animations.empty())
+			{
+				if (!anim.CurrentStateName.empty() && anim.Animations.find(anim.CurrentStateName) != anim.Animations.end())
+				{
+					anim.CurrentAnimation = anim.Animations[anim.CurrentStateName];
+				}
+				else if (anim.Animations.find("Idle") != anim.Animations.end())
+				{
+					anim.CurrentAnimation = anim.Animations["Idle"];
+					anim.CurrentStateName = "Idle";
+				}
+				else
+				{
+					anim.CurrentAnimation = anim.Animations.begin()->second;
+					anim.CurrentStateName = anim.Animations.begin()->first;
 				}
 
-				if (!anim.Animations.empty())
-				{
-					if (!anim.CurrentStateName.empty() && anim.Animations.find(anim.CurrentStateName) != anim.Animations.end())
-					{
-						anim.CurrentAnimation = anim.Animations[anim.CurrentStateName];
-					}
-					else if (anim.Animations.find("Idle") != anim.Animations.end())
-					{
-						anim.CurrentAnimation = anim.Animations["Idle"];
-						anim.CurrentStateName = "Idle";
-					}
-					else
-					{
-						anim.CurrentAnimation = anim.Animations.begin()->second;
-						anim.CurrentStateName = anim.Animations.begin()->first;
-					}
-
-					anim.Playing = true;
-				}
-			});
+				anim.Playing = true;
+			}
+		});
 	}
 
 	void Scene::OnRuntimeStop()
@@ -806,14 +827,14 @@ namespace Runic2D {
 
 		//Destroy script instances
 		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+		{
+			if (nsc.Instance)
 			{
-				if (nsc.Instance)
-				{
-					nsc.Instance->OnDestroy();
-					nsc.DestroyScript(&nsc);  
-					nsc.Instance = nullptr;    
-				}
-			});
+				nsc.Instance->OnDestroy();
+				nsc.DestroyScript(&nsc);  
+				nsc.Instance = nullptr;    
+			}
+		});
 	}
 
 	void Scene::InstantiatePhysics(Entity entity)

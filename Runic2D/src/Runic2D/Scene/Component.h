@@ -156,6 +156,9 @@ namespace Runic2D {
 
 		b2BodyId RuntimeBody = b2_nullBodyId;
 
+		glm::vec2 PreviousTranslation = { 0.0f, 0.0f };
+		float PreviousRotation = 0.0f;
+
 		Rigidbody2DComponent() = default;
 		Rigidbody2DComponent(const Rigidbody2DComponent&) = default;
 	};

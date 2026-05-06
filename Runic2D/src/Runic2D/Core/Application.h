@@ -38,6 +38,7 @@ namespace Runic2D
 
 		float GetAverageFPS() const { return m_AverageFPS; }
 		float GetAverageFrameTimeMs() const { return m_AverageFrameTimeMs; }
+		float GetFixedUpdateAlpha() const { return m_FixedUpdateAccumulator / (1.0f / 60.0f); }
 
 		void SubmitToMainThread(const std::function<void()>& function);
 	private:

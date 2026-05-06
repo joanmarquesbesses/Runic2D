@@ -124,13 +124,20 @@ namespace Runic2D
 			// Overlay de col·lisionadors
 			if (m_ShowPhysicsColliders)
 			{
-				Entity cam = scene->GetPrimaryCameraEntity();
-				if (cam)
+				if (m_SceneState == SceneState::Edit)
 				{
-					auto& camera = cam.GetComponent<CameraComponent>().Camera;
-					auto& tc = cam.GetComponent<TransformComponent>();
-					glm::mat4 vp = camera.GetProjection() * glm::inverse(tc.GetTransform());
-					scene->OnRenderOverlay(vp);
+					scene->OnRenderOverlay(m_EditorCamera.GetViewProjection());
+				}
+				else
+				{
+					Entity cam = scene->GetPrimaryCameraEntity();
+					if (cam)
+					{
+						auto& camera = cam.GetComponent<CameraComponent>().Camera;
+						auto& tc = cam.GetComponent<TransformComponent>();
+						glm::mat4 vp = camera.GetProjection() * glm::inverse(tc.GetTransform());
+						scene->OnRenderOverlay(vp);
+					}
 				}
 			}
 
