@@ -529,6 +529,10 @@ namespace Runic2D {
 						{
 							component.CurrentStateName = profile.Name;
 							component.TimeAccumulator = 0.0f;
+							component.CurrentFrameIndex = 0;
+							if (component.Animations.find(profile.Name) != component.Animations.end()) {
+								component.CurrentAnimation = component.Animations[profile.Name];
+							}
 						}
 						if (isSelected) ImGui::SetItemDefaultFocus();
 					}
@@ -564,12 +568,16 @@ namespace Runic2D {
 							ImGui::EndDragDropTarget();
 						}
 
-						ImGui::DragFloat2("Tile Size", glm::value_ptr(profile.TileSize));
-						ImGui::DragInt("Start Frame", &profile.StartFrame);
-						ImGui::DragInt("Frame Count", &profile.FrameCount);
-						ImGui::DragInt("Frames Per Row", &profile.FramesPerRow, 0.1f, 1, 100);
+						bool dirty = false;
+						dirty |= ImGui::DragFloat2("Tile Size", glm::value_ptr(profile.TileSize));
+						dirty |= ImGui::DragInt("Start Frame", &profile.StartFrame);
+						dirty |= ImGui::DragInt("Frame Count", &profile.FrameCount);
+						dirty |= ImGui::DragInt("Frames Per Row", &profile.FramesPerRow, 0.1f, 1, 100);
 						if (ImGui::IsItemHovered()) ImGui::SetTooltip("0 = Auto-detect (Single Row)");
-						ImGui::DragFloat("Speed", &profile.FrameTime, 0.01f, 0.01f, 10.0f);
+						dirty |= ImGui::DragFloat("Speed", &profile.FrameTime, 0.01f, 0.01f, 10.0f);
+						if (dirty) {
+							component.Animations.clear();
+						}
 
 						if (profile.AtlasTexture && ImGui::Button("Auto-Calc Size from Rows"))
 						{
@@ -581,6 +589,7 @@ namespace Runic2D {
 								int numRows = (profile.FrameCount / profile.FramesPerRow) + (profile.FrameCount % profile.FramesPerRow > 0 ? 1 : 0);
 								if (numRows < 1) numRows = 1;
 								profile.TileSize.y = height / (float)numRows;
+								component.Animations.clear();
 							}
 						}
 

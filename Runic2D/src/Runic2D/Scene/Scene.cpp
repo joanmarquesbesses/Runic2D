@@ -579,6 +579,7 @@ namespace Runic2D {
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
 	{
+		UpdateAnimation(ts);
 		Renderer2D::BeginScene(camera);
 
 		auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<RectTransformComponent>);
@@ -1346,37 +1347,44 @@ namespace Runic2D {
 	void Scene::UpdateAnimation(Timestep ts)
 	{
 		m_Registry.view<AnimationComponent, SpriteRendererComponent>().each([&](auto entityID, auto& anim, auto& sprite)
+		{
+			if (anim.Animations.empty() && !anim.Profiles.empty())
 			{
-				if (anim.Animations.empty() && !anim.Profiles.empty())
+				for (auto& profile : anim.Profiles)
 				{
-					for (auto& profile : anim.Profiles)
+					if (profile.AtlasTexture)
 					{
-						if (profile.AtlasTexture)
-						{
-							int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
-							int col = profile.StartFrame % numCols;
-							int row = profile.StartFrame / numCols;
-							float startX = (float)col * profile.TileSize.x;
-							float startY = (float)row * profile.TileSize.y;
+						int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
+						if (numCols <= 0) numCols = 1;
+						int col = profile.StartFrame % numCols;
+						int row = profile.StartFrame / numCols;
+						float startX = (float)col * profile.TileSize.x;
+						float startY = (float)row * profile.TileSize.y;
 
-							Ref<Animation2D> animAsset = Animation2D::CreateFromAtlas(
-								profile.AtlasTexture, profile.TileSize, { startX, startY },
-								profile.FrameCount, profile.FramesPerRow, profile.FrameTime
-							);
-							anim.Animations[profile.Name] = animAsset;
-						}
+						Ref<Animation2D> animAsset = Animation2D::CreateFromAtlas(
+							profile.AtlasTexture, profile.TileSize, { startX, startY },
+							profile.FrameCount, profile.FramesPerRow, profile.FrameTime
+						);
+						anim.Animations[profile.Name] = animAsset;
 					}
+				}
 
-					if (!anim.Animations.empty() && !anim.CurrentAnimation) {
+				if (!anim.Animations.empty()) {
+					auto it = anim.Animations.find(anim.CurrentStateName);
+					if (it != anim.Animations.end()) {
+						anim.CurrentAnimation = it->second;
+					} else {
 						anim.CurrentAnimation = anim.Animations.begin()->second;
 						anim.CurrentStateName = anim.Animations.begin()->first;
 					}
 				}
+			}
 
-				if (anim.CurrentAnimation && anim.Playing)
-				{
+			if (anim.CurrentAnimation)
+			{
+				if (anim.Playing) {
 					anim.TimeAccumulator += ts;
-					if (anim.TimeAccumulator >= anim.CurrentAnimation->GetFrameTime())
+					while (anim.TimeAccumulator >= anim.CurrentAnimation->GetFrameTime())
 					{
 						anim.TimeAccumulator -= anim.CurrentAnimation->GetFrameTime();
 						anim.CurrentFrameIndex++;
@@ -1389,11 +1397,17 @@ namespace Runic2D {
 								anim.Playing = false;
 							}
 						}
-
-						sprite.SubTexture = anim.CurrentAnimation->GetFrame(anim.CurrentFrameIndex);
 					}
+					sprite.SubTexture = anim.CurrentAnimation->GetFrame(anim.CurrentFrameIndex);
 				}
-			});
+				else {
+					if (anim.CurrentFrameIndex >= anim.CurrentAnimation->GetFrameCount()) {
+						anim.CurrentFrameIndex = 0;
+					}
+					sprite.SubTexture = anim.CurrentAnimation->GetFrame(anim.CurrentFrameIndex);
+				}
+			}
+		});
 	}
 
 	SceneStats Scene::GetStats() const
