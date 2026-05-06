@@ -10,6 +10,10 @@
 
 #include "Runic2D/ImGui/ImGuiLayer.h"
 
+#include <vector>
+#include <mutex>
+#include <functional>
+
 namespace Runic2D
 {
 	class RUNIC_API Application
@@ -34,7 +38,11 @@ namespace Runic2D
 
 		float GetAverageFPS() const { return m_AverageFPS; }
 		float GetAverageFrameTimeMs() const { return m_AverageFrameTimeMs; }
+
+		void SubmitToMainThread(const std::function<void()>& function);
 	private:
+		void ExecuteMainThreadQueue();
+
 		bool OnWindowClose(WindowCloseEvent& e)
 		{
 			m_Running = false;
@@ -54,6 +62,9 @@ namespace Runic2D
 		int m_FrameCount = 0;               
 		float m_AverageFPS = 0.0f;
 		float m_AverageFrameTimeMs = 0.0f;
+
+		std::vector<std::function<void()>> m_MainThreadQueue;
+		std::mutex m_MainThreadQueueMutex;
 	private:
 		static Application* s_Instance;
 	};

@@ -2,6 +2,8 @@
 #include "OpenGLTexture.h"
 
 #include "stb_image.h"
+#include "Runic2D/Core/JobSystem.h"
+#include "Runic2D/Core/Application.h"
 
 #include <glad/glad.h>
 
@@ -9,7 +11,7 @@ namespace Runic2D {
 
 	namespace Utils {
 
-		static GLenum HazelImageFormatToGLDataFormat(ImageFormat format)
+		static GLenum RunicImageFormatToGLDataFormat(ImageFormat format)
 		{
 			switch (format)
 			{
@@ -21,7 +23,7 @@ namespace Runic2D {
 			return 0;
 		}
 
-		static GLenum HazelImageFormatToGLInternalFormat(ImageFormat format)
+		static GLenum RunicImageFormatToGLInternalFormat(ImageFormat format)
 		{
 			switch (format)
 			{
@@ -40,8 +42,8 @@ namespace Runic2D {
 	{
 		R2D_PROFILE_FUNCTION();
 
-		m_InternalFormat = Utils::HazelImageFormatToGLInternalFormat(m_Specification.Format);
-		m_DataFormat = Utils::HazelImageFormatToGLDataFormat(m_Specification.Format);
+		m_InternalFormat = Utils::RunicImageFormatToGLInternalFormat(m_Specification.Format);
+		m_DataFormat = Utils::RunicImageFormatToGLDataFormat(m_Specification.Format);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
@@ -54,52 +56,71 @@ namespace Runic2D {
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
-		: m_Path(path) , m_Width(0), m_Height(0)
+		: m_Path(path) , m_Width(1), m_Height(1)
 	{
 		R2D_PROFILE_FUNCTION();
 
-		// Load image data
-		int width, height, channels;
-		stbi_uc* data = nullptr;
-		stbi_set_flip_vertically_on_load(true); // Flip the image vertically to match OpenGL's texture coordinate system
+		int w = 1, h = 1, channels = 4;
+		if (stbi_info(path.c_str(), &w, &h, &channels))
 		{
-			R2D_PROFILE_SCOPE("stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std::string& path)");
-			data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-		}
-		R2D_ASSERT(data, "Failed to load image!");
-
-		m_Width = width;
-		m_Height = height;
-
-		GLenum internalFormat = 0, dataFormat = 0;
-		if (channels == 4) {
-			internalFormat = GL_RGBA8;
-			dataFormat = GL_RGBA;
-		}
-		else if (channels == 3) {
-			internalFormat = GL_RGB8;
-			dataFormat = GL_RGB;
+			m_Width = w;
+			m_Height = h;
 		}
 
-		m_InternalFormat = internalFormat;
-		m_DataFormat = dataFormat;
-
-		R2D_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
+		// 1. Create a 1x1 white texture synchronously on the main thread (Placeholder)
+		m_InternalFormat = GL_RGBA8;
+		m_DataFormat = GL_RGBA;
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-		glTextureStorage2D(m_RendererID, 1, internalFormat, width, height);
+		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, 1, 1);
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		glTextureSubImage2D(m_RendererID, 0, 0, 0, width, height, dataFormat, GL_UNSIGNED_BYTE, data);
+		uint32_t whiteTextureData = 0xffffffff;
+		glTextureSubImage2D(m_RendererID, 0, 0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &whiteTextureData);
 
-		stbi_image_free(data);
+		// 2. Dispatch a job to load the actual image from disk without blocking
+		JobSystem::Execute([this, path]() {
+			int width, height, channels;
+			stbi_set_flip_vertically_on_load(true);
+			stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
 
-		glBindTexture(GL_TEXTURE_2D, 0);
+			if (data) {
+				// 3. Submit back to main thread to upload the pixels to OpenGL
+				Application::Get().SubmitToMainThread([this, data, width, height, channels]() {
+					m_Width = width;
+					m_Height = height;
+
+					if (channels == 4) {
+						m_InternalFormat = GL_RGBA8;
+						m_DataFormat = GL_RGBA;
+					} else if (channels == 3) {
+						m_InternalFormat = GL_RGB8;
+						m_DataFormat = GL_RGB;
+					}
+
+					// We have to recreate the texture storage because we can't resize immutable storage
+					glDeleteTextures(1, &m_RendererID);
+
+					glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+					glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
+
+					glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+					glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+					glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+
+					stbi_image_free(data);
+				});
+			} else {
+				R2D_CORE_WARN("Failed to async load texture: {0}", path);
+			}
+		});
 	}
 
 	OpenGLTexture2D::~OpenGLTexture2D()

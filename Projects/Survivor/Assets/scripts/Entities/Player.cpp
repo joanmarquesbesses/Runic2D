@@ -60,15 +60,9 @@ namespace Survivor {
 
     void Player::HandleMovement(Timestep ts)
     {
-        if (!HasComponent<Rigidbody2DComponent>()) return;
-        auto& rb = GetComponent<Rigidbody2DComponent>();
-        b2BodyId bodyId = rb.RuntimeBody;
-
-        if (!b2Body_IsValid(bodyId)) return;
-
         if (m_State == State::Attack || m_State == State::Death)
         {
-            b2Body_SetLinearVelocity(rb.RuntimeBody, { 0.0f, 0.0f });
+            m_InputVelocity = { 0.0f, 0.0f };
             return;
         }
 
@@ -86,9 +80,19 @@ namespace Survivor {
         if (glm::length(velocity) > 0.0f)
             velocity = glm::normalize(velocity) * m_MoveSpeed;
 
-        // 2. Aquí ja és segur cridar-ho
-        b2Vec2 newVel = { velocity.x, velocity.y };
-        b2Body_SetLinearVelocity(rb.RuntimeBody, newVel);
+        m_InputVelocity = velocity;
+    }
+
+    void Player::OnFixedUpdate(Runic2D::Timestep ts)
+    {
+        if (!HasComponent<Rigidbody2DComponent>()) return;
+        auto& rb = GetComponent<Rigidbody2DComponent>();
+        b2BodyId bodyId = (b2BodyId)rb.RuntimeBody;
+
+        if (!b2Body_IsValid(bodyId)) return;
+
+        b2Vec2 newVel = { m_InputVelocity.x, m_InputVelocity.y };
+        b2Body_SetLinearVelocity(bodyId, newVel);
         b2Body_SetAwake(bodyId, true);
     }
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Runic2D.h"
-
 #include "Systems/UpgradeDatabase.h"
 
 namespace Survivor {
@@ -12,6 +10,7 @@ namespace Survivor {
 		virtual void OnCreate() override;
 		virtual void OnDestroy() override;
 		virtual void OnUpdate(Runic2D::Timestep ts) override;
+		virtual void OnFixedUpdate(Runic2D::Timestep ts) override;
 		virtual void OnCollision(Runic2D::Entity other) override;
 
 		Runic2D::Entity GetOrbitalManager() const { return m_OrbitalManager; }
@@ -28,6 +27,7 @@ namespace Survivor {
 
 	private:
 		float m_MoveSpeed = 5.0f;
+		glm::vec2 m_InputVelocity = { 0.0f, 0.0f };
 
 		enum class State
 		{

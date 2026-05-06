@@ -1,5 +1,6 @@
 #include "R2Dpch.h"
 #include "Application.h"
+#include "JobSystem.h"
 
 #include "Core.h"
 #include "Runic2D/Renderer/Renderer.h"
@@ -31,6 +32,7 @@ namespace Runic2D {
 		Random::Init();
 		Renderer::Init();
 		AudioEngine::Init();
+		JobSystem::Init();
 
 #ifndef R2D_DIST
 		m_ImGuiLayer = new ImGuiLayer();
@@ -45,9 +47,11 @@ namespace Runic2D {
 			layer->OnDetach();
 		}
 		m_Window.reset();
+
 		Renderer::Shutdown();
 		AudioEngine::Shutdown();
 		ResourceManager::Clear();
+		JobSystem::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -100,6 +104,24 @@ namespace Runic2D {
 				break;
 		}
 	}
+	
+	void Application::SubmitToMainThread(const std::function<void()>& function)
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreadQueueMutex);
+		m_MainThreadQueue.emplace_back(function);
+	}
+
+	void Application::ExecuteMainThreadQueue()
+	{
+		std::vector<std::function<void()>> queueCopy;
+		{
+			std::scoped_lock<std::mutex> lock(m_MainThreadQueueMutex);
+			queueCopy = std::move(m_MainThreadQueue);
+		}
+
+		for (auto& func : queueCopy)
+			func();
+	}
 
 	void Application::Run()
 	{
@@ -122,8 +144,10 @@ namespace Runic2D {
 				m_FrameTimeAccumulator = 0.0f; 
 				m_FrameCount = 0;              
 			}
-
+			
 			if (!m_Minimized) {
+				ExecuteMainThreadQueue();
+
 				m_FixedUpdateAccumulator += timestep.GetSeconds();
 				const float fixedTimeStep = 1.0f / 60.0f;
 				
