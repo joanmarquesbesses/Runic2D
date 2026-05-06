@@ -543,7 +543,7 @@ namespace Runic2D {
 				{
 					auto& profile = component.Profiles[i];
 					ImGui::PushID((int)i);
-					if (ImGui::TreeNodeEx(profile.Name.c_str(), ImGuiTreeNodeFlags_Framed))
+					if (ImGui::TreeNodeEx((void*)(intptr_t)i, ImGuiTreeNodeFlags_Framed, "%s", profile.Name.c_str()))
 					{
 						char buffer[256];
 						memset(buffer, 0, sizeof(buffer));

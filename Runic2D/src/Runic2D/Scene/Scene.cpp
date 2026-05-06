@@ -600,8 +600,6 @@ namespace Runic2D {
 			Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
 		});
 
-		UpdateAnimation(ts);
-
 		// Draw Camera Bounds
 		SceneCamera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
