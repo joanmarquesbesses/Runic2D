@@ -59,6 +59,18 @@ namespace Runic2D
 		SceneManager::SetSceneChangedCallback(nullptr);
 	}
 
+		void EditorLayer::OnFixedUpdate(Timestep ts)
+	{
+		R2D_PROFILE_FUNCTION();
+
+		if (m_SceneState == SceneState::Play)
+		{
+			auto scene = SceneManager::GetActiveScene();
+			if (scene)
+				scene->OnFixedUpdateRunTime(ts);
+		}
+	}
+
 	void EditorLayer::OnUpdate(Timestep ts)
 	{
 		R2D_PROFILE_FUNCTION();

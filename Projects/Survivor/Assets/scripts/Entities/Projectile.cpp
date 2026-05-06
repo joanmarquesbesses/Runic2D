@@ -7,12 +7,9 @@ namespace Survivor {
 
     void Projectile::OnCreate()
     {
-        if (HasComponent<Rigidbody2DComponent>())
-            m_Rb = &GetComponent<Rigidbody2DComponent>();
-
         if (HasComponent<SpriteRendererComponent>())
         {
-            m_SpriteRenderer = &GetComponent<SpriteRendererComponent>();
+            auto m_SpriteRenderer = &GetComponent<SpriteRendererComponent>();
             if (m_SpriteRenderer->Texture)
                 m_SpriteRenderer->SubTexture = nullptr;
             m_Texture = m_SpriteRenderer->Texture;
@@ -59,13 +56,6 @@ namespace Survivor {
                 m_TimeSinceLastEmit = 0.0f;
             }
         }
-
-        m_Rb = &GetComponent<Rigidbody2DComponent>();
-        b2BodyId bodyId = (b2BodyId)m_Rb->RuntimeBody;
-        b2Rot rotation = b2Body_GetRotation(bodyId);
-        glm::vec2 direction = { rotation.c, rotation.s };
-        b2Vec2 vel = { direction.x * Speed, direction.y * Speed };
-        b2Body_SetLinearVelocity(bodyId, vel);
     }
 
     void Projectile::OnSensor(Entity other)
@@ -110,6 +100,16 @@ namespace Survivor {
 
         /* if (Owner == OwnerType::Enemy && other.HasComponent<EnemyAI>())
              return; */
+    }
+
+    void Projectile::OnFixedUpdate(Timestep ts)
+    {
+        auto& m_Rb = GetComponent<Rigidbody2DComponent>();
+        b2BodyId bodyId = (b2BodyId)m_Rb.RuntimeBody;
+        b2Rot rotation = b2Body_GetRotation(bodyId);
+        glm::vec2 direction = { rotation.c, rotation.s };
+        b2Vec2 vel = { direction.x * Speed, direction.y * Speed };
+        b2Body_SetLinearVelocity(bodyId, vel);
     }
 
 }

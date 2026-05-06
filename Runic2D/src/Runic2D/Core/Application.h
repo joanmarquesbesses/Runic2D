@@ -50,6 +50,7 @@ namespace Runic2D
 		LayerStack m_LayerStack;
 		float m_LastFrameTime = 0.0f;
 		float m_FrameTimeAccumulator = 0.0f;
+		float m_FixedUpdateAccumulator = 0.0f;
 		int m_FrameCount = 0;               
 		float m_AverageFPS = 0.0f;
 		float m_AverageFrameTimeMs = 0.0f;

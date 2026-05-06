@@ -124,6 +124,20 @@ namespace Runic2D {
 			}
 
 			if (!m_Minimized) {
+				m_FixedUpdateAccumulator += timestep.GetSeconds();
+				const float fixedTimeStep = 1.0f / 60.0f;
+				
+				if (m_FixedUpdateAccumulator > 0.2f)
+					m_FixedUpdateAccumulator = 0.2f;
+
+				while (m_FixedUpdateAccumulator >= fixedTimeStep) {
+					R2D_PROFILE_SCOPE("LayerStack OnFixedUpdate");
+					for (Layer* layer : m_LayerStack) {
+						layer->OnFixedUpdate(fixedTimeStep);
+					}
+					m_FixedUpdateAccumulator -= fixedTimeStep;
+				}
+
 				{
 					R2D_PROFILE_SCOPE("LayerStack OnUpdate");
 					for (Layer* layer : m_LayerStack) {

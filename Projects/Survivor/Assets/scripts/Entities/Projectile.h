@@ -11,6 +11,7 @@ namespace Survivor {
         void OnCreate() override;
         void OnUpdate(Timestep ts) override;
         void OnSensor(Entity other) override;
+		void OnFixedUpdate(Timestep ts) override;
 
         float Speed = 10.0f;
         float LifeTime = 2.0f;
@@ -20,11 +21,9 @@ namespace Survivor {
         OwnerType Owner = OwnerType::Player;
 
         float m_TimeSinceLastEmit = 0.0f;
-        float m_EmissionRate = 0.02f;
+        float m_EmissionRate = 0.01f;
 
     private:
-        Rigidbody2DComponent* m_Rb = nullptr;
-        SpriteRendererComponent* m_SpriteRenderer = nullptr;
         Ref<Texture2D> m_Texture = nullptr;
         float m_TimeAlive = 0.0f;
         float m_AnimTimer = 0.0f;

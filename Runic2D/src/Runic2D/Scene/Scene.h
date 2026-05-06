@@ -37,6 +37,7 @@ namespace Runic2D {
 
 		// Runtime
 		void OnUpdateRunTime(Timestep ts);
+		void OnFixedUpdateRunTime(Timestep ts);
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 		void UpdateUIInteraction();
 
@@ -131,6 +132,7 @@ namespace Runic2D {
 		void CopyEntity(Entity src, Entity dst);
 
 		void UpdateScripts(Timestep ts);
+		void UpdateScriptsFixed(Timestep ts);
 		void UpdatePhysics(Timestep ts);
 		void UpdateTweens(Timestep ts);
 

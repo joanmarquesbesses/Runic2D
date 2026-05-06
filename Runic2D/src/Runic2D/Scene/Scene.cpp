@@ -218,6 +218,15 @@ namespace Runic2D {
 		return {};
 	}
 
+	void Scene::OnFixedUpdateRunTime(Timestep ts)
+	{
+		if (!m_IsPaused)
+		{
+			UpdateScriptsFixed(ts);
+			UpdatePhysics(ts);
+		}
+	}
+
 	void Scene::OnUpdateRunTime(Timestep ts)
 	{
 		UpdateScripts(ts);
@@ -225,7 +234,6 @@ namespace Runic2D {
 
 		if (!m_IsPaused)
 		{
-			UpdatePhysics(ts);
 			m_ParticleSystem.OnUpdate(ts);
 			UpdateAnimation(ts);
 		}
@@ -259,6 +267,18 @@ namespace Runic2D {
 				{
 					if (!m_IsPaused || nsc.Instance->UpdateWhenPaused())
 						nsc.Instance->OnUpdate(ts);
+				}
+			});
+	}
+
+	void Scene::UpdateScriptsFixed(Timestep ts)
+	{
+		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+			{
+				if (nsc.Instance)
+				{
+					if (!m_IsPaused || nsc.Instance->UpdateWhenPaused())
+						nsc.Instance->OnFixedUpdate(ts);
 				}
 			});
 	}

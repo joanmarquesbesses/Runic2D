@@ -11,6 +11,7 @@ public:
 	virtual void OnDetach() override;
 
 	virtual void OnUpdate(Runic2D::Timestep ts) override;
+	virtual void OnFixedUpdate(Runic2D::Timestep ts) override;
 	virtual void OnEvent(Runic2D::Event& e) override;
 private:
 	bool OnKeyPressed(Runic2D::KeyPressedEvent& e);
