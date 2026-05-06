@@ -317,6 +317,9 @@ project (activeGame)
         "Projects/" .. activeGame .. "/Assets/scripts/**.cpp"
     }
 
+	pchheader (activeGame .. "PCH.h")
+	pchsource ("Projects/" .. activeGame .. "/Assets/scripts/" .. activeGame .. "PCH.cpp")
+
 	defines
     {
         "MSDFGEN_PUBLIC=",

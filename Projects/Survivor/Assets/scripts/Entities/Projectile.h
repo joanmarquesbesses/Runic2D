@@ -1,5 +1,7 @@
 #pragma once
-#include "Runic2D.h"
+#include "Runic2D/Scene/ScriptableEntity.h"
+
+class Runic2D::Texture2D;
 
 using namespace Runic2D;
 

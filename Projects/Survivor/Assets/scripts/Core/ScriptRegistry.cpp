@@ -1,3 +1,4 @@
+#include "SurvivorPCH.h"
 #include "ScriptRegistry.h"
 
 #include "Runic2D/Scripting/ScriptEngine.h" 
