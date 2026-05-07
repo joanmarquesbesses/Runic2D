@@ -251,6 +251,7 @@ namespace Runic2D {
 			});
 		}
 
+		UpdateWorldTransforms();
 		UpdateScripts(ts);
 		UpdateTweens(ts);
 
@@ -396,6 +397,7 @@ namespace Runic2D {
 
 	void Scene::OnRenderRuntime()
 	{
+		UpdateWorldTransforms();
 		//Find Main Camera
 		auto cameraEntity = GetPrimaryCameraEntity();
 		if (!cameraEntity) return;
@@ -580,6 +582,7 @@ namespace Runic2D {
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
 	{
+		UpdateWorldTransforms();
 		UpdateAnimation(ts);
 		Renderer2D::BeginScene(camera);
 
@@ -1291,24 +1294,7 @@ namespace Runic2D {
 
 	glm::mat4 Scene::GetWorldTransform(const TransformComponent& transform, Entity entity)
 	{
-		if (!transform.IsDirty)
-			return transform.WorldTransform;
-
-		glm::mat4 worldTransform = transform.GetTransform();
-
-		if (entity.HasComponent<RelationshipComponent>())
-		{
-			entt::entity parentID = entity.GetComponent<RelationshipComponent>().Parent;
-			if (parentID != entt::null)
-			{
-				Entity parent{ parentID, this };
-				worldTransform = GetWorldTransform(parent) * worldTransform;
-			}
-		}
-
-		const_cast<TransformComponent&>(transform).WorldTransform = worldTransform;
-		const_cast<TransformComponent&>(transform).IsDirty = false;
-		return worldTransform;
+		return transform.WorldTransform;
 	}
 
 	void Scene::OnRenderOverlay(const glm::mat4& viewProjection)
@@ -1452,19 +1438,6 @@ namespace Runic2D {
 		{
 			JobSystem::Wait();
 		}
-
-#ifndef R2D_DIST
-		// Log every time the number of groups changes (including inline <-> threaded transitions)
-		static uint32_t s_LastGroupCount = 0;
-		if (stats.GroupsDispatched != s_LastGroupCount)
-		{
-			s_LastGroupCount = stats.GroupsDispatched;
-			if (stats.GroupsDispatched == 0)
-				R2D_CORE_INFO("[Anim] Mode: INLINE ({0} entities, groupSize={1})", count, groupSize);
-			else
-				R2D_CORE_INFO("[Anim] Mode: MULTITHREADED | groups={0} | entities={1} | groupSize={2}", stats.GroupsDispatched, count, groupSize);
-		}
-#endif
 	}
 
 	SceneStats Scene::GetStats() const
@@ -1623,6 +1596,104 @@ namespace Runic2D {
 				InvalidateTransform({ childID, this });
 				childID = m_Registry.get<RelationshipComponent>(childID).NextSibling;
 			}
+		}
+	}
+
+	void Scene::UpdateWorldTransforms()
+	{
+		R2D_PROFILE_FUNCTION();
+
+		// 1. Organize entities by depth level (BFS)
+		// This ensures parents are processed before children
+		std::vector<std::vector<entt::entity>> levels;
+		levels.reserve(4); // Typical hierarchy depth
+
+		// Level 0: Roots (no parent)
+		{
+			std::vector<entt::entity> roots;
+			// Entities with Transform but NO Relationship are roots
+			auto transformOnlyView = m_Registry.view<TransformComponent>(entt::exclude<RelationshipComponent>);
+			roots.insert(roots.end(), transformOnlyView.begin(), transformOnlyView.end());
+
+			// Entities with Transform and Relationship with no parent are also roots
+			m_Registry.view<TransformComponent, RelationshipComponent>().each([&](auto entity, auto&, auto& rel)
+			{
+				if (rel.Parent == entt::null)
+					roots.push_back(entity);
+			});
+
+			if (roots.empty()) return;
+			levels.emplace_back(std::move(roots));
+		}
+
+		// Levels 1+: Children
+		uint32_t currentLevel = 0;
+		while (true)
+		{
+			std::vector<entt::entity> nextLevel;
+			for (auto parent : levels[currentLevel])
+			{
+				if (m_Registry.all_of<RelationshipComponent>(parent))
+				{
+					auto& rel = m_Registry.get<RelationshipComponent>(parent);
+					entt::entity child = rel.FirstChild;
+					while (child != entt::null)
+					{
+						nextLevel.push_back(child);
+						child = m_Registry.get<RelationshipComponent>(child).NextSibling;
+					}
+				}
+			}
+
+			if (nextLevel.empty()) break;
+			levels.push_back(std::move(nextLevel));
+			currentLevel++;
+		}
+
+		// 2. Process each level in parallel using JobSystem::Dispatch
+		for (auto& levelEntities : levels)
+		{
+			uint32_t count = (uint32_t)levelEntities.size();
+			uint32_t groupSize = 64;
+
+			auto stats = JobSystem::Dispatch(count, groupSize, [this, &levelEntities](uint32_t start, uint32_t end)
+			{
+				for (uint32_t i = start; i < end; i++)
+				{
+					entt::entity entity = levelEntities[i];
+					auto& tc = m_Registry.get<TransformComponent>(entity);
+
+					if (!tc.IsDirty) continue;
+
+					// Calculate local transform
+					glm::mat4 local = tc.GetTransform();
+
+					// Multiply by parent world transform if exists
+					if (m_Registry.all_of<RelationshipComponent>(entity))
+					{
+						entt::entity parent = m_Registry.get<RelationshipComponent>(entity).Parent;
+						if (parent != entt::null)
+						{
+							// Parent's WorldTransform is guaranteed to be up-to-date 
+							// because it was in a previous level or processed earlier
+							tc.WorldTransform = m_Registry.get<TransformComponent>(parent).WorldTransform * local;
+						}
+						else
+						{
+							tc.WorldTransform = local;
+						}
+					}
+					else
+					{
+						tc.WorldTransform = local;
+					}
+
+					tc.IsDirty = false;
+				}
+			});
+
+			if (stats.GroupsDispatched > 0)
+				JobSystem::Wait();
 		}
 	}
 }

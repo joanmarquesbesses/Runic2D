@@ -135,6 +135,7 @@ namespace Runic2D {
 		void UpdateScriptsFixed(Timestep ts);
 		void UpdatePhysics(Timestep ts);
 		void UpdateTweens(Timestep ts);
+		void UpdateWorldTransforms();
 
 	private:
 		entt::registry m_Registry;
