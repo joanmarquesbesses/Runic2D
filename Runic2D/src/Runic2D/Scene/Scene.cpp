@@ -7,6 +7,7 @@
 
 #include "Runic2D/Core/Application.h"
 #include "Runic2D/Core/Input.h"
+#include "Runic2D/Core/JobSystem.h"
 
 #include "Entity.h"
 #include "Component.h"
@@ -314,7 +315,7 @@ namespace Runic2D {
 			for (auto e : rbView)
 			{
 				auto& rb2d = rbView.get<Rigidbody2DComponent>(e);
-				if (B2_IS_NON_NULL(rb2d.RuntimeBody))
+				if (B2_IS_NON_NULL(rb2d.RuntimeBody) && rb2d.InterpolationInitialized)
 				{
 					b2Vec2 pos = b2Body_GetPosition(rb2d.RuntimeBody);
 					rb2d.PreviousTranslation = { pos.x, pos.y };
@@ -854,6 +855,11 @@ namespace Runic2D {
 		b2BodyId bodyId = b2CreateBody(m_PhysicsWorld, &bodyDef);
 		rb2d.RuntimeBody = bodyId;
 
+		b2Vec2 spawnPos = b2Body_GetPosition(bodyId);
+		rb2d.PreviousTranslation = { spawnPos.x, spawnPos.y };
+		rb2d.PreviousRotation = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
+		rb2d.InterpolationInitialized = true;
+
 		if (entity.HasComponent<BoxCollider2DComponent>())
 		{
 			auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
@@ -1344,8 +1350,29 @@ namespace Runic2D {
 
 	void Scene::UpdateAnimation(Timestep ts)
 	{
-		m_Registry.view<AnimationComponent, SpriteRendererComponent>().each([&](auto entityID, auto& anim, auto& sprite)
+		// Collect entities into an indexable array so Dispatch can slice the work
+		struct AnimEntry
 		{
+			AnimationComponent* Anim;
+			SpriteRendererComponent* Sprite;
+		};
+
+		auto view = m_Registry.view<AnimationComponent, SpriteRendererComponent>();
+		std::vector<AnimEntry> entries;
+		entries.reserve(view.size_hint());
+
+		view.each([&](auto entityID, auto& anim, auto& sprite)
+		{
+			entries.emplace_back(&anim, &sprite);
+		});
+
+		if (entries.empty()) return;
+
+		// Phase 1 (single-thread): Rebuild the animation asset map if it was cleared.
+		// This must be single-threaded because it can modify shared Ref<> resources.
+		for (auto& entry : entries)
+		{
+			auto& anim = *entry.Anim;
 			if (anim.Animations.empty() && !anim.Profiles.empty())
 			{
 				for (auto& profile : anim.Profiles)
@@ -1377,9 +1404,22 @@ namespace Runic2D {
 					}
 				}
 			}
+		}
 
-			if (anim.CurrentAnimation)
+		// Phase 2 (multi-thread): Advance the animation timer and update the frame.
+		// Each entity owns its own data, so parallel writes are 100% safe.
+		const uint32_t count = (uint32_t)entries.size();
+		const uint32_t groupSize = 64; // Tune this based on entity counts
+
+		auto stats = JobSystem::Dispatch(count, groupSize, [&entries, ts](uint32_t start, uint32_t end)
+		{
+			for (uint32_t i = start; i < end; i++)
 			{
+				auto& anim = *entries[i].Anim;
+				auto& sprite = *entries[i].Sprite;
+
+				if (!anim.CurrentAnimation) continue;
+
 				if (anim.Playing) {
 					anim.TimeAccumulator += ts;
 					while (anim.TimeAccumulator >= anim.CurrentAnimation->GetFrameTime())
@@ -1406,6 +1446,25 @@ namespace Runic2D {
 				}
 			}
 		});
+
+		// Only wait if jobs were actually dispatched to worker threads
+		if (stats.GroupsDispatched > 0)
+		{
+			JobSystem::Wait();
+		}
+
+#ifndef R2D_DIST
+		// Log every time the number of groups changes (including inline <-> threaded transitions)
+		static uint32_t s_LastGroupCount = 0;
+		if (stats.GroupsDispatched != s_LastGroupCount)
+		{
+			s_LastGroupCount = stats.GroupsDispatched;
+			if (stats.GroupsDispatched == 0)
+				R2D_CORE_INFO("[Anim] Mode: INLINE ({0} entities, groupSize={1})", count, groupSize);
+			else
+				R2D_CORE_INFO("[Anim] Mode: MULTITHREADED | groups={0} | entities={1} | groupSize={2}", stats.GroupsDispatched, count, groupSize);
+		}
+#endif
 	}
 
 	SceneStats Scene::GetStats() const

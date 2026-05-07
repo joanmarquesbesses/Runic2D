@@ -48,10 +48,10 @@ namespace Runic2D {
 		}
 		m_Window.reset();
 
+		JobSystem::Shutdown();
 		Renderer::Shutdown();
 		AudioEngine::Shutdown();
 		ResourceManager::Clear();
-		JobSystem::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)

@@ -87,6 +87,35 @@ namespace Runic2D {
 		JobSystemImpl::s_WakeCondition.notify_one();
 	}
 
+	DispatchStats JobSystem::Dispatch(uint32_t dataCount, uint32_t groupSize, const std::function<void(uint32_t start, uint32_t end)>& task)
+	{
+		DispatchStats stats;
+		if (dataCount == 0 || groupSize == 0) return stats;
+
+		const uint32_t numGroups = (dataCount + groupSize - 1) / groupSize;
+
+		// If only 1 group: run inline on this thread (no mutex/notify overhead)
+		if (numGroups == 1)
+		{
+			task(0, dataCount);
+			return stats; // GroupsDispatched stays 0 = ran inline
+		}
+
+		// Multiple groups: submit each as an independent job to worker threads
+		stats.GroupsDispatched = numGroups;
+		for (uint32_t groupIndex = 0; groupIndex < numGroups; groupIndex++)
+		{
+			const uint32_t start = groupIndex * groupSize;
+			const uint32_t end = std::min(start + groupSize, dataCount);
+
+			Execute([task, start, end]()
+			{
+				task(start, end);
+			});
+		}
+		return stats;
+	}
+
 	void JobSystem::Wait()
 	{
 		// Simple busy-wait/yield. For a more robust wait, use another condition_variable

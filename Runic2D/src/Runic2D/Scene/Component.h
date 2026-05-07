@@ -158,6 +158,7 @@ namespace Runic2D {
 
 		glm::vec2 PreviousTranslation = { 0.0f, 0.0f };
 		float PreviousRotation = 0.0f;
+		bool InterpolationInitialized = false; // Prevents first-frame visual glitch
 
 		Rigidbody2DComponent() = default;
 		Rigidbody2DComponent(const Rigidbody2DComponent&) = default;
