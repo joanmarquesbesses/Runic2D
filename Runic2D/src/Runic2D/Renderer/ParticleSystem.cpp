@@ -1,5 +1,6 @@
 #include "R2Dpch.h"
 #include "ParticleSystem.h"
+#include "Runic2D/Core/JobSystem.h"
 
 #include "Runic2D/Utils/Random.h"
 #include "Runic2D/Renderer/Renderer2D.h" 
@@ -17,24 +18,49 @@ namespace Runic2D {
 
 	void ParticleSystem::OnUpdate(Timestep ts)
 	{
+		// 1. Collect only active particles into a temporary list.
+		// This is single-threaded but very fast (just pointers).
+		// It ensures worker threads only process particles that actually need updating.
+		std::vector<Particle*> activeParticles;
+		activeParticles.reserve(m_ParticlePool.size());
+
 		for (auto& particle : m_ParticlePool)
 		{
-			if (!particle.Active)
-				continue;
-
-			if (particle.LifeRemaining <= 0.0f)
-			{
-				particle.Active = false;
-				continue;
-			}
-
-			particle.LifeRemaining -= ts;
-
-			particle.Position.x += particle.Velocity.x * ts;
-			particle.Position.y += particle.Velocity.y * ts;
-
-			particle.Rotation += 0.01f * ts;
+			if (particle.Active)
+				activeParticles.emplace_back(&particle);
 		}
+
+		if (activeParticles.empty()) return;
+
+		// 2. Dispatch work. We capture activeParticles by reference and ts by value.
+		// Since we call Wait() immediately after, activeParticles remains valid.
+		uint32_t count = (uint32_t)activeParticles.size();
+		uint32_t groupSize = 128; // Slightly smaller group size for better load balancing
+
+		auto stats = JobSystem::Dispatch(count, groupSize, [&activeParticles, ts](uint32_t start, uint32_t end)
+		{
+			for (uint32_t i = start; i < end; i++)
+			{
+				Particle& particle = *activeParticles[i];
+
+				particle.LifeRemaining -= ts;
+
+				if (particle.LifeRemaining <= 0.0f)
+				{
+					particle.Active = false;
+					continue;
+				}
+
+				particle.Position.x += particle.Velocity.x * ts;
+				particle.Position.y += particle.Velocity.y * ts;
+
+				particle.Rotation += 0.01f * ts;
+			}
+		});
+
+		// 3. Only wait if we actually sent jobs to worker threads
+		if (stats.GroupsDispatched > 0)
+			JobSystem::Wait();
 	}
 
 	void ParticleSystem::OnRender()
