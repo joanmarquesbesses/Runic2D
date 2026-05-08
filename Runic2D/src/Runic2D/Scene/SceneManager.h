@@ -36,6 +36,8 @@ namespace Runic2D {
             Runic2D::ComponentRegistry::Clear();
         }
 
+        static void ProcessDeferredLoad();
+
         static void SetActiveScene(Ref<Scene> scene)
         {
             StopActiveScene();
@@ -45,8 +47,10 @@ namespace Runic2D {
 
     private:
         static bool LoadSceneInternal(const std::filesystem::path& absolutePath, bool startRuntime);
+        static void RequestLoadScene(const std::filesystem::path& relativePath);
 
         static Ref<Scene>               s_ActiveScene;
         static SceneChangedCallbackFn   s_OnSceneChanged;
+        static std::filesystem::path    s_QueuedScenePath;
     };
 }

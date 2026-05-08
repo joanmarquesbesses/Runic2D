@@ -48,6 +48,19 @@ namespace Runic2D
 		m_EditorScene = CreateRef<Scene>();
 		SceneManager::SetActiveScene(m_EditorScene);
 		m_SceneHierarchyPanel.SetContext(m_EditorScene);
+
+		// Set the callback to sync panels when scene changes (e.g. from script)
+		SceneManager::SetSceneChangedCallback([this](Ref<Scene> newScene) {
+			if (!newScene) return;
+
+			m_SceneHierarchyPanel.SetContext(newScene);
+			
+			// Crucial: Sync the viewport bounds of the new scene with the editor viewport panel
+			glm::vec2 min = m_ViewportPanel.GetBoundsMin();
+			glm::vec2 max = m_ViewportPanel.GetBoundsMax();
+			newScene->SetViewportBounds(min, max);
+			newScene->OnViewportResize((uint32_t)(max.x - min.x), (uint32_t)(max.y - min.y));
+		});
 	}
 
 	void EditorLayer::OnDetach()

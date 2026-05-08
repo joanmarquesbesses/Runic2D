@@ -10,6 +10,7 @@ namespace Runic2D {
 
     Ref<Scene>                           SceneManager::s_ActiveScene = nullptr;
     SceneManager::SceneChangedCallbackFn SceneManager::s_OnSceneChanged = nullptr;
+    std::filesystem::path                  SceneManager::s_QueuedScenePath = "";
 
     bool SceneManager::LoadStartScene()
     {
@@ -40,8 +41,8 @@ namespace Runic2D {
 
     bool SceneManager::TransitionTo(const std::filesystem::path& relativePath)
     {
-        StopActiveScene();
-        return LoadScene(relativePath);
+        RequestLoadScene(relativePath);
+        return true;
     }
 
     void SceneManager::StopActiveScene()
@@ -55,6 +56,8 @@ namespace Runic2D {
     bool SceneManager::LoadSceneInternal(const std::filesystem::path& absolutePath,
         bool startRuntime)
     {
+        R2D_CORE_INFO("SceneManager: LoadSceneInternal called for '{0}' (startRuntime: {1})", absolutePath.string(), startRuntime);
+
         if (!std::filesystem::exists(absolutePath))
         {
             R2D_CORE_ERROR("SceneManager: Escena no trobada: '{0}'", absolutePath.string());
@@ -86,15 +89,29 @@ namespace Runic2D {
         if (startRuntime)
         {
             s_ActiveScene->OnRuntimeStart();
-
-            auto& window = Application::Get().GetWindow();
-            s_ActiveScene->OnViewportResize(window.GetWidth(), window.GetHeight());
         }
+
+        auto& window = Application::Get().GetWindow();
+        s_ActiveScene->OnViewportResize(window.GetWidth(), window.GetHeight());
 
         R2D_CORE_INFO("SceneManager: Escena carregada: '{0}'", absolutePath.string());
 
         if (s_OnSceneChanged) s_OnSceneChanged(s_ActiveScene);
 
         return true;
+    }
+
+    void SceneManager::RequestLoadScene(const std::filesystem::path& relativePath)
+    {
+        s_QueuedScenePath = relativePath;
+    }
+
+    void SceneManager::ProcessDeferredLoad()
+    {
+        if (s_QueuedScenePath.empty()) return;
+
+        std::filesystem::path path = s_QueuedScenePath;
+        s_QueuedScenePath.clear(); // Clear before loading to avoid loops
+        LoadScene(path);
     }
 }

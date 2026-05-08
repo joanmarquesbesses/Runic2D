@@ -8,6 +8,7 @@
 #include "Runic2D/Audio/AudioEngine.h"
 #include "Runic2D/Utils/Random.h"
 #include "Runic2D/Scene/ComponentRegistry.h"
+#include "Runic2D/Scene/SceneManager.h"
 
 #include "Input.h"
 
@@ -181,6 +182,7 @@ namespace Runic2D {
 			}
 
 			m_Window->OnUpdate();
+			SceneManager::ProcessDeferredLoad();
 		}
 	}
 

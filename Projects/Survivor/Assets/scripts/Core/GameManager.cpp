@@ -16,6 +16,9 @@ namespace Survivor
             }
         }
 
+        if (Input::IsKeyPressed(KeyCode::N)) {
+			SceneManager::TransitionTo("scenes/fisica.r2dscene");
+        }
 
         stats.TimeAlive += ts;
 

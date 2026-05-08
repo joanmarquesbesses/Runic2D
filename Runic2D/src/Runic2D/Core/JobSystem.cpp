@@ -106,6 +106,7 @@ namespace Runic2D {
 
 		// Multiple groups: submit each as an independent job to worker threads
 		stats.GroupsDispatched = numGroups;
+
 		for (uint32_t groupIndex = 0; groupIndex < numGroups; groupIndex++)
 		{
 			const uint32_t start = groupIndex * groupSize;
