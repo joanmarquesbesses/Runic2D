@@ -15,6 +15,25 @@
 #include "Tween.h"
 
 namespace Runic2D {
+	static void* Box2D_EnqueueTask(b2TaskCallback* task, int itemCount, int minRange, void* taskContext, void* userContext)
+	{
+		// Map Box2D tasks directly to our JobSystem::Dispatch
+		// minRange is the minimum number of items Box2D recommends per thread
+		JobSystem::Dispatch((uint32_t)itemCount, (uint32_t)minRange, [task, taskContext](uint32_t start, uint32_t end)
+		{
+			task((int)start, (int)end, JobSystem::GetThreadIndex(), taskContext);
+		});
+
+		return (void*)1; // We return a dummy pointer because our JobSystem::Wait waits for all jobs anyway
+	}
+
+	static void Box2D_FinishTask(void* userTask, void* userContext)
+	{
+		// Since our Dispatch calls are synchronous in terms of submission, 
+		// and we wait for all jobs, this ensures Box2D tasks are finished.
+		JobSystem::Wait();
+	}
+
 
 	static b2BodyType Rigidbody2DTypeToBox2D(Rigidbody2DComponent::BodyType bodyType)
 	{
@@ -438,8 +457,6 @@ namespace Runic2D {
 		m_ParticleSystem.OnRender();
 
 		Renderer2D::EndScene();
-
-		OnRenderDebugOverlay();
 	}
 
 	void Scene::OnRenderUI()
@@ -576,8 +593,6 @@ namespace Runic2D {
 		}
 
 		Renderer2D::EndScene();
-
-		OnRenderDebugOverlay();
 	}
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
@@ -731,6 +746,13 @@ namespace Runic2D {
 	{
 		b2WorldDef worldDef = b2DefaultWorldDef();
 		worldDef.gravity = { 0.0f, -9.8f }; 
+		
+		// Connect JobSystem
+		worldDef.workerCount = JobSystem::GetThreadCount();
+		worldDef.enqueueTask = Box2D_EnqueueTask;
+		worldDef.finishTask = Box2D_FinishTask;
+		worldDef.userTaskContext = this;
+
 		m_PhysicsWorld = b2CreateWorld(&worldDef);
 
 		auto view = m_Registry.view<Rigidbody2DComponent>();
@@ -1318,20 +1340,18 @@ namespace Runic2D {
 		auto viewcc = m_Registry.view<TransformComponent, CircleCollider2DComponent>();
 
 		viewcc.each([&](auto entity, auto& tc, auto& cc2d)
-			{
-				float scale = std::max(tc.Scale.x, tc.Scale.y) * cc2d.Radius * 2.0f;
+		{
+			float scale = std::max(tc.Scale.x, tc.Scale.y) * cc2d.Radius * 2.0f;
 
-				glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.Translation)
-					* glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
-					* glm::translate(glm::mat4(1.0f), glm::vec3(cc2d.Offset, 0.001f))
-					* glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, 1.0f));
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.Translation)
+				* glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
+				* glm::translate(glm::mat4(1.0f), glm::vec3(cc2d.Offset, 0.001f))
+				* glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, 1.0f));
 
-				Renderer2D::DrawCircle(transform, glm::vec4(0, 1, 0, 1), 0.05f, 0.01f, (int)entity);
-			});
+			Renderer2D::DrawCircle(transform, glm::vec4(0, 1, 0, 1), 0.05f, 0.01f, (int)entity);
+		});
 
 		Renderer2D::EndScene();
-
-		OnRenderDebugOverlay();
 	}
 
 	void Scene::UpdateAnimation(Timestep ts)

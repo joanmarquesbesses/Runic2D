@@ -29,6 +29,7 @@ namespace Runic2D {
 		static void Wait();
 
 		static uint32_t GetThreadCount();
+		static uint32_t GetThreadIndex();
 	};
 
 }

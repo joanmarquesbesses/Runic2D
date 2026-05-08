@@ -35,9 +35,11 @@ namespace Survivor
     }
 
     void GameManager::SpawnEnemy() {
-        glm::vec2 spawnPos = GetRandomOffScreenPosition();
-        EntityFactory::CreateBat(spawnPos);
-        EntityFactory::CreateSlime(spawnPos);
+        for (int i = 0; i < 100; i++) {
+            glm::vec2 spawnPos = GetRandomOffScreenPosition();
+            EntityFactory::CreateBat(spawnPos);
+            EntityFactory::CreateSlime(spawnPos);
+        }
     }
 
     glm::vec2 GameManager::GetRandomOffScreenPosition() {

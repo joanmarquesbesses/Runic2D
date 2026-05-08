@@ -1,5 +1,6 @@
 #include "R2Dpch.h"
 #include "JobSystem.h"
+#include <thread>
 
 #include <thread>
 #include <condition_variable>
@@ -14,11 +15,13 @@ namespace Runic2D {
 		static std::queue<std::function<void()>> s_JobQueue;
 		static std::mutex s_QueueMutex;
 		static std::condition_variable s_WakeCondition;
+		static thread_local uint32_t s_WorkerIndex = 0;
 		static std::atomic<uint32_t> s_JobsInFlight = 0;
 		static bool s_Running = true;
 
-		static void WorkerThread()
+		static void WorkerThread(uint32_t index)
 		{
+			s_WorkerIndex = index;
 			while (s_Running)
 			{
 				std::function<void()> job;
@@ -37,7 +40,7 @@ namespace Runic2D {
 				// Execute job
 				if (job)
 					job();
-				
+
 				s_JobsInFlight.fetch_sub(1);
 			}
 		}
@@ -47,16 +50,16 @@ namespace Runic2D {
 	{
 		uint32_t numThreads = std::thread::hardware_concurrency();
 		if (numThreads == 0) numThreads = 4; // Fallback
-		
+
 		// Leave one core for the main thread
 		if (numThreads > 1) numThreads -= 1;
 
 		JobSystemImpl::s_Running = true;
 		JobSystemImpl::s_Threads.reserve(numThreads);
-		
+
 		for (uint32_t i = 0; i < numThreads; i++)
 		{
-			JobSystemImpl::s_Threads.emplace_back(JobSystemImpl::WorkerThread);
+			JobSystemImpl::s_Threads.emplace_back(JobSystemImpl::WorkerThread, i);
 		}
 
 		R2D_CORE_INFO("JobSystem Initialized with {0} worker threads.", numThreads);
@@ -109,9 +112,9 @@ namespace Runic2D {
 			const uint32_t end = std::min(start + groupSize, dataCount);
 
 			Execute([task, start, end]()
-			{
-				task(start, end);
-			});
+				{
+					task(start, end);
+				});
 		}
 		return stats;
 	}
@@ -130,4 +133,8 @@ namespace Runic2D {
 		return (uint32_t)JobSystemImpl::s_Threads.size();
 	}
 
+	uint32_t JobSystem::GetThreadIndex()
+	{
+		return JobSystemImpl::s_WorkerIndex;
+	}
 }

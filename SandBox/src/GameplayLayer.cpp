@@ -47,6 +47,9 @@ void GameplayLayer::OnUpdate(Runic2D::Timestep ts)
 
     if (m_ShowPhysicsColliders)
         ShowColliderOverlay();
+
+    if(scene->IsDebugOverlayEnabled())
+		scene->OnRenderDebugOverlay();
 }
 
 void GameplayLayer::OnEvent(Runic2D::Event& e)

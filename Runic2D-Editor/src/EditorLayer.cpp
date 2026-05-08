@@ -160,6 +160,9 @@ namespace Runic2D
 			}
 		}
 
+		if (scene->IsDebugOverlayEnabled())
+			scene->OnRenderDebugOverlay();
+
 		m_FrameBuffer->Unbind();
 	}
 
