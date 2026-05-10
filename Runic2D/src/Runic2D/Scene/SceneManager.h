@@ -19,6 +19,11 @@ namespace Runic2D {
         static bool LoadSceneAbsolute(const std::filesystem::path& absolutePath);
 
         static bool TransitionTo(const std::filesystem::path& relativePath);
+        static void TransitionToAsync(const std::filesystem::path& relativePath, const std::filesystem::path& loadingScenePath);
+
+        static float GetLoadingProgress() { return s_LoadingProgress; }
+
+		static void SetLoadingProgress(float progress) { s_LoadingProgress = progress; }
 
         static Ref<Scene> GetActiveScene() { return s_ActiveScene; }
 
@@ -52,5 +57,6 @@ namespace Runic2D {
         static Ref<Scene>               s_ActiveScene;
         static SceneChangedCallbackFn   s_OnSceneChanged;
         static std::filesystem::path    s_QueuedScenePath;
+        static float                    s_LoadingProgress;
     };
 }

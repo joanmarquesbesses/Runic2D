@@ -2,6 +2,8 @@
 #include "ResourceManager.h"
 
 namespace Runic2D {
+	
+	std::mutex ResourceManager::s_CacheMutex;
 
 	std::vector<std::function<void()>>& ResourceManager::GetCleanupQueue()
 	{

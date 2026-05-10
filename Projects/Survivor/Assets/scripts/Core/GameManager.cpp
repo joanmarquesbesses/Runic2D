@@ -3,6 +3,8 @@
 #include "GameComponents.h"
 #include "Entities/Player.h"
 
+bool m_IsLoading = false; 
+
 namespace Survivor
 {
 
@@ -18,6 +20,11 @@ namespace Survivor
 
         if (Input::IsKeyPressed(KeyCode::N)) {
 			SceneManager::TransitionTo("scenes/fisica.r2dscene");
+        }
+
+        if (Input::IsKeyPressed(KeyCode::M) && !m_IsLoading) {
+            m_IsLoading = true; // Marquem que ja estem en procés
+            SceneManager::TransitionToAsync("scenes/heavy_scene.r2dscene", "scenes/a.r2dscene");
         }
 
         stats.TimeAlive += ts;

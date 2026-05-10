@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Runic2D/Core/Core.h"
 #include <xhash> // Per hashing si cal
 
 namespace Runic2D {
 
-	class UUID
+	class RUNIC_API UUID
 	{
 	public:
 		UUID(); // Genera un nou ID aleatori

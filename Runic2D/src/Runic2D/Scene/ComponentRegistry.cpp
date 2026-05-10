@@ -31,14 +31,7 @@ namespace Runic2D {
 			*it = std::move(descriptor);
 			return;
 		}
-		/*
-		R2D_CORE_ASSERT(descriptor.Add, "ComponentDescriptor '{}': falta lambda 'Add'", descriptor.Name);
-		R2D_CORE_ASSERT(descriptor.Has, "ComponentDescriptor '{}': falta lambda 'Has'", descriptor.Name);
-		R2D_CORE_ASSERT(descriptor.Remove, "ComponentDescriptor '{}': falta lambda 'Remove'", descriptor.Name);
-		R2D_CORE_ASSERT(descriptor.CopyTo, "ComponentDescriptor '{}': falta lambda 'CopyTo'", descriptor.Name);
-		R2D_CORE_ASSERT(descriptor.Serialize, "ComponentDescriptor '{}': falta lambda 'Serialize'", descriptor.Name);
-		R2D_CORE_ASSERT(descriptor.Deserialize, "ComponentDescriptor '{}': falta lambda 'Deserialize'", descriptor.Name);
-		*/
+
 		// Afegim el descriptor a la llista (fem servir std::move per eficiència)
 		s_Descriptors.push_back(std::move(descriptor));
 		R2D_CORE_TRACE("ComponentRegistry: Component registrat '{0}' [{1}]", s_Descriptors.back().Name, s_Descriptors.back().Category);
@@ -215,11 +208,11 @@ namespace Runic2D {
 				if (node["Color"]) { src.Color.r = node["Color"][0].as<float>(); src.Color.g = node["Color"][1].as<float>(); src.Color.b = node["Color"][2].as<float>(); src.Color.a = node["Color"][3].as<float>(); }
 				if (node["TexturePath"])
 				{
-										std::string texturePathString = node["TexturePath"].as<std::string>();
+					std::string texturePathString = node["TexturePath"].as<std::string>();
   					std::filesystem::path path = Project::GetAssetFileSystemPath(texturePathString);
 					if (!std::filesystem::exists(path) && std::filesystem::exists(texturePathString)) path = texturePathString;
 					
-  					if (std::filesystem::exists(path)) src.Texture = ResourceManager::Get<Texture2D>(texturePathString);
+  					if (std::filesystem::exists(path)) src.Texture = ResourceManager::Get<Texture2D>(path);
   					else R2D_CORE_WARN("Texture not found: {0}", path.string());
 				}
 				if (node["TilingFactor"]) src.TilingFactor = node["TilingFactor"].as<float>();

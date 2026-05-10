@@ -1,5 +1,8 @@
+#include <thread>
+#include <chrono>
 #include "R2Dpch.h"
 #include "SceneSerializer.h"
+#include "SceneManager.h"
 
 #include <fstream>
 #include <yaml-cpp/yaml.h>
@@ -81,6 +84,7 @@ namespace YAML {
 		}
 	};
 } // namespace YAML
+
 
 namespace Runic2D {
 
@@ -242,9 +246,15 @@ namespace Runic2D {
 
 		if(entities)
 		{
+			size_t entityCount = entities.size();
+			size_t currentEntity = 0;
 
 			for (auto entityNode : entities)
 			{
+				SceneManager::SetLoadingProgress((float)currentEntity / (float)entityCount);
+				currentEntity++;
+				
+
 				uint64_t uuid = entityNode["EntityID"].as<uint64_t>();
 				std::string name;
 				auto tagComponent = entityNode["TagComponent"];
@@ -308,6 +318,7 @@ namespace Runic2D {
 			}
 		}
 
+		SceneManager::SetLoadingProgress(1.0f);
 		return true;
 	}
 

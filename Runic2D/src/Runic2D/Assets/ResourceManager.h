@@ -7,6 +7,7 @@
 #include <memory>
 #include <functional>
 #include <vector>
+#include <mutex>
 
 namespace Runic2D {
 
@@ -17,6 +18,7 @@ namespace Runic2D {
 		template<typename T>
 		static Ref<T> Get(const std::filesystem::path& path)
 		{
+			std::scoped_lock<std::mutex> lock(s_CacheMutex);
 			auto& cache = GetCache<T>();
 
 			std::string pathString = path.string();
@@ -58,11 +60,13 @@ namespace Runic2D {
 			if (!isRegistered)
 			{
 				GetCleanupQueue().push_back([]() {
+					std::scoped_lock<std::mutex> lock(s_CacheMutex);
 					GetCache<T>().clear();
 					});
 				isRegistered = true;
 
 				GetCleanUnusedQueue().push_back([]() {
+					std::scoped_lock<std::mutex> lock(s_CacheMutex);
 					auto& currentCache = GetCache<T>();
 
 					for (auto it = currentCache.begin(); it != currentCache.end(); )
@@ -82,5 +86,7 @@ namespace Runic2D {
 
 			return cache;
 		}
+
+		static std::mutex s_CacheMutex;
 	};
 }

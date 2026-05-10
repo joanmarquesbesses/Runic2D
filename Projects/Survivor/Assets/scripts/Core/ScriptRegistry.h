@@ -7,6 +7,7 @@
 #include "Entities/Player.h"
 #include "Systems/CameraController.h"
 #include "GameManager.h"
+#include "LoadingScript.h"
 
 namespace Survivor
 {
@@ -26,7 +27,7 @@ namespace Survivor
 
 		static std::vector<std::string> GetScriptNames()
 		{
-			return { "Player", "CameraController", "GameManager" };
+			return { "Player", "CameraController", "GameManager", "LoadingScript" };
 		}
 
 		static void BindScript(std::string name, Runic2D::Entity entity)
@@ -34,6 +35,7 @@ namespace Survivor
 			REGISTER_SCRIPT(Player);
 			REGISTER_SCRIPT(CameraController);
 			REGISTER_SCRIPT(GameManager);
+			REGISTER_SCRIPT(LoadingScript);
 		}
 	}
 
