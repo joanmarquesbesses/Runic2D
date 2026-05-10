@@ -54,9 +54,17 @@ namespace Runic2D {
         static bool LoadSceneInternal(const std::filesystem::path& absolutePath, bool startRuntime);
         static void RequestLoadScene(const std::filesystem::path& relativePath);
 
+        struct SceneLoadData
+        {
+            std::filesystem::path TargetPath;
+            std::filesystem::path LoadingPath;
+            bool IsAsync = false;
+            bool Pending = false;
+        };
+
+        static SceneLoadData            s_PendingLoad;
+        static float                    s_LoadingProgress;
         static Ref<Scene>               s_ActiveScene;
         static SceneChangedCallbackFn   s_OnSceneChanged;
-        static std::filesystem::path    s_QueuedScenePath;
-        static float                    s_LoadingProgress;
     };
 }
