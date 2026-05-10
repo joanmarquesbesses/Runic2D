@@ -123,6 +123,9 @@
     <ClInclude Include="src\Runic2D\Core\Assert.h">
       <Filter>src\Runic2D\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Core\BackgroundTaskSystem.h">
+      <Filter>src\Runic2D\Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Core\Core.h">
       <Filter>src\Runic2D\Core</Filter>
     </ClInclude>
@@ -1593,6 +1596,9 @@
       <Filter>src\Runic2D\Audio</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Core\Application.cpp">
+      <Filter>src\Runic2D\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Core\BackgroundTaskSystem.cpp">
       <Filter>src\Runic2D\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Core\InputManager.cpp">

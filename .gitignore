@@ -3,6 +3,7 @@
 **/bin/
 !vendor/premake/bin/
 bin-int/
+.antigravity/
 
 # Runic2D files
 *.log

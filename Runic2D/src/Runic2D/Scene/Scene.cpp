@@ -1493,7 +1493,8 @@ namespace Runic2D {
 		glm::mat4 projection = glm::ortho(0.0f, refWidth, 0.0f, refHeight, -1.0f, 1.0f);
 		Renderer2D::BeginScene(projection);
 
-		std::string debugStr = "Renderer Stats:\n";
+		std::string debugStr = "FPS: " + std::to_string((int)Application::Get().GetAverageFPS()) + "\n";
+		debugStr += "Renderer Stats:\n";
 		debugStr += "  Draw Calls: " + std::to_string(stats.DrawCalls) + "\n";
 		debugStr += "  Quads: " + std::to_string(stats.QuadCount) + "\n";
 		debugStr += "\nScene Stats:\n";

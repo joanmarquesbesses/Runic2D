@@ -2,7 +2,7 @@
 #include "OpenGLTexture.h"
 
 #include "stb_image.h"
-#include "Runic2D/Core/JobSystem.h"
+#include "Runic2D/Core/BackgroundTaskSystem.h"
 #include "Runic2D/Core/Application.h"
 
 #include <glad/glad.h>
@@ -83,7 +83,7 @@ namespace Runic2D {
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &whiteTextureData);
 
 		// 2. Dispatch a job to load the actual image from disk without blocking
-		JobSystem::Execute([this, path]() {
+		BackgroundTaskSystem::Execute([this, path]() {
 			int width, height, channels;
 			stbi_set_flip_vertically_on_load(true);
 			stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);

@@ -1,9 +1,11 @@
 #include "R2Dpch.h"
 #include "SceneManager.h"
+
 #include "SceneSerializer.h"
 #include "Runic2D/Project/Project.h"
 #include "Runic2D/Core/Application.h"
 #include "Runic2D/Core/JobSystem.h"
+#include "Runic2D/Core/BackgroundTaskSystem.h"
 #include "Runic2D/Scripting/ScriptEngine.h"
 #include "Component.h"
 
@@ -127,7 +129,7 @@ namespace Runic2D {
             auto targetPath = s_PendingLoad.TargetPath;
             auto absolutePath = Project::GetAssetFileSystemPath(targetPath);
 
-            std::thread worker([absolutePath, targetPath]() {
+            BackgroundTaskSystem::Execute([absolutePath, targetPath]() {
                 Ref<Scene> newScene = CreateRef<Scene>();
                 SceneSerializer serializer(newScene);
 
@@ -156,7 +158,6 @@ namespace Runic2D {
                     });
                 }
             });
-            worker.detach();
         }
         else
         {

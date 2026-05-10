@@ -180,6 +180,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Audio\AudioEngine.h" />
     <ClInclude Include="src\Runic2D\Core\Application.h" />
     <ClInclude Include="src\Runic2D\Core\Assert.h" />
+    <ClInclude Include="src\Runic2D\Core\BackgroundTaskSystem.h" />
     <ClInclude Include="src\Runic2D\Core\Core.h" />
     <ClInclude Include="src\Runic2D\Core\EntryPoint.h" />
     <ClInclude Include="src\Runic2D\Core\Input.h" />
@@ -674,6 +675,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClCompile Include="src\Runic2D\Assets\ResourceManager.cpp" />
     <ClCompile Include="src\Runic2D\Audio\AudioEngine.cpp" />
     <ClCompile Include="src\Runic2D\Core\Application.cpp" />
+    <ClCompile Include="src\Runic2D\Core\BackgroundTaskSystem.cpp" />
     <ClCompile Include="src\Runic2D\Core\InputManager.cpp" />
     <ClCompile Include="src\Runic2D\Core\JobSystem.cpp" />
     <ClCompile Include="src\Runic2D\Core\Layer.cpp" />

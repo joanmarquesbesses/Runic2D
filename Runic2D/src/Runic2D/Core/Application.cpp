@@ -2,6 +2,8 @@
 #include "Application.h"
 #include "JobSystem.h"
 
+#include "Runic2D/Core/JobSystem.h"
+#include "Runic2D/Core/BackgroundTaskSystem.h"
 #include "Core.h"
 #include "Runic2D/Renderer/Renderer.h"
 #include "Runic2D/Assets/ResourceManager.h"
@@ -34,6 +36,7 @@ namespace Runic2D {
 		Renderer::Init();
 		AudioEngine::Init();
 		JobSystem::Init();
+		BackgroundTaskSystem::Init();
 
 #ifndef R2D_DIST
 		m_ImGuiLayer = new ImGuiLayer();
@@ -50,6 +53,7 @@ namespace Runic2D {
 		m_Window.reset();
 
 		JobSystem::Shutdown();
+		BackgroundTaskSystem::Shutdown();
 		Renderer::Shutdown();
 		AudioEngine::Shutdown();
 		ResourceManager::Clear();
