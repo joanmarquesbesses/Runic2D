@@ -197,7 +197,7 @@ namespace Survivor {
         coll.MaskBits = coll.MaskBits = PhysicsLayers::Default | PhysicsLayers::Player | PhysicsLayers::Projectile | PhysicsLayers::EnemyBat;
         coll.IsSensor = false;
         coll.EnableSensorEvents = true;
-        coll.EnableContactEvents = true;
+        coll.EnableContactEvents = false;
         coll.Density = 1.0f;
         coll.Friction = 0.0f;
         coll.Restitution = 0.0f;
@@ -234,7 +234,7 @@ namespace Survivor {
         coll.MaskBits = coll.MaskBits = PhysicsLayers::Default | PhysicsLayers::Player | PhysicsLayers::Projectile | PhysicsLayers::EnemySlime;
         coll.IsSensor = false;
         coll.EnableSensorEvents = true;
-        coll.EnableContactEvents = true;
+        coll.EnableContactEvents = false;
         coll.Density = 1.0f;
         coll.Friction = 0.0f;
         coll.Restitution = 0.0f;
