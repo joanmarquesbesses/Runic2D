@@ -16,6 +16,7 @@ namespace Runic2D {
 		static std::mutex s_QueueMutex;
 		static std::condition_variable s_WakeCondition;
 		static bool s_Running = false;
+		static bool s_Enabled = true;
 
 		static void WorkerThread()
 		{
@@ -43,7 +44,6 @@ namespace Runic2D {
 						job();
 					}
 					catch (const std::exception& e) {
-						R2D_CORE_ERROR("Background Task failed: {0}", e.what());
 					}
 				}
 			}
@@ -81,8 +81,24 @@ namespace Runic2D {
 		BackgroundImpl::s_Threads.clear();
 	}
 
+	void BackgroundTaskSystem::SetEnabled(bool enabled)
+	{
+		BackgroundImpl::s_Enabled = enabled;
+	}
+
+	bool BackgroundTaskSystem::IsEnabled()
+	{
+		return BackgroundImpl::s_Enabled;
+	}
+
 	void BackgroundTaskSystem::Execute(const std::function<void()>& job)
 	{
+		if (!BackgroundImpl::s_Enabled)
+		{
+			if (job) job();
+			return;
+		}
+
 		{
 			std::unique_lock<std::mutex> lock(BackgroundImpl::s_QueueMutex);
 			BackgroundImpl::s_JobQueue.push(job);

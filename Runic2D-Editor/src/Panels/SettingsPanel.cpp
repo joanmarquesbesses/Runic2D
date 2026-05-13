@@ -2,6 +2,9 @@
 #include "SettingsPanel.h"
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Core/Application.h"
+#include "Runic2D/Core/JobSystem.h"
+#include "Runic2D/Core/BackgroundTaskSystem.h"
+
 #include <imgui/imgui.h>
 #include "ImGuizmo.h"
 
@@ -124,12 +127,35 @@ namespace Runic2D {
 			bool debugOverlay = activeScene->IsDebugOverlayEnabled();
 			if (ImGui::Checkbox("Show Debug Overlay", &debugOverlay))
 				activeScene->SetDebugOverlayEnabled(debugOverlay);
+
+			ImGui::Separator();
+			ImGui::Text("Toggle Threading Systems:");
+			bool jobEnabled = JobSystem::IsEnabled();
+			if (ImGui::Checkbox("Enable Multithreading (JobSystem)", &jobEnabled))
+				JobSystem::SetEnabled(jobEnabled);
+			bool bgEnabled = BackgroundTaskSystem::IsEnabled();
+			if (ImGui::Checkbox("Enable Async Loading (Background)", &bgEnabled))
+				BackgroundTaskSystem::SetEnabled(bgEnabled);
 		}
 
         // --- Physics ---
         if (ImGui::CollapsingHeader("Physics", ImGuiTreeNodeFlags_CollapsingHeader))
         {
             ImGui::Checkbox("Show Physics Colliders", &showColliders);
+		}
+
+		// --- Profiling ---
+		if (ImGui::CollapsingHeader("Profiling", ImGuiTreeNodeFlags_CollapsingHeader))
+		{
+			static bool s_Profiling = false;
+			if (ImGui::Button(s_Profiling ? "Aturar Profiling" : "Iniciar Profiling"))
+			{
+				if (s_Profiling)
+					R2D_PROFILE_END_SESSION();
+				else
+					R2D_PROFILE_BEGIN_SESSION("Runtime", "Profiling_Result.json");
+				s_Profiling = !s_Profiling;
+			}
 		}
 
 		ImGui::End();

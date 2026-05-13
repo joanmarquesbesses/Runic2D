@@ -19,6 +19,9 @@ namespace Runic2D {
 		// Llança una tasca al fil de fons. No bloqueja mai el JobSystem principal.
 		static void Execute(const std::function<void()>& job);
 
+		static void SetEnabled(bool enabled);
+		static bool IsEnabled();
+
 		static BackgroundTaskStats GetStats();
 	};
 

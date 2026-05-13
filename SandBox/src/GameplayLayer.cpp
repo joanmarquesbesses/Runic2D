@@ -75,6 +75,22 @@ bool GameplayLayer::OnKeyPressed(KeyPressedEvent& e)
 			if (scene) scene->SetDebugOverlayEnabled(!scene->IsDebugOverlayEnabled());
             return true;
         }
+        case KeyCode::F2:
+        {
+            static bool s_Profiling = false;
+            if (s_Profiling)
+            {
+                R2D_PROFILE_END_SESSION();
+                R2D_INFO("Profiling: Sessió finalitzada.");
+            }
+            else
+            {
+                R2D_PROFILE_BEGIN_SESSION("Gameplay_Session", "");
+                R2D_INFO("Profiling: Sessió iniciada.");
+            }
+            s_Profiling = !s_Profiling;
+            return true;
+        }
         case KeyCode::F3:
         {
 			m_ShowPhysicsColliders = !m_ShowPhysicsColliders;

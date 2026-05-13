@@ -4,12 +4,13 @@
 #include <chrono>
 #include <algorithm>
 #include <fstream>
-
 #include <thread>
+#include <mutex>
+#include <iomanip>
+#include <sstream>
 
 namespace Runic2D
 {
-
     struct ProfileResult
     {
         std::string Name;
@@ -28,14 +29,30 @@ namespace Runic2D
         InstrumentationSession* m_CurrentSession;
         std::ofstream m_OutputStream;
         int m_ProfileCount;
+        std::mutex m_Mutex;
     public:
         Instrumentor()
             : m_CurrentSession(nullptr), m_ProfileCount(0)
         {
         }
 
-        void BeginSession(const std::string& name, const std::string& filepath = "results.json")
+        void BeginSession(const std::string& name, std::string filepath = "")
         {
+            std::lock_guard<std::mutex> lock(m_Mutex);
+            if (m_CurrentSession)
+            {
+                InternalEndSession();
+            }
+
+            if (filepath.empty())
+            {
+                // Generem un nom de fitxer basat en el temps actual: Profiling_20240513_1800.json
+                auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                std::stringstream ss;
+                ss << "Profiling_" << std::put_time(std::localtime(&now), "%Y%m%d_%H%M%S") << ".json";
+                filepath = ss.str();
+            }
+
             m_OutputStream.open(filepath);
             WriteHeader();
             m_CurrentSession = new InstrumentationSession{ name };
@@ -43,15 +60,17 @@ namespace Runic2D
 
         void EndSession()
         {
-            WriteFooter();
-            m_OutputStream.close();
-            delete m_CurrentSession;
-            m_CurrentSession = nullptr;
-            m_ProfileCount = 0;
+            std::lock_guard<std::mutex> lock(m_Mutex);
+            InternalEndSession();
         }
 
         void WriteProfile(const ProfileResult& result)
         {
+            std::lock_guard<std::mutex> lock(m_Mutex);
+            
+            if (!m_CurrentSession)
+                return;
+
             if (m_ProfileCount++ > 0)
                 m_OutputStream << ",";
 
@@ -67,10 +86,17 @@ namespace Runic2D
             m_OutputStream << "\"tid\":" << result.ThreadID << ",";
             m_OutputStream << "\"ts\":" << result.Start;
             m_OutputStream << "}";
-
-            m_OutputStream.flush();
         }
 
+        static Instrumentor& Get()
+        {
+            static Instrumentor instance;
+            return instance;
+        }
+
+        bool IsSessionActive() const { return m_CurrentSession != nullptr; }
+
+    private:
         void WriteHeader()
         {
             m_OutputStream << "{\"otherData\": {},\"traceEvents\":[";
@@ -83,10 +109,16 @@ namespace Runic2D
             m_OutputStream.flush();
         }
 
-        static Instrumentor& Get()
+        void InternalEndSession()
         {
-            static Instrumentor instance;
-            return instance;
+            if (m_CurrentSession)
+            {
+                WriteFooter();
+                m_OutputStream.close();
+                delete m_CurrentSession;
+                m_CurrentSession = nullptr;
+                m_ProfileCount = 0;
+            }
         }
     };
 
@@ -96,7 +128,7 @@ namespace Runic2D
         InstrumentationTimer(const char* name)
             : m_Name(name), m_Stopped(false)
         {
-            m_StartTimepoint = std::chrono::high_resolution_clock::now();
+            m_StartTimepoint = std::chrono::steady_clock::now();
         }
 
         ~InstrumentationTimer()
@@ -107,12 +139,15 @@ namespace Runic2D
 
         void Stop()
         {
+            if (!Instrumentor::Get().IsSessionActive())
+                return;
+
             auto endTimepoint = std::chrono::steady_clock::now();
 
             long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();
             long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();
 
-            uint32_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
+            uint32_t threadID = (uint32_t)std::hash<std::thread::id>{}(std::this_thread::get_id());
             Instrumentor::Get().WriteProfile({ m_Name, start, end, threadID });
 
             m_Stopped = true;
@@ -124,8 +159,7 @@ namespace Runic2D
     };
 }
 
-#define R2D_PROFILE 0
-#if R2D_PROFILE 
+#ifndef R2D_DIST
     #define R2D_PROFILE_BEGIN_SESSION(name, filepath) ::Runic2D::Instrumentor::Get().BeginSession(name, filepath)
     #define R2D_PROFILE_END_SESSION() ::Runic2D::Instrumentor::Get().EndSession()
     #define R2D_PROFILE_SCOPE(name) ::Runic2D::InstrumentationTimer timer##__LINE__(name);

@@ -1,12 +1,11 @@
 #include "R2Dpch.h"
 #include "JobSystem.h"
 #include <thread>
-
-#include <thread>
 #include <condition_variable>
 #include <mutex>
 #include <queue>
 #include <atomic>
+#include <algorithm>
 
 namespace Runic2D {
 
@@ -18,6 +17,7 @@ namespace Runic2D {
 		static thread_local uint32_t s_WorkerIndex = 0;
 		static std::atomic<uint32_t> s_JobsInFlight = 0;
 		static bool s_Running = true;
+		static bool s_Enabled = true;
 
 		static void WorkerThread(uint32_t index)
 		{
@@ -33,11 +33,13 @@ namespace Runic2D {
 					if (!s_Running && s_JobQueue.empty())
 						return;
 
-					job = std::move(s_JobQueue.front());
-					s_JobQueue.pop();
+					if (!s_JobQueue.empty())
+					{
+						job = std::move(s_JobQueue.front());
+						s_JobQueue.pop();
+					}
 				}
 
-				// Execute job
 				if (job)
 					job();
 
@@ -49,9 +51,8 @@ namespace Runic2D {
 	void JobSystem::Init()
 	{
 		uint32_t numThreads = std::thread::hardware_concurrency();
-		if (numThreads == 0) numThreads = 4; // Fallback
+		if (numThreads == 0) numThreads = 4;
 
-		// Leave one core for the main thread
 		if (numThreads > 1) numThreads -= 1;
 
 		JobSystemImpl::s_Running = true;
@@ -78,8 +79,24 @@ namespace Runic2D {
 		JobSystemImpl::s_Threads.clear();
 	}
 
+	void JobSystem::SetEnabled(bool enabled)
+	{
+		JobSystemImpl::s_Enabled = enabled;
+	}
+
+	bool JobSystem::IsEnabled()
+	{
+		return JobSystemImpl::s_Enabled;
+	}
+
 	void JobSystem::Execute(const std::function<void()>& job)
 	{
+		if (!JobSystemImpl::s_Enabled)
+		{
+			if (job) job();
+			return;
+		}
+
 		JobSystemImpl::s_JobsInFlight.fetch_add(1);
 
 		{
@@ -95,16 +112,20 @@ namespace Runic2D {
 		DispatchStats stats;
 		if (dataCount == 0 || groupSize == 0) return stats;
 
+		if (!JobSystemImpl::s_Enabled)
+		{
+			if (task) task(0, dataCount);
+			return stats;
+		}
+
 		const uint32_t numGroups = (dataCount + groupSize - 1) / groupSize;
 
-		// If only 1 group: run inline on this thread (no mutex/notify overhead)
 		if (numGroups == 1)
 		{
 			task(0, dataCount);
-			return stats; // GroupsDispatched stays 0 = ran inline
+			return stats;
 		}
 
-		// Multiple groups: submit each as an independent job to worker threads
 		stats.GroupsDispatched = numGroups;
 
 		for (uint32_t groupIndex = 0; groupIndex < numGroups; groupIndex++)
@@ -122,7 +143,8 @@ namespace Runic2D {
 
 	void JobSystem::Wait()
 	{
-		// Simple busy-wait/yield. For a more robust wait, use another condition_variable
+		if (!JobSystemImpl::s_Enabled) return;
+
 		while (JobSystemImpl::s_JobsInFlight.load() > 0)
 		{
 			std::this_thread::yield();

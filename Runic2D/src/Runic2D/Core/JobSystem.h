@@ -20,6 +20,9 @@ namespace Runic2D {
 		// Push a single job to the queue to be executed on a worker thread
 		static void Execute(const std::function<void()>& job);
 
+		static void SetEnabled(bool enabled);
+		static bool IsEnabled();
+
 		// Execute a job across multiple threads by splitting dataCount into chunks of groupSize.
 		// If only 1 group is needed, runs inline on the calling thread (no queue overhead).
 		// Returns stats about how many groups were actually dispatched to threads.
