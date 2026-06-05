@@ -35,6 +35,7 @@ namespace Runic2D
 		}
 	private:
 		Entity m_Entity;
-		friend class Scene;
+		friend class ScriptingSystem;
+		friend class PhysicsSystem;
 	};
 }

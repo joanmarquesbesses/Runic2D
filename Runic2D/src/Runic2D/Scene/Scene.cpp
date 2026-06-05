@@ -9,46 +9,23 @@
 #include "Runic2D/Core/Input.h"
 #include "Runic2D/Core/JobSystem.h"
 
+#include "Runic2D/Systems/System.h"
+#include "Runic2D/Systems/PhysicsSystem.h"
+#include "Runic2D/Systems/ScriptingSystem.h"
+
 #include "Entity.h"
 #include "Component.h"
 #include "ComponentRegistry.h"
 #include "Tween.h"
 
 namespace Runic2D {
-	static void* Box2D_EnqueueTask(b2TaskCallback* task, int itemCount, int minRange, void* taskContext, void* userContext)
-	{
-		// Map Box2D tasks directly to our JobSystem::Dispatch
-		// minRange is the minimum number of items Box2D recommends per thread
-		JobSystem::Dispatch((uint32_t)itemCount, (uint32_t)minRange, [task, taskContext](uint32_t start, uint32_t end)
-		{
-			task((int)start, (int)end, JobSystem::GetThreadIndex(), taskContext);
-		});
-
-		return (void*)1; // We return a dummy pointer because our JobSystem::Wait waits for all jobs anyway
-	}
-
-	static void Box2D_FinishTask(void* userTask, void* userContext)
-	{
-		// Since our Dispatch calls are synchronous in terms of submission, 
-		// and we wait for all jobs, this ensures Box2D tasks are finished.
-		JobSystem::Wait();
-	}
-
-
-	static b2BodyType Rigidbody2DTypeToBox2D(Rigidbody2DComponent::BodyType bodyType)
-	{
-		switch (bodyType)
-		{
-		case Rigidbody2DComponent::BodyType::Static:    return b2_staticBody;
-		case Rigidbody2DComponent::BodyType::Dynamic:   return b2_dynamicBody;
-		case Rigidbody2DComponent::BodyType::Kinematic: return b2_kinematicBody;
-		}
-		return b2_staticBody;
-	}
-
+	
 	Scene::Scene()
 	{
 		m_Registry.on_construct<CameraComponent>().connect<&Scene::OnCameraComponentConstruct>(this);
+
+		AddSystem(CreateRef<ScriptingSystem>());
+		AddSystem(CreateRef<PhysicsSystem>());
 	}
 
 	Scene::~Scene()
@@ -180,28 +157,6 @@ namespace Runic2D {
 			}
 		}
 
-		if (entity.HasComponent<NativeScriptComponent>())
-		{
-			auto& nsc = entity.GetComponent<NativeScriptComponent>();
-
-			if (nsc.Instance)
-			{
-				nsc.Instance->OnDestroy();
-				nsc.DestroyScript(&nsc);
-			}
-		}
-
-		if (entity.HasComponent<Rigidbody2DComponent>())
-		{
-			auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
-
-			if (B2_IS_NON_NULL(rb2d.RuntimeBody) && m_PhysicsWorld.index1 != 0)
-			{
-				b2DestroyBody(rb2d.RuntimeBody);
-				rb2d.RuntimeBody = b2_nullBodyId;
-			}
-		}
-
 		UnparentEntity(entity);
 
 		m_Registry.destroy(entity);
@@ -242,36 +197,19 @@ namespace Runic2D {
 	{
 		if (!m_IsPaused)
 		{
-			UpdateScriptsFixed(ts);
-			UpdatePhysics(ts);
+			for (auto& system : m_SystemsList) {
+				system->OnFixedUpdate(ts, this);
+			}
 		}
 	}
 
 	void Scene::OnUpdateRunTime(Timestep ts)
 	{
-		// Physics Interpolation
-		if (!m_IsPaused && B2_IS_NON_NULL(m_PhysicsWorld))
-		{
-			float alpha = Application::Get().GetFixedUpdateAlpha();
-			m_Registry.view<TransformComponent, Rigidbody2DComponent>().each([&](auto entity, auto& transform, auto& rb)
-			{
-				if (B2_IS_NON_NULL(rb.RuntimeBody))
-				{
-					b2Vec2 currentPos = b2Body_GetPosition(rb.RuntimeBody);
-					float currentRot = b2Rot_GetAngle(b2Body_GetRotation(rb.RuntimeBody));
-
-					transform.Translation.x = glm::mix(rb.PreviousTranslation.x, currentPos.x, alpha);
-					transform.Translation.y = glm::mix(rb.PreviousTranslation.y, currentPos.y, alpha);
-				
-					transform.Rotation.z = glm::mix(rb.PreviousRotation, currentRot, alpha);
-					
-					transform.IsDirty = true;
-				}
-			});
-		}
+		for (auto& system : m_SystemsList) {
+			system->OnUpdate(ts, this);
+		}		
 
 		UpdateWorldTransforms();
-		UpdateScripts(ts);
 		UpdateTweens(ts);
 
 		if (!m_IsPaused)
@@ -291,127 +229,6 @@ namespace Runic2D {
 			}
 		}
 		m_DestructionQueue.clear();
-	}
-
-	void Scene::UpdateScripts(Timestep ts)
-	{
-		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-		{
-			//Script instantiation for created entities in runtime
-			if (!nsc.Instance) {
-				nsc.Instance = nsc.InstantiateScript();
-				nsc.Instance->m_Entity = Entity{ entity, this };
-				nsc.Instance->OnCreate();
-			}
-
-			//Update Script
-			if (nsc.Instance)
-			{
-				if (!m_IsPaused || nsc.Instance->UpdateWhenPaused())
-					nsc.Instance->OnUpdate(ts);
-			}
-		});
-	}
-
-	void Scene::UpdateScriptsFixed(Timestep ts)
-	{
-		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-		{
-			if (nsc.Instance)
-			{
-				if (!m_IsPaused || nsc.Instance->UpdateWhenPaused())
-					nsc.Instance->OnFixedUpdate(ts);
-			}
-		});
-	}
-
-	void Scene::UpdatePhysics(Timestep ts)
-	{
-		//Physics Step
-		if (B2_IS_NON_NULL(m_PhysicsWorld))
-		{
-			// Store previous state for interpolation before stepping the world
-			auto rbView = m_Registry.view<Rigidbody2DComponent>();
-			for (auto e : rbView)
-			{
-				auto& rb2d = rbView.get<Rigidbody2DComponent>(e);
-				if (B2_IS_NON_NULL(rb2d.RuntimeBody) && rb2d.InterpolationInitialized)
-				{
-					b2Vec2 pos = b2Body_GetPosition(rb2d.RuntimeBody);
-					rb2d.PreviousTranslation = { pos.x, pos.y };
-					rb2d.PreviousRotation = b2Rot_GetAngle(b2Body_GetRotation(rb2d.RuntimeBody));
-				}
-			}
-
-			b2World_Step(m_PhysicsWorld, ts, 4);
-
-			for (auto e : rbView)
-			{
-				auto& rb2d = rbView.get<Rigidbody2DComponent>(e);
-
-				if (B2_IS_NULL(rb2d.RuntimeBody))
-					continue;
-
-				b2BodyId bodyId = rb2d.RuntimeBody;
-				b2Body_SetAwake(bodyId, true);
-			}
-
-			b2ContactEvents events = b2World_GetContactEvents(m_PhysicsWorld);
-
-			for (int i = 0; i < events.beginCount; ++i)
-			{
-				b2ContactBeginTouchEvent* event = events.beginEvents + i;
-
-				b2ShapeId shapeA = event->shapeIdA;
-				b2ShapeId shapeB = event->shapeIdB;
-
-				uint64_t uuidA = (uintptr_t)b2Shape_GetUserData(shapeA);
-				uint64_t uuidB = (uintptr_t)b2Shape_GetUserData(shapeB);
-
-				Entity entityA = GetEntityByUUID(uuidA);
-				Entity entityB = GetEntityByUUID(uuidB);
-
-				if (entityA && entityA.HasComponent<NativeScriptComponent>())
-				{
-					auto& script = entityA.GetComponent<NativeScriptComponent>();
-					if (script.Instance) script.Instance->OnCollision(entityB);
-				}
-
-				if (entityB && entityB.HasComponent<NativeScriptComponent>())
-				{
-					auto& script = entityB.GetComponent<NativeScriptComponent>();
-					if (script.Instance) script.Instance->OnCollision(entityA);
-				}
-			}
-
-			b2SensorEvents sensorEvents = b2World_GetSensorEvents(m_PhysicsWorld);
-
-			for (int i = 0; i < sensorEvents.beginCount; ++i)
-			{
-				b2SensorBeginTouchEvent* event = sensorEvents.beginEvents + i;
-
-				b2ShapeId shapeA = event->sensorShapeId;
-				b2ShapeId shapeB = event->visitorShapeId;
-
-				uint64_t uuidA = (uintptr_t)b2Shape_GetUserData(shapeA);
-				uint64_t uuidB = (uintptr_t)b2Shape_GetUserData(shapeB);
-
-				Entity entityA = GetEntityByUUID(uuidA);
-				Entity entityB = GetEntityByUUID(uuidB);
-
-				if (entityA && entityA.HasComponent<NativeScriptComponent>())
-				{
-					auto& script = entityA.GetComponent<NativeScriptComponent>();
-					if (script.Instance) script.Instance->OnSensor(entityB);
-				}
-
-				if (entityB && entityB.HasComponent<NativeScriptComponent>())
-				{
-					auto& script = entityB.GetComponent<NativeScriptComponent>();
-					if (script.Instance) script.Instance->OnSensor(entityA);
-				}
-			}
-		}
 	}
 
 	void Scene::OnRenderRuntime()
@@ -744,33 +561,9 @@ namespace Runic2D {
 
 	void Scene::OnRuntimeStart()
 	{
-		b2WorldDef worldDef = b2DefaultWorldDef();
-		worldDef.gravity = { 0.0f, -9.8f }; 
-		
-		// Connect JobSystem
-		worldDef.workerCount = JobSystem::GetThreadCount();
-		worldDef.enqueueTask = Box2D_EnqueueTask;
-		worldDef.finishTask = Box2D_FinishTask;
-		worldDef.userTaskContext = this;
-
-		m_PhysicsWorld = b2CreateWorld(&worldDef);
-
-		auto view = m_Registry.view<Rigidbody2DComponent>();
-		for (auto e : view)
-		{
-			Entity entity = { e, this };
-			InstantiatePhysics(entity);
+		for (auto& system : m_SystemsList) {
+			system->OnStart(this);
 		}
-
-		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-		{
-			//Script instantiation
-			if (!nsc.Instance) {
-				nsc.Instance = nsc.InstantiateScript();
-				nsc.Instance->m_Entity = Entity{ entity, this };
-				nsc.Instance->OnCreate();
-			}
-		});
 
 		m_Registry.view<AnimationComponent>().each([=](auto entity, auto& anim)
 		{
@@ -824,125 +617,8 @@ namespace Runic2D {
 
 	void Scene::OnRuntimeStop()
 	{
-		if (B2_IS_NON_NULL(m_PhysicsWorld))
-		{
-			b2DestroyWorld(m_PhysicsWorld);
-			m_PhysicsWorld = b2_nullWorldId;
-		}
-
-		auto view = m_Registry.view<Rigidbody2DComponent>();
-		for (auto e : view)
-		{
-			Entity entity = { e, this };
-			auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
-			rb2d.RuntimeBody = b2_nullBodyId;
-
-			if (entity.HasComponent<BoxCollider2DComponent>())
-			{
-				auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
-				bc2d.RuntimeShape = b2_nullShapeId;
-			}
-
-			if (entity.HasComponent<CircleCollider2DComponent>())
-			{
-				auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
-				cc2d.RuntimeShape = b2_nullShapeId;
-			}
-		}
-
-		//Destroy script instances
-		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-		{
-			if (nsc.Instance)
-			{
-				nsc.Instance->OnDestroy();
-				nsc.DestroyScript(&nsc);  
-				nsc.Instance = nullptr;    
-			}
-		});
-	}
-
-	void Scene::InstantiatePhysics(Entity entity)
-	{
-		auto& transform = entity.GetComponent<TransformComponent>();
-		auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
-
-		glm::mat4 wolrdTransform = GetWorldTransform(entity);
-
-		b2BodyDef bodyDef = b2DefaultBodyDef();
-		bodyDef.type = Rigidbody2DTypeToBox2D(rb2d.Type);
-		bodyDef.position = { wolrdTransform[3].x, wolrdTransform[3].y };
-		bodyDef.rotation = b2MakeRot(transform.Rotation.z);
-		bodyDef.enableSleep = true;
-		bodyDef.motionLocks.angularZ = rb2d.FixedRotation;
-		bodyDef.gravityScale = rb2d.GravityScale;
-
-		b2BodyId bodyId = b2CreateBody(m_PhysicsWorld, &bodyDef);
-		rb2d.RuntimeBody = bodyId;
-
-		b2Vec2 spawnPos = b2Body_GetPosition(bodyId);
-		rb2d.PreviousTranslation = { spawnPos.x, spawnPos.y };
-		rb2d.PreviousRotation = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
-		rb2d.InterpolationInitialized = true;
-
-		if (entity.HasComponent<BoxCollider2DComponent>())
-		{
-			auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
-
-			b2ShapeDef shapeDef = b2DefaultShapeDef();
-			shapeDef.density = bc2d.Density;
-
-			shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
-			shapeDef.isSensor = bc2d.IsSensor;
-			shapeDef.filter.categoryBits = bc2d.CategoryBits;
-			shapeDef.filter.maskBits = bc2d.MaskBits;
-			shapeDef.filter.groupIndex = bc2d.GroupIndex;
-			shapeDef.enableSensorEvents = bc2d.EnableSensorEvents;
-			shapeDef.enableContactEvents = bc2d.EnableContactEvents;
-
-			float hx = std::abs(bc2d.Size.x * transform.Scale.x) * 0.5f;
-			float hy = std::abs(bc2d.Size.y * transform.Scale.y) * 0.5f;
-
-			b2Polygon boxPolygon = b2MakeOffsetBox(hx, hy, { bc2d.Offset.x, bc2d.Offset.y }, b2MakeRot(0.0f));
-
-			b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &boxPolygon);
-			b2Shape_SetFriction(shapeId, bc2d.Friction);
-			b2Shape_SetRestitution(shapeId, bc2d.Restitution);
-			bc2d.RuntimeShape = shapeId;
-		}
-
-		if (entity.HasComponent<CircleCollider2DComponent>())
-		{
-			auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
-
-			b2ShapeDef shapeDef = b2DefaultShapeDef();
-			shapeDef.density = cc2d.Density;
-
-			shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
-			shapeDef.isSensor = cc2d.IsSensor;
-			shapeDef.filter.categoryBits = cc2d.CategoryBits;
-			shapeDef.filter.maskBits = cc2d.MaskBits;
-			shapeDef.filter.groupIndex = cc2d.GroupIndex;
-			shapeDef.enableSensorEvents = cc2d.EnableSensorEvents;
-			shapeDef.enableContactEvents = cc2d.EnableContactEvents;
-
-			float maxScale = std::max(transform.Scale.x, transform.Scale.y);
-			float radius = cc2d.Radius * maxScale;
-
-			b2Circle circle;
-			circle.center = { cc2d.Offset.x, cc2d.Offset.y };
-			circle.radius = radius;
-
-			b2ShapeId shapeId = b2CreateCircleShape(bodyId, &shapeDef, &circle);
-			b2Shape_SetFriction(shapeId, cc2d.Friction);
-			b2Shape_SetRestitution(shapeId, cc2d.Restitution);
-			cc2d.RuntimeShape = shapeId;
-		}
-
-		if (rb2d.Type == Rigidbody2DComponent::BodyType::Dynamic)
-		{
-			b2Body_ApplyMassFromShapes(bodyId);
-			b2Body_SetAwake(bodyId, true);
+		for (auto& system : m_SystemsList) {
+			system->OnStop(this);
 		}
 	}
 
@@ -1598,7 +1274,6 @@ namespace Runic2D {
 		for (auto e : toRemove) m_Registry.remove<TweenComponent>(e);
 		for (auto e : toDestroy) m_Registry.destroy(e);
 	}
-
 
 	void Scene::InvalidateTransform(Entity entity)
 	{

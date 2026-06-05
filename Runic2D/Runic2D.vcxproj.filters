@@ -49,6 +49,9 @@
     <Filter Include="src\Runic2D\Scripting">
       <UniqueIdentifier>{B5AC97B2-2119-53AD-EA0C-EB0A56387515}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Systems">
+      <UniqueIdentifier>{FA044309-6666-2017-EFD3-66C95B3457D6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Utils">
       <UniqueIdentifier>{935760BD-FF6D-5E53-48E5-E974B43A2FDB}</UniqueIdentifier>
     </Filter>
@@ -284,6 +287,15 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h">
       <Filter>src\Runic2D\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\PhysicsSystem.h">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\ScriptingSystem.h">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\System.h">
+      <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h">
       <Filter>src\Runic2D\Utils</Filter>
@@ -1705,6 +1717,12 @@
     </ClCompile>
     <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp">
       <Filter>src\Runic2D\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\PhysicsSystem.cpp">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\ScriptingSystem.cpp">
+      <Filter>src\Runic2D\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Utils\Random.cpp">
       <Filter>src\Runic2D\Utils</Filter>

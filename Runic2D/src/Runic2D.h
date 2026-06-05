@@ -26,6 +26,9 @@
 #include "Runic2D/Scene/SceneSerializer.h"
 #include "Runic2D/Scene/Tween.h"
 
+#include "Runic2D/Systems/System.h"
+#include "Runic2D/Systems/PhysicsSystem.h"
+
 #include "Runic2D/Scripting/ScriptEngine.h"
 
 #include "Runic2D/Utils/SceneUtils.h"

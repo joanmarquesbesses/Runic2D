@@ -84,6 +84,7 @@ namespace Runic2D {
 
 		friend class Scene;
 		friend class SceneSerializer;
+		friend class PhysicsSystem;
 	};
 
 	struct RUNIC_API SpriteRendererComponent {

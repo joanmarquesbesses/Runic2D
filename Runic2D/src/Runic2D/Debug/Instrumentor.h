@@ -23,7 +23,7 @@ namespace Runic2D
         std::string Name;
     };
 
-    class Instrumentor
+    class RUNIC_API Instrumentor
     {
     private:
         InstrumentationSession* m_CurrentSession;

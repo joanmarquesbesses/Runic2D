@@ -7,9 +7,12 @@
 
 #include <entt.hpp>
 #include <box2d/types.h>
+#include <unordered_map>
+#include <typeindex>
 
 namespace Runic2D {
 
+	class System;
 	class Entity;
 
 	struct TransformComponent;
@@ -69,7 +72,6 @@ namespace Runic2D {
 		void OnRuntimeStart();
 		void OnRuntimeStop();
 
-		void InstantiatePhysics(Entity entity);
 		void UpdateEntityColliders(Entity entity);
 
 		void EmitParticles(const ParticleProps& props) { m_ParticleSystem.Emit(props); }
@@ -127,13 +129,38 @@ namespace Runic2D {
 			return {}; 
 		}
 
+		b2WorldId& GetPhysicsWorldID() {
+			return m_PhysicsWorld;
+		}
+
+		entt::registry& GetEntityRegistry() {
+			return m_Registry;
+		}
+
+		const entt::registry& GetEntityRegistry() const {
+			return m_Registry;
+		}
+
+	public:
+		template<typename T>
+		void AddSystem(Ref<T> system) {
+			m_SystemsList.push_back(system);
+			m_SystemsMap[typeid(T)] = system;
+		}
+
+		template<typename T>
+		Ref<T> GetSystem() {
+			auto it = m_SystemsMap.find(typeid(T));
+			if (it != m_SystemsMap.end()) {
+				return std::static_pointer_cast<T>(it->second);
+			}
+			return nullptr;
+		}
+
 	private:
 		void OnCameraComponentConstruct(entt::registry& registry, entt::entity entity);
 		void CopyEntity(Entity src, Entity dst);
 
-		void UpdateScripts(Timestep ts);
-		void UpdateScriptsFixed(Timestep ts);
-		void UpdatePhysics(Timestep ts);
 		void UpdateTweens(Timestep ts);
 		void UpdateWorldTransforms();
 
@@ -146,6 +173,9 @@ namespace Runic2D {
 		glm::vec2 m_ViewportBoundsMax = { 0.0f, 0.0f };
 
 		b2WorldId m_PhysicsWorld = b2_nullWorldId;
+
+		std::unordered_map<std::type_index, Ref<System>> m_SystemsMap;
+		std::vector<Ref<System>> m_SystemsList;
 
 		ParticleSystem m_ParticleSystem;
 

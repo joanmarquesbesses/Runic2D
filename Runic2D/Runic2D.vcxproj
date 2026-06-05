@@ -234,6 +234,9 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Scene\ScriptableEntity.h" />
     <ClInclude Include="src\Runic2D\Scene\Tween.h" />
     <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h" />
+    <ClInclude Include="src\Runic2D\Systems\PhysicsSystem.h" />
+    <ClInclude Include="src\Runic2D\Systems\ScriptingSystem.h" />
+    <ClInclude Include="src\Runic2D\Systems\System.h" />
     <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h" />
     <ClInclude Include="src\Runic2D\Utils\Random.h" />
     <ClInclude Include="src\Runic2D\Utils\SceneUtils.h" />
@@ -711,6 +714,8 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClCompile Include="src\Runic2D\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Runic2D\Scene\SceneSerializer.cpp" />
     <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp" />
+    <ClCompile Include="src\Runic2D\Systems\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Runic2D\Systems\ScriptingSystem.cpp" />
     <ClCompile Include="src\Runic2D\Utils\Random.cpp" />
     <ClCompile Include="src\Runic2D\Utils\SceneUtils.cpp" />
     <ClCompile Include="vendor\stb_image\stb_image.cpp" />

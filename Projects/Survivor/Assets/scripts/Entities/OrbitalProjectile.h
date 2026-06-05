@@ -29,7 +29,7 @@ namespace Survivor {
                 cc.CategoryBits = PhysicsLayers::Projectile;
                 cc.MaskBits = PhysicsLayers::Enemy;
 
-                GetScene()->InstantiatePhysics(GetEntity());
+                GetScene()->GetSystem<PhysicsSystem>()->InstantiatePhysics(GetEntity(), GetScene());
             }
 
             auto& anim = GetEntity().AddComponent<AnimationComponent>();

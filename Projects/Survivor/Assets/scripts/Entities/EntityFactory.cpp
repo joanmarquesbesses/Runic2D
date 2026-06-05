@@ -153,7 +153,7 @@ namespace Survivor {
         bc.EnableContactEvents = false;
         bc.EnableSensorEvents = true;
 
-        s_Scene->InstantiatePhysics(entity);
+        s_Scene->GetSystem<PhysicsSystem>()->InstantiatePhysics(entity, s_Scene);
 
         //5. Prjectile properties
         auto& projData = entity.AddComponent<ProjectileComponent>();
@@ -201,7 +201,7 @@ namespace Survivor {
         coll.Density = 1.0f;
         coll.Friction = 0.0f;
         coll.Restitution = 0.0f;
-        s_Scene->InstantiatePhysics(entity);
+        s_Scene->GetSystem<PhysicsSystem>()->InstantiatePhysics(entity, s_Scene);
 
         return entity;
     }
@@ -238,7 +238,7 @@ namespace Survivor {
         coll.Density = 1.0f;
         coll.Friction = 0.0f;
         coll.Restitution = 0.0f;
-        s_Scene->InstantiatePhysics(entity);
+        s_Scene->GetSystem<PhysicsSystem>()->InstantiatePhysics(entity, s_Scene);
 
         return entity;
     }
@@ -274,7 +274,7 @@ namespace Survivor {
         rb.GravityScale = 0.0f;
         rb.FixedRotation = true;
 
-        s_Scene->InstantiatePhysics(entity);
+        s_Scene->GetSystem<PhysicsSystem>()->InstantiatePhysics(entity, s_Scene);
 
         // 5. Script
         entity.AddComponent<NativeScriptComponent>().Bind<ExperienceOrb>();
