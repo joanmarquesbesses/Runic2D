@@ -10,8 +10,9 @@
 #include "Runic2D/Core/JobSystem.h"
 
 #include "Runic2D/Systems/System.h"
-#include "Runic2D/Systems/PhysicsSystem.h"
 #include "Runic2D/Systems/ScriptingSystem.h"
+#include "Runic2D/Systems/PhysicsSystem.h"
+#include "Runic2D/Systems/TransformSystem.h"
 
 #include "Entity.h"
 #include "Component.h"
@@ -24,8 +25,9 @@ namespace Runic2D {
 	{
 		m_Registry.on_construct<CameraComponent>().connect<&Scene::OnCameraComponentConstruct>(this);
 
-		AddSystem(CreateRef<ScriptingSystem>());
-		AddSystem(CreateRef<PhysicsSystem>());
+		AddSystem(CreateRef<ScriptingSystem>(), SystemPhase::Logic);
+		AddSystem(CreateRef<PhysicsSystem>(), SystemPhase::Physics);
+		AddSystem(CreateRef<TransformSystem>(), SystemPhase::PostUpdate);
 	}
 
 	Scene::~Scene()
@@ -157,7 +159,7 @@ namespace Runic2D {
 			}
 		}
 
-		UnparentEntity(entity);
+		entity.Unparent(false);
 
 		m_Registry.destroy(entity);
 	}
@@ -197,19 +199,27 @@ namespace Runic2D {
 	{
 		if (!m_IsPaused)
 		{
-			for (auto& system : m_SystemsList) {
-				system->OnFixedUpdate(ts, this);
+			for (auto& logicSystem : m_LogicSystems) {
+				logicSystem->OnFixedUpdate(ts, this);
+			}
+			for (auto& physicsSystem : m_PhysicsSystems) {
+				physicsSystem->OnFixedUpdate(ts, this);
 			}
 		}
 	}
 
 	void Scene::OnUpdateRunTime(Timestep ts)
 	{
-		for (auto& system : m_SystemsList) {
-			system->OnUpdate(ts, this);
-		}		
+		for (auto& logicSystem : m_LogicSystems) {
+			logicSystem->OnUpdate(ts, this);
+		}
+		for (auto& physicsSystem : m_PhysicsSystems) {
+			physicsSystem->OnUpdate(ts, this);
+		}
+		for (auto& postUpdateSystem : m_PostUpdateSystems) {
+			postUpdateSystem->OnUpdate(ts, this);
+		}
 
-		UpdateWorldTransforms();
 		UpdateTweens(ts);
 
 		if (!m_IsPaused)
@@ -233,7 +243,6 @@ namespace Runic2D {
 
 	void Scene::OnRenderRuntime()
 	{
-		UpdateWorldTransforms();
 		//Find Main Camera
 		auto cameraEntity = GetPrimaryCameraEntity();
 		if (!cameraEntity) return;
@@ -249,7 +258,7 @@ namespace Runic2D {
 		view.each([&](auto entityID, auto& transform, auto& sprite)
 			{
 				Entity e{ entityID, this };
-				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				glm::mat4 worldTransform = e.GetWorldTransform();
 				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
 			});
 
@@ -258,7 +267,7 @@ namespace Runic2D {
 		circleView.each([&](auto entityID, auto& transform, auto& circle)
 			{
 				Entity e{ entityID, this };
-				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				glm::mat4 worldTransform = e.GetWorldTransform();
 				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
 			});
 
@@ -267,7 +276,7 @@ namespace Runic2D {
 				if (!text.Visible)
 					return;
 				Entity e{ entityID, this };
-				glm::mat4 worldTransform = GetWorldTransform(transform, e);
+				glm::mat4 worldTransform = e.GetWorldTransform();
 				Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID, (int)text.TextAlignment);
 			});
 
@@ -414,7 +423,11 @@ namespace Runic2D {
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
 	{
-		UpdateWorldTransforms();
+		auto transformSystem = GetSystem<TransformSystem>();
+		if (transformSystem) {
+			transformSystem->OnUpdate(ts, this);
+		}
+
 		UpdateAnimation(ts);
 		Renderer2D::BeginScene(camera);
 
@@ -423,7 +436,7 @@ namespace Runic2D {
 		view.each([&](auto entityID, auto& transform, auto& sprite)
 		{
 			Entity e{ entityID, this };
-			glm::mat4 worldTransform = GetWorldTransform(transform, e);
+			glm::mat4 worldTransform = e.GetWorldTransform();
 			Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
 		});
 
@@ -432,8 +445,15 @@ namespace Runic2D {
 		circleView.each([&](auto entityID, auto& transform, auto& circle)
 		{
 			Entity e{ entityID, this };
-			glm::mat4 worldTransform = GetWorldTransform(transform, e);
+			glm::mat4 worldTransform = e.GetWorldTransform();
 			Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
+		});
+
+		m_Registry.view<TransformComponent, TextComponent>(entt::exclude<RectTransformComponent>).each([&](auto entityID, auto& transform, auto& text)
+		{
+			Entity e{ entityID, this };
+			glm::mat4 worldTransform = e.GetWorldTransform();
+			Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID, (int)text.TextAlignment);
 		});
 
 		// Draw Camera Bounds
@@ -461,13 +481,6 @@ namespace Runic2D {
 
 			Renderer2D::DrawRect(debugTransform, { 0.0f, 1.0f, 0.0f, 1.0f });
 		}
-
-		m_Registry.view<TransformComponent, TextComponent>(entt::exclude<RectTransformComponent>).each([&](auto entityID, auto& transform, auto& text)
-		{
-			Entity e{ entityID, this };
-			glm::mat4 worldTransform = GetWorldTransform(transform, e);
-			Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID, (int)text.TextAlignment);
-		});
 
 		Renderer2D::EndScene();
 
@@ -561,8 +574,11 @@ namespace Runic2D {
 
 	void Scene::OnRuntimeStart()
 	{
-		for (auto& system : m_SystemsList) {
-			system->OnStart(this);
+		for (auto& logicSystem : m_LogicSystems) {
+			logicSystem->OnStart(this);
+		}
+		for (auto& physicsSystem : m_PhysicsSystems) {
+			physicsSystem->OnStart(this);
 		}
 
 		m_Registry.view<AnimationComponent>().each([=](auto entity, auto& anim)
@@ -617,8 +633,11 @@ namespace Runic2D {
 
 	void Scene::OnRuntimeStop()
 	{
-		for (auto& system : m_SystemsList) {
-			system->OnStop(this);
+		for (auto& logicSystem : m_LogicSystems) {
+			logicSystem->OnStop(this);
+		}
+		for (auto& physicsSystem : m_PhysicsSystems) {
+			physicsSystem->OnStop(this);
 		}
 	}
 
@@ -651,8 +670,8 @@ namespace Runic2D {
 			shapeDef.enableSensorEvents = bc2d.EnableSensorEvents;
 			shapeDef.enableContactEvents = bc2d.EnableContactEvents;
 
-			float hx = std::abs(bc2d.Size.x * transform.Scale.x) * 0.5f;
-			float hy = std::abs(bc2d.Size.y * transform.Scale.y) * 0.5f;
+			float hx = std::abs(bc2d.Size.x * transform.GetScale().x) * 0.5f;
+			float hy = std::abs(bc2d.Size.y * transform.GetScale().y) * 0.5f;
 
 			b2Polygon boxPolygon = b2MakeOffsetBox(hx, hy, { bc2d.Offset.x, bc2d.Offset.y }, b2MakeRot(0.0f));
 
@@ -683,7 +702,7 @@ namespace Runic2D {
 			shapeDef.enableSensorEvents = cc2d.EnableSensorEvents;
 			shapeDef.enableContactEvents = cc2d.EnableContactEvents;
 
-			float maxScale = std::max(std::abs(transform.Scale.x), std::abs(transform.Scale.y));
+			float maxScale = std::max(std::abs(transform.GetScale().x), std::abs(transform.GetScale().y));
 			float radius = cc2d.Radius * maxScale;
 
 			b2Circle circle;
@@ -872,95 +891,6 @@ namespace Runic2D {
 			component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
 	}
 
-	void Scene::ParentEntity(Entity entity, Entity parent)
-	{
-		if (entity == parent) return;
-
-		glm::mat4 oldWorldTransform = GetWorldTransform(entity);
-
-		UnparentEntity(entity);
-
-		auto& childRC = entity.GetComponent<RelationshipComponent>();
-		childRC.Parent = (entt::entity)parent;
-
-		auto& parentRC = parent.GetComponent<RelationshipComponent>();
-
-		if (parentRC.FirstChild == entt::null)
-		{
-			parentRC.FirstChild = (entt::entity)entity;
-		}
-		else
-		{
-			entt::entity prevNode = parentRC.FirstChild;
-			while (true)
-			{
-				Entity prevEntity{ prevNode, this };
-				auto& prevRC = prevEntity.GetComponent<RelationshipComponent>();
-
-				if (prevRC.NextSibling == entt::null)
-				{
-					prevRC.NextSibling = (entt::entity)entity;
-					childRC.PrevSibling = prevNode;
-					break;
-				}
-				prevNode = prevRC.NextSibling;
-			}
-		}
-
-		parentRC.ChildrenCount++;
-
-		glm::mat4 parentWorldTransform = GetWorldTransform(parent);
-		glm::mat4 newLocalTransform = glm::inverse(parentWorldTransform) * oldWorldTransform;
-
-		auto& tc = entity.GetComponent<TransformComponent>();
-		Math::DecomposeTransform(newLocalTransform, tc.Translation, tc.Rotation, tc.Scale);
-		InvalidateTransform(entity);
-	}
-
-	void Scene::UnparentEntity(Entity entity, bool convertToWorldSpace)
-	{
-		auto& childRC = entity.GetComponent<RelationshipComponent>();
-		if (childRC.Parent == entt::null)
-			return;
-
-		glm::mat4 worldTransform = glm::mat4(1.0f);
-		if (convertToWorldSpace) {
-			worldTransform = GetWorldTransform(entity);
-		}
-
-		Entity parent{ childRC.Parent, this };
-		auto& parentRC = parent.GetComponent<RelationshipComponent>();
-
-		if (childRC.PrevSibling != entt::null)
-		{
-			Entity prevEntity{ childRC.PrevSibling, this };
-			prevEntity.GetComponent<RelationshipComponent>().NextSibling = childRC.NextSibling;
-		}
-
-		if (childRC.NextSibling != entt::null)
-		{
-			Entity nextEntity{ childRC.NextSibling, this };
-			nextEntity.GetComponent<RelationshipComponent>().PrevSibling = childRC.PrevSibling;
-		}
-
-		if (parentRC.FirstChild == (entt::entity)entity)
-		{
-			parentRC.FirstChild = childRC.NextSibling;
-		}
-
-		parentRC.ChildrenCount--;
-
-		childRC.Parent = entt::null;
-		childRC.NextSibling = entt::null;
-		childRC.PrevSibling = entt::null;
-
-		if (convertToWorldSpace) {
-			auto& tc = entity.GetComponent<TransformComponent>();
-			Math::DecomposeTransform(worldTransform, tc.Translation, tc.Rotation, tc.Scale);
-			InvalidateTransform(entity);
-		}
-	}
-
 	Entity Scene::FindEntityByName(std::string_view name)
 	{
 		auto view = m_Registry.view<TagComponent>();
@@ -973,28 +903,6 @@ namespace Runic2D {
 		return {};
 	}
 
-	glm::mat4 Scene::GetWorldTransform(Entity entity)
-	{
-		glm::mat4 transform = entity.GetComponent<TransformComponent>().GetTransform();
-
-		if (entity.HasComponent<RelationshipComponent>())
-		{
-			entt::entity parentID = entity.GetComponent<RelationshipComponent>().Parent;
-			if (parentID != entt::null)
-			{
-				Entity parent{ parentID, this };
-				transform = GetWorldTransform(parent) * transform;
-			}
-		}
-
-		return transform;
-	}
-
-	glm::mat4 Scene::GetWorldTransform(const TransformComponent& transform, Entity entity)
-	{
-		return transform.WorldTransform;
-	}
-
 	void Scene::OnRenderOverlay(const glm::mat4& viewProjection)
 	{
 		Renderer2D::BeginScene(viewProjection);
@@ -1003,10 +911,10 @@ namespace Runic2D {
 
 		viewbc.each([&](auto entity, auto& tc, auto& bc2d)
 			{
-				glm::vec3 scale = tc.Scale * glm::vec3(bc2d.Size, 1.0f);
+				glm::vec3 scale = tc.GetScale() * glm::vec3(bc2d.Size, 1.0f);
 
-				glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.Translation)
-					* glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
+				glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.GetTranslation())
+					* glm::rotate(glm::mat4(1.0f), tc.GetRotation().z, glm::vec3(0.0f, 0.0f, 1.0f))
 					* glm::translate(glm::mat4(1.0f), glm::vec3(bc2d.Offset, 0.001f))
 					* glm::scale(glm::mat4(1.0f), scale);
 
@@ -1017,10 +925,10 @@ namespace Runic2D {
 
 		viewcc.each([&](auto entity, auto& tc, auto& cc2d)
 		{
-			float scale = std::max(tc.Scale.x, tc.Scale.y) * cc2d.Radius * 2.0f;
+			float scale = std::max(tc.GetScale().x, tc.GetScale().y) * cc2d.Radius * 2.0f;
 
-			glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.Translation)
-				* glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.GetTranslation())
+				* glm::rotate(glm::mat4(1.0f), tc.GetRotation().z, glm::vec3(0.0f, 0.0f, 1.0f))
 				* glm::translate(glm::mat4(1.0f), glm::vec3(cc2d.Offset, 0.001f))
 				* glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, 1.0f));
 
@@ -1238,7 +1146,7 @@ namespace Runic2D {
 				}
 
 				if (needsInvalidation)
-					InvalidateTransform(entity);
+					entity.InvalidateTransform();
 
 				if (t >= 1.0f)
 				{
@@ -1273,123 +1181,5 @@ namespace Runic2D {
 
 		for (auto e : toRemove) m_Registry.remove<TweenComponent>(e);
 		for (auto e : toDestroy) m_Registry.destroy(e);
-	}
-
-	void Scene::InvalidateTransform(Entity entity)
-	{
-		if (entity.HasComponent<TransformComponent>())
-			entity.GetComponent<TransformComponent>().IsDirty = true;
-		
-		if (entity.HasComponent<RectTransformComponent>())
-			entity.GetComponent<RectTransformComponent>().m_IsDirty = true;
-
-		if (entity.HasComponent<RelationshipComponent>())
-		{
-			auto& rel = entity.GetComponent<RelationshipComponent>();
-			entt::entity childID = rel.FirstChild;
-			while (childID != entt::null)
-			{
-				InvalidateTransform({ childID, this });
-				childID = m_Registry.get<RelationshipComponent>(childID).NextSibling;
-			}
-		}
-	}
-
-	void Scene::UpdateWorldTransforms()
-	{
-		R2D_PROFILE_FUNCTION();
-
-		// 1. Organize entities by depth level (BFS)
-		// This ensures parents are processed before children
-		std::vector<std::vector<entt::entity>> levels;
-		levels.reserve(4); // Typical hierarchy depth
-
-		// Level 0: Roots (no parent)
-		{
-			std::vector<entt::entity> roots;
-			// Entities with Transform but NO Relationship are roots
-			auto transformOnlyView = m_Registry.view<TransformComponent>(entt::exclude<RelationshipComponent>);
-			roots.insert(roots.end(), transformOnlyView.begin(), transformOnlyView.end());
-
-			// Entities with Transform and Relationship with no parent are also roots
-			m_Registry.view<TransformComponent, RelationshipComponent>().each([&](auto entity, auto&, auto& rel)
-			{
-				if (rel.Parent == entt::null)
-					roots.push_back(entity);
-			});
-
-			if (roots.empty()) return;
-			levels.emplace_back(std::move(roots));
-		}
-
-		// Levels 1+: Children
-		uint32_t currentLevel = 0;
-		while (true)
-		{
-			std::vector<entt::entity> nextLevel;
-			for (auto parent : levels[currentLevel])
-			{
-				if (m_Registry.all_of<RelationshipComponent>(parent))
-				{
-					auto& rel = m_Registry.get<RelationshipComponent>(parent);
-					entt::entity child = rel.FirstChild;
-					while (child != entt::null)
-					{
-						nextLevel.push_back(child);
-						child = m_Registry.get<RelationshipComponent>(child).NextSibling;
-					}
-				}
-			}
-
-			if (nextLevel.empty()) break;
-			levels.push_back(std::move(nextLevel));
-			currentLevel++;
-		}
-
-		// 2. Process each level in parallel using JobSystem::Dispatch
-		for (auto& levelEntities : levels)
-		{
-			uint32_t count = (uint32_t)levelEntities.size();
-			uint32_t groupSize = 64;
-
-			auto stats = JobSystem::Dispatch(count, groupSize, [this, &levelEntities](uint32_t start, uint32_t end)
-			{
-				for (uint32_t i = start; i < end; i++)
-				{
-					entt::entity entity = levelEntities[i];
-					auto& tc = m_Registry.get<TransformComponent>(entity);
-
-					if (!tc.IsDirty) continue;
-
-					// Calculate local transform
-					glm::mat4 local = tc.GetTransform();
-
-					// Multiply by parent world transform if exists
-					if (m_Registry.all_of<RelationshipComponent>(entity))
-					{
-						entt::entity parent = m_Registry.get<RelationshipComponent>(entity).Parent;
-						if (parent != entt::null)
-						{
-							// Parent's WorldTransform is guaranteed to be up-to-date 
-							// because it was in a previous level or processed earlier
-							tc.WorldTransform = m_Registry.get<TransformComponent>(parent).WorldTransform * local;
-						}
-						else
-						{
-							tc.WorldTransform = local;
-						}
-					}
-					else
-					{
-						tc.WorldTransform = local;
-					}
-
-					tc.IsDirty = false;
-				}
-			});
-
-			if (stats.GroupsDispatched > 0)
-				JobSystem::Wait();
-		}
 	}
 }

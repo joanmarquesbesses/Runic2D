@@ -297,6 +297,9 @@
     <ClInclude Include="src\Runic2D\Systems\System.h">
       <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\TransformSystem.h">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h">
       <Filter>src\Runic2D\Utils</Filter>
     </ClInclude>
@@ -1722,6 +1725,9 @@
       <Filter>src\Runic2D\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\ScriptingSystem.cpp">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\TransformSystem.cpp">
       <Filter>src\Runic2D\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Utils\Random.cpp">

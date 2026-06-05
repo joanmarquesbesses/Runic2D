@@ -239,7 +239,7 @@ namespace Runic2D
 
 				if (payloadEntity != entity && !isDescendant)
 				{
-					m_Context->ParentEntity(payloadEntity, entity);
+					payloadEntity.SetParent(entity);
 				}
 				else if (isDescendant)
 				{
@@ -312,27 +312,27 @@ namespace Runic2D
 				}
 			}, false);
 
-		DrawNativeComponent<TransformComponent>("Transform", entity, [this, entity](auto& component)
+		DrawNativeComponent<TransformComponent>("Transform", entity, [this, entity](auto& component) mutable
 			{
 				glm::vec3 translation = component.GetTranslation();
 				if (DrawVec3Control("Translation", translation))
 				{
 					component.SetTranslation(translation);
-					m_Context->InvalidateTransform(entity);
+					entity.InvalidateTransform();
 				}
 
 				glm::vec3 rotation = glm::degrees(component.GetRotation());
 				if (DrawVec3Control("Rotation", rotation))
 				{
 					component.SetRotation(glm::radians(rotation));
-					m_Context->InvalidateTransform(entity);
+					entity.InvalidateTransform();
 				}
 
 				glm::vec3 scale = component.GetScale();
 				if (DrawVec3Control("Scale", scale, 1.0f))
 				{
 					component.SetScale(scale);
-					m_Context->InvalidateTransform(entity);
+					entity.InvalidateTransform();
 				}
 			}, false);
 
@@ -549,7 +549,7 @@ namespace Runic2D
 
 		if (m_DeferredUnparentEntity)
 		{
-			m_Context->UnparentEntity(m_DeferredUnparentEntity);
+			m_DeferredUnparentEntity.Unparent();
 			m_DeferredUnparentEntity = {};
 		}
 

@@ -267,11 +267,17 @@ namespace Runic2D {
 				auto transformComponent = entityNode["TransformComponent"];
 				if (transformComponent)
 				{
-					// entities always have transform component
 					auto& tc = deserializedEntity.GetComponent<TransformComponent>();
-					YAML_LOAD(transformComponent, "Translation", tc.Translation);
-					YAML_LOAD(transformComponent, "Rotation", tc.Rotation);
-					YAML_LOAD(transformComponent, "Scale", tc.Scale);
+					glm::vec3 tempTranslation;
+					glm::vec3 tempRotation;
+					glm::vec3 tempScale;
+					
+					YAML_LOAD(transformComponent, "Translation", tempTranslation);
+					tc.SetTranslation(tempTranslation);
+					YAML_LOAD(transformComponent, "Rotation", tempRotation);
+					tc.SetRotation(tempRotation);
+					YAML_LOAD(transformComponent, "Scale", tempScale);
+					tc.SetScale(tempScale);
 				}
 
 				auto relationshipComponent = entityNode["RelationshipComponent"];
@@ -305,16 +311,15 @@ namespace Runic2D {
 			if (child && parent)
 			{
 				auto& tc = child.GetComponent<TransformComponent>();
-				glm::vec3 oldTranslation = tc.Translation;
-				glm::vec3 oldRotation = tc.Rotation;
-				glm::vec3 oldScale = tc.Scale;
+				glm::vec3 oldTranslation = tc.GetTranslation();
+				glm::vec3 oldRotation = tc.GetRotation();
+				glm::vec3 oldScale = tc.GetScale();
 
-				m_Scene->ParentEntity(child, parent);
+				child.SetParent(parent);
 
-				tc.Translation = oldTranslation;
-				tc.Rotation = oldRotation;
-				tc.Scale = oldScale;
-				tc.IsDirty = true;
+				tc.SetTranslation(oldTranslation);
+				tc.SetRotation(oldRotation);
+				tc.SetScale(oldScale);
 			}
 		}
 

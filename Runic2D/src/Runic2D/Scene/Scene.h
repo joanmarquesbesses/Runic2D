@@ -24,6 +24,12 @@ namespace Runic2D {
 		uint32_t ActiveParticles = 0;
 	};
 
+	enum class SystemPhase {
+		Logic,			// Primer (Scripts, Moviment Enemics, IA...)
+		Physics,		// Segon (Box2D)
+		PostUpdate		// Tercer (Tweens, TransformSystem, Particles...)
+	};
+
 	class RUNIC_API Scene {
 	public:
 		Scene();
@@ -54,7 +60,6 @@ namespace Runic2D {
 		void OnRenderRuntime();
 		void OnRenderUI();
 		void OnRenderDebugOverlay();
-		void InvalidateTransform(Entity entity);
 
 		void OnViewportResize(uint32_t width, uint32_t height);
 
@@ -80,13 +85,7 @@ namespace Runic2D {
 
 		void SetCollisionEnabled(Entity entity, bool enabled);
 
-		void ParentEntity(Entity entity, Entity parent);
-		void UnparentEntity(Entity entity, bool convertToWorldSpace = true);
-
 		Entity FindEntityByName(std::string_view name);
-
-		glm::mat4 GetWorldTransform(Entity entity);
-		glm::mat4 GetWorldTransform(const TransformComponent& transform, Entity entity);
 
 		void DuplicateEntity(Entity entity);
 
@@ -143,9 +142,14 @@ namespace Runic2D {
 
 	public:
 		template<typename T>
-		void AddSystem(Ref<T> system) {
-			m_SystemsList.push_back(system);
+		void AddSystem(Ref<T> system, SystemPhase phase) {
 			m_SystemsMap[typeid(T)] = system;
+
+			switch (phase) {
+				case SystemPhase::Logic:      m_LogicSystems.push_back(system); break;
+				case SystemPhase::Physics:    m_PhysicsSystems.push_back(system); break;
+				case SystemPhase::PostUpdate: m_PostUpdateSystems.push_back(system); break;
+			}
 		}
 
 		template<typename T>
@@ -162,7 +166,6 @@ namespace Runic2D {
 		void CopyEntity(Entity src, Entity dst);
 
 		void UpdateTweens(Timestep ts);
-		void UpdateWorldTransforms();
 
 	private:
 		entt::registry m_Registry;
@@ -175,7 +178,9 @@ namespace Runic2D {
 		b2WorldId m_PhysicsWorld = b2_nullWorldId;
 
 		std::unordered_map<std::type_index, Ref<System>> m_SystemsMap;
-		std::vector<Ref<System>> m_SystemsList;
+		std::vector<Ref<System>> m_LogicSystems;
+		std::vector<Ref<System>> m_PhysicsSystems;
+		std::vector<Ref<System>> m_PostUpdateSystems;
 
 		ParticleSystem m_ParticleSystem;
 

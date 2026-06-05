@@ -690,31 +690,31 @@ namespace Runic2D {
 				auto& c = e.GetComponent<RectTransformComponent>();
 				glm::vec2 pos = c.GetPosition();
 				if (ImGui::DragFloat2("Position", &pos[0], 0.1f)) {
-					c.SetPosition(pos); e.GetScene()->InvalidateTransform(e);
+					c.SetPosition(pos); e.InvalidateTransform();
 				}
 				glm::vec2 size = c.GetSize();
 				if (ImGui::DragFloat2("Size", &size[0], 0.1f)) {
-					c.SetSize(size); e.GetScene()->InvalidateTransform(e);
+					c.SetSize(size); e.InvalidateTransform();
 				}
 				glm::vec2 anchorMin = c.GetAnchorMin();
 				if(ImGui::DragFloat2("Anchor Min", &anchorMin[0], 0.05f, 0.0f, 1.0f)) {
-					c.SetAnchorMin(anchorMin); e.GetScene()->InvalidateTransform(e);
+					c.SetAnchorMin(anchorMin); e.InvalidateTransform();
 				}
 				glm::vec2 anchorMax = c.GetAnchorMax();
 				if(ImGui::DragFloat2("Anchor Max", &anchorMax[0], 0.05f, 0.0f, 1.0f)) {
-					c.SetAnchorMax(anchorMax); e.GetScene()->InvalidateTransform(e);
+					c.SetAnchorMax(anchorMax); e.InvalidateTransform();
 				}
 				glm::vec2 pivot = c.GetPivot();
 				if(ImGui::DragFloat2("Pivot", &pivot[0], 0.05f, 0.0f, 1.0f)) {
-					c.SetPivot(pivot); e.GetScene()->InvalidateTransform(e);
+					c.SetPivot(pivot); e.InvalidateTransform();
 				}
 				float rotation = c.GetRotation();
 				if(ImGui::DragFloat("Rotation", &rotation, 0.05f)) {
-					c.SetRotation(rotation); e.GetScene()->InvalidateTransform(e);
+					c.SetRotation(rotation); e.InvalidateTransform();
 				}
 				glm::vec2 scale = c.GetScale();
 				if(ImGui::DragFloat2("Scale", &scale[0], 0.05f)) {
-					c.SetScale(scale); e.GetScene()->InvalidateTransform(e);
+					c.SetScale(scale); e.InvalidateTransform();
 				}
 				if(ImGui::DragInt("Z Index", &c.ZIndex)) {
 					c.ZIndex = c.ZIndex;

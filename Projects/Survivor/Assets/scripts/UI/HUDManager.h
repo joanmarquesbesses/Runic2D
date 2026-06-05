@@ -184,7 +184,7 @@ namespace Survivor {
                 auto& btn = card.AddComponent<ButtonComponent>();
 
                 Entity titleEnt = GetScene()->CreateEntity("Card_Title");
-                GetScene()->ParentEntity(titleEnt, card);
+                titleEnt.SetParent(card);
 
                 auto& titleRect = titleEnt.AddComponent<RectTransformComponent>();
                 titleRect.SetAnchorMin({ 0.5f, 1.0f });
@@ -201,7 +201,7 @@ namespace Survivor {
 
 
                 Entity descEnt = GetScene()->CreateEntity("Card_Desc");
-                GetScene()->ParentEntity(descEnt, card);
+                descEnt.SetParent(card);
 
                 auto& descRect = descEnt.AddComponent<RectTransformComponent>();
                 descRect.SetAnchorMin({ 0.5f, 0.0f });

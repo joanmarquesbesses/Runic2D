@@ -58,6 +58,10 @@ namespace Runic2D {
 		void SetRotation(const glm::vec3& rotation) { Rotation = rotation; IsDirty = true; }
 		void SetScale(const glm::vec3& scale) { Scale = scale; IsDirty = true; }
 
+		void SetDirty() { IsDirty = true; }
+		bool GetDirty() const { return IsDirty; }
+		void ClearDirty() { IsDirty = false; }
+
 		operator glm::mat4& () { return const_cast<glm::mat4&>(GetTransform()); }
 		operator const glm::mat4& () const { return GetTransform(); }
 
@@ -73,6 +77,9 @@ namespace Runic2D {
 			return Transform;
 		}
 
+		const glm::mat4& GetWorldTransform() const { return WorldTransform; }
+		void SetWorldTransform(const glm::mat4& transform) { WorldTransform = transform; }
+
 	private:
 		glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
@@ -81,10 +88,6 @@ namespace Runic2D {
 		mutable glm::mat4 Transform = glm::mat4(1.0f);
 		mutable glm::mat4 WorldTransform = glm::mat4(1.0f);
 		mutable bool IsDirty = true;
-
-		friend class Scene;
-		friend class SceneSerializer;
-		friend class PhysicsSystem;
 	};
 
 	struct RUNIC_API SpriteRendererComponent {
@@ -362,6 +365,7 @@ namespace Runic2D {
 		mutable bool m_IsDirty = true;
 
 		friend class Scene;
+		friend class Entity;
 		friend class SceneSerializer;
 	};
 

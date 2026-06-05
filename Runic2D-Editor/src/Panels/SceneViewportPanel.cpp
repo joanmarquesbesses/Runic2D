@@ -70,7 +70,7 @@ namespace Runic2D {
 			glm::mat4 cameraView = camera.GetViewMatrix();
 
 			auto& tc = selectedEntity.GetComponent<TransformComponent>();
-			glm::mat4 transform = scene->GetWorldTransform(selectedEntity);
+			glm::mat4 transform = selectedEntity.GetWorldTransform();
 
 			// Snapping
 			bool snap = Input::IsKeyPressed(KeyCode::LeftControl);
@@ -94,7 +94,7 @@ namespace Runic2D {
 					if (rc.Parent != entt::null)
 					{
 						Entity parent = { rc.Parent, scene.get() };
-						glm::mat4 parentWorldTransform = scene->GetWorldTransform(parent);
+						glm::mat4 parentWorldTransform = parent.GetWorldTransform();
 
 						if (glm::epsilonNotEqual(glm::determinant(parentWorldTransform), 0.0f, glm::epsilon<float>()))
 						{
@@ -126,7 +126,7 @@ namespace Runic2D {
 				if (std::abs(scale.z) < 0.001f) scale.z = 0.001f;
 
 				tc.SetScale(scale);
-				scene->InvalidateTransform(selectedEntity);
+				selectedEntity.InvalidateTransform();
 			}
 		}
 

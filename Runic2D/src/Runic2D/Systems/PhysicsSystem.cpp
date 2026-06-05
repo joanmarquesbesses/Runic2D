@@ -53,7 +53,7 @@ namespace Runic2D {
 		auto& transform = entity.GetComponent<TransformComponent>();
 		auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
 
-		glm::mat4 wolrdTransform = scene->GetWorldTransform(entity);
+		glm::mat4 wolrdTransform = entity.GetWorldTransform();
 
 		b2BodyDef bodyDef = b2DefaultBodyDef();
 		bodyDef.type = Rigidbody2DTypeToBox2D(rb2d.Type);

@@ -70,6 +70,12 @@ namespace Runic2D
 
 		Scene* GetScene() const { return m_Scene; }
 
+	public:
+		void SetParent(Entity parent);
+		void Unparent(bool convertToWorldSpace = true);
+		void InvalidateTransform();
+		glm::mat4 GetWorldTransform();
+
 	private:
 		entt::entity m_EntityHandle = entt::null;
 		Scene* m_Scene = nullptr;
