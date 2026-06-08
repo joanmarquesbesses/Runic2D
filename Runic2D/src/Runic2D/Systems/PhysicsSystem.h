@@ -14,6 +14,8 @@ namespace Runic2D {
 		virtual void OnFixedUpdate(Timestep ts, Scene* scene) override;
 
 		void InstantiatePhysics(Entity entity, Scene* scene);
+		void SetCollisionEnabled(Entity entity, bool enabled);
+		void UpdateEntityColliders(Entity entity);
 
 	private:
 		void OnRigidbodyDestroyed(entt::registry& registry, entt::entity entity);

@@ -13,5 +13,6 @@ namespace Runic2D {
 		virtual void OnStop(Scene* scene) {};
 		virtual void OnUpdate(Timestep ts, Scene* scene) {};
 		virtual void OnFixedUpdate(Timestep ts, Scene* scene) {};
+		virtual void OnRender(Scene* scene) {};
 	};
 }

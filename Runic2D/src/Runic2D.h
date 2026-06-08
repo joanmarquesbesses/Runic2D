@@ -28,6 +28,7 @@
 
 #include "Runic2D/Systems/System.h"
 #include "Runic2D/Systems/PhysicsSystem.h"
+#include "Runic2D/Systems/ParticleSystem.h"
 
 #include "Runic2D/Scripting/ScriptEngine.h"
 

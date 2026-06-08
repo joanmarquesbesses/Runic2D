@@ -3,7 +3,6 @@
 #include "Runic2D/Core/Timestep.h"
 #include "Runic2D/Core/UUID.h"
 #include "Runic2D/Renderer/EditorCamera.h"
-#include "Runic2D/Renderer/ParticleSystem.h"
 
 #include <entt.hpp>
 #include <box2d/types.h>
@@ -27,7 +26,8 @@ namespace Runic2D {
 	enum class SystemPhase {
 		Logic,			// Primer (Scripts, Moviment Enemics, IA...)
 		Physics,		// Segon (Box2D)
-		PostUpdate		// Tercer (Tweens, TransformSystem, Particles...)
+		PostUpdate,		// Tercer (Tweens, TransformSystem, Particles...)
+		Render
 	};
 
 	class RUNIC_API Scene {
@@ -40,6 +40,9 @@ namespace Runic2D {
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 		void SubmitForDestruction(Entity entity);
+		void DuplicateEntity(Entity entity);
+		
+		Entity FindEntityByName(std::string_view name);
 
 		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
 		Entity GetEntityByUUID(UUID uuid);
@@ -48,7 +51,6 @@ namespace Runic2D {
 		void OnUpdateRunTime(Timestep ts);
 		void OnFixedUpdateRunTime(Timestep ts);
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
-		void UpdateUIInteraction();
 
 		void SetPaused(bool paused) { m_IsPaused = paused; }
 
@@ -58,15 +60,14 @@ namespace Runic2D {
 
 		// Rendering
 		void OnRenderRuntime();
-		void OnRenderUI();
 		void OnRenderDebugOverlay();
 
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		uint32_t GetViewportWidth() const { return m_ViewportWidth; }
 		uint32_t GetViewportHeight() const { return m_ViewportHeight; }
-
-		glm::vec2 GetMousePositionInUISpace();
+		glm::vec2 GetViewportBoundsMin() const { return m_ViewportBoundsMin; }
+		glm::vec2 GetViewportBoundsMax() const { return m_ViewportBoundsMax; }
 
 		void SetViewportBounds(const glm::vec2& boundsMin, const glm::vec2& boundsMax) 
 		{
@@ -77,23 +78,11 @@ namespace Runic2D {
 		void OnRuntimeStart();
 		void OnRuntimeStop();
 
-		void UpdateEntityColliders(Entity entity);
-
-		void EmitParticles(const ParticleProps& props) { m_ParticleSystem.Emit(props); }
-
 		Entity GetPrimaryCameraEntity();
-
-		void SetCollisionEnabled(Entity entity, bool enabled);
-
-		Entity FindEntityByName(std::string_view name);
-
-		void DuplicateEntity(Entity entity);
 
 		void OnRenderOverlay(const glm::mat4& viewProjection);
 
 		void UpdateAnimation(Timestep ts);
-
-		int GetActiveParticleCount() const { return m_ParticleSystem.GetActiveParticleCount(); }
 
 		SceneStats GetStats() const;
 
@@ -142,18 +131,22 @@ namespace Runic2D {
 
 	public:
 		template<typename T>
-		void AddSystem(Ref<T> system, SystemPhase phase) {
+		void AddSystem(Ref<T> system, std::initializer_list<SystemPhase> phases) {
 			m_SystemsMap[typeid(T)] = system;
 
-			switch (phase) {
-				case SystemPhase::Logic:      m_LogicSystems.push_back(system); break;
-				case SystemPhase::Physics:    m_PhysicsSystems.push_back(system); break;
-				case SystemPhase::PostUpdate: m_PostUpdateSystems.push_back(system); break;
+			for (auto phase : phases)
+			{
+				switch (phase) {
+					case SystemPhase::Logic:      m_LogicSystems.push_back(system); break;
+					case SystemPhase::Physics:    m_PhysicsSystems.push_back(system); break;
+					case SystemPhase::PostUpdate: m_PostUpdateSystems.push_back(system); break;
+					case SystemPhase::Render:     m_RenderSystems.push_back(system); break;
+				}
 			}
 		}
 
 		template<typename T>
-		Ref<T> GetSystem() {
+		Ref<T> GetSystem() const {
 			auto it = m_SystemsMap.find(typeid(T));
 			if (it != m_SystemsMap.end()) {
 				return std::static_pointer_cast<T>(it->second);
@@ -181,8 +174,7 @@ namespace Runic2D {
 		std::vector<Ref<System>> m_LogicSystems;
 		std::vector<Ref<System>> m_PhysicsSystems;
 		std::vector<Ref<System>> m_PostUpdateSystems;
-
-		ParticleSystem m_ParticleSystem;
+		std::vector<Ref<System>> m_RenderSystems;
 
 		std::vector<entt::entity> m_DestructionQueue;
 

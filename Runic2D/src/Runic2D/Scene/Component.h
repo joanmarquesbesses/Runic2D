@@ -365,6 +365,7 @@ namespace Runic2D {
 		mutable bool m_IsDirty = true;
 
 		friend class Scene;
+		friend class UISystem;
 		friend class Entity;
 		friend class SceneSerializer;
 	};

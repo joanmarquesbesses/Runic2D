@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Runic2D/Core/Timestep.h"
-#include "Texture.h"
+#include "System.h"
+#include "Runic2D/Renderer/Texture.h"
 
 #include <vector>
 #include <glm/glm.hpp>
@@ -18,13 +18,14 @@ namespace Runic2D {
 		Ref<Texture2D> Texture = nullptr;
     };
 
-    class RUNIC_API ParticleSystem
+    class RUNIC_API ParticleSystem : public System
     {
     public:
         ParticleSystem(uint32_t maxParticles = 10000);
+        ~ParticleSystem() {}
 
-        void OnUpdate(Timestep ts);
-        void OnRender();
+        virtual void OnUpdate(Timestep ts, Scene* scene) override;
+        virtual void OnRender(Scene* scene) override;
 
         void Emit(const ParticleProps& particleProps);
 

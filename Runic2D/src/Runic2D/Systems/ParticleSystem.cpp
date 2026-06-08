@@ -16,11 +16,10 @@ namespace Runic2D {
 		m_ParticlePool.resize(maxParticles);
 	}
 
-	void ParticleSystem::OnUpdate(Timestep ts)
+	void ParticleSystem::OnUpdate(Timestep ts, Scene* scene)
 	{
-		// 1. Collect only active particles into a temporary list.
-		// This is single-threaded but very fast (just pointers).
-		// It ensures worker threads only process particles that actually need updating.
+		if (scene->IsPaused()) return;
+
 		std::vector<Particle*> activeParticles;
 		activeParticles.reserve(m_ParticlePool.size());
 
@@ -32,55 +31,63 @@ namespace Runic2D {
 
 		if (activeParticles.empty()) return;
 
-		// 2. Dispatch work. We capture activeParticles by reference and ts by value.
-		// Since we call Wait() immediately after, activeParticles remains valid.
 		uint32_t count = (uint32_t)activeParticles.size();
-		uint32_t groupSize = 128; // Slightly smaller group size for better load balancing
+		uint32_t groupSize = 128;
 
 		auto stats = JobSystem::Dispatch(count, groupSize, [&activeParticles, ts](uint32_t start, uint32_t end)
-		{
-			for (uint32_t i = start; i < end; i++)
 			{
-				Particle& particle = *activeParticles[i];
-
-				particle.LifeRemaining -= ts;
-
-				if (particle.LifeRemaining <= 0.0f)
+				for (uint32_t i = start; i < end; i++)
 				{
-					particle.Active = false;
-					continue;
+					Particle& particle = *activeParticles[i];
+
+					particle.LifeRemaining -= ts;
+
+					if (particle.LifeRemaining <= 0.0f)
+					{
+						particle.Active = false;
+						continue;
+					}
+
+					particle.Position.x += particle.Velocity.x * ts;
+					particle.Position.y += particle.Velocity.y * ts;
+
+					particle.Rotation += 0.01f * ts;
 				}
+			});
 
-				particle.Position.x += particle.Velocity.x * ts;
-				particle.Position.y += particle.Velocity.y * ts;
-
-				particle.Rotation += 0.01f * ts;
-			}
-		});
-
-		// 3. Only wait if we actually sent jobs to worker threads
 		if (stats.GroupsDispatched > 0)
 			JobSystem::Wait();
 	}
 
-	void ParticleSystem::OnRender()
+	void ParticleSystem::OnRender(Scene* scene)
 	{
-		for (auto& particle : m_ParticlePool)
-		{
-			if (!particle.Active)
-				continue;
+		auto cameraEntity = scene->GetPrimaryCameraEntity();
+		if (cameraEntity) {
 
-			float life = particle.LifeRemaining / particle.LifeTime;
+			auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+			auto& camTransform = cameraEntity.GetComponent<TransformComponent>();
 
-			glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
+			Renderer2D::BeginScene(camera, camTransform.GetTransform());
 
-			float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
+			for (auto& particle : m_ParticlePool)
+			{
+				if (!particle.Active)
+					continue;
 
-			if(particle.Texture)
-				Renderer2D::DrawRotatedQuad(particle.Position, { size, size }, particle.Rotation, particle.Texture, 1.0f, color);
-			else
-				Renderer2D::DrawRotatedQuad(particle.Position, { size, size }, particle.Rotation, color);
+				float life = particle.LifeRemaining / particle.LifeTime;
+
+				glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
+
+				float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
+
+				if (particle.Texture)
+					Renderer2D::DrawRotatedQuad(particle.Position, { size, size }, particle.Rotation, particle.Texture, 1.0f, color);
+				else
+					Renderer2D::DrawRotatedQuad(particle.Position, { size, size }, particle.Rotation, color);
+			}
 		}
+
+		Renderer2D::EndScene();
 	}
 
 	void ParticleSystem::Emit(const ParticleProps& particleProps)

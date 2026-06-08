@@ -129,7 +129,7 @@ namespace Survivor {
 
             if (changed)
             {
-                GetScene()->UpdateEntityColliders(GetEntity());
+                m_PhysicsSystem->UpdateEntityColliders(GetEntity());
             }
         }
 
@@ -340,7 +340,7 @@ namespace Survivor {
 
         if (changed)
         {
-            GetScene()->UpdateEntityColliders(GetEntity());
+            m_PhysicsSystem->UpdateEntityColliders(GetEntity());
         }
     }
 

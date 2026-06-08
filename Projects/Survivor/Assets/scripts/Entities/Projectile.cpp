@@ -23,6 +23,8 @@ namespace Survivor {
             this->Speed = data.Speed;
             this->LifeTime = data.LifeTime;
         }
+
+        particleSystem = GetScene()->GetSystem<ParticleSystem>().get();
     }
 
     void Projectile::OnUpdate(Timestep ts)
@@ -53,7 +55,7 @@ namespace Survivor {
                 props.SizeEnd = 0.0f;
                 props.SizeVariation = 0.05f;
 
-                GetScene()->EmitParticles(props);
+                particleSystem->Emit(props);
                 m_TimeSinceLastEmit = 0.0f;
             }
         }

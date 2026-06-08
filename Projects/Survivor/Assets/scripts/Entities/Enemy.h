@@ -14,12 +14,14 @@ namespace Survivor {
         Entity m_Player;
         float m_TintTime = 0.0f;
         float m_KnockbackTime = 0.0f;
+        PhysicsSystem* m_PhysicsSystem = nullptr;
 
         bool m_IsDead = false;
         float m_TimeDead = 0.0f;
 
         virtual void OnCreate() override {
             m_Player = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
+            m_PhysicsSystem = GetScene()->GetSystem<PhysicsSystem>().get();
         }
 
         virtual void OnUpdate(Timestep ts) override {
@@ -159,7 +161,7 @@ namespace Survivor {
                 auto& coll = GetComponent<CircleCollider2DComponent>();
                 coll.CategoryBits = 0;
                 coll.MaskBits = 0;
-                GetScene()->UpdateEntityColliders(GetEntity());
+                m_PhysicsSystem->UpdateEntityColliders(GetEntity());
             }
 
             if (HasComponent<Rigidbody2DComponent>()) {

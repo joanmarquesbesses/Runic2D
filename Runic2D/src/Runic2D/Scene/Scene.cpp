@@ -13,6 +13,9 @@
 #include "Runic2D/Systems/ScriptingSystem.h"
 #include "Runic2D/Systems/PhysicsSystem.h"
 #include "Runic2D/Systems/TransformSystem.h"
+#include "Runic2D/Systems/UISystem.h"
+#include "Runic2D/Systems/Render2DSystem.h"
+#include "Runic2D/Systems/ParticleSystem.h"
 
 #include "Entity.h"
 #include "Component.h"
@@ -25,9 +28,18 @@ namespace Runic2D {
 	{
 		m_Registry.on_construct<CameraComponent>().connect<&Scene::OnCameraComponentConstruct>(this);
 
-		AddSystem(CreateRef<ScriptingSystem>(), SystemPhase::Logic);
-		AddSystem(CreateRef<PhysicsSystem>(), SystemPhase::Physics);
-		AddSystem(CreateRef<TransformSystem>(), SystemPhase::PostUpdate);
+		// Scripting
+		AddSystem(CreateRef<ScriptingSystem>(), { SystemPhase::Logic });
+		// Physiscs
+		AddSystem(CreateRef<PhysicsSystem>(), { SystemPhase::Physics });
+		// TransformSystem
+		AddSystem(CreateRef<TransformSystem>(), { SystemPhase::PostUpdate });
+		// 2D Render
+		AddSystem(CreateRef<Render2DSystem>(), { SystemPhase::Render });
+		// Particles
+		AddSystem(CreateRef<ParticleSystem>(), { SystemPhase::Logic, SystemPhase::Render });
+		// UI System
+		AddSystem(CreateRef<UISystem>(), { SystemPhase::Logic, SystemPhase::Render });
 	}
 
 	Scene::~Scene()
@@ -224,11 +236,8 @@ namespace Runic2D {
 
 		if (!m_IsPaused)
 		{
-			m_ParticleSystem.OnUpdate(ts);
 			UpdateAnimation(ts);
 		}
-
-		UpdateUIInteraction();
 
 		for (auto e : m_DestructionQueue)
 		{
@@ -243,182 +252,9 @@ namespace Runic2D {
 
 	void Scene::OnRenderRuntime()
 	{
-		//Find Main Camera
-		auto cameraEntity = GetPrimaryCameraEntity();
-		if (!cameraEntity) return;
-
-		auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
-		auto& camTransform = cameraEntity.GetComponent<TransformComponent>();
-
-		// Render Scene
-		Renderer2D::BeginScene(camera, camTransform.GetTransform());
-
-		auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<RectTransformComponent>);
-
-		view.each([&](auto entityID, auto& transform, auto& sprite)
-			{
-				Entity e{ entityID, this };
-				glm::mat4 worldTransform = e.GetWorldTransform();
-				Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
-			});
-
-		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>(entt::exclude<RectTransformComponent>);
-
-		circleView.each([&](auto entityID, auto& transform, auto& circle)
-			{
-				Entity e{ entityID, this };
-				glm::mat4 worldTransform = e.GetWorldTransform();
-				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
-			});
-
-		m_Registry.view<TransformComponent, TextComponent>(entt::exclude<RectTransformComponent>).each([&](auto entityID, auto& transform, auto& text)
-			{
-				if (!text.Visible)
-					return;
-				Entity e{ entityID, this };
-				glm::mat4 worldTransform = e.GetWorldTransform();
-				Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID, (int)text.TextAlignment);
-			});
-
-		m_ParticleSystem.OnRender();
-
-		Renderer2D::EndScene();
-	}
-
-	void Scene::OnRenderUI()
-	{
-		float aspectRatio = (float)m_ViewportWidth / (float)m_ViewportHeight;
-		
-		float refHeight = 1080.0f;
-		float refWidth = refHeight * aspectRatio;
-		
-		glm::vec2 virtualViewportSize = { refWidth, refHeight };
-		glm::vec2 virtualViewportPivot = { 0.0f, 0.0f }; // Bottom-left origin
-
-		glm::mat4 projection = glm::ortho(0.0f, refWidth, 0.0f, refHeight, -1.0f, 1.0f);
-		glm::mat4 view = glm::mat4(1.0f);
-		
-		RenderCommand::ClearDepth();
-		Renderer2D::BeginScene(projection * view);
-
-		glm::mat4 globalTransform = glm::mat4(1.0f); // Identity, we work in virtual pixels!
-
-		struct UIRenderCommand {
-			int ZIndex;
-			std::function<void()> RenderCall;
-		};
-		std::vector<UIRenderCommand> renderCommands;
-
-		auto processEntity = [&](Entity e, const glm::mat4& parentWorldTransform, const glm::vec2& parentSize, const glm::vec2& parentPivot, auto& processEntityRef) -> void
-		{
-			if (!e.HasComponent<RectTransformComponent>()) return;
-
-			auto& rectTransform = e.GetComponent<RectTransformComponent>();
-			glm::mat4 worldTransform, meshTransform;
-			if (rectTransform.m_IsDirty) {
-				rectTransform.CalculateTransforms(parentWorldTransform, parentSize, parentPivot, worldTransform, meshTransform);
-				rectTransform.WorldTransform = worldTransform;
-				rectTransform.ComputedMeshTransform = meshTransform;
-				rectTransform.m_IsDirty = false;
-			} else {
-				worldTransform = rectTransform.WorldTransform;
-				meshTransform = rectTransform.ComputedMeshTransform;
-			}
-
-			entt::entity entityID = e;
-
-			if (e.HasComponent<SpriteRendererComponent>()) {
-				renderCommands.push_back({ rectTransform.ZIndex, [this, meshTransform, entityID]() { 
-					auto& sprite = m_Registry.get<SpriteRendererComponent>(entityID);
-					Renderer2D::DrawSprite(meshTransform, sprite, (int)(uint32_t)entityID); 
-				} });
-			}
-			if (e.HasComponent<CircleRendererComponent>()) {
-				renderCommands.push_back({ rectTransform.ZIndex, [this, meshTransform, entityID]() { 
-					auto& circle = m_Registry.get<CircleRendererComponent>(entityID);
-					Renderer2D::DrawCircle(meshTransform, circle.Color, circle.Thickness, circle.Fade, (int)(uint32_t)entityID); 
-				} });
-			}
-			if (e.HasComponent<TextComponent>()) {
-				renderCommands.push_back({ rectTransform.ZIndex, [this, worldTransform, rectTransform, entityID]() {
-					auto& text = m_Registry.get<TextComponent>(entityID);
-
-					float fontSize = rectTransform.Size.y;
-					float textWidth = text.GetTextWidth();
-					float actualTextWidth = textWidth * fontSize;
-
-					float boxLeftX = -rectTransform.Size.x * rectTransform.Pivot.x;
-
-					float offsetX = boxLeftX; 
-
-					if (text.TextAlignment == TextComponent::Alignment::Center) {
-						offsetX += (rectTransform.Size.x - actualTextWidth) * 0.5f;
-					}
-					else if (text.TextAlignment == TextComponent::Alignment::Right) {
-						offsetX += (rectTransform.Size.x - actualTextWidth);
-					}
-
-					int numLines = 1;
-					for (char c : text.GetText()) {
-						if (c == '\n') numLines++;
-					}
-
-					float boxBottomY = -rectTransform.Size.y * rectTransform.Pivot.y;
-					float extraHeight = (numLines - 1) * (fontSize + (text.LineSpacing * fontSize));
-					float verticalShift = extraHeight * (1.0f - rectTransform.Pivot.y);
-					float offsetY = boxBottomY + (fontSize * 0.25f) + verticalShift;
-
-					glm::mat4 finalTextTransform = glm::translate(worldTransform, glm::vec3(offsetX, offsetY, 0.0f));
-					finalTextTransform = glm::scale(finalTextTransform, glm::vec3(fontSize, fontSize, 1.0f));
-
-					Renderer2D::DrawString(text.GetText(), text.FontAsset, finalTextTransform, text.Color, text.Kerning, text.LineSpacing, (int)(uint32_t)entityID, (int)text.TextAlignment);
-				} });
-			}
-
-			if (e.HasComponent<RelationshipComponent>()) {
-				auto& relationship = e.GetComponent<RelationshipComponent>();
-				entt::entity currentChild = relationship.FirstChild;
-				while (currentChild != entt::null) {
-					Entity childEntity{ currentChild, this };
-					processEntityRef(childEntity, worldTransform, rectTransform.Size, rectTransform.Pivot, processEntityRef);
-					currentChild = childEntity.GetComponent<RelationshipComponent>().NextSibling;
-				}
-			}
-		};
-
-		m_Registry.view<RectTransformComponent>().each([&](auto entityID, auto& rect)
-		{
-			Entity e{ entityID, this };
-			bool isRoot = true;
-			if (e.HasComponent<RelationshipComponent>()) {
-				auto parent = e.GetComponent<RelationshipComponent>().Parent;
-				if (parent != entt::null) {
-					Entity parentEntity{ parent, this };
-					if (parentEntity.HasComponent<RectTransformComponent>()) {
-						isRoot = false;
-					}
-				}
-			}
-			
-			if (isRoot) {
-				processEntity(e, globalTransform, virtualViewportSize, virtualViewportPivot, processEntity);
-			}
-		});
-
-		std::sort(renderCommands.begin(), renderCommands.end(), [](const UIRenderCommand& a, const UIRenderCommand& b) {
-			return a.ZIndex < b.ZIndex;
-		});
-
-		int lastZIndex = INT_MIN;
-		for (const auto& cmd : renderCommands) {
-			if (cmd.ZIndex != lastZIndex && lastZIndex != INT_MIN) {
-				Renderer2D::NextBatch(Renderer2D::FlushReason::UIZIndexChange);
-			}
-			cmd.RenderCall();
-			lastZIndex = cmd.ZIndex;
+		for (auto& renderSystem : m_RenderSystems) {
+			renderSystem->OnRender(this);
 		}
-
-		Renderer2D::EndScene();
 	}
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
@@ -429,32 +265,11 @@ namespace Runic2D {
 		}
 
 		UpdateAnimation(ts);
-		Renderer2D::BeginScene(camera);
-
-		auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<RectTransformComponent>);
-
-		view.each([&](auto entityID, auto& transform, auto& sprite)
-		{
-			Entity e{ entityID, this };
-			glm::mat4 worldTransform = e.GetWorldTransform();
-			Renderer2D::DrawSprite(worldTransform, sprite, (int)entityID);
-		});
-
-		auto circleView = m_Registry.view<TransformComponent, CircleRendererComponent>(entt::exclude<RectTransformComponent>);
-
-		circleView.each([&](auto entityID, auto& transform, auto& circle)
-		{
-			Entity e{ entityID, this };
-			glm::mat4 worldTransform = e.GetWorldTransform();
-			Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
-		});
-
-		m_Registry.view<TransformComponent, TextComponent>(entt::exclude<RectTransformComponent>).each([&](auto entityID, auto& transform, auto& text)
-		{
-			Entity e{ entityID, this };
-			glm::mat4 worldTransform = e.GetWorldTransform();
-			Renderer2D::DrawString(text.GetText(), text.FontAsset, worldTransform, text.Color, text.Kerning, text.LineSpacing, (int)entityID, (int)text.TextAlignment);
-		});
+		
+		auto render2DSystem = GetSystem<Render2DSystem>();
+		if (render2DSystem) {
+			render2DSystem->OnRender(this);
+		}
 
 		// Draw Camera Bounds
 		SceneCamera* mainCamera = nullptr;
@@ -484,92 +299,7 @@ namespace Runic2D {
 
 		Renderer2D::EndScene();
 
-		OnRenderUI();
-	}
-
-	void Scene::UpdateUIInteraction()
-	{
-		glm::vec2 mouseUI = GetMousePositionInUISpace();
-
-		bool mouseDown = Input::IsMouseButtonPressed(MouseButton::Left);
-
-		auto view = m_Registry.view<ButtonComponent, RectTransformComponent>();
-
-		view.each([&](entt::entity e, ButtonComponent& btn, RectTransformComponent& rect)
-		{
-			glm::mat4 inverseMesh = glm::inverse(rect.ComputedMeshTransform);
-			glm::vec4 localMouse = inverseMesh * glm::vec4(mouseUI.x, mouseUI.y, 0.0f, 1.0f);
-
-			bool hovered = (localMouse.x >= -0.5f && localMouse.x <= 0.5f &&
-				localMouse.y >= -0.5f && localMouse.y <= 0.5f);
-
-			ButtonComponent::State prevState = btn.CurrentState;
-
-			if (!hovered)
-			{
-				if (prevState != ButtonComponent::State::Normal && btn.OnUnhover)
-					btn.OnUnhover();
-
-				btn.CurrentState = ButtonComponent::State::Normal;
-			}
-			else if (mouseDown)
-			{
-				if (prevState == ButtonComponent::State::Normal && btn.OnHover)
-					btn.OnHover();
-
-				btn.CurrentState = ButtonComponent::State::Pressed;
-			}
-			else
-			{
-				if (prevState == ButtonComponent::State::Normal && btn.OnHover)
-					btn.OnHover();
-
-				if (prevState == ButtonComponent::State::Pressed && btn.OnClick)
-					btn.OnClick();
-
-				btn.CurrentState = ButtonComponent::State::Hovered;
-			}
-
-			if (btn.CurrentState != prevState)
-			{
-				glm::vec4 targetColor = btn.NormalColor;
-				if (btn.CurrentState == ButtonComponent::State::Hovered) targetColor = btn.HoveredColor;
-				if (btn.CurrentState == ButtonComponent::State::Pressed) targetColor = btn.PressedColor;
-
-				if (m_Registry.all_of<SpriteRendererComponent>(e))
-				{
-					Tween::ClearTarget({ e, this }, TweenTarget::Color);
-					Tween::To({ e, this }, TweenTarget::Color, targetColor, 0.15f, EaseType::EaseOutQuad);
-				}
-			}
-		});
-	}
-
-	glm::vec2 Scene::GetMousePositionInUISpace()
-	{
-		float W = (float)m_ViewportWidth;
-		float H = (float)m_ViewportHeight;
-		if (W <= 0 || H <= 0) return { -1.0f, -1.0f };
-
-		// Posicio del mouse relativa al viewport (l'Editor configura m_ViewportBoundsMin)
-		glm::vec2 mouse = Input::GetMousePosition();
-		mouse.x -= m_ViewportBoundsMin.x;
-		mouse.y -= m_ViewportBoundsMin.y;
-
-		// Convertim a NDC [-1, 1]
-		float ndcX = (2.0f * mouse.x) / W - 1.0f;
-		float ndcY = 1.0f - (2.0f * mouse.y) / H;
-
-		// Projeccio UI (mateixa que a OnRenderUI)
-		float aspectRatio = W / H;
-		float refHeight = 1080.0f;
-		float refWidth = refHeight * aspectRatio;
-
-		// NDC -> coordenades UI virtuals
-		glm::mat4 projection = glm::ortho(0.0f, refWidth, 0.0f, refHeight, -1.0f, 1.0f);
-		glm::vec4 worldPos = glm::inverse(projection) * glm::vec4(ndcX, ndcY, 0.0f, 1.0f);
-
-		return { worldPos.x, worldPos.y };
+		GetSystem<UISystem>()->OnRender(this);
 	}
 
 	void Scene::OnRuntimeStart()
@@ -638,88 +368,6 @@ namespace Runic2D {
 		}
 		for (auto& physicsSystem : m_PhysicsSystems) {
 			physicsSystem->OnStop(this);
-		}
-	}
-
-	void Scene::UpdateEntityColliders(Entity entity)
-	{
-		if (!entity.HasComponent<Rigidbody2DComponent>()) return;
-
-		auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
-		auto& transform = entity.GetComponent<TransformComponent>();
-
-		if (B2_IS_NULL(rb2d.RuntimeBody)) return;
-
-		b2BodyId bodyId = rb2d.RuntimeBody;
-
-		if (entity.HasComponent<BoxCollider2DComponent>())
-		{
-			auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
-			if (B2_IS_NON_NULL(bc2d.RuntimeShape))
-			{
-				b2DestroyShape(bc2d.RuntimeShape, false);
-			}
-
-			b2ShapeDef shapeDef = b2DefaultShapeDef();
-			shapeDef.density = bc2d.Density;
-			shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
-			shapeDef.filter.categoryBits = bc2d.CategoryBits; 
-			shapeDef.filter.maskBits = bc2d.MaskBits;         
-			shapeDef.filter.groupIndex = bc2d.GroupIndex;
-			shapeDef.isSensor = bc2d.IsSensor;
-			shapeDef.enableSensorEvents = bc2d.EnableSensorEvents;
-			shapeDef.enableContactEvents = bc2d.EnableContactEvents;
-
-			float hx = std::abs(bc2d.Size.x * transform.GetScale().x) * 0.5f;
-			float hy = std::abs(bc2d.Size.y * transform.GetScale().y) * 0.5f;
-
-			b2Polygon boxPolygon = b2MakeOffsetBox(hx, hy, { bc2d.Offset.x, bc2d.Offset.y }, b2MakeRot(0.0f));
-
-			b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &boxPolygon);
-
-			b2Shape_SetFriction(shapeId, bc2d.Friction);
-			b2Shape_SetRestitution(shapeId, bc2d.Restitution);
-
-			bc2d.RuntimeShape = shapeId;
-		}
-
-		if (entity.HasComponent<CircleCollider2DComponent>())
-		{
-			auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
-
-			if (B2_IS_NON_NULL(cc2d.RuntimeShape))
-			{
-				b2DestroyShape(cc2d.RuntimeShape, false);
-			}
-
-			b2ShapeDef shapeDef = b2DefaultShapeDef();
-			shapeDef.density = cc2d.Density;
-			shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
-			shapeDef.filter.categoryBits = cc2d.CategoryBits;
-			shapeDef.filter.maskBits = cc2d.MaskBits;
-			shapeDef.filter.groupIndex = cc2d.GroupIndex;
-			shapeDef.isSensor = cc2d.IsSensor;
-			shapeDef.enableSensorEvents = cc2d.EnableSensorEvents;
-			shapeDef.enableContactEvents = cc2d.EnableContactEvents;
-
-			float maxScale = std::max(std::abs(transform.GetScale().x), std::abs(transform.GetScale().y));
-			float radius = cc2d.Radius * maxScale;
-
-			b2Circle circle;
-			circle.center = { cc2d.Offset.x, cc2d.Offset.y };
-			circle.radius = radius;
-
-			b2ShapeId shapeId = b2CreateCircleShape(bodyId, &shapeDef, &circle);
-
-			b2Shape_SetFriction(shapeId, cc2d.Friction);
-			b2Shape_SetRestitution(shapeId, cc2d.Restitution);
-
-			cc2d.RuntimeShape = shapeId;
-		}
-
-		if (rb2d.Type == Rigidbody2DComponent::BodyType::Dynamic)
-		{
-			b2Body_ApplyMassFromShapes(bodyId);
 		}
 	}
 
@@ -865,22 +513,6 @@ namespace Runic2D {
 			}
 		}
 		return Entity{};
-	}
-
-	void Scene::SetCollisionEnabled(Entity entity, bool enabled)
-	{
-		if (!entity.HasComponent<BoxCollider2DComponent>()) return;
-
-		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
-
-		if (b2Shape_IsValid(bc2d.RuntimeShape))
-		{
-			b2Filter filter = b2Shape_GetFilter(bc2d.RuntimeShape);
-
-			filter.maskBits = enabled ? 0xFFFFFFFF : 0x00000000;
-
-			b2Shape_SetFilter(bc2d.RuntimeShape, filter);
-		}
 	}
 
 	void Scene::OnCameraComponentConstruct(entt::registry& registry, entt::entity entity)
@@ -1055,7 +687,10 @@ namespace Runic2D {
 		stats.ScriptUpdates = (uint32_t)m_Registry.view<NativeScriptComponent>().size();
 
 		// Les partícules vives
-		stats.ActiveParticles = (uint32_t)m_ParticleSystem.GetActiveParticleCount();
+		auto particlesSystem = GetSystem<ParticleSystem>();
+		if (particlesSystem) {
+			stats.ActiveParticles = (uint32_t)particlesSystem->GetActiveParticleCount();
+		}
 
 		return stats;
 	}

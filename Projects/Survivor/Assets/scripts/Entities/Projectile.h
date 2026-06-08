@@ -2,6 +2,7 @@
 #include "Runic2D/Scene/ScriptableEntity.h"
 
 class Runic2D::Texture2D;
+class Runic2D::ParticleSystem;
 
 using namespace Runic2D;
 
@@ -31,6 +32,8 @@ namespace Survivor {
         float m_AnimTimer = 0.0f;
 
         std::vector<Entity> m_HitList;
+
+        ParticleSystem* particleSystem = nullptr;
     };
 
 }

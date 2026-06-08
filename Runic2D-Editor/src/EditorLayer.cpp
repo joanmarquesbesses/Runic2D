@@ -131,7 +131,6 @@ namespace Runic2D
 			{
 				scene->OnUpdateRunTime(ts);
 				scene->OnRenderRuntime();
-				scene->OnRenderUI();
 			}
 
 			// Overlay de col·lisionadors

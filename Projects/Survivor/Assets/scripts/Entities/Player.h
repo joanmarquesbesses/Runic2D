@@ -43,6 +43,8 @@ namespace Survivor {
 		bool m_HasFired = false;
 
 		Runic2D::Entity m_OrbitalManager;
+
+		PhysicsSystem* m_PhysicsSystem = nullptr;
 	};
 
 }
