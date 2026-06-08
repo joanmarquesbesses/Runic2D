@@ -139,7 +139,7 @@ namespace Survivor {
         {
         case State::Idle:
         {
-            PlayAnimation("Idle");
+            anim->Play("Idle");
 
             if (Runic2D::InputManager::IsActionPressed("Shoot", 0))
             {
@@ -147,18 +147,18 @@ namespace Survivor {
             }
             else if (Runic2D::InputManager::IsActionPressed("Death", 0)) {
                 m_State = State::Death;
-                PlayAnimation("Death");
+                anim->Play("Death");
             }
             else if (IsMoving())
             {
                 m_State = State::Run;
-                PlayAnimation("Run");
+                anim->Play("Run");
             }
             break;
         }
         case State::Run:
         {
-            PlayAnimation("Run");
+            anim->Play("Run");
 
             if (Input::IsMouseButtonPressed(MouseButton::Left))
             {
@@ -167,7 +167,7 @@ namespace Survivor {
             else if (!IsMoving())
             {
                 m_State = State::Idle;
-                PlayAnimation("Idle");
+                anim->Play("Idle");
             }
             break;
         }
@@ -208,11 +208,11 @@ namespace Survivor {
             {
                 if (IsMoving()) {
                     m_State = State::Run;
-                    PlayAnimation("Run");
+                    anim->Play("Run");
                 }
                 else {
                     m_State = State::Idle;
-                    PlayAnimation("Idle");
+                    anim->Play("Idle");
                 }
             }
             break;
@@ -228,7 +228,7 @@ namespace Survivor {
                 if (IsMoving())
                 {
                     m_State = State::Run;
-                    PlayAnimation("Run");
+                    anim->Play("Run");
                 }
             }
             break;
@@ -239,39 +239,6 @@ namespace Survivor {
     void Player::OnCollision(Entity other)
     {
 
-    }
-
-    void Player::PlayAnimation(const std::string& name)
-    {
-        auto anim = &GetComponent<AnimationComponent>();
-        if (anim->CurrentStateName == name) return;
-
-        auto it = anim->Animations.find(name);
-        if (it != anim->Animations.end())
-        {
-            anim->CurrentAnimation = it->second;
-            anim->CurrentStateName = name;
-
-            anim->CurrentFrameIndex = 0;
-            anim->TimeAccumulator = 0.0f;
-
-            anim->Playing = true;
-
-            for (auto& profile : anim->Profiles)
-            {
-                if (profile.Name == name)
-                {
-                    anim->Loop = profile.Loop;
-                    break;
-                }
-            }
-
-            if (HasComponent<SpriteRendererComponent>())
-            {
-                auto& src = GetComponent<SpriteRendererComponent>();
-                src.SubTexture = anim->CurrentAnimation->GetFrame(0);
-            }
-        }
     }
 
     bool Player::IsMoving()
@@ -304,7 +271,8 @@ namespace Survivor {
     void Player::TryAttack()
     {
         m_State = State::Attack;
-        PlayAnimation("Attack");
+        auto anim = &GetComponent<AnimationComponent>();
+        anim->Play("Attack");
         m_HasFired = false;
 
         auto transform = &GetComponent<TransformComponent>();

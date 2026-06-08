@@ -285,6 +285,9 @@
     <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h">
       <Filter>src\Runic2D\Scripting</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\Animation2DSystem.h">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\ParticleSystem.h">
       <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
@@ -301,6 +304,9 @@
       <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\TransformSystem.h">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\TweenSystem.h">
       <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\UISystem.h">
@@ -1724,6 +1730,9 @@
     <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp">
       <Filter>src\Runic2D\Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\Animation2DSystem.cpp">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\ParticleSystem.cpp">
       <Filter>src\Runic2D\Systems</Filter>
     </ClCompile>
@@ -1737,6 +1746,9 @@
       <Filter>src\Runic2D\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\TransformSystem.cpp">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\TweenSystem.cpp">
       <Filter>src\Runic2D\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\UISystem.cpp">

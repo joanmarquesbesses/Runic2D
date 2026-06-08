@@ -82,8 +82,6 @@ namespace Runic2D {
 
 		void OnRenderOverlay(const glm::mat4& viewProjection);
 
-		void UpdateAnimation(Timestep ts);
-
 		SceneStats GetStats() const;
 
 		template<typename T>

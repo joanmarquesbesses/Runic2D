@@ -303,6 +303,28 @@ namespace Runic2D {
 
 			return CurrentFrameIndex >= (CurrentAnimation->GetFrameCount() - 1);
 		}
+
+		void Play(const std::string& name)
+		{
+			if (CurrentStateName == name) return;
+			auto it = Animations.find(name);
+			if (it != Animations.end())
+			{
+				CurrentAnimation = it->second;
+				CurrentStateName = name;
+				CurrentFrameIndex = 0;
+				TimeAccumulator = 0.0f;
+				Playing = true;
+				for (auto& profile : Profiles)
+				{
+					if (profile.Name == name)
+					{
+						Loop = profile.Loop;
+						break;
+					}
+				}
+			}
+		}
 	};
 
 	struct RUNIC_API RectTransformComponent

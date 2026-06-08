@@ -16,6 +16,8 @@
 #include "Runic2D/Systems/UISystem.h"
 #include "Runic2D/Systems/Render2DSystem.h"
 #include "Runic2D/Systems/ParticleSystem.h"
+#include "Runic2D/Systems/Animation2DSystem.h"
+#include "Runic2D/Systems/TweenSystem.h"
 
 #include "Entity.h"
 #include "Component.h"
@@ -40,6 +42,10 @@ namespace Runic2D {
 		AddSystem(CreateRef<ParticleSystem>(), { SystemPhase::Logic, SystemPhase::Render });
 		// UI System
 		AddSystem(CreateRef<UISystem>(), { SystemPhase::Logic, SystemPhase::Render });
+		// 2D Animation
+		AddSystem(CreateRef<Animation2DSystem>(), { SystemPhase::PostUpdate });
+		// Tween System
+		AddSystem(CreateRef<TweenSystem>(), { SystemPhase::PostUpdate });
 	}
 
 	Scene::~Scene()
@@ -232,13 +238,6 @@ namespace Runic2D {
 			postUpdateSystem->OnUpdate(ts, this);
 		}
 
-		UpdateTweens(ts);
-
-		if (!m_IsPaused)
-		{
-			UpdateAnimation(ts);
-		}
-
 		for (auto e : m_DestructionQueue)
 		{
 			if (m_Registry.valid(e))
@@ -264,7 +263,10 @@ namespace Runic2D {
 			transformSystem->OnUpdate(ts, this);
 		}
 
-		UpdateAnimation(ts);
+		auto animation2DSystem = GetSystem<Animation2DSystem>();
+		if (animation2DSystem) {
+			animation2DSystem->OnUpdate(ts, this);
+		}
 		
 		auto render2DSystem = GetSystem<Render2DSystem>();
 		if (render2DSystem) {
@@ -310,55 +312,9 @@ namespace Runic2D {
 		for (auto& physicsSystem : m_PhysicsSystems) {
 			physicsSystem->OnStart(this);
 		}
-
-		m_Registry.view<AnimationComponent>().each([=](auto entity, auto& anim)
-		{
-			anim.Animations.clear();
-
-			for (auto& profile : anim.Profiles)
-			{
-				if (profile.AtlasTexture)
-				{
-					int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
-					int col = profile.StartFrame % numCols;
-					int row = profile.StartFrame / numCols;
-
-					float startX = col * profile.TileSize.x;
-					float startY = row * profile.TileSize.y;
-
-					Ref<Animation2D> animAsset = Animation2D::CreateFromAtlas(
-						profile.AtlasTexture,
-						profile.TileSize,
-						{ startX, startY },
-						profile.FrameCount,
-						profile.FramesPerRow,
-						profile.FrameTime
-					);
-
-					anim.Animations[profile.Name] = animAsset;
-				}
-			}
-
-			if (!anim.Animations.empty())
-			{
-				if (!anim.CurrentStateName.empty() && anim.Animations.find(anim.CurrentStateName) != anim.Animations.end())
-				{
-					anim.CurrentAnimation = anim.Animations[anim.CurrentStateName];
-				}
-				else if (anim.Animations.find("Idle") != anim.Animations.end())
-				{
-					anim.CurrentAnimation = anim.Animations["Idle"];
-					anim.CurrentStateName = "Idle";
-				}
-				else
-				{
-					anim.CurrentAnimation = anim.Animations.begin()->second;
-					anim.CurrentStateName = anim.Animations.begin()->first;
-				}
-
-				anim.Playing = true;
-			}
-		});
+		for (auto& postUpdateSystem : m_PostUpdateSystems) {
+			postUpdateSystem->OnStart(this);
+		}
 	}
 
 	void Scene::OnRuntimeStop()
@@ -570,112 +526,6 @@ namespace Runic2D {
 		Renderer2D::EndScene();
 	}
 
-	void Scene::UpdateAnimation(Timestep ts)
-	{
-		// Collect entities into an indexable array so Dispatch can slice the work
-		struct AnimEntry
-		{
-			AnimationComponent* Anim;
-			SpriteRendererComponent* Sprite;
-		};
-
-		auto view = m_Registry.view<AnimationComponent, SpriteRendererComponent>();
-		std::vector<AnimEntry> entries;
-		entries.reserve(view.size_hint());
-
-		view.each([&](auto entityID, auto& anim, auto& sprite)
-		{
-			entries.emplace_back(&anim, &sprite);
-		});
-
-		if (entries.empty()) return;
-
-		// Phase 1 (single-thread): Rebuild the animation asset map if it was cleared.
-		// This must be single-threaded because it can modify shared Ref<> resources.
-		for (auto& entry : entries)
-		{
-			auto& anim = *entry.Anim;
-			if (anim.Animations.empty() && !anim.Profiles.empty())
-			{
-				for (auto& profile : anim.Profiles)
-				{
-					if (profile.AtlasTexture)
-					{
-						int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
-						if (numCols <= 0) numCols = 1;
-						int col = profile.StartFrame % numCols;
-						int row = profile.StartFrame / numCols;
-						float startX = (float)col * profile.TileSize.x;
-						float startY = (float)row * profile.TileSize.y;
-
-						Ref<Animation2D> animAsset = Animation2D::CreateFromAtlas(
-							profile.AtlasTexture, profile.TileSize, { startX, startY },
-							profile.FrameCount, profile.FramesPerRow, profile.FrameTime
-						);
-						anim.Animations[profile.Name] = animAsset;
-					}
-				}
-
-				if (!anim.Animations.empty()) {
-					auto it = anim.Animations.find(anim.CurrentStateName);
-					if (it != anim.Animations.end()) {
-						anim.CurrentAnimation = it->second;
-					} else {
-						anim.CurrentAnimation = anim.Animations.begin()->second;
-						anim.CurrentStateName = anim.Animations.begin()->first;
-					}
-				}
-			}
-		}
-
-		// Phase 2 (multi-thread): Advance the animation timer and update the frame.
-		// Each entity owns its own data, so parallel writes are 100% safe.
-		const uint32_t count = (uint32_t)entries.size();
-		const uint32_t groupSize = 64; // Tune this based on entity counts
-
-		auto stats = JobSystem::Dispatch(count, groupSize, [&entries, ts](uint32_t start, uint32_t end)
-		{
-			for (uint32_t i = start; i < end; i++)
-			{
-				auto& anim = *entries[i].Anim;
-				auto& sprite = *entries[i].Sprite;
-
-				if (!anim.CurrentAnimation) continue;
-
-				if (anim.Playing) {
-					anim.TimeAccumulator += ts;
-					while (anim.TimeAccumulator >= anim.CurrentAnimation->GetFrameTime())
-					{
-						anim.TimeAccumulator -= anim.CurrentAnimation->GetFrameTime();
-						anim.CurrentFrameIndex++;
-
-						if (anim.CurrentFrameIndex >= anim.CurrentAnimation->GetFrameCount())
-						{
-							if (anim.Loop) anim.CurrentFrameIndex = 0;
-							else {
-								anim.CurrentFrameIndex = anim.CurrentAnimation->GetFrameCount() - 1;
-								anim.Playing = false;
-							}
-						}
-					}
-					sprite.SubTexture = anim.CurrentAnimation->GetFrame(anim.CurrentFrameIndex);
-				}
-				else {
-					if (anim.CurrentFrameIndex >= anim.CurrentAnimation->GetFrameCount()) {
-						anim.CurrentFrameIndex = 0;
-					}
-					sprite.SubTexture = anim.CurrentAnimation->GetFrame(anim.CurrentFrameIndex);
-				}
-			}
-		});
-
-		// Only wait if jobs were actually dispatched to worker threads
-		if (stats.GroupsDispatched > 0)
-		{
-			JobSystem::Wait();
-		}
-	}
-
 	SceneStats Scene::GetStats() const
 	{
 		SceneStats stats;
@@ -729,92 +579,5 @@ namespace Runic2D {
 
 		Renderer2D::EndScene();
 		Renderer2D::SetRecordStats(true);
-	}
-
-	void Scene::UpdateTweens(Timestep ts)
-	{
-		std::vector<entt::entity> toRemove;
-		std::vector<entt::entity> toDestroy;
-
-		auto view = m_Registry.view<TweenComponent>();
-		for (auto entityID : view)
-		{
-			Entity entity = { entityID, this };
-			auto& tc = entity.GetComponent<TweenComponent>();
-
-			if (!tc.IsPlaying) continue;
-
-			bool allFinished = true;
-			for (auto& tween : tc.Tweens) 
-			{
-				if (tween.Finished) continue;
-
-				tween.TimeElapsed += ts;
-				float t = glm::clamp(tween.TimeElapsed / tween.Duration, 0.0f, 1.0f);
-				float easedT = Easing::Interpolate(t, tween.Easing);
-
-				glm::vec4 currentVal = glm::mix(tween.StartValue, tween.EndValue, easedT);
-
-				bool needsInvalidation = false;
-				switch (tween.Target)
-				{
-				case TweenTarget::Position:
-					if (entity.HasComponent<TransformComponent>()) entity.GetComponent<TransformComponent>().SetTranslation(glm::vec3(currentVal));
-					if (entity.HasComponent<RectTransformComponent>()) entity.GetComponent<RectTransformComponent>().SetPosition(glm::vec2(currentVal));
-					needsInvalidation = true;
-					break;
-				case TweenTarget::Scale:
-					if (entity.HasComponent<TransformComponent>()) entity.GetComponent<TransformComponent>().SetScale(glm::vec3(currentVal));
-					if (entity.HasComponent<RectTransformComponent>()) entity.GetComponent<RectTransformComponent>().SetScale(glm::vec2(currentVal));
-					needsInvalidation = true;
-					break;
-				case TweenTarget::Rotation:
-					if (entity.HasComponent<TransformComponent>()) entity.GetComponent<TransformComponent>().SetRotation(glm::vec3(currentVal));
-					if (entity.HasComponent<RectTransformComponent>()) entity.GetComponent<RectTransformComponent>().SetRotation(currentVal.x);
-					needsInvalidation = true;
-					break;
-				case TweenTarget::Color:
-					if (entity.HasComponent<SpriteRendererComponent>()) entity.GetComponent<SpriteRendererComponent>().Color = currentVal;
-					else if (entity.HasComponent<CircleRendererComponent>()) entity.GetComponent<CircleRendererComponent>().Color = currentVal;
-					else if (entity.HasComponent<TextComponent>()) entity.GetComponent<TextComponent>().Color = currentVal;
-					break;
-				}
-
-				if (needsInvalidation)
-					entity.InvalidateTransform();
-
-				if (t >= 1.0f)
-				{
-					if (tween.PingPong)
-					{
-						tween.TimeElapsed = 0.0f;
-						std::swap(tween.StartValue, tween.EndValue);
-						allFinished = false;
-					}
-					else
-					{
-						tween.Finished = true;
-					}
-				}
-				else
-				{
-					allFinished = false;
-				}
-			} 
-
-			if (allFinished)
-			{
-				if (tc.OnComplete)
-					tc.OnComplete(entity);
-
-				if (tc.DestroyOnComplete)
-					toDestroy.push_back(entityID);
-				else
-					toRemove.push_back(entityID);
-			}
-		}
-
-		for (auto e : toRemove) m_Registry.remove<TweenComponent>(e);
-		for (auto e : toDestroy) m_Registry.destroy(e);
 	}
 }
