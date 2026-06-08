@@ -16,13 +16,6 @@ namespace Runic2D {
 
 	struct TransformComponent;
 
-	struct SceneStats
-	{
-		uint32_t TotalEntities = 0;
-		uint32_t ScriptUpdates = 0;
-		uint32_t ActiveParticles = 0;
-	};
-
 	enum class SystemPhase {
 		Logic,			// Primer (Scripts, Moviment Enemics, IA...)
 		Physics,		// Segon (Box2D)
@@ -53,14 +46,10 @@ namespace Runic2D {
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 
 		void SetPaused(bool paused) { m_IsPaused = paused; }
-
-		bool IsDebugOverlayEnabled() const { return m_ShowDebugOverlay; }
-		void SetDebugOverlayEnabled(bool enabled) { m_ShowDebugOverlay = enabled; }
 		bool IsPaused() const { return m_IsPaused; }
 
 		// Rendering
 		void OnRenderRuntime();
-		void OnRenderDebugOverlay();
 
 		void OnViewportResize(uint32_t width, uint32_t height);
 
@@ -79,10 +68,6 @@ namespace Runic2D {
 		void OnRuntimeStop();
 
 		Entity GetPrimaryCameraEntity();
-
-		void OnRenderOverlay(const glm::mat4& viewProjection);
-
-		SceneStats GetStats() const;
 
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component) {}
@@ -155,8 +140,6 @@ namespace Runic2D {
 	private:
 		void OnCameraComponentConstruct(entt::registry& registry, entt::entity entity);
 		void CopyEntity(Entity src, Entity dst);
-
-		void UpdateTweens(Timestep ts);
 
 	private:
 		entt::registry m_Registry;

@@ -234,6 +234,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Scene\Tween.h" />
     <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Runic2D\Systems\Animation2DSystem.h" />
+    <ClInclude Include="src\Runic2D\Systems\DebugSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\ParticleSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\PhysicsSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\Render2DSystem.h" />
@@ -719,6 +720,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClCompile Include="src\Runic2D\Scene\SceneSerializer.cpp" />
     <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Runic2D\Systems\Animation2DSystem.cpp" />
+    <ClCompile Include="src\Runic2D\Systems\DebugSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\ParticleSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\Render2DSystem.cpp" />

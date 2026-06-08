@@ -4,6 +4,7 @@
 #include "Runic2D/Core/Application.h"
 #include "Runic2D/Core/JobSystem.h"
 #include "Runic2D/Core/BackgroundTaskSystem.h"
+#include "Runic2D/Systems/DebugSystem.h"
 
 #include <imgui/imgui.h>
 #include "ImGuizmo.h"
@@ -118,15 +119,19 @@ namespace Runic2D {
 
 			ImGui::Separator();
 			ImGui::Text("Scene Stats:");
-			auto sceneStats = activeScene->GetStats();
-			ImGui::BulletText("Total Entities: %d", sceneStats.TotalEntities);
-			ImGui::BulletText("Script Updates: %d", sceneStats.ScriptUpdates);
-			ImGui::BulletText("Active Particles: %d", sceneStats.ActiveParticles);
+			auto debugSys = activeScene->GetSystem<DebugSystem>();
+			if (debugSys)
+			{
+				auto stats = debugSys->GetStats(activeScene.get());
+				ImGui::BulletText("Total Entities: %d", stats.TotalEntities);
+				ImGui::BulletText("Script Updates: %d", stats.ScriptUpdates);
+				ImGui::BulletText("Active Particles: %d", stats.ActiveParticles);
+			}
 
 			ImGui::Separator();
-			bool debugOverlay = activeScene->IsDebugOverlayEnabled();
+			bool debugOverlay = debugSys->GetShowStats();
 			if (ImGui::Checkbox("Show Debug Overlay", &debugOverlay))
-				activeScene->SetDebugOverlayEnabled(debugOverlay);
+				debugSys->SetShowStats(debugOverlay);
 
 			ImGui::Separator();
 			ImGui::Text("Toggle Threading Systems:");

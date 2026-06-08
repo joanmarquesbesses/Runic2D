@@ -1,5 +1,7 @@
 #include "GameplayLayer.h"
 
+#include "Runic2D/Systems/DebugSystem.h"
+
 using namespace Runic2D;
 
 GameplayLayer::GameplayLayer()
@@ -43,12 +45,6 @@ void GameplayLayer::OnUpdate(Runic2D::Timestep ts)
 
     scene->OnUpdateRunTime(ts);
     scene->OnRenderRuntime();
-
-    if (m_ShowPhysicsColliders)
-        ShowColliderOverlay();
-
-    if(scene->IsDebugOverlayEnabled())
-		scene->OnRenderDebugOverlay();
 }
 
 void GameplayLayer::OnEvent(Runic2D::Event& e)
@@ -71,7 +67,12 @@ bool GameplayLayer::OnKeyPressed(KeyPressedEvent& e)
         case KeyCode::F1:
         {
             auto scene = SceneManager::GetActiveScene();
-			if (scene) scene->SetDebugOverlayEnabled(!scene->IsDebugOverlayEnabled());
+            if (scene) {
+                auto debugSystem = scene->GetSystem<DebugSystem>();
+                if (debugSystem) {
+                    debugSystem->SetShowStats(!debugSystem->GetShowStats());
+                }
+            }
             return true;
         }
         case KeyCode::F2:
@@ -92,24 +93,16 @@ bool GameplayLayer::OnKeyPressed(KeyPressedEvent& e)
         }
         case KeyCode::F3:
         {
-			m_ShowPhysicsColliders = !m_ShowPhysicsColliders;
+            auto scene = SceneManager::GetActiveScene();
+            if (scene) {
+                auto debugSystem = scene->GetSystem<DebugSystem>();
+                if (debugSystem) {
+                    debugSystem->SetShowColliders(!debugSystem->GetShowColliders());
+                }
+            }
             return true;
         }
 	}
 
     return false;
-}
-
-void GameplayLayer::ShowColliderOverlay()
-{
-    auto scene = SceneManager::GetActiveScene();
-    if (!scene) return;
-
-    Entity cam = scene->GetPrimaryCameraEntity();
-    if (!cam) return;
-
-    auto& camera = cam.GetComponent<CameraComponent>().Camera;
-    auto& tc = cam.GetComponent<TransformComponent>();
-    glm::mat4 vp = camera.GetProjection() * glm::inverse(tc.GetTransform());
-    scene->OnRenderOverlay(vp);
 }

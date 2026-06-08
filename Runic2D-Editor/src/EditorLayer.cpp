@@ -11,6 +11,7 @@
 #include "Runic2D/Utils/PlatformUtils.h"
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Scripting/ScriptEngine.h"
+#include "Runic2D/Systems/DebugSystem.h"
 
 namespace Runic2D
 {
@@ -123,6 +124,11 @@ namespace Runic2D
 		auto scene = SceneManager::GetActiveScene();
 		if (scene)
 		{
+			DebugSystem* debugSystem = scene->GetSystem<DebugSystem>().get();
+			if (debugSystem) {
+				debugSystem->SetShowColliders(m_ShowPhysicsColliders);
+			}
+
 			if (m_SceneState == SceneState::Edit)
 			{
 				scene->OnUpdateEditor(ts, m_EditorCamera);
@@ -131,26 +137,6 @@ namespace Runic2D
 			{
 				scene->OnUpdateRunTime(ts);
 				scene->OnRenderRuntime();
-			}
-
-			// Overlay de col·lisionadors
-			if (m_ShowPhysicsColliders)
-			{
-				if (m_SceneState == SceneState::Edit)
-				{
-					scene->OnRenderOverlay(m_EditorCamera.GetViewProjection());
-				}
-				else
-				{
-					Entity cam = scene->GetPrimaryCameraEntity();
-					if (cam)
-					{
-						auto& camera = cam.GetComponent<CameraComponent>().Camera;
-						auto& tc = cam.GetComponent<TransformComponent>();
-						glm::mat4 vp = camera.GetProjection() * glm::inverse(tc.GetTransform());
-						scene->OnRenderOverlay(vp);
-					}
-				}
 			}
 
 			// Mouse picking (entity ID)
@@ -171,9 +157,6 @@ namespace Runic2D
 				}
 			}
 		}
-
-		if (scene->IsDebugOverlayEnabled())
-			scene->OnRenderDebugOverlay();
 
 		m_FrameBuffer->Unbind();
 	}

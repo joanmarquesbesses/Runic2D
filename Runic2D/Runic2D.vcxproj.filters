@@ -288,6 +288,9 @@
     <ClInclude Include="src\Runic2D\Systems\Animation2DSystem.h">
       <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\DebugSystem.h">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\ParticleSystem.h">
       <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
@@ -1731,6 +1734,9 @@
       <Filter>src\Runic2D\Scripting</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\Animation2DSystem.cpp">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\DebugSystem.cpp">
       <Filter>src\Runic2D\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\ParticleSystem.cpp">
