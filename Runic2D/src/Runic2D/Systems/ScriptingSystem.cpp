@@ -1,7 +1,7 @@
 #include "R2Dpch.h"
 #include "ScriptingSystem.h"
 
-#include "Runic2D/Scene/Component.h"
+#include "Runic2D/Scene/Components/ScriptingComponents.h"
 
 namespace Runic2D {
 

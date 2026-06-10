@@ -2,8 +2,6 @@
 
 #include "RenderCommand.h"
 
-#include "OrthographicCamera.h"
-
 #include "Shader.h"
 
 namespace Runic2D {
@@ -14,7 +12,6 @@ namespace Runic2D {
 		static void Init();
 		static void OnWindowResize(uint32_t width, uint32_t height);
 
-		static void BeginScene(OrthographicCamera& Camera);
 		static void EndScene();
 
 		static void Submit(const Ref<Shader>& shader, const Ref<class VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));

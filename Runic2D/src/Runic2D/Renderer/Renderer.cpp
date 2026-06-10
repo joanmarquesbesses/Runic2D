@@ -23,11 +23,6 @@ namespace Runic2D
 		s_SceneData->ViewProjectionMatrix = glm::mat4(1.0f);
 	}
 
-	void Renderer::BeginScene(OrthographicCamera& Camera)
-	{
-		s_SceneData->ViewProjectionMatrix = Camera.GetViewProjectionMatrix();
-	}
-
 	void Renderer::EndScene()
 	{
 	}

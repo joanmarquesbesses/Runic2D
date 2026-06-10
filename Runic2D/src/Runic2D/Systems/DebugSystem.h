@@ -24,6 +24,8 @@ namespace Runic2D {
     public:
         virtual void OnRender(Scene* scene) override;
 
+        void DrawCameraBounds(Scene* scene);
+
         void SetShowColliders(bool show) { m_ShowColliders = show; }
         bool GetShowColliders() const { return m_ShowColliders; }
 

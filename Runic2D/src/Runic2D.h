@@ -13,8 +13,6 @@
 #include "Runic2D/Core/MouseButtonCodes.h"
 #include "Runic2D/Core/InputManager.h"
 
-#include "Runic2D/Renderer/OrthographicCameraController.h"
-
 #include "Runic2D/ImGui/ImGuiLayer.h"
 
 #include "Runic2D/Project/Project.h"
@@ -22,9 +20,15 @@
 #include "Runic2D/Scene/SceneManager.h"
 #include "Runic2D/Scene/Entity.h"
 #include "Runic2D/Scene/ScriptableEntity.h"
-#include "Runic2D/Scene/Component.h"
 #include "Runic2D/Scene/SceneSerializer.h"
 #include "Runic2D/Scene/Tween.h"
+
+#include "Runic2D/Scene/Components/CoreComponents.h"
+#include "Runic2D/Scene/Components/MotionComponents.h"
+#include "Runic2D/Scene/Components/PhysicsComponents.h"
+#include "Runic2D/Scene/Components/RenderComponents.h"
+#include "Runic2D/Scene/Components/UIComponents.h"
+#include "Runic2D/Scene/Components/ScriptingComponents.h"
 
 #include "Runic2D/Systems/System.h"
 #include "Runic2D/Systems/PhysicsSystem.h"
@@ -51,6 +55,4 @@
 #include "Runic2D/Renderer/Texture.h"
 #include "Runic2D/Renderer/SubTexture2D.h"
 #include "Runic2D/Renderer/Animation2D.h"
-
-#include "Runic2D/Renderer/OrthographicCamera.h"
 // --------

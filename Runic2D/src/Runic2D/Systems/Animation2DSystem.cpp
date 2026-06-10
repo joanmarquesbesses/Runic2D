@@ -1,7 +1,9 @@
 #include "R2Dpch.h"
 #include "Animation2DSystem.h"
 
-#include "Runic2D/Scene/Component.h"
+#include "Runic2D/Scene/Scene.h"
+#include "Runic2D/Scene/Components/MotionComponents.h"
+#include "Runic2D/Scene/Components/RenderComponents.h"
 #include "Runic2D/Core/JobSystem.h"
 
 namespace Runic2D {

@@ -2,7 +2,7 @@
 #include "SceneViewportPanel.h"
 
 #include "Runic2D/Core/Application.h"
-#include "Runic2D/Scene/Component.h"
+#include "Runic2D/Scene/Components/CoreComponents.h"
 #include "Runic2D/Core/Input.h"
 #include "Runic2D/Math/Math.h" 
 #include "Runic2D/Project/Project.h"

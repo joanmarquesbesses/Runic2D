@@ -1,8 +1,11 @@
 #include "R2Dpch.h"
 #include "UISystem.h"
 
+#include "Runic2D/Scene/Components/CoreComponents.h"
+#include "Runic2D/Scene/Components/UIComponents.h"
+#include "Runic2D/Scene/Components/RenderComponents.h"
+
 #include "Runic2D/Core/Input.h"
-#include "Runic2D/Scene/Component.h"
 #include "Runic2D/Scene/Tween.h"
 
 #include "Runic2D/Renderer/RenderCommand.h"

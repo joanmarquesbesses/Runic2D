@@ -2,14 +2,16 @@
 #include "Application.h"
 #include "JobSystem.h"
 
-#include "Runic2D/Core/JobSystem.h"
-#include "Runic2D/Core/BackgroundTaskSystem.h"
 #include "Core.h"
+#include "JobSystem.h"
+#include "BackgroundTaskSystem.h"
+
 #include "Runic2D/Renderer/Renderer.h"
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Audio/AudioEngine.h"
 #include "Runic2D/Utils/Random.h"
-#include "Runic2D/Scene/ComponentRegistry.h"
+
+#include "Runic2D/Scene/Components/ComponentRegistry.h"
 #include "Runic2D/Scene/SceneManager.h"
 
 #include "Input.h"

@@ -3,7 +3,7 @@
 
 #include "Runic2D/Scripting/ScriptEngine.h" 
 #include "Runic2D/Core/Core.h"
-#include "Runic2D/Scene/ComponentRegistry.h"
+#include "Runic2D/Scene/Components/ComponentRegistry.h"
 #include "Runic2D/Core/InputManager.h"
 
 #include "Core/GameComponents.h"

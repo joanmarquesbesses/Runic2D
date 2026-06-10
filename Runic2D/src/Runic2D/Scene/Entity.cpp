@@ -1,7 +1,8 @@
 #include "R2Dpch.h"
 #include "Entity.h"
 
-#include "Component.h"
+#include "Components/CoreComponents.h"
+#include "Components/UIComponents.h"
 #include "Runic2D/Math/Math.h"
 
 namespace Runic2D {

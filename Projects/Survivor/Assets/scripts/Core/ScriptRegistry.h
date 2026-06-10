@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Runic2D/Scene/Entity.h"
-#include "Runic2D/Scene/Component.h"
+#include "Runic2D/Scene/Components/ScriptingComponents.h"
 
 //include here escripts to register
 #include "Entities/Player.h"

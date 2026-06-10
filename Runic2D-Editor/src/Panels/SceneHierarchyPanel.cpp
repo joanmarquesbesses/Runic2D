@@ -6,8 +6,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Runic2D/Scene/Component.h"
-#include "Runic2D/Scene/ComponentRegistry.h"
+#include "Runic2D/Scene/Components/CoreComponents.h"
+#include "Runic2D/Scene/Components/ComponentRegistry.h"
 
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Project/Project.h"

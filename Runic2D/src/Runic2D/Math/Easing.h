@@ -1,6 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp> 
+#include <cmath>     
 
 namespace Runic2D {
 

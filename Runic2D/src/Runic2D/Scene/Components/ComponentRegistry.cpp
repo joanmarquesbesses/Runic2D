@@ -6,7 +6,11 @@
 
 
 #include "ComponentRegistry.h"
-#include "Component.h"
+#include "MotionComponents.h"
+#include "PhysicsComponents.h"
+#include "RenderComponents.h"
+#include "ScriptingComponents.h"
+#include "UIComponents.h"
 
 #include <yaml-cpp/yaml.h>
 #include <glm/gtc/type_ptr.hpp>

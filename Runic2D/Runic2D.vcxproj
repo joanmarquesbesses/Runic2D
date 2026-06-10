@@ -212,8 +212,6 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Renderer\Font.h" />
     <ClInclude Include="src\Runic2D\Renderer\FrameBuffer.h" />
     <ClInclude Include="src\Runic2D\Renderer\GraphicsContext.h" />
-    <ClInclude Include="src\Runic2D\Renderer\OrthographicCamera.h" />
-    <ClInclude Include="src\Runic2D\Renderer\OrthographicCameraController.h" />
     <ClInclude Include="src\Runic2D\Renderer\RenderCommand.h" />
     <ClInclude Include="src\Runic2D\Renderer\Renderer.h" />
     <ClInclude Include="src\Runic2D\Renderer\Renderer2D.h" />
@@ -223,8 +221,13 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Renderer\Texture.h" />
     <ClInclude Include="src\Runic2D\Renderer\UniformBuffer.h" />
     <ClInclude Include="src\Runic2D\Renderer\VertexArray.h" />
-    <ClInclude Include="src\Runic2D\Scene\Component.h" />
-    <ClInclude Include="src\Runic2D\Scene\ComponentRegistry.h" />
+    <ClInclude Include="src\Runic2D\Scene\Components\ComponentRegistry.h" />
+    <ClInclude Include="src\Runic2D\Scene\Components\CoreComponents.h" />
+    <ClInclude Include="src\Runic2D\Scene\Components\MotionComponents.h" />
+    <ClInclude Include="src\Runic2D\Scene\Components\PhysicsComponents.h" />
+    <ClInclude Include="src\Runic2D\Scene\Components\RenderComponents.h" />
+    <ClInclude Include="src\Runic2D\Scene\Components\ScriptingComponents.h" />
+    <ClInclude Include="src\Runic2D\Scene\Components\UIComponents.h" />
     <ClInclude Include="src\Runic2D\Scene\Entity.h" />
     <ClInclude Include="src\Runic2D\Scene\Scene.h" />
     <ClInclude Include="src\Runic2D\Scene\SceneCamera.h" />
@@ -701,8 +704,6 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClCompile Include="src\Runic2D\Renderer\EditorCamera.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Font.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\FrameBuffer.cpp" />
-    <ClCompile Include="src\Runic2D\Renderer\OrthographicCamera.cpp" />
-    <ClCompile Include="src\Runic2D\Renderer\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\Renderer2D.cpp" />
@@ -712,7 +713,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClCompile Include="src\Runic2D\Renderer\Texture.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\UniformBuffer.cpp" />
     <ClCompile Include="src\Runic2D\Renderer\VertexArray.cpp" />
-    <ClCompile Include="src\Runic2D\Scene\ComponentRegistry.cpp" />
+    <ClCompile Include="src\Runic2D\Scene\Components\ComponentRegistry.cpp" />
     <ClCompile Include="src\Runic2D\Scene\Entity.cpp" />
     <ClCompile Include="src\Runic2D\Scene\Scene.cpp" />
     <ClCompile Include="src\Runic2D\Scene\SceneCamera.cpp" />

@@ -1,8 +1,14 @@
 #include "R2Dpch.h"
 #include "DebugSystem.h"
 
+#include "Runic2D/Scene/Scene.h"
+#include "Runic2D/Scene/Components/CoreComponents.h"
+#include "Runic2D/Scene/Components/ScriptingComponents.h"
+#include "Runic2D/Scene/Components/PhysicsComponents.h"
+
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Systems/ParticleSystem.h"
+
 #include "Runic2D/Core/Application.h"
 
 namespace Runic2D {
@@ -101,5 +107,30 @@ namespace Runic2D {
 			Renderer2D::EndScene();
 			Renderer2D::SetRecordStats(true);
         }
+	}
+
+	void DebugSystem::DrawCameraBounds(Scene* scene)
+	{
+		if (!m_UseCustomCamera) return;
+
+		Entity cam = scene->GetPrimaryCameraEntity();
+		if (!cam) return;
+			
+		auto& camera = cam.GetComponent<CameraComponent>().Camera;
+		auto& tc = cam.GetComponent<TransformComponent>();
+
+		Renderer2D::BeginScene(m_CustomViewProj);
+
+		float orthoSize = camera.GetOrthographicSize();
+		float height = orthoSize;
+
+		float aspectRatio = camera.GetAspectRatio();
+		float width = height * aspectRatio;
+
+		glm::mat4 debugTransform = tc.GetTransform() * glm::scale(glm::mat4(1.0f), { width, height, 1.0f });
+
+		Renderer2D::DrawRect(debugTransform, { 0.0f, 1.0f, 0.0f, 1.0f });
+
+		Renderer2D::EndScene();
 	}
 }

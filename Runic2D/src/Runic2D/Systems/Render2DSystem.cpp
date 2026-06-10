@@ -1,7 +1,12 @@
 #include "R2Dpch.h"
 #include "Render2DSystem.h"
 
-#include "Runic2D/Scene/Component.h"
+#include "Runic2D/Scene/Entity.h"
+#include "Runic2D/Scene/Scene.h"
+#include "Runic2D/Scene/Components/CoreComponents.h"
+#include "Runic2D/Scene/Components/RenderComponents.h"
+#include "Runic2D/Scene/Components/UIComponents.h"
+
 #include "Runic2D/Renderer/Renderer2D.h"
 
 namespace Runic2D {

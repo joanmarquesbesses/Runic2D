@@ -3,11 +3,13 @@
 
 #include "SceneSerializer.h"
 #include "Runic2D/Project/Project.h"
+
 #include "Runic2D/Core/Application.h"
 #include "Runic2D/Core/JobSystem.h"
 #include "Runic2D/Core/BackgroundTaskSystem.h"
+
 #include "Runic2D/Scripting/ScriptEngine.h"
-#include "Component.h"
+#include "Components/ScriptingComponents.h"
 
 namespace Runic2D {
 

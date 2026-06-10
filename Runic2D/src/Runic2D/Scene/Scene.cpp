@@ -1,14 +1,6 @@
 #include "R2Dpch.h"
 #include "Scene.h"
 
-#include "Runic2D/Renderer/Renderer2D.h"
-#include "Runic2D/Renderer/RenderCommand.h"
-#include "Runic2D/Math/Math.h"
-
-#include "Runic2D/Core/Application.h"
-#include "Runic2D/Core/Input.h"
-#include "Runic2D/Core/JobSystem.h"
-
 #include "Runic2D/Systems/System.h"
 #include "Runic2D/Systems/ScriptingSystem.h"
 #include "Runic2D/Systems/PhysicsSystem.h"
@@ -21,9 +13,13 @@
 #include "Runic2D/Systems/DebugSystem.h"
 
 #include "Entity.h"
-#include "Component.h"
-#include "ComponentRegistry.h"
-#include "Tween.h"
+#include "Components/CoreComponents.h"
+#include "Components/RenderComponents.h"
+#include "Components/MotionComponents.h"
+#include "Components/PhysicsComponents.h"
+#include "Components/ScriptingComponents.h"
+#include "Components/UIComponents.h"
+#include "Components/ComponentRegistry.h"
 
 namespace Runic2D {
 	
@@ -278,40 +274,16 @@ namespace Runic2D {
 			render2DSystem->ClearCustomCamera();
 		}
 
-		// Draw Camera Bounds
-		SceneCamera* mainCamera = nullptr;
-		glm::mat4 cameraTransform;
-
-		m_Registry.view<TransformComponent, CameraComponent>().each([&](auto entity, auto& tc, auto& cc)
-		{
-			if (cc.Primary)
-			{
-				mainCamera = &cc.Camera;
-				cameraTransform = tc.GetTransform();
-			}
-		});
-
-		if (mainCamera)
-		{
-			float orthoSize = mainCamera->GetOrthographicSize();
-			float height = orthoSize;
-
-			float aspectRatio = mainCamera->GetAspectRatio();
-			float width = height * aspectRatio;
-
-			glm::mat4 debugTransform = cameraTransform * glm::scale(glm::mat4(1.0f), { width, height, 1.0f });
-
-			Renderer2D::DrawRect(debugTransform, { 0.0f, 1.0f, 0.0f, 1.0f });
+		auto uiSystem = GetSystem<UISystem>();
+		if (uiSystem) {
+			uiSystem->OnRender(this);
 		}
-
-		Renderer2D::EndScene();
-
-		GetSystem<UISystem>()->OnRender(this);
 
 		auto debugSystem = GetSystem<DebugSystem>();
 		if (debugSystem) {
 			debugSystem->SetCustomCamera(camera.GetViewProjection());
 			debugSystem->OnRender(this);
+			debugSystem->DrawCameraBounds(this);
 			debugSystem->ClearCustomCamera();
 		}
 	}

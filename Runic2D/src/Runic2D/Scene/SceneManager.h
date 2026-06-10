@@ -1,7 +1,10 @@
 #pragma once
+
 #include "Runic2D/Core/Core.h"
+
 #include "Scene.h"
-#include "ComponentRegistry.h"
+#include "Components/ComponentRegistry.h"
+
 #include <filesystem>
 #include <functional>
 

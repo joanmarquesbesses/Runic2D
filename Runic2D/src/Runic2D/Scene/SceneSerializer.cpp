@@ -2,17 +2,20 @@
 #include <chrono>
 #include "R2Dpch.h"
 #include "SceneSerializer.h"
+
+#include "Entity.h"
+#include "Components/CoreComponents.h"
+#include "Components/PhysicsComponents.h"
+#include "Components/ComponentRegistry.h"
+
 #include "SceneManager.h"
+#include "Runic2D/Project/Project.h"
+
+#include "Runic2D/Assets/ResourceManager.h"
+#include "Runic2D/Scripting/ScriptEngine.h"
 
 #include <fstream>
 #include <yaml-cpp/yaml.h>
-
-#include "Entity.h"
-#include "Component.h"
-#include "ComponentRegistry.h"
-#include "Runic2D/Project/Project.h"
-#include "Runic2D/Assets/ResourceManager.h"
-#include "Runic2D/Scripting/ScriptEngine.h"
 
 #include <unordered_map>
 

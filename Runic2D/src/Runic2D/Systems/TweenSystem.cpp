@@ -1,8 +1,14 @@
 #include "R2Dpch.h"
 #include "TweenSystem.h"
 
+#include "Runic2D/Scene/Entity.h"
 #include "Runic2D/Scene/Scene.h"
-#include "Runic2D/Scene/Component.h"
+#include "Runic2D/Scene/Components/CoreComponents.h"
+#include "Runic2D/Scene/Components/RenderComponents.h"
+#include "Runic2D/Scene/Components/MotionComponents.h"
+#include "Runic2D/Scene/Components/UIComponents.h"
+
+#include "glm/glm.hpp"
 
 namespace Runic2D {
 	void Runic2D::TweenSystem::OnUpdate(Timestep ts, Scene* scene)

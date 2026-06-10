@@ -46,6 +46,9 @@
     <Filter Include="src\Runic2D\Scene">
       <UniqueIdentifier>{50C332BD-BCD9-3053-0551-BC7471A601DB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Scene\Components">
+      <UniqueIdentifier>{65F64CE3-51B1-3C8F-FA68-B5D9E602871F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Scripting">
       <UniqueIdentifier>{B5AC97B2-2119-53AD-EA0C-EB0A56387515}</UniqueIdentifier>
     </Filter>
@@ -222,12 +225,6 @@
     <ClInclude Include="src\Runic2D\Renderer\GraphicsContext.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Renderer\OrthographicCamera.h">
-      <Filter>src\Runic2D\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Runic2D\Renderer\OrthographicCameraController.h">
-      <Filter>src\Runic2D\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\RenderCommand.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
@@ -255,11 +252,26 @@
     <ClInclude Include="src\Runic2D\Renderer\VertexArray.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Scene\Component.h">
-      <Filter>src\Runic2D\Scene</Filter>
+    <ClInclude Include="src\Runic2D\Scene\Components\ComponentRegistry.h">
+      <Filter>src\Runic2D\Scene\Components</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Scene\ComponentRegistry.h">
-      <Filter>src\Runic2D\Scene</Filter>
+    <ClInclude Include="src\Runic2D\Scene\Components\CoreComponents.h">
+      <Filter>src\Runic2D\Scene\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Components\MotionComponents.h">
+      <Filter>src\Runic2D\Scene\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Components\PhysicsComponents.h">
+      <Filter>src\Runic2D\Scene\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Components\RenderComponents.h">
+      <Filter>src\Runic2D\Scene\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Components\ScriptingComponents.h">
+      <Filter>src\Runic2D\Scene\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Components\UIComponents.h">
+      <Filter>src\Runic2D\Scene\Components</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Scene\Entity.h">
       <Filter>src\Runic2D\Scene</Filter>
@@ -1679,12 +1691,6 @@
     <ClCompile Include="src\Runic2D\Renderer\FrameBuffer.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Renderer\OrthographicCamera.cpp">
-      <Filter>src\Runic2D\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Runic2D\Renderer\OrthographicCameraController.cpp">
-      <Filter>src\Runic2D\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\RenderCommand.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
@@ -1712,8 +1718,8 @@
     <ClCompile Include="src\Runic2D\Renderer\VertexArray.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Scene\ComponentRegistry.cpp">
-      <Filter>src\Runic2D\Scene</Filter>
+    <ClCompile Include="src\Runic2D\Scene\Components\ComponentRegistry.cpp">
+      <Filter>src\Runic2D\Scene\Components</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Scene\Entity.cpp">
       <Filter>src\Runic2D\Scene</Filter>

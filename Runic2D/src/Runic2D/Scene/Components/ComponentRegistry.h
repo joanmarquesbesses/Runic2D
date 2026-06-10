@@ -1,6 +1,8 @@
 #pragma once
+
 #include "Runic2D/Core/Core.h"
-#include "Entity.h"
+#include "Runic2D/Scene/Entity.h"
+
 #include <functional>
 #include <vector>
 #include <string>

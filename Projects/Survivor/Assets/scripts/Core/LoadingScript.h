@@ -2,7 +2,7 @@
 
 #include "Runic2D/Scene/ScriptableEntity.h"
 #include "Runic2D/Scene/SceneManager.h"
-#include "Runic2D/Scene/Component.h"
+#include "Runic2D/Scene/Components/RenderComponents.h"
 
 using namespace Runic2D;
 
