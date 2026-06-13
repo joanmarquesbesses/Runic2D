@@ -4,7 +4,8 @@
 #include "Runic2D/Core/Application.h"
 #include "Runic2D/Core/Input.h"
 #include "Runic2D/Scene/Scene.h"
-#include "Runic2D/Scene/Component.h"
+#include "Runic2D/Scene/Components/CoreComponents.h"
+#include "Runic2D/Scene/Components/RenderComponents.h"
 #include "Runic2D/Scene/Entity.h"
 
 #include <glm/gtc/matrix_transform.hpp>

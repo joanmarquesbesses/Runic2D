@@ -290,8 +290,8 @@ namespace Runic2D {
 
 	void Scene::OnRuntimeStart()
 	{
-		for (auto& logicSystem : m_LogicSystems) {
-			logicSystem->OnStart(this);
+		for (size_t i = 0; i < m_LogicSystems.size(); i++) {
+			m_LogicSystems[i]->OnStart(this);
 		}
 		for (auto& physicsSystem : m_PhysicsSystems) {
 			physicsSystem->OnStart(this);

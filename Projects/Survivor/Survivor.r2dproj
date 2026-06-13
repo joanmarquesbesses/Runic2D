@@ -1,5 +1,5 @@
 Project:
   Name: Survivor
-  StartScene: scenes/MainScene.r2dscene  
+  StartScene: scenes/MainScene.r2dscene
   AssetDirectory: Assets
-  ScriptModulePath: Survivor.dll                   
+  ScriptModulePath: Survivor.dll

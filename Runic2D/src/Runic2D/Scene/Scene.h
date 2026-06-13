@@ -114,7 +114,7 @@ namespace Runic2D {
 
 	public:
 		template<typename T>
-		void AddSystem(Ref<T> system, std::initializer_list<SystemPhase> phases) {
+		void AddSystem(Ref<T> system, std::initializer_list<SystemPhase> phases = { SystemPhase::Logic }) {
 			m_SystemsMap[typeid(T)] = system;
 
 			for (auto phase : phases)

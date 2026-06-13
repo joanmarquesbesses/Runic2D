@@ -3,6 +3,7 @@
 #include "Enemy.h"
 
 #include "Player.h"
+#include "Systems/CombatHelper.h"
 
 namespace Survivor {
 
@@ -70,6 +71,8 @@ namespace Survivor {
             if (std::find(m_HitList.begin(), m_HitList.end(), other) != m_HitList.end()) {
                 return;
             }
+
+            //CombatHelper::ApplyDamage(other, GetComponent<ProjectileComponent>().Damage, GetComponent<TransformComponent>().GetTranslation());
 
             if (other.HasComponent<NativeScriptComponent>()) {
                 auto& nsc = other.GetComponent<NativeScriptComponent>();

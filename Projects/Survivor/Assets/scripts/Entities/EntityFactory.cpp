@@ -6,6 +6,9 @@
 #include "Enemy.h"
 #include "ExperienceOrb.h"
 #include "UI/FloatingText.h"
+#include "Systems/EnemySystem.h"
+#include "Systems/DamageFlashSystem.h"
+#include "Systems/KnockbackSystem.h"
 
 #include "Runic2D/Utils/Random.h"
 
@@ -328,6 +331,11 @@ namespace Survivor {
         rb.GravityScale = 0.0f;
 
         entity.AddComponent<NativeScriptComponent>().Bind<Enemy>();
+
+        /*entity.AddComponent<MovementComponent>();
+        entity.AddComponent<EnemySystem>();
+        entity.AddComponent<DamageFlashComponent>();
+        entity.AddComponent<KnockbackComponent>();*/
 
         return entity;
     }

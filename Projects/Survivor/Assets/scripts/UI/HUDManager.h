@@ -127,8 +127,8 @@ namespace Survivor {
 
         void UpdateFPS() {
             if (!m_FPSText) return;
-            m_FPSText.GetComponent<TextComponent>().SetText(
-                "FPS: " + std::to_string((int)Application::Get().GetAverageFPS()));
+            float fps = Application::Get().GetAverageFPS();
+            m_FPSText.GetComponent<TextComponent>().SetText(std::format("FPS: {:.1f}", fps));
         }
 
         void UpdateLevelUpState()

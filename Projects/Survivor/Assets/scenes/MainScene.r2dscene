@@ -120,3 +120,14 @@ Entities:
       Parent: 0
     NativeScriptComponent:
       ClassName: GameManager
+  - EntityID: 4877730343245726515
+    TagComponent:
+      Tag: LevelManager
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RelationshipComponent:
+      Parent: 0
+    NativeScriptComponent:
+      ClassName: SurvivorLevelManager

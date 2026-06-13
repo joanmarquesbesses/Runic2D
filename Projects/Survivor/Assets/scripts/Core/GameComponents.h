@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include "Systems/UpgradeDatabase.h"
 
+#include "Runic2D/Scene/Entity.h"
+
 namespace Survivor {
 
 	enum class GameState {
@@ -100,6 +102,24 @@ namespace Survivor {
 				State = GameState::LevelUp;
 			}
 		}
+	};
+
+	struct MovementComponent {
+		float speed = 0.0f;
+		glm::vec2 direction{ 0.0f };
+	};
+
+	struct DamageFlashComponent {
+		float TimeRemaining = 0.0f;
+		glm::vec4 FlashColor = { 1.0f, 0.35f, 0.35f, 1.0f };
+	};
+
+	struct KnockbackComponent {
+		float TimeRemaining = 0.0f;
+	};
+
+	struct DeadTag {
+		bool dummy = true;
 	};
 
 }

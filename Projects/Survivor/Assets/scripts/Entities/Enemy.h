@@ -17,7 +17,6 @@ namespace Survivor {
         PhysicsSystem* m_PhysicsSystem = nullptr;
 
         bool m_IsDead = false;
-        float m_TimeDead = 0.0f;
 
         virtual void OnCreate() override {
             m_Player = GetScene()->GetEntityWithComponent<PlayerStatsComponent>();
@@ -171,37 +170,9 @@ namespace Survivor {
                 }
             }
 
-            PlayAnimation("Death");
-        }
-
-        void PlayAnimation(const std::string& name)
-        {
-            auto& anim = GetComponent<AnimationComponent>();
-            if (anim.CurrentStateName == name) return;
-
-            auto it = anim.Animations.find(name);
-            if (it != anim.Animations.end())
-            {
-                anim.CurrentAnimation = it->second;
-                anim.CurrentStateName = name;
-                anim.CurrentFrameIndex = 0;
-                anim.TimeAccumulator = 0.0f;
-                anim.Playing = true;
-
-                for (auto& profile : anim.Profiles)
-                {
-                    if (profile.Name == name)
-                    {
-                        anim.Loop = profile.Loop;
-                        break;
-                    }
-                }
-
-                if (HasComponent<SpriteRendererComponent>())
-                {
-                    auto& src = GetComponent<SpriteRendererComponent>();
-                    src.SubTexture = anim.CurrentAnimation->GetFrame(0);
-                }
+            if (HasComponent<AnimationComponent>()) {
+                auto& ac = GetComponent<AnimationComponent>();
+                ac.Play("Death");
             }
         }
     };
