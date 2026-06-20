@@ -214,6 +214,8 @@ namespace Runic2D {
 
 	void Scene::OnFixedUpdateRunTime(Timestep ts)
 	{
+		R2D_PROFILE_SCOPE("Scene: OnFixedUpdate");
+
 		if (!m_IsPaused)
 		{
 			for (auto& logicSystem : m_LogicSystems) {
@@ -227,6 +229,8 @@ namespace Runic2D {
 
 	void Scene::OnUpdateRunTime(Timestep ts)
 	{
+		R2D_PROFILE_SCOPE("Scene: OnUpdate");
+
 		for (auto& logicSystem : m_LogicSystems) {
 			logicSystem->OnUpdate(ts, this);
 		}
@@ -250,6 +254,8 @@ namespace Runic2D {
 
 	void Scene::OnRenderRuntime()
 	{
+		R2D_PROFILE_SCOPE("Scene: OnRender");
+
 		for (auto& renderSystem : m_RenderSystems) {
 			renderSystem->OnRender(this);
 		}

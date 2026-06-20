@@ -64,6 +64,8 @@ namespace Runic2D {
 	{
 		if (scene->IsPaused()) return;
 
+		R2D_PROFILE_SCOPE("Animation Update");
+
 		struct AnimEntry
 		{
 			AnimationComponent* Anim;
@@ -123,6 +125,8 @@ namespace Runic2D {
 
 		auto stats = JobSystem::Dispatch(count, groupSize, [&entries, ts](uint32_t start, uint32_t end)
 			{
+				R2D_PROFILE_SCOPE("Animation Job");
+
 				for (uint32_t i = start; i < end; i++)
 				{
 					auto& anim = *entries[i].Anim;

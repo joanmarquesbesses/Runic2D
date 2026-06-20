@@ -13,6 +13,8 @@
 namespace Runic2D {
 	void Runic2D::TweenSystem::OnUpdate(Timestep ts, Scene* scene)
 	{
+		R2D_PROFILE_SCOPE("Tween System: OnUpdate");
+
 		std::vector<entt::entity> toRemove;
 		std::vector<entt::entity> toDestroy;
 

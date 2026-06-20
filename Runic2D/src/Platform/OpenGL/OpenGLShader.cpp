@@ -177,63 +177,45 @@ namespace Runic2D
 	}
 
 	void OpenGLShader::Bind() const {
-		R2D_PROFILE_FUNCTION();
-
 		glUseProgram(m_RendererID);
 	}
 
 	void OpenGLShader::Unbind() const {
-		R2D_PROFILE_FUNCTION();
-
 		glUseProgram(0);
 	}
 
 	void OpenGLShader::SetInt(const std::string& name, int value)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		UploadUniformInt(name, value);
 	}
 
 	void OpenGLShader::SetIntArray(const std::string& name, int* values, uint32_t count)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		UploadUniformIntArray(name, values, count);
 	}
 
 	void OpenGLShader::SetFloat(const std::string& name, float value)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		UploadUniformFloat(name, value);
 	}
 
 	void OpenGLShader::SetFloat2(const std::string& name, const glm::vec2& value)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		UploadUniformFloat2(name, value);
 	}
 
 	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		UploadUniformFloat3(name, value);
 	}
 
 	void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		UploadUniformFloat4(name, value);
 	}
 
 	void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		UploadUniformMat4(name, value);
 	}
 
@@ -247,7 +229,6 @@ namespace Runic2D
 	{
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1iv(location, count, values);
-
 	}
 
 	void OpenGLShader::UploadUniformFloat(const std::string& name, float value)

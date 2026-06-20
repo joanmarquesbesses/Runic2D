@@ -243,7 +243,7 @@ namespace Runic2D
 
 	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_FUNCTION("Renderer: BeginScene");
 
 		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
@@ -253,7 +253,7 @@ namespace Runic2D
 
 	void Renderer2D::BeginScene(const EditorCamera& camera)
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_FUNCTION("Renderer: BeginScene");
 
 		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
@@ -263,6 +263,8 @@ namespace Runic2D
 
 	void Renderer2D::BeginScene(const glm::mat4& viewProj)
 	{
+		R2D_PROFILE_FUNCTION("Renderer: BeginScene");
+
 		s_Data.CameraBuffer.ViewProjection = viewProj;
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
 		StartBatch();
@@ -270,7 +272,7 @@ namespace Runic2D
 
 	void Renderer2D::EndScene()
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_FUNCTION("Renderer: EndScene");
 
 		Flush();
 		if (s_Data.RecordStats) s_Data.Stats.FlushReasons[(int)FlushReason::SceneEnd]++;
@@ -296,7 +298,7 @@ namespace Runic2D
 
 	void Renderer2D::Flush()
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_FUNCTION("Renderer: Flush");
 
 		if (s_Data.QuadIndexCount)
 		{
@@ -384,8 +386,6 @@ namespace Runic2D
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
 			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
@@ -399,8 +399,7 @@ namespace Runic2D
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
-		R2D_PROFILE_FUNCTION();
-
+		
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
 			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
@@ -409,8 +408,7 @@ namespace Runic2D
 	}
 
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
-	{
-		R2D_PROFILE_FUNCTION();
+	{		
 
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
 
@@ -445,8 +443,7 @@ namespace Runic2D
 	}
 
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
-	{
-		R2D_PROFILE_FUNCTION();
+	{		
 
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
 
@@ -497,8 +494,7 @@ namespace Runic2D
 	}
 
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor, int entityID)
-	{
-		R2D_PROFILE_FUNCTION();
+	{	
 
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
 
@@ -553,8 +549,7 @@ namespace Runic2D
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor)
 	{
-		R2D_PROFILE_FUNCTION();
-
+		
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
 			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
@@ -569,8 +564,7 @@ namespace Runic2D
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
-		R2D_PROFILE_FUNCTION();
-
+		
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
@@ -586,8 +580,7 @@ namespace Runic2D
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
-		R2D_PROFILE_FUNCTION();
-
+		
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
@@ -602,8 +595,7 @@ namespace Runic2D
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor)
 	{
-		R2D_PROFILE_FUNCTION();
-
+		
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
@@ -614,7 +606,6 @@ namespace Runic2D
 
 	void Renderer2D::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness /*= 1.0f*/, float fade /*= 0.005f*/, int entityID /*= -1*/)
 	{
-		R2D_PROFILE_FUNCTION();
 		
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Circle);
 

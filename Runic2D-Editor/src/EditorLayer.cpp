@@ -75,7 +75,7 @@ namespace Runic2D
 
 	void EditorLayer::OnFixedUpdate(Timestep ts)
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_SCOPE("Editor Layer: OnFixedUpdate");
 
 		if (m_SceneState == SceneState::Play)
 		{
@@ -87,7 +87,7 @@ namespace Runic2D
 
 	void EditorLayer::OnUpdate(Timestep ts)
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_SCOPE("Editor Layer: OnUpdate");
 
 		glm::vec2 vpSize = m_ViewportPanel.GetSize();
 		if (vpSize.x > 0.f && vpSize.y > 0.f && vpSize != m_LastViewportSize)

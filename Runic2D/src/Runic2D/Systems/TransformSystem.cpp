@@ -9,7 +9,7 @@
 namespace Runic2D {
 	void Runic2D::TransformSystem::OnUpdate(Timestep ts, Scene* scene)
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_SCOPE("Transform System: OnUpdate");
 
 		// 1. Organize entities by depth level (BFS)
 		// This ensures parents are processed before children
@@ -67,6 +67,8 @@ namespace Runic2D {
 
 			auto stats = JobSystem::Dispatch(count, groupSize, [&regisrty, &levelEntities](uint32_t start, uint32_t end)
 				{
+					R2D_PROFILE_SCOPE("Transform Job");
+
 					for (uint32_t i = start; i < end; i++)
 					{
 						entt::entity entity = levelEntities[i];

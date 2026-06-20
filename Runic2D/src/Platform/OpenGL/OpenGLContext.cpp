@@ -28,8 +28,6 @@ namespace Runic2D
 
 	void OpenGLContext::SwapBuffers()
 	{
-		R2D_PROFILE_FUNCTION();
-
 		glfwSwapBuffers(m_WindowHandle);
 	}
 

@@ -40,6 +40,8 @@ namespace Runic2D {
 
 	void ScriptingSystem::OnUpdate(Timestep ts, Scene* scene)
 	{
+		R2D_PROFILE_SCOPE("Scripting System: OnUpdate");
+
 		scene->GetEntityRegistry().view<NativeScriptComponent>().each(
 			[=](auto entity, auto& nsc)
 			{
@@ -60,6 +62,8 @@ namespace Runic2D {
 
 	void ScriptingSystem::OnFixedUpdate(Timestep ts, Scene* scene)
 	{
+		R2D_PROFILE_SCOPE("Scripting System: OnFixedUpdate");
+
 		scene->GetEntityRegistry().view<NativeScriptComponent>().each(
 			[=](auto entity, auto& nsc)
 			{

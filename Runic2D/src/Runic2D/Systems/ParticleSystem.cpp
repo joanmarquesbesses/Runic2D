@@ -25,6 +25,8 @@ namespace Runic2D {
 	{
 		if (scene->IsPaused()) return;
 
+		R2D_PROFILE_SCOPE("Particle System: OnUpdate");
+
 		std::vector<Particle*> activeParticles;
 		activeParticles.reserve(m_ParticlePool.size());
 
@@ -41,6 +43,8 @@ namespace Runic2D {
 
 		auto stats = JobSystem::Dispatch(count, groupSize, [&activeParticles, ts](uint32_t start, uint32_t end)
 			{
+				R2D_PROFILE_SCOPE("Particles Job");
+
 				for (uint32_t i = start; i < end; i++)
 				{
 					Particle& particle = *activeParticles[i];
@@ -66,6 +70,8 @@ namespace Runic2D {
 
 	void ParticleSystem::OnRender(Scene* scene)
 	{
+		R2D_PROFILE_SCOPE("Particle System: OnRender");
+
 		auto cameraEntity = scene->GetPrimaryCameraEntity();
 		if (cameraEntity) {
 
@@ -90,9 +96,9 @@ namespace Runic2D {
 				else
 					Renderer2D::DrawRotatedQuad(particle.Position, { size, size }, particle.Rotation, color);
 			}
-		}
 
-		Renderer2D::EndScene();
+			Renderer2D::EndScene();
+		}	
 	}
 
 	void ParticleSystem::Emit(const ParticleProps& particleProps)

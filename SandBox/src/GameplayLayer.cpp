@@ -1,6 +1,9 @@
 #include "GameplayLayer.h"
 
+//Debug
 #include "Runic2D/Systems/DebugSystem.h"
+#include "Runic2D/Core/JobSystem.h"
+#include "Runic2D/Core/BackgroundTaskSystem.h"
 
 using namespace Runic2D;
 
@@ -26,14 +29,14 @@ void GameplayLayer::OnDetach()
 
 void GameplayLayer::OnFixedUpdate(Runic2D::Timestep ts)
 {
-	R2D_PROFILE_FUNCTION();
+	R2D_PROFILE_FUNCTION("GamePlay: OnFixedUpdate");
 	auto scene = SceneManager::GetActiveScene();
 	if (scene) scene->OnFixedUpdateRunTime(ts);
 }
 
 void GameplayLayer::OnUpdate(Runic2D::Timestep ts)
 {
-    R2D_PROFILE_FUNCTION();
+    R2D_PROFILE_FUNCTION("GamePlay: OnUpdate");
 
     Renderer2D::ResetStats();
 
@@ -100,6 +103,16 @@ bool GameplayLayer::OnKeyPressed(KeyPressedEvent& e)
                     debugSystem->SetShowColliders(!debugSystem->GetShowColliders());
                 }
             }
+            return true;
+        }
+        case KeyCode::F4:
+        {
+            JobSystem::SetEnabled(!JobSystem::IsEnabled());
+            return true;
+        }
+        case KeyCode::F5:
+        {
+            BackgroundTaskSystem::SetEnabled(!BackgroundTaskSystem::IsEnabled());
             return true;
         }
 	}

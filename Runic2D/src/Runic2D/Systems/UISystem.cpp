@@ -38,6 +38,8 @@ namespace Runic2D {
 
 	void UISystem::OnUpdate(Timestep ts, Scene* scene)
 	{
+		R2D_PROFILE_FUNCTION("UI System: OnUpdate");
+
 		glm::vec2 mouseUI = GetMousePositionInUISpace(scene);
 
 		bool mouseDown = Input::IsMouseButtonPressed(MouseButton::Left);
@@ -98,6 +100,8 @@ namespace Runic2D {
 
 	void UISystem::OnRender(Scene* scene)
 	{
+		R2D_PROFILE_FUNCTION("UI System: OnRender");
+
 		float W = static_cast<float>(scene->GetViewportWidth());
 		float H = static_cast<float>(scene->GetViewportHeight());
 		float aspectRatio = W / H;

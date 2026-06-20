@@ -61,7 +61,7 @@ namespace Runic2D {
 		m_Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
-		SetVSync(true);
+		SetVSync(false);
 
 		//Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
@@ -159,7 +159,7 @@ namespace Runic2D {
 
 	void WindowsWindow::OnUpdate()
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_SCOPE("Window: OnUpdate");
 
 		glfwPollEvents();
 		m_Context->SwapBuffers();
@@ -167,8 +167,6 @@ namespace Runic2D {
 
 	void WindowsWindow::SetVSync(bool enabled)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		m_Data.VSync = enabled;
 		if (enabled)
 			glfwSwapInterval(1);

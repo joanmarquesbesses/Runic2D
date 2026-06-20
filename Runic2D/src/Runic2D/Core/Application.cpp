@@ -132,8 +132,6 @@ namespace Runic2D {
 
 	void Application::Run()
 	{
-		R2D_PROFILE_FUNCTION();
-
 		while (m_Running) {
 
 			R2D_PROFILE_SCOPE("RunLoop");

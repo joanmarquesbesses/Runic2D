@@ -28,11 +28,12 @@ namespace Runic2D
     private:
         InstrumentationSession* m_CurrentSession;
         std::ofstream m_OutputStream;
-        int m_ProfileCount;
+        std::vector<ProfileResult> m_ProfileResults;
         std::mutex m_Mutex;
+        uint32_t m_MainThreadID;
     public:
         Instrumentor()
-            : m_CurrentSession(nullptr), m_ProfileCount(0)
+            : m_CurrentSession(nullptr)
         {
         }
 
@@ -46,15 +47,16 @@ namespace Runic2D
 
             if (filepath.empty())
             {
-                // Generem un nom de fitxer basat en el temps actual: Profiling_20240513_1800.json
                 auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
                 std::stringstream ss;
                 ss << "Profiling_" << std::put_time(std::localtime(&now), "%Y%m%d_%H%M%S") << ".json";
                 filepath = ss.str();
             }
 
+            m_MainThreadID = (uint32_t)std::hash<std::thread::id>{}(std::this_thread::get_id());
+
             m_OutputStream.open(filepath);
-            WriteHeader();
+            m_ProfileResults.reserve(100000); // Reservem memòria per no frenar l'Engine
             m_CurrentSession = new InstrumentationSession{ name };
         }
 
@@ -67,25 +69,10 @@ namespace Runic2D
         void WriteProfile(const ProfileResult& result)
         {
             std::lock_guard<std::mutex> lock(m_Mutex);
-            
-            if (!m_CurrentSession)
-                return;
-
-            if (m_ProfileCount++ > 0)
-                m_OutputStream << ",";
-
-            std::string name = result.Name;
-            std::replace(name.begin(), name.end(), '"', '\'');
-
-            m_OutputStream << "{";
-            m_OutputStream << "\"cat\":\"function\",";
-            m_OutputStream << "\"dur\":" << (result.End - result.Start) << ',';
-            m_OutputStream << "\"name\":\"" << name << "\",";
-            m_OutputStream << "\"ph\":\"X\",";
-            m_OutputStream << "\"pid\":0,";
-            m_OutputStream << "\"tid\":" << result.ThreadID << ",";
-            m_OutputStream << "\"ts\":" << result.Start;
-            m_OutputStream << "}";
+            if (m_CurrentSession)
+            {
+                m_ProfileResults.push_back(result);
+            }
         }
 
         static Instrumentor& Get()
@@ -100,6 +87,8 @@ namespace Runic2D
         void WriteHeader()
         {
             m_OutputStream << "{\"otherData\": {},\"traceEvents\":[";
+            // Metadades per donar nom al fil principal
+            m_OutputStream << "{\"name\":\"thread_name\",\"ph\":\"M\",\"pid\":0,\"tid\":" << m_MainThreadID << ",\"args\":{\"name\":\"Main Thread\"}},";
             m_OutputStream.flush();
         }
 
@@ -113,11 +102,30 @@ namespace Runic2D
         {
             if (m_CurrentSession)
             {
+                WriteHeader();
+                for (size_t i = 0; i < m_ProfileResults.size(); i++)
+                {
+                    const auto& result = m_ProfileResults[i];
+                    if (i > 0) m_OutputStream << ",";
+
+                    std::string name = result.Name;
+                    std::replace(name.begin(), name.end(), '"', '\'');
+
+                    m_OutputStream << "{";
+                    m_OutputStream << "\"cat\":\"function\",";
+                    m_OutputStream << "\"dur\":" << (result.End - result.Start) << ',';
+                    m_OutputStream << "\"name\":\"" << name << "\",";
+                    m_OutputStream << "\"ph\":\"X\",";
+                    m_OutputStream << "\"pid\":0,";
+                    m_OutputStream << "\"tid\":" << result.ThreadID << ",";
+                    m_OutputStream << "\"ts\":" << result.Start;
+                    m_OutputStream << "}";
+                }
                 WriteFooter();
                 m_OutputStream.close();
                 delete m_CurrentSession;
                 m_CurrentSession = nullptr;
-                m_ProfileCount = 0;
+                m_ProfileResults.clear();
             }
         }
     };
@@ -159,14 +167,19 @@ namespace Runic2D
     };
 }
 
-#ifndef R2D_DIST
+//#ifndef R2D_DIST
+//    #define R2D_PROFILE_BEGIN_SESSION(name, filepath) ::Runic2D::Instrumentor::Get().BeginSession(name, filepath)
+//    #define R2D_PROFILE_END_SESSION() ::Runic2D::Instrumentor::Get().EndSession()
+//    #define R2D_PROFILE_SCOPE(name) ::Runic2D::InstrumentationTimer timer##__LINE__(name);
+//    #define R2D_PROFILE_FUNCTION() R2D_PROFILE_SCOPE(__FUNCSIG__)
+//#else       
+//    #define R2D_PROFILE_BEGIN_SESSION(name, filepath)
+//    #define R2D_PROFILE_END_SESSION()
+//    #define R2D_PROFILE_SCOPE(name)
+//    #define R2D_PROFILE_FUNCTION()
+//#endif
+
     #define R2D_PROFILE_BEGIN_SESSION(name, filepath) ::Runic2D::Instrumentor::Get().BeginSession(name, filepath)
     #define R2D_PROFILE_END_SESSION() ::Runic2D::Instrumentor::Get().EndSession()
     #define R2D_PROFILE_SCOPE(name) ::Runic2D::InstrumentationTimer timer##__LINE__(name);
     #define R2D_PROFILE_FUNCTION() R2D_PROFILE_SCOPE(__FUNCSIG__)
-#else       
-    #define R2D_PROFILE_BEGIN_SESSION(name, filepath)
-    #define R2D_PROFILE_END_SESSION()
-    #define R2D_PROFILE_SCOPE(name)
-    #define R2D_PROFILE_FUNCTION()
-#endif

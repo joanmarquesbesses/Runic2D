@@ -28,36 +28,26 @@ namespace Runic2D
 
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
-		R2D_PROFILE_FUNCTION();
-
 		glCreateVertexArrays(1, &m_RendererID);
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()
 	{
-		R2D_PROFILE_FUNCTION();
-
 		glDeleteVertexArrays(1, &m_RendererID);
 	}
 
 	void OpenGLVertexArray::Bind() const
 	{
-		R2D_PROFILE_FUNCTION();
-
 		glBindVertexArray(m_RendererID);
 	}
 
 	void OpenGLVertexArray::Unbind() const
 	{
-		R2D_PROFILE_FUNCTION();
-
 		glBindVertexArray(0);
 	}
 
 	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		R2D_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
 		glBindVertexArray(m_RendererID);
@@ -126,8 +116,6 @@ namespace Runic2D
 
 	void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
-		R2D_PROFILE_FUNCTION();
-
 		glBindVertexArray(m_RendererID);
 		indexBuffer->Bind();
 

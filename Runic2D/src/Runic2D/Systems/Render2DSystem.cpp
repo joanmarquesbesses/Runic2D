@@ -13,6 +13,8 @@ namespace Runic2D {
 
 	void Render2DSystem::OnRender(Scene* scene)
 	{
+		R2D_PROFILE_SCOPE("Render System: OnRender");
+
 		if (m_UseCustomCamera)
 		{
 			Renderer2D::BeginScene(m_CustomViewProj);

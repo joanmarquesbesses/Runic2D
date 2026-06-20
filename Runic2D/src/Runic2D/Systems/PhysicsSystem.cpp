@@ -15,7 +15,6 @@ namespace Runic2D {
 
 	static void* Box2D_EnqueueTask(b2TaskCallback* task, int itemCount, int minRange, void* taskContext, void* userContext)
 	{
-		R2D_PROFILE_FUNCTION();
 		JobSystem::Dispatch(
 			(uint32_t)itemCount, (uint32_t)minRange, [task, taskContext](uint32_t start, uint32_t end)
 			{
@@ -297,6 +296,8 @@ namespace Runic2D {
 
 	void PhysicsSystem::OnUpdate(Timestep ts, Scene* scene)
 	{
+		R2D_PROFILE_SCOPE("Physics System: OnUpdate");
+
 		if (!scene->IsPaused() && B2_IS_NON_NULL(scene->GetPhysicsWorldID()))
 		{
 			float alpha = Application::Get().GetFixedUpdateAlpha();
@@ -311,6 +312,8 @@ namespace Runic2D {
 
 			auto stats = JobSystem::Dispatch(count, groupSize, [&registry, &entities, alpha](uint32_t start, uint32_t end)
 				{
+					R2D_PROFILE_FUNCTION("Physics Job");
+
 					for (uint32_t i = start; i < end; i++)
 					{
 						entt::entity entity = entities[i];
@@ -340,6 +343,8 @@ namespace Runic2D {
 
 	void PhysicsSystem::OnFixedUpdate(Timestep ts, Scene* scene)
 	{
+		R2D_PROFILE_SCOPE("Physics System: OnFixedUpdate");
+
 		if (B2_IS_NON_NULL(scene->GetPhysicsWorldID()))
 		{
 			b2WorldId& PhysicsWorld = scene->GetPhysicsWorldID();
