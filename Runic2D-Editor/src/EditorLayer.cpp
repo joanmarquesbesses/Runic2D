@@ -163,7 +163,7 @@ namespace Runic2D
 
 	void EditorLayer::OnImGuiRender()
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_SCOPE("EditorLayer: ImGui Update");
 
 		// - DockSpace
 		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;

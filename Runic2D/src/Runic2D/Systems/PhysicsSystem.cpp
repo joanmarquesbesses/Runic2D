@@ -312,7 +312,7 @@ namespace Runic2D {
 
 			auto stats = JobSystem::Dispatch(count, groupSize, [&registry, &entities, alpha](uint32_t start, uint32_t end)
 				{
-					R2D_PROFILE_FUNCTION("Physics Job");
+					R2D_PROFILE_SCOPE("Physics Job");
 
 					for (uint32_t i = start; i < end; i++)
 					{

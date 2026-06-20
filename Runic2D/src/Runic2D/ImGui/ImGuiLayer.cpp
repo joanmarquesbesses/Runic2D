@@ -86,7 +86,7 @@ namespace Runic2D
 
 	void ImGuiLayer::Begin()
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_SCOPE("ImGui: Begin frame")
 
 		// Start a new ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
@@ -98,7 +98,7 @@ namespace Runic2D
 
 	void ImGuiLayer::End()
 	{
-		R2D_PROFILE_FUNCTION();
+		R2D_PROFILE_SCOPE("ImGui: End frame");
 
 		// End the ImGui frame and render it
 		ImGuiIO& io = ImGui::GetIO();

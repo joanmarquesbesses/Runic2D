@@ -243,7 +243,7 @@ namespace Runic2D
 
 	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
 	{
-		R2D_PROFILE_FUNCTION("Renderer: BeginScene");
+		R2D_PROFILE_SCOPE("Renderer: BeginScene");
 
 		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
@@ -253,7 +253,7 @@ namespace Runic2D
 
 	void Renderer2D::BeginScene(const EditorCamera& camera)
 	{
-		R2D_PROFILE_FUNCTION("Renderer: BeginScene");
+		R2D_PROFILE_SCOPE("Renderer: BeginScene");
 
 		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
@@ -263,7 +263,7 @@ namespace Runic2D
 
 	void Renderer2D::BeginScene(const glm::mat4& viewProj)
 	{
-		R2D_PROFILE_FUNCTION("Renderer: BeginScene");
+		R2D_PROFILE_SCOPE("Renderer: BeginScene");
 
 		s_Data.CameraBuffer.ViewProjection = viewProj;
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
@@ -272,7 +272,7 @@ namespace Runic2D
 
 	void Renderer2D::EndScene()
 	{
-		R2D_PROFILE_FUNCTION("Renderer: EndScene");
+		R2D_PROFILE_SCOPE("Renderer: EndScene");
 
 		Flush();
 		if (s_Data.RecordStats) s_Data.Stats.FlushReasons[(int)FlushReason::SceneEnd]++;
@@ -298,7 +298,7 @@ namespace Runic2D
 
 	void Renderer2D::Flush()
 	{
-		R2D_PROFILE_FUNCTION("Renderer: Flush");
+		R2D_PROFILE_SCOPE("Renderer: Flush");
 
 		if (s_Data.QuadIndexCount)
 		{

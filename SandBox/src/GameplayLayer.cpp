@@ -29,14 +29,14 @@ void GameplayLayer::OnDetach()
 
 void GameplayLayer::OnFixedUpdate(Runic2D::Timestep ts)
 {
-	R2D_PROFILE_FUNCTION("GamePlay: OnFixedUpdate");
+	R2D_PROFILE_SCOPE("GamePlay: OnFixedUpdate");
 	auto scene = SceneManager::GetActiveScene();
 	if (scene) scene->OnFixedUpdateRunTime(ts);
 }
 
 void GameplayLayer::OnUpdate(Runic2D::Timestep ts)
 {
-    R2D_PROFILE_FUNCTION("GamePlay: OnUpdate");
+    R2D_PROFILE_SCOPE("GamePlay: OnUpdate");
 
     Renderer2D::ResetStats();
 

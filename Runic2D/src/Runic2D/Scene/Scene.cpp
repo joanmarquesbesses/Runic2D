@@ -231,25 +231,39 @@ namespace Runic2D {
 	{
 		R2D_PROFILE_SCOPE("Scene: OnUpdate");
 
-		for (auto& logicSystem : m_LogicSystems) {
-			logicSystem->OnUpdate(ts, this);
-		}
-		for (auto& physicsSystem : m_PhysicsSystems) {
-			physicsSystem->OnUpdate(ts, this);
-		}
-		for (auto& postUpdateSystem : m_PostUpdateSystems) {
-			postUpdateSystem->OnUpdate(ts, this);
-		}
-
-		for (auto e : m_DestructionQueue)
 		{
-			if (m_Registry.valid(e))
-			{
-				Entity entity{ e, this };
-				DestroyEntity(entity);
+			R2D_PROFILE_SCOPE("Scene: Logic Systems");
+			for (auto& logicSystem : m_LogicSystems) {
+				logicSystem->OnUpdate(ts, this);
 			}
 		}
-		m_DestructionQueue.clear();
+
+		{
+			R2D_PROFILE_SCOPE("Scene: Physics Systems");
+			for (auto& physicsSystem : m_PhysicsSystems) {
+				physicsSystem->OnUpdate(ts, this);
+			}
+		}
+
+		{
+			R2D_PROFILE_SCOPE("Scene: PostUpdate Systems");
+			for (auto& postUpdateSystem : m_PostUpdateSystems) {
+				postUpdateSystem->OnUpdate(ts, this);
+			}
+		}
+
+		{
+			R2D_PROFILE_SCOPE("Scene: Garbage Collector");
+			for (auto e : m_DestructionQueue)
+			{
+				if (m_Registry.valid(e))
+				{
+					Entity entity{ e, this };
+					DestroyEntity(entity);
+				}
+			}
+			m_DestructionQueue.clear();
+		}
 	}
 
 	void Scene::OnRenderRuntime()

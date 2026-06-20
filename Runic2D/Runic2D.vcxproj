@@ -97,6 +97,8 @@
       <AdditionalLibraryDirectories>..\bin\Debug-windows-x86_64\Box2D;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Debug-windows-x86_64\Runic2D\Runic2D.lib</ImportLibrary>
     </Link>
+    <ProjectReference>
+    </ProjectReference>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Debug-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Debug-windows-x86_64\Runic2D-Editor &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Debug-windows-x86_64\Runic2D-Editor &gt; nul)
 IF EXIST ..\bin\Debug-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Debug-windows-x86_64\SandBox &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Debug-windows-x86_64\SandBox &gt; nul)</Command>
@@ -128,6 +130,8 @@ IF EXIST ..\bin\Debug-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\
       <AdditionalLibraryDirectories>..\bin\Release-windows-x86_64\Box2D;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Release-windows-x86_64\Runic2D\Runic2D.lib</ImportLibrary>
     </Link>
+    <ProjectReference>
+    </ProjectReference>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Release-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\bin\Release-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Release-windows-x86_64\Runic2D-Editor &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Release-windows-x86_64\Runic2D-Editor &gt; nul)
 IF EXIST ..\bin\Release-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\bin\Release-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Release-windows-x86_64\SandBox &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Release-windows-x86_64\SandBox &gt; nul)</Command>
@@ -159,6 +163,8 @@ IF EXIST ..\bin\Release-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I .
       <AdditionalLibraryDirectories>..\bin\Dist-windows-x86_64\Box2D;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Dist-windows-x86_64\Runic2D\Runic2D.lib</ImportLibrary>
     </Link>
+    <ProjectReference>
+    </ProjectReference>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Dist-windows-x86_64\Runic2D-Editor &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Dist-windows-x86_64\Runic2D-Editor &gt; nul)
 IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Dist-windows-x86_64\SandBox &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll ..\bin\Dist-windows-x86_64\SandBox &gt; nul)</Command>
