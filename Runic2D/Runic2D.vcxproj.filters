@@ -79,6 +79,9 @@
     <Filter Include="vendor\glm\glm\gtx">
       <UniqueIdentifier>{B3A6A76B-9F8A-68C1-08EB-6214F4ED5243}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vendor\lz4">
+      <UniqueIdentifier>{5CB6C5A8-486E-07F6-B175-E0519D4CA2E6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="vendor\stb_image">
       <UniqueIdentifier>{0DA0BA59-F998-D9AB-22CB-BE300E23B9B7}</UniqueIdentifier>
     </Filter>
@@ -1596,6 +1599,9 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
+    <ClInclude Include="vendor\lz4\lz4.h">
+      <Filter>vendor\lz4</Filter>
+    </ClInclude>
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
@@ -1780,6 +1786,9 @@
     </ClCompile>
     <ClCompile Include="src\Runic2D\Utils\SceneUtils.cpp">
       <Filter>src\Runic2D\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\lz4\lz4.c">
+      <Filter>vendor\lz4</Filter>
     </ClCompile>
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>

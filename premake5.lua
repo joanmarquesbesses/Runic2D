@@ -35,6 +35,7 @@ IncludeDir["Box2D"] = "%{wks.location}/Runic2D/vendor/Box2D/include"
 IncludeDir["msdf_atlas_gen"] = "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdf-atlas-gen"
 IncludeDir["msdfgen"] = "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdfgen"
 IncludeDir["miniaudio"] = "%{wks.location}/Runic2D/vendor/miniaudio"
+IncludeDir["lz4"] = "%{wks.location}/Runic2D/vendor/lz4"
 -- Include the vendor libraries
 
 group "Dependencies"
@@ -66,7 +67,9 @@ project "Runic2D"
 		"%{prj.name}/vendor/stb_image/**.h",
 		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
-		"%{prj.name}/vendor/glm/glm/**.inl"
+		"%{prj.name}/vendor/glm/glm/**.inl",
+		"%{prj.name}/vendor/lz4/**.h",
+		"%{prj.name}/vendor/lz4/**.c"
 	}
 
 	defines
@@ -94,7 +97,8 @@ project "Runic2D"
 		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.msdfgen}",
 		"%{wks.location}/Runic2D/vendor/msdf-atlas-gen",
-		"%{IncludeDir.miniaudio}"
+		"%{IncludeDir.miniaudio}",
+		"%{IncludeDir.lz4}"
 	}
 
 	links
@@ -153,6 +157,10 @@ project "Runic2D"
 
 	filter { "system:windows", "configurations:Dist" }
         buildoptions "/utf-8"
+
+	filter "files:**.c"
+		flags { "NoPCH" }
+	filter {}
 
 
 project "SandBox"
