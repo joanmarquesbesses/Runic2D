@@ -2,6 +2,8 @@
 #include "Project.h"
 #include "ProjectSerializer.h"
 
+#include "Runic2D/Assets/AssetRegistry.h"
+
 #ifdef R2D_PLATFORM_WINDOWS
 	#include <Windows.h>
 	static HMODULE s_GameDLL = nullptr;
@@ -33,6 +35,9 @@ namespace Runic2D {
 
 		R2D_CORE_INFO("Project carregat: '{0}' des de '{1}'",
 			project->m_Config.Name, filepath.string());
+
+		AssetRegistry::Deserialize(project->GetAssetDirectory() / "AssetRegistry.r2dregistry");
+
 		return true;
 	}
 
@@ -43,6 +48,10 @@ namespace Runic2D {
 		if (!serializer.Serialize(filepath)) return false;
 		s_ActiveProject->m_ProjectDirectory = filepath.parent_path();
 		R2D_CORE_INFO("Project guardat: '{0}'", filepath.string());
+
+		std::filesystem::path AssetDirecotry = s_ActiveProject->GetAssetDirectory();
+		AssetRegistry::Serialize(AssetDirecotry / "AssetRegistry.r2dregistry");
+
 		return true;
 	}
 

@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Runic2D/Core/Core.h"
+#include "Runic2D/Assets/Asset.h"
 
 namespace Runic2D
 {
@@ -24,7 +25,7 @@ namespace Runic2D
 		bool GenerateMips = true;
 	};
 
-	class RUNIC_API Texture
+	class RUNIC_API Texture : public Asset
 	{
 	public:
 		virtual ~Texture() = default;

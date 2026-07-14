@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Runic2D/Assets/Asset.h"
+
 #include <string>
 #include <unordered_map>
 
@@ -7,7 +9,7 @@
 
 namespace Runic2D {
 
-	class Shader
+	class Shader : public Asset
 	{
 	public:
 		virtual ~Shader() = default;

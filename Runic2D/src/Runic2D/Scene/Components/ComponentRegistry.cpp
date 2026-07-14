@@ -189,35 +189,24 @@ namespace Runic2D {
 				out << YAML::Key << "Color" << YAML::Value << YAML::Flow << YAML::BeginSeq << spriteRenderer.Color.r << spriteRenderer.Color.g << spriteRenderer.Color.b << spriteRenderer.Color.a << YAML::EndSeq;
 				if (spriteRenderer.Texture)
 				{
-					std::filesystem::path texturePath = spriteRenderer.Texture->GetPath();
-					std::string texturePathString = texturePath.string();
-					std::replace(texturePathString.begin(), texturePathString.end(), '\\', '/');
-					if (Project::GetActive())
-					{
-						std::filesystem::path absTexture = std::filesystem::weakly_canonical(texturePath);
-						std::filesystem::path absAssets = std::filesystem::weakly_canonical(Project::GetAssetDirectory());
-						auto relative = absTexture.lexically_relative(absAssets);
-						if (!relative.empty() && !relative.string().starts_with(".."))
-						{
-							texturePathString = relative.string();
-							std::replace(texturePathString.begin(), texturePathString.end(), '\\', '/');
-						}
-					}
-					out << YAML::Key << "TexturePath" << YAML::Value << texturePathString;
+					out << YAML::Key << "TextureUUID" << YAML::Value << (uint64_t)spriteRenderer.Texture->Handle;
 				}
 				out << YAML::Key << "TilingFactor" << YAML::Value << spriteRenderer.TilingFactor;
 			},
 			[](YAML::Node& node, Entity e) {
 				auto& src = e.AddComponent<SpriteRendererComponent>();
 				if (node["Color"]) { src.Color.r = node["Color"][0].as<float>(); src.Color.g = node["Color"][1].as<float>(); src.Color.b = node["Color"][2].as<float>(); src.Color.a = node["Color"][3].as<float>(); }
-				if (node["TexturePath"])
+				if (node["TextureUUID"]) {
+					src.Texture = ResourceManager::Get<Texture2D>(node["TextureUUID"].as<uint64_t>());
+				}
+				else if (node["TexturePath"])
 				{
 					std::string texturePathString = node["TexturePath"].as<std::string>();
-  					std::filesystem::path path = Project::GetAssetFileSystemPath(texturePathString);
+					std::filesystem::path path = Project::GetAssetFileSystemPath(texturePathString);
 					if (!std::filesystem::exists(path) && std::filesystem::exists(texturePathString)) path = texturePathString;
-					
-  					if (std::filesystem::exists(path)) src.Texture = ResourceManager::Get<Texture2D>(path);
-  					else R2D_CORE_WARN("Texture not found: {0}", path.string());
+
+					if (std::filesystem::exists(path)) src.Texture = ResourceManager::Get<Texture2D>(path); // Aquest Get generarà l'UUID sol!
+					else R2D_CORE_WARN("Texture not found: {0}", path.string());
 				}
 				if (node["TilingFactor"]) src.TilingFactor = node["TilingFactor"].as<float>();
 			},

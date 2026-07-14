@@ -167,19 +167,14 @@ namespace Runic2D
     };
 }
 
-//#ifndef R2D_DIST
-//    #define R2D_PROFILE_BEGIN_SESSION(name, filepath) ::Runic2D::Instrumentor::Get().BeginSession(name, filepath)
-//    #define R2D_PROFILE_END_SESSION() ::Runic2D::Instrumentor::Get().EndSession()
-//    #define R2D_PROFILE_SCOPE(name) ::Runic2D::InstrumentationTimer timer##__LINE__(name);
-//    #define R2D_PROFILE_FUNCTION() R2D_PROFILE_SCOPE(__FUNCSIG__)
-//#else       
-//    #define R2D_PROFILE_BEGIN_SESSION(name, filepath)
-//    #define R2D_PROFILE_END_SESSION()
-//    #define R2D_PROFILE_SCOPE(name)
-//    #define R2D_PROFILE_FUNCTION()
-//#endif
-
+#ifndef R2D_DIST
     #define R2D_PROFILE_BEGIN_SESSION(name, filepath) ::Runic2D::Instrumentor::Get().BeginSession(name, filepath)
     #define R2D_PROFILE_END_SESSION() ::Runic2D::Instrumentor::Get().EndSession()
     #define R2D_PROFILE_SCOPE(name) ::Runic2D::InstrumentationTimer timer##__LINE__(name);
     #define R2D_PROFILE_FUNCTION() R2D_PROFILE_SCOPE(__FUNCSIG__)
+#else       
+    #define R2D_PROFILE_BEGIN_SESSION(name, filepath)
+    #define R2D_PROFILE_END_SESSION()
+    #define R2D_PROFILE_SCOPE(name)
+    #define R2D_PROFILE_FUNCTION()
+#endif
