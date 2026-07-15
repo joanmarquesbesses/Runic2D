@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Runic2D/Core/Core.h"
+#include "Runic2D/Core/Serialization/BufferStreamWriter.h"
+#include "Runic2D/Core/Serialization/BufferStreamReader.h"
 #include "Runic2D/Scene/Entity.h"
 
 #include <functional>
@@ -28,6 +30,8 @@ namespace Runic2D {
         std::function<void(Entity src, Entity dst)> CopyComponent;
         std::function<void(YAML::Emitter&, Entity)> Serialize;
         std::function<void(YAML::Node&, Entity)> Deserialize;
+        std::function<void(BufferStreamWriter&, Entity)> SerializeBinary;
+        std::function<void(BufferStreamReader&, Entity)> DeserializeBinary;
         bool IsEngineComponent = false;
     };
 

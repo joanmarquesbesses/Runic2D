@@ -59,11 +59,10 @@ namespace Survivor
 #endif
                 [](Runic2D::Entity e) { e.RemoveComponent<PlayerStatsComponent>(); },
                 [](Runic2D::Entity src, Runic2D::Entity dst) {
-                    auto& srcData = src.GetComponent<PlayerStatsComponent>();
-                    auto& dstData = dst.AddComponent<PlayerStatsComponent>();
-                    dstData = srcData; // Copiem el struct sencer
+                    dst.AddOrReplaceComponent<PlayerStatsComponent>(src.GetComponent<PlayerStatsComponent>());
                 },
-                // SERIALITZA
+
+                // SERIALITZA YAML
                 [](YAML::Emitter& out, Runic2D::Entity e) {
                     auto& c = e.GetComponent<PlayerStatsComponent>();
                     out << YAML::Key << "Health" << YAML::Value << c.Health;
@@ -71,14 +70,25 @@ namespace Survivor
                     out << YAML::Key << "Damage" << YAML::Value << c.Damage;
                     out << YAML::Key << "ProjectileCount" << YAML::Value << c.ProjectileCount;
                 },
-                // DESERIALITZA
+                // DESERIALITZA YAML
                 [](YAML::Node& node, Runic2D::Entity e) {
                     auto& c = e.AddComponent<PlayerStatsComponent>();
                     if (node["Health"]) c.Health = node["Health"].as<float>();
                     if (node["Speed"]) c.Speed = node["Speed"].as<float>();
                     if (node["Damage"]) c.Damage = node["Damage"].as<float>();
                     if (node["ProjectileCount"]) c.ProjectileCount = node["ProjectileCount"].as<int>();
-                }
+                },
+                // SERIALITZA BINARI
+                [](Runic2D::BufferStreamWriter& out, Runic2D::Entity e) {
+                    out.WriteRaw(e.GetComponent<PlayerStatsComponent>());
+                },
+                // DESERIALITZA BINARI
+                [](Runic2D::BufferStreamReader& in, Runic2D::Entity e) {
+                    PlayerStatsComponent c;
+                    in.ReadRaw(c);
+                    e.AddOrReplaceComponent<PlayerStatsComponent>(c);
+                },
+                false // És component del joc, no del motor
                 });
 
             // 2. ENEMY (AI) 
@@ -95,7 +105,36 @@ namespace Survivor
 #else
                     nullptr,
 #endif
-                [](Runic2D::Entity e) { e.RemoveComponent<EnemyStatsComponent>(); }
+                [](Runic2D::Entity e) { e.RemoveComponent<EnemyStatsComponent>(); },
+                [](Runic2D::Entity src, Runic2D::Entity dst) {
+                    dst.AddOrReplaceComponent<EnemyStatsComponent>(src.GetComponent<EnemyStatsComponent>());
+                },
+
+                // SERIALITZA YAML
+                [](YAML::Emitter& out, Runic2D::Entity e) {
+                    auto& c = e.GetComponent<EnemyStatsComponent>();
+                    out << YAML::Key << "Speed" << YAML::Value << c.Speed;
+                    out << YAML::Key << "Damage" << YAML::Value << c.Damage;
+                    out << YAML::Key << "XPDrop" << YAML::Value << c.XPDrop;
+                },
+                // DESERIALITZA YAML
+                [](YAML::Node& node, Runic2D::Entity e) {
+                    auto& c = e.AddComponent<EnemyStatsComponent>();
+                    if (node["Speed"]) c.Speed = node["Speed"].as<float>();
+                    if (node["Damage"]) c.Damage = node["Damage"].as<float>();
+                    if (node["XPDrop"]) c.XPDrop = node["XPDrop"].as<int>();
+                },
+                // SERIALITZA BINARI
+                [](Runic2D::BufferStreamWriter& out, Runic2D::Entity e) {
+                    out.WriteRaw(e.GetComponent<EnemyStatsComponent>());
+                },
+                // DESERIALITZA BINARI
+                [](Runic2D::BufferStreamReader& in, Runic2D::Entity e) {
+                    EnemyStatsComponent c;
+                    in.ReadRaw(c);
+                    e.AddOrReplaceComponent<EnemyStatsComponent>(c);
+                },
+                false // És component del joc, no del motor
                 });
 
             R2D_CORE_INFO("Survivor DLL: Inicialitzada i dades carregades.");

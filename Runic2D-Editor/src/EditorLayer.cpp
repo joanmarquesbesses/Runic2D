@@ -359,7 +359,14 @@ namespace Runic2D
 
 		auto newScene = CreateRef<Scene>();
 		SceneSerializer serializer(newScene);
-		if (!serializer.Deserialize(absolutePath.string()))
+		//if (!serializer.Deserialize(absolutePath.string()))
+		//{
+		//	R2D_CORE_ERROR("EditorLayer: no s'ha pogut carregar l'escena '{0}'",
+		//		absolutePath.string());
+		//	return;
+		//}
+
+		if (!serializer.DeserializeBinary(absolutePath.string() + "_bin"))
 		{
 			R2D_CORE_ERROR("EditorLayer: no s'ha pogut carregar l'escena '{0}'",
 				absolutePath.string());
@@ -417,7 +424,8 @@ namespace Runic2D
 	void EditorLayer::SerializeScene(Ref<Scene> scene, const std::filesystem::path& path)
 	{
 		SceneSerializer serializer(scene);
-		serializer.Serialize(path.string());
+		//serializer.Serialize(path.string());
+		serializer.SerializeBinary(path.string() + "_bin");
 		R2D_CORE_INFO("EditorLayer: Escena guardada a '{0}'", path.string());
 	}
 

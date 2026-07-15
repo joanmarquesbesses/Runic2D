@@ -4,7 +4,6 @@
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Renderer/Renderer2D.h"
 
-
 #include "ComponentRegistry.h"
 #include "MotionComponents.h"
 #include "PhysicsComponents.h"
@@ -14,10 +13,10 @@
 
 #include <yaml-cpp/yaml.h>
 #include <glm/gtc/type_ptr.hpp>
+
 #ifndef R2D_DIST
 #include <imgui.h>
 #endif
-
 
 namespace Runic2D {
 
@@ -127,7 +126,7 @@ namespace Runic2D {
 				auto& camera = cameraComponent.Camera;
 				out << YAML::Key << "Camera";
 				out << YAML::BeginMap;
-				out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera.GetProjectionType();
+				out << YAML::Key << "ProjectionType" << YAML::Value << static_cast<int>(camera.GetProjectionType());
 				out << YAML::Key << "PerspectiveFOV" << YAML::Value << camera.GetPerspectiveVerticalFOV();
 				out << YAML::Key << "PerspectiveNear" << YAML::Value << camera.GetPerspectiveNearClip();
 				out << YAML::Key << "PerspectiveFar" << YAML::Value << camera.GetPerspectiveFarClip();
@@ -150,6 +149,39 @@ namespace Runic2D {
 				cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
 				cc.Primary = node["Primary"].as<bool>();
 				cc.FixedAspectRatio = node["FixedAspectRatio"].as<bool>();
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& cc = e.GetComponent<CameraComponent>();
+				out.WriteRaw(cc.Primary);
+				out.WriteRaw(cc.FixedAspectRatio);
+				out.WriteRaw(cc.Camera.GetProjectionType());
+				out.WriteRaw(cc.Camera.GetPerspectiveVerticalFOV());
+				out.WriteRaw(cc.Camera.GetPerspectiveNearClip());
+				out.WriteRaw(cc.Camera.GetPerspectiveFarClip());
+				out.WriteRaw(cc.Camera.GetOrthographicSize());
+				out.WriteRaw(cc.Camera.GetOrthographicNearClip());
+				out.WriteRaw(cc.Camera.GetOrthographicFarClip());
+			},
+			[](BufferStreamReader& in, Entity e) {
+				CameraComponent cc;
+				in.ReadRaw(cc.Primary);
+				in.ReadRaw(cc.FixedAspectRatio);
+
+				SceneCamera::ProjectionType projType;
+				float pFov, pNear, pFar;
+				float oSize, oNear, oFar;
+				in.ReadRaw(projType);
+				in.ReadRaw(pFov);
+				in.ReadRaw(pNear);
+				in.ReadRaw(pFar);
+				in.ReadRaw(oSize);
+				in.ReadRaw(oNear);
+				in.ReadRaw(oFar);
+
+				cc.Camera.SetProjectionType(projType);
+				cc.Camera.SetPerspective(pFov, pNear, pFar);
+				cc.Camera.SetOrthographic(oSize, oNear, oFar);
+				e.AddOrReplaceComponent<CameraComponent>(cc);
 			},
 			true
 		});
@@ -210,6 +242,24 @@ namespace Runic2D {
 				}
 				if (node["TilingFactor"]) src.TilingFactor = node["TilingFactor"].as<float>();
 			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& src = e.GetComponent<SpriteRendererComponent>();
+				out.WriteRaw(src.Color);
+				out.WriteRaw(src.TextureUUID); // Guardem l'UUID, no el punter!
+				out.WriteRaw(src.TilingFactor);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				SpriteRendererComponent src;
+				in.ReadRaw(src.Color);
+				in.ReadRaw(src.TextureUUID);
+				if (src.TextureUUID != 0)
+				{
+					src.Texture = ResourceManager::Get<Texture2D>(src.TextureUUID);
+				}
+				in.ReadRaw(src.TilingFactor);
+				// El punter Ref<Texture> el deixem null. Quan el joc arrenqui, el Scene ja buscarà la textura usant l'UUID!
+				e.AddOrReplaceComponent<SpriteRendererComponent>(src);
+			},
 			true
 		});
 
@@ -241,6 +291,20 @@ namespace Runic2D {
 				if (node["Thickness"]) crc.Thickness = node["Thickness"].as<float>();
 				if (node["Fade"]) crc.Fade = node["Fade"].as<float>();
 			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& src = e.GetComponent<CircleRendererComponent>();
+				out.WriteRaw(src.Color);
+				out.WriteRaw(src.Thickness); // Guardem l'UUID, no el punter!
+				out.WriteRaw(src.Fade);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				CircleRendererComponent src;
+				in.ReadRaw(src.Color);
+				in.ReadRaw(src.Thickness);
+				in.ReadRaw(src.Fade);
+				// El punter Ref<Texture> el deixem null. Quan el joc arrenqui, el Scene ja buscarà la textura usant l'UUID!
+				e.AddOrReplaceComponent<CircleRendererComponent>(src);
+			},
 			true
 		});
 
@@ -271,6 +335,14 @@ namespace Runic2D {
 			[](YAML::Node& node, Entity e) {
 				auto& nsc = e.AddComponent<NativeScriptComponent>();
 				if (node["ClassName"]) nsc.ClassName = node["ClassName"].as<std::string>();
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				out.WriteString(e.GetComponent<NativeScriptComponent>().ClassName);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				NativeScriptComponent nsc;
+				in.ReadString(nsc.ClassName);
+				e.AddOrReplaceComponent<NativeScriptComponent>(nsc);
 			},
 			true
 		});
@@ -327,6 +399,19 @@ namespace Runic2D {
 				if (node["FixedRotation"]) rb2d.FixedRotation = node["FixedRotation"].as<bool>();
 				if (node["GravityScale"]) rb2d.GravityScale = node["GravityScale"].as<float>();
 			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& rbc = e.GetComponent<Rigidbody2DComponent>();
+				out.WriteRaw(rbc.Type);
+				out.WriteRaw(rbc.FixedRotation); 
+				out.WriteRaw(rbc.GravityScale);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				Rigidbody2DComponent rbc;
+				in.ReadRaw(rbc.Type);
+				in.ReadRaw(rbc.FixedRotation);
+				in.ReadRaw(rbc.GravityScale);
+				e.AddOrReplaceComponent<Rigidbody2DComponent>(rbc);
+			},
 			true
 		});
 
@@ -376,6 +461,37 @@ namespace Runic2D {
 				if (node["EnableContactEvents"]) bc2d.EnableContactEvents = node["EnableContactEvents"].as<bool>();
 				if (node["EnableSensorEvents"]) bc2d.EnableSensorEvents = node["EnableSensorEvents"].as<bool>();
 			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& bcc = e.GetComponent<BoxCollider2DComponent>();
+				out.WriteRaw(bcc.Offset);
+				out.WriteRaw(bcc.Size);
+				out.WriteRaw(bcc.Density);
+				out.WriteRaw(bcc.Friction);
+				out.WriteRaw(bcc.Restitution);
+				out.WriteRaw(bcc.RestitutionThreshold);
+				out.WriteRaw(bcc.CategoryBits);
+				out.WriteRaw(bcc.MaskBits);
+				out.WriteRaw(bcc.GroupIndex);
+				out.WriteRaw(bcc.IsSensor);
+				out.WriteRaw(bcc.EnableContactEvents);
+				out.WriteRaw(bcc.EnableSensorEvents);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				BoxCollider2DComponent bcc;
+				in.ReadRaw(bcc.Offset);
+				in.ReadRaw(bcc.Size);
+				in.ReadRaw(bcc.Density);
+				in.ReadRaw(bcc.Friction);
+				in.ReadRaw(bcc.Restitution);
+				in.ReadRaw(bcc.RestitutionThreshold);
+				in.ReadRaw(bcc.CategoryBits);
+				in.ReadRaw(bcc.MaskBits);
+				in.ReadRaw(bcc.GroupIndex);
+				in.ReadRaw(bcc.IsSensor);
+				in.ReadRaw(bcc.EnableContactEvents);
+				in.ReadRaw(bcc.EnableSensorEvents);
+				e.AddOrReplaceComponent<BoxCollider2DComponent>(bcc);
+			},
 			true
 		});
 
@@ -424,6 +540,37 @@ namespace Runic2D {
 				if (node["IsSensor"]) cc2d.IsSensor = node["IsSensor"].as<bool>();
 				if (node["EnableContactEvents"]) cc2d.EnableContactEvents = node["EnableContactEvents"].as<bool>();
 				if (node["EnableSensorEvents"]) cc2d.EnableSensorEvents = node["EnableSensorEvents"].as<bool>();
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& ccc = e.GetComponent<CircleCollider2DComponent>();
+				out.WriteRaw(ccc.Offset);
+				out.WriteRaw(ccc.Radius);
+				out.WriteRaw(ccc.Density);
+				out.WriteRaw(ccc.Friction);
+				out.WriteRaw(ccc.Restitution);
+				out.WriteRaw(ccc.RestitutionThreshold);
+				out.WriteRaw(ccc.CategoryBits);
+				out.WriteRaw(ccc.MaskBits);
+				out.WriteRaw(ccc.GroupIndex);
+				out.WriteRaw(ccc.IsSensor);
+				out.WriteRaw(ccc.EnableContactEvents);
+				out.WriteRaw(ccc.EnableSensorEvents);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				CircleCollider2DComponent ccc;
+				in.ReadRaw(ccc.Offset);
+				in.ReadRaw(ccc.Radius);
+				in.ReadRaw(ccc.Density);
+				in.ReadRaw(ccc.Friction);
+				in.ReadRaw(ccc.Restitution);
+				in.ReadRaw(ccc.RestitutionThreshold);
+				in.ReadRaw(ccc.CategoryBits);
+				in.ReadRaw(ccc.MaskBits);
+				in.ReadRaw(ccc.GroupIndex);
+				in.ReadRaw(ccc.IsSensor);
+				in.ReadRaw(ccc.EnableContactEvents);
+				in.ReadRaw(ccc.EnableSensorEvents);
+				e.AddOrReplaceComponent<CircleCollider2DComponent>(ccc);
 			},
 			true
 		});
@@ -485,6 +632,29 @@ namespace Runic2D {
 				if (node["Kerning"]) tc.Kerning = node["Kerning"].as<float>();
 				if (node["LineSpacing"]) tc.LineSpacing = node["LineSpacing"].as<float>();
 				if (node["Alignment"]) tc.TextAlignment = (TextComponent::Alignment)node["Alignment"].as<int>();
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& tc = e.GetComponent<TextComponent>();
+				out.WriteRaw(tc.Color);
+				out.WriteRaw(tc.FontUUID);
+				out.WriteRaw(tc.Kerning);
+				out.WriteRaw(tc.LineSpacing);
+				out.WriteRaw(tc.Visible);
+				out.WriteRaw(tc.TextAlignment);
+				out.WriteString(tc.GetText());
+			},
+			[](BufferStreamReader& in, Entity e) {
+				TextComponent tc;
+				in.ReadRaw(tc.Color);
+				in.ReadRaw(tc.FontUUID);
+				in.ReadRaw(tc.Kerning);
+				in.ReadRaw(tc.LineSpacing);
+				in.ReadRaw(tc.Visible);
+				in.ReadRaw(tc.TextAlignment);
+				std::string text;
+				in.ReadString(text);
+				tc.SetText(text);
+				e.AddOrReplaceComponent<TextComponent>(tc);
 			},
 			true
 		});
@@ -671,6 +841,82 @@ namespace Runic2D {
 					}
 				}
 			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& ac = e.GetComponent<AnimationComponent>();
+
+				out.WriteString(ac.CurrentStateName);
+				out.WriteRaw(ac.Playing);
+				out.WriteRaw(ac.Loop);
+
+				uint32_t profileCount = (uint32_t)ac.Profiles.size();
+				out.WriteRaw(profileCount);
+
+				for (auto& profile : ac.Profiles) {
+					out.WriteString(profile.Name);
+					if (profile.AtlasTexture) profile.AtlasTextureUUID = profile.AtlasTexture->Handle;
+					out.WriteRaw(profile.AtlasTextureUUID);
+					out.WriteRaw(profile.TileSize);
+					out.WriteRaw(profile.StartFrame);
+					out.WriteRaw(profile.FrameCount);
+					out.WriteRaw(profile.FramesPerRow);
+					out.WriteRaw(profile.FrameTime);
+					out.WriteRaw(profile.Loop);
+				}
+			},
+			[](BufferStreamReader& in, Entity e) {
+				AnimationComponent ac;
+
+				in.ReadString(ac.CurrentStateName);
+				in.ReadRaw(ac.Playing);
+				in.ReadRaw(ac.Loop);
+
+				uint32_t profileCount;
+				in.ReadRaw(profileCount);
+
+				for (uint32_t i = 0; i < profileCount; i++) {
+					AnimationProfile profile;
+					in.ReadString(profile.Name);
+
+					in.ReadRaw(profile.AtlasTextureUUID);
+					if (profile.AtlasTextureUUID != 0) {
+						profile.AtlasTexture = ResourceManager::Get<Texture2D>(profile.AtlasTextureUUID);
+					}
+
+					in.ReadRaw(profile.TileSize);
+					in.ReadRaw(profile.StartFrame);
+					in.ReadRaw(profile.FrameCount);
+					in.ReadRaw(profile.FramesPerRow);
+					in.ReadRaw(profile.FrameTime);
+					in.ReadRaw(profile.Loop);
+
+					ac.Profiles.push_back(profile);
+				}
+				e.AddOrReplaceComponent<AnimationComponent>(ac);
+
+				if (!ac.Profiles.empty())
+				{
+					auto& profile = ac.Profiles[0];
+					if (ac.CurrentStateName.empty()) ac.CurrentStateName = profile.Name;
+
+					R2D_CORE_INFO("Checking to create SubTexture for profile {0}. Atlas: {1}, HasSpriteRenderer: {2}", profile.Name, (profile.AtlasTexture ? "Valid" : "Null"), e.HasComponent<SpriteRendererComponent>());
+					if (profile.AtlasTexture && e.HasComponent<SpriteRendererComponent>())
+					{
+						int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
+						int frameIndex = profile.StartFrame;
+						int col = frameIndex % numCols;
+						int row = frameIndex / numCols;
+
+						auto subtex = SubTexture2D::CreateFromPixelCoords(
+							profile.AtlasTexture,
+							col * profile.TileSize.x, row * profile.TileSize.y,
+							profile.TileSize.x, profile.TileSize.y
+						);
+
+						e.GetComponent<SpriteRendererComponent>().SubTexture = subtex;
+						e.GetComponent<SpriteRendererComponent>().Color = glm::vec4(1.0f);
+					}
+				}
+			},
 			true
 		});
 
@@ -740,6 +986,47 @@ namespace Runic2D {
 				if (node["Scale"]) { c.SetScale({node["Scale"][0].as<float>(), node["Scale"][1].as<float>()}); }
 				if (node["ZIndex"]) c.ZIndex = node["ZIndex"].as<int>();
 			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& rtc = e.GetComponent<RectTransformComponent>();
+				out.WriteRaw(rtc.GetPosition());
+				out.WriteRaw(rtc.GetSize());
+				out.WriteRaw(rtc.GetScale());
+				out.WriteRaw(rtc.GetRotation());
+				out.WriteRaw(rtc.GetAnchorMin());
+				out.WriteRaw(rtc.GetAnchorMax());
+				out.WriteRaw(rtc.GetPivot());
+				out.WriteRaw(rtc.ZIndex);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				RectTransformComponent rtc;
+
+				glm::vec2 Position;
+				glm::vec2 Size;
+				glm::vec2 Scale;
+				float Rotation;
+				glm::vec2 AnchorMin;
+				glm::vec2 AnchorMax;
+				glm::vec2 Pivot;
+
+				in.ReadRaw(Position);
+				in.ReadRaw(Size);
+				in.ReadRaw(Scale);
+				in.ReadRaw(Rotation);
+				in.ReadRaw(AnchorMin);
+				in.ReadRaw(AnchorMax);
+				in.ReadRaw(Pivot);
+				in.ReadRaw(rtc.ZIndex);
+
+				rtc.SetPosition(Position);
+				rtc.SetSize(Size);
+				rtc.SetScale(Scale);
+				rtc.SetRotation(Rotation);
+				rtc.SetAnchorMin(AnchorMin);
+				rtc.SetAnchorMax(AnchorMax);
+				rtc.SetPivot(Pivot);
+
+				e.AddOrReplaceComponent<RectTransformComponent>(rtc);
+			},
 			true
 		});
 
@@ -771,6 +1058,19 @@ namespace Runic2D {
 				if (node["NormalColor"]) { c.NormalColor.r = node["NormalColor"][0].as<float>(); c.NormalColor.g = node["NormalColor"][1].as<float>(); c.NormalColor.b = node["NormalColor"][2].as<float>(); c.NormalColor.a = node["NormalColor"][3].as<float>(); }
 				if (node["HoveredColor"]) { c.HoveredColor.r = node["HoveredColor"][0].as<float>(); c.HoveredColor.g = node["HoveredColor"][1].as<float>(); c.HoveredColor.b = node["HoveredColor"][2].as<float>(); c.HoveredColor.a = node["HoveredColor"][3].as<float>(); }
 				if (node["PressedColor"]) { c.PressedColor.r = node["PressedColor"][0].as<float>(); c.PressedColor.g = node["PressedColor"][1].as<float>(); c.PressedColor.b = node["PressedColor"][2].as<float>(); c.PressedColor.a = node["PressedColor"][3].as<float>(); }
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& bc = e.GetComponent<ButtonComponent>();
+				out.WriteRaw(bc.NormalColor);
+				out.WriteRaw(bc.HoveredColor);
+				out.WriteRaw(bc.PressedColor);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				ButtonComponent bc;
+				in.ReadRaw(bc.NormalColor);
+				in.ReadRaw(bc.HoveredColor);
+				in.ReadRaw(bc.PressedColor);
+				e.AddOrReplaceComponent<ButtonComponent>(bc);
 			},
 			true
 		});

@@ -19,6 +19,8 @@
 
 #include <unordered_map>
 
+#include "lz4.h"
+
 #define YAML_LOAD(node, key, target) if (node[key]) target = node[key].as<decltype(target)>();
 
 namespace YAML {
@@ -198,6 +200,54 @@ namespace Runic2D {
 		out << YAML::EndMap; // Entity
 	}
 
+	static void SerializeEntityBinary(BufferStreamWriter& out, Entity entity, Scene* scene)
+	{
+		// 1. Guardem el UUID (sempre hi és)
+		out.WriteRaw(entity.GetUUID());
+		// 2. TagComponent
+		bool hasTag = entity.HasComponent<TagComponent>();
+		out.WriteRaw(hasTag);
+		if (hasTag) {
+			out.WriteString(entity.GetComponent<TagComponent>().Tag);
+		}
+		// 3. TransformComponent
+		bool hasTransform = entity.HasComponent<TransformComponent>();
+		out.WriteRaw(hasTransform);
+		if (hasTransform) {
+			auto& transform = entity.GetComponent<TransformComponent>();
+			out.WriteRaw(transform.GetTranslation());
+			out.WriteRaw(transform.GetRotation());
+			out.WriteRaw(transform.GetScale());
+		}
+		// 4. RelationshipComponent
+		bool hasRelationship = entity.HasComponent<RelationshipComponent>();
+		out.WriteRaw(hasRelationship);
+		if (hasRelationship) {
+			auto& rc = entity.GetComponent<RelationshipComponent>();
+			UUID parentUUID = 0;
+			if (rc.Parent != entt::null) {
+				Entity parent = { rc.Parent, scene };
+				parentUUID = parent.GetUUID();
+			}
+			out.WriteRaw(parentUUID);
+		}
+		// 5. La resta de components via ComponentRegistry
+		for (const auto& desc : ComponentRegistry::GetAll())
+		{
+			if (desc.HasOnEntity(entity) && desc.SerializeBinary)
+			{
+				// Hashegem el nom per tenir un ID numèric únic i super ràpid
+				uint32_t componentHash = (uint32_t)std::hash<std::string>{}(desc.Name);
+				out.WriteRaw(componentHash);
+
+				// Cridem al callback binari del registre!
+				desc.SerializeBinary(out, entity);
+			}
+		}
+		// Posem un '0' al final per dir-li a la lectura: "S'han acabat els components d'aquesta entitat!"
+		out.WriteRaw((uint32_t)0);
+	}
+
 	void SceneSerializer::Serialize(const std::string& filepath)
 	{
 		YAML::Emitter out;
@@ -221,6 +271,49 @@ namespace Runic2D {
 		std::ofstream fout(filepath);
 		fout << out.c_str();
 
+	}
+
+	void SceneSerializer::SerializeBinary(const std::string& filepath)
+	{
+		BufferStreamWriter out;
+
+		// 1. Escrivim capçalera ('Magic Number' per seguretat)
+		out.WriteString("R2DB");
+		// 2. Escrivim nombre total d'entitats
+		auto view = m_Scene->m_Registry.view<entt::entity>();
+		uint32_t entityCount = (uint32_t)view.size();
+		out.WriteRaw(entityCount);
+		// 3. Serialitzem entitat per entitat en memòria cau
+		for (auto it = view.rbegin(); it != view.rend(); ++it)
+		{
+			Entity entity = { *it, m_Scene.get() };
+			if (!entity) continue;
+			SerializeEntityBinary(out, entity, m_Scene.get());
+		}
+		// 4. Tenim tota l'escena crua a la RAM! Ara comprimim amb LZ4
+		Buffer rawBuffer = out.GetBuffer();
+
+		// Calculem l'espai màxim que pot ocupar un cop comprimit
+		int maxCompressedSize = LZ4_compressBound((int)rawBuffer.Size);
+		Buffer compressedBuffer(maxCompressedSize);
+		// Comprimim (la màgia de la velocitat AAA)
+		int compressedSize = LZ4_compress_default(
+			(const char*)rawBuffer.Data,
+			(char*)compressedBuffer.Data,
+			(int)rawBuffer.Size,
+			maxCompressedSize
+		);
+		// 5. Ho bolquem al disc dur final!
+		std::ofstream fout(filepath, std::ios::binary);
+		// Vital: Guardem la mida original que tenia la RAM per saber com de gran ha de ser en descomprimir-ho
+		fout.write((char*)&rawBuffer.Size, sizeof(uint32_t));
+		// Guardem l'escena comprimida
+		fout.write((char*)compressedBuffer.Data, compressedSize);
+		fout.close();
+		// Neteja
+		R2D_CORE_INFO("Escena guardada en Binari! Mida original: {0} bytes -> Comprimida: {1} bytes", rawBuffer.Size, compressedSize);
+		rawBuffer.Release();
+		compressedBuffer.Release();
 	}
 
 	void SceneSerializer::SerializeRuntime(const std::string& filepath)
@@ -327,6 +420,154 @@ namespace Runic2D {
 		}
 
 		SceneManager::SetLoadingProgress(1.0f);
+		return true;
+	}
+
+	bool SceneSerializer::DeserializeBinary(const std::string& filepath)
+	{
+		std::ifstream stream(filepath, std::ios::binary);
+		if (!stream)
+		{
+			R2D_CORE_ERROR("No s'ha pogut obrir l'arxiu binari: {0}", filepath);
+			return false;
+		}
+
+		// 1. Llegim la mida original de RAM que ocupava!
+		uint32_t uncompressedSize;
+		stream.read((char*)&uncompressedSize, sizeof(uint32_t));
+
+		// 2. Llegim les dades LZ4 comprimides
+		stream.seekg(0, std::ios::end);
+		std::streamsize compressedSize = stream.tellg() - (std::streamsize)sizeof(uint32_t);
+		stream.seekg(sizeof(uint32_t), std::ios::beg);
+
+		Buffer compressedBuffer((uint32_t)compressedSize);
+		stream.read((char*)compressedBuffer.Data, compressedSize);
+		stream.close();
+
+		// 3. Descomprimim (velocitat de la llum)
+		Buffer rawBuffer(uncompressedSize);
+		int decompressedSize = LZ4_decompress_safe(
+			(const char*)compressedBuffer.Data,
+			(char*)rawBuffer.Data,
+			(int)compressedSize,
+			(int)uncompressedSize
+		);
+
+		if (decompressedSize < 0)
+		{
+			R2D_CORE_ERROR("Error descomprimint l'escena binària!");
+			compressedBuffer.Release();
+			rawBuffer.Release();
+			return false;
+		}
+
+		BufferStreamReader in(rawBuffer);
+
+		// 4. Verifiquem Header (Magic Number)
+		std::string header;
+		in.ReadString(header);
+		if (header != "R2DB")
+		{
+			R2D_CORE_ERROR("Arxiu invàlid o corrupte!");
+			return false;
+		}
+
+		// 5. Creem les entitats
+		uint32_t entityCount;
+		in.ReadRaw(entityCount);
+
+		std::unordered_map<UUID, UUID> parentMap;
+
+		for (uint32_t i = 0; i < entityCount; i++)
+		{
+			UUID uuid;
+			in.ReadRaw(uuid);
+
+			std::string name = "Entity";
+			bool hasTag;
+			in.ReadRaw(hasTag);
+			if (hasTag) {
+				in.ReadString(name);
+			}
+
+			// CREEM L'ENTITAT VUIDA AMB EL SEU ID
+			Entity deserializedEntity = m_Scene->CreateEntityWithUUID(uuid, name);
+
+			bool hasTransform;
+			in.ReadRaw(hasTransform);
+			if (hasTransform) {
+				auto& tc = deserializedEntity.GetComponent<TransformComponent>();
+				glm::vec3 translation, rotation, scale;
+				in.ReadRaw(translation);
+				in.ReadRaw(rotation);
+				in.ReadRaw(scale);
+				tc.SetTranslation(translation);
+				tc.SetRotation(rotation);
+				tc.SetScale(scale);
+			}
+
+			bool hasRelationship;
+			in.ReadRaw(hasRelationship);
+			if (hasRelationship) {
+				UUID parentUUID;
+				in.ReadRaw(parentUUID);
+				if (parentUUID != 0) {
+					parentMap[uuid] = parentUUID;
+				}
+			}
+
+			// AQUI LLEGIM LA RESTA DE COMPONENTS QUE VAS CONFIGURAR!
+			while (true)
+			{
+				uint32_t componentHash;
+				in.ReadRaw(componentHash);
+
+				if (componentHash == 0) // El nostre 0 indicava final d'entitat!
+					break;
+
+				bool found = false;
+				for (const auto& desc : ComponentRegistry::GetAll())
+				{
+					if ((uint32_t)std::hash<std::string>{}(desc.Name) == componentHash)
+					{
+						if (desc.DeserializeBinary)
+							desc.DeserializeBinary(in, deserializedEntity);
+						found = true;
+						break;
+					}
+				}
+
+				R2D_CORE_ASSERT(found, "Corrupció: Component desconegut a l'arxiu binari!");
+			}
+		}
+
+		// 6. Restaurem l'arbre de Relacions (Pares i Fills)
+		for (auto const& [childUUID, parentUUID] : parentMap)
+		{
+			Entity child = m_Scene->GetEntityByUUID(childUUID);
+			Entity parent = m_Scene->GetEntityByUUID(parentUUID);
+
+			if (child && parent)
+			{
+				auto& tc = child.GetComponent<TransformComponent>();
+				glm::vec3 oldTrans = tc.GetTranslation();
+				glm::vec3 oldRot = tc.GetRotation();
+				glm::vec3 oldScale = tc.GetScale();
+
+				child.SetParent(parent);
+
+				tc.SetTranslation(oldTrans);
+				tc.SetRotation(oldRot);
+				tc.SetScale(oldScale);
+			}
+		}
+
+		// Neteja final
+		compressedBuffer.Release();
+		rawBuffer.Release();
+
+		R2D_CORE_INFO("Escena BINÀRIA deserialitzada correctament! ({0} entitats)", entityCount);
 		return true;
 	}
 

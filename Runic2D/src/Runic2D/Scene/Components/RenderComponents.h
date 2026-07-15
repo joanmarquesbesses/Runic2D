@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Runic2D/Core/Core.h"
+#include "Runic2D/Core/UUID.h"
 #include "Runic2D/Scene/SceneCamera.h"
 #include "Runic2D/Renderer/Texture.h"
 #include "Runic2D/Renderer/SubTexture2D.h"
@@ -12,6 +13,7 @@ namespace Runic2D {
 
 	struct RUNIC_API SpriteRendererComponent {
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
+		UUID TextureUUID = 0;
 		Ref<Texture2D> Texture;
 		Ref<SubTexture2D> SubTexture;
 		float TilingFactor = 1.0f;
@@ -52,6 +54,7 @@ namespace Runic2D {
 
 	public:
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		UUID FontUUID = 0;
 		Ref<Font> FontAsset = Font::GetDefault();
 		float Kerning = 0.0f;
 		float LineSpacing = 0.0f;

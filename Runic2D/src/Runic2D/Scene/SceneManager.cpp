@@ -74,7 +74,7 @@ namespace Runic2D {
         auto newScene = CreateRef<Scene>();
         SceneSerializer serializer(newScene);
 
-        if (!serializer.Deserialize(absolutePath.string()))
+        if (!serializer.DeserializeBinary(absolutePath.string() + "_bin"))
         {
             R2D_CORE_ERROR("SceneManager: Error deserialitzant '{0}'", absolutePath.string());
             return false;

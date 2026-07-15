@@ -81,21 +81,10 @@ namespace Runic2D {
             for (auto node : registryNode) {
                 UUID uuid = node.first.as<uint64_t>();
                 std::filesystem::path path = node.second.as<std::string>();
-                
-                // Si l'asset físic existeix, el registrem
-                std::filesystem::path absolutePath = Project::GetAssetFileSystemPath(path);
-                if (std::filesystem::exists(absolutePath))
-                {
-                    s_Registry[uuid] = path;
-                    s_InverseRegistry[path.string()] = uuid;
-                }
-                else
-                {
-                    R2D_CORE_WARN("AssetRegistry: L'Asset {0} s'ha esborrat físicament. Eliminant referència...", path.string());
-                }
+
+                s_Registry[uuid] = path;
+                s_InverseRegistry[path.string()] = uuid;
             }
         }
-
-        Serialize(filepath);
     }
 }

@@ -25,6 +25,9 @@
     <Filter Include="src\Runic2D\Core">
       <UniqueIdentifier>{2B001899-17F9-36EB-402B-1C702C8316F7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Core\Serialization">
+      <UniqueIdentifier>{F8C7958D-E4ED-5FF4-CD33-E5BFB9F884C0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Debug">
       <UniqueIdentifier>{A96024BC-1577-2252-5EEE-AD73CA43F3D9}</UniqueIdentifier>
     </Filter>
@@ -173,6 +176,9 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D\Core\PlatformDetection.h">
       <Filter>src\Runic2D\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Core\Serialization\Buffer.h">
+      <Filter>src\Runic2D\Core\Serialization</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Core\Timestep.h">
       <Filter>src\Runic2D\Core</Filter>
@@ -1605,6 +1611,8 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Core\Serialization\BufferStreamWriter.h" />
+    <ClInclude Include="src\Runic2D\Core\Serialization\BufferStreamReader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">

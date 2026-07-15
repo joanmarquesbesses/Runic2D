@@ -194,6 +194,9 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Core\Log.h" />
     <ClInclude Include="src\Runic2D\Core\MouseButtonCodes.h" />
     <ClInclude Include="src\Runic2D\Core\PlatformDetection.h" />
+    <ClInclude Include="src\Runic2D\Core\Serialization\Buffer.h" />
+    <ClInclude Include="src\Runic2D\Core\Serialization\BufferStreamReader.h" />
+    <ClInclude Include="src\Runic2D\Core\Serialization\BufferStreamWriter.h" />
     <ClInclude Include="src\Runic2D\Core\Timestep.h" />
     <ClInclude Include="src\Runic2D\Core\UUID.h" />
     <ClInclude Include="src\Runic2D\Core\Window.h" />

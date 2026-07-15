@@ -9,6 +9,7 @@ namespace Runic2D {
 	{
 		std::string Name = "New Anim";
 
+		UUID AtlasTextureUUID = 0;
 		Ref<Texture2D> AtlasTexture = nullptr;
 		std::string TexturePath = "";
 
