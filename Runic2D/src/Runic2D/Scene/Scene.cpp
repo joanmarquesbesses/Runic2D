@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "Scene.h"
 
 #include "Runic2D/Systems/System.h"
@@ -11,6 +11,7 @@
 #include "Runic2D/Systems/Animation2DSystem.h"
 #include "Runic2D/Systems/TweenSystem.h"
 #include "Runic2D/Systems/DebugSystem.h"
+#include "Runic2D/Systems/AudioSystem.h"
 
 #include "Entity.h"
 #include "Components/CoreComponents.h"
@@ -19,6 +20,7 @@
 #include "Components/PhysicsComponents.h"
 #include "Components/ScriptingComponents.h"
 #include "Components/UIComponents.h"
+#include "Components/AudioComponents.h"
 #include "Components/ComponentRegistry.h"
 
 namespace Runic2D {
@@ -33,6 +35,8 @@ namespace Runic2D {
 		AddSystem(CreateRef<PhysicsSystem>(), { SystemPhase::Physics });
 		// TransformSystem
 		AddSystem(CreateRef<TransformSystem>(), { SystemPhase::PostUpdate });
+		// Audio System
+		AddSystem(CreateRef<AudioSystem>(), { SystemPhase::PostUpdate });
 		// 2D Render
 		AddSystem(CreateRef<Render2DSystem>(), { SystemPhase::Render });
 		// Particles
@@ -118,6 +122,7 @@ namespace Runic2D {
 		CopyComponent<AnimationComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<RectTransformComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<ButtonComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<AudioSourceComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		for (auto e : idView)
 		{
@@ -328,6 +333,9 @@ namespace Runic2D {
 		}
 		for (auto& physicsSystem : m_PhysicsSystems) {
 			physicsSystem->OnStop(this);
+		}
+		for (auto& postUpdateSystem : m_PostUpdateSystems) {
+			postUpdateSystem->OnStop(this);
 		}
 	}
 

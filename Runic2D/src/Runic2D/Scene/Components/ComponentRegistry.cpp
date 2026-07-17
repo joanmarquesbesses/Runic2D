@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 
 #include "Runic2D/Project/Project.h"
 #include "Runic2D/Assets/ResourceManager.h"
@@ -10,6 +10,7 @@
 #include "RenderComponents.h"
 #include "ScriptingComponents.h"
 #include "UIComponents.h"
+#include "AudioComponents.h"
 
 #include <yaml-cpp/yaml.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -1078,6 +1079,91 @@ namespace Runic2D {
 				in.ReadRaw(bc.HoveredColor);
 				in.ReadRaw(bc.PressedColor);
 				e.AddOrReplaceComponent<ButtonComponent>(bc);
+			},
+			true
+		});
+
+		Register({
+			"AudioSourceComponent", "Audio",
+			[](Entity e) { if (!e.HasComponent<AudioSourceComponent>()) e.AddComponent<AudioSourceComponent>(); },
+			[](Entity e) { return e.HasComponent<AudioSourceComponent>(); },
+#ifndef R2D_DIST
+			[](Entity e) {
+				auto& component = e.GetComponent<AudioSourceComponent>();
+				
+				ImGui::DragFloat("Volume", &component.Volume, 0.05f, 0.0f, 10.0f);
+				ImGui::DragFloat("Pitch", &component.Pitch, 0.05f, 0.1f, 5.0f);
+				ImGui::Checkbox("Looping", &component.Looping);
+				ImGui::Checkbox("PlayOnAwake", &component.PlayOnAwake);
+				
+				ImGui::Text("Audio Clip UUID: %llu", component.AudioClipUUID);
+				
+				// Drag & Drop per Asset d'Audio
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const char* path = (const char*)payload->Data;
+						std::filesystem::path filepath = path;
+
+						if (filepath.extension() == ".wav" || filepath.extension() == ".mp3")
+						{
+							Ref<AudioClip> clip = ResourceManager::Get<AudioClip>(filepath);
+							if (clip)
+							{
+								component.AudioClipUUID = clip->Handle;
+								component.Clip = clip;
+							}
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+			},
+#else
+			nullptr,
+#endif
+			[](Entity e) { e.RemoveComponent<AudioSourceComponent>(); },
+			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<AudioSourceComponent>(src.GetComponent<AudioSourceComponent>()); },
+			[](YAML::Emitter& out, Entity e) {
+				auto& ac = e.GetComponent<AudioSourceComponent>();
+				out << YAML::Key << "AudioClipUUID" << YAML::Value << (uint64_t)ac.AudioClipUUID;
+				out << YAML::Key << "Volume" << YAML::Value << ac.Volume;
+				out << YAML::Key << "Pitch" << YAML::Value << ac.Pitch;
+				out << YAML::Key << "Looping" << YAML::Value << ac.Looping;
+				out << YAML::Key << "PlayOnAwake" << YAML::Value << ac.PlayOnAwake;
+			},
+			[](YAML::Node& node, Entity e) {
+				auto& ac = e.AddComponent<AudioSourceComponent>();
+				if (node["AudioClipUUID"]) ac.AudioClipUUID = node["AudioClipUUID"].as<uint64_t>();
+				if (node["Volume"]) ac.Volume = node["Volume"].as<float>();
+				if (node["Pitch"]) ac.Pitch = node["Pitch"].as<float>();
+				if (node["Looping"]) ac.Looping = node["Looping"].as<bool>();
+				if (node["PlayOnAwake"]) ac.PlayOnAwake = node["PlayOnAwake"].as<bool>();
+
+				if (ac.AudioClipUUID != 0) {
+					ac.Clip = ResourceManager::Get<AudioClip>(ac.AudioClipUUID);
+				}
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& ac = e.GetComponent<AudioSourceComponent>();
+				out.WriteRaw(ac.AudioClipUUID);
+				out.WriteRaw(ac.Volume);
+				out.WriteRaw(ac.Pitch);
+				out.WriteRaw(ac.Looping);
+				out.WriteRaw(ac.PlayOnAwake);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				AudioSourceComponent ac;
+				in.ReadRaw(ac.AudioClipUUID);
+				in.ReadRaw(ac.Volume);
+				in.ReadRaw(ac.Pitch);
+				in.ReadRaw(ac.Looping);
+				in.ReadRaw(ac.PlayOnAwake);
+
+				if (ac.AudioClipUUID != 0) {
+					ac.Clip = ResourceManager::Get<AudioClip>(ac.AudioClipUUID);
+				}
+				e.AddOrReplaceComponent<AudioSourceComponent>(ac);
 			},
 			true
 		});

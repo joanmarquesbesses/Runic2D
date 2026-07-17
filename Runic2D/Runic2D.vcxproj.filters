@@ -144,6 +144,9 @@
     <ClInclude Include="src\Runic2D\Assets\ResourceManager.h">
       <Filter>src\Runic2D\Assets</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Audio\AudioClip.h">
+      <Filter>src\Runic2D\Audio</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Audio\AudioEngine.h">
       <Filter>src\Runic2D\Audio</Filter>
     </ClInclude>
@@ -285,6 +288,9 @@
     <ClInclude Include="src\Runic2D\Renderer\VertexArray.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Components\AudioComponents.h">
+      <Filter>src\Runic2D\Scene\Components</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Scene\Components\ComponentRegistry.h">
       <Filter>src\Runic2D\Scene\Components</Filter>
     </ClInclude>
@@ -331,6 +337,9 @@
       <Filter>src\Runic2D\Scripting</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\Animation2DSystem.h">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\AudioSystem.h">
       <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\DebugSystem.h">
@@ -1673,6 +1682,9 @@
     <ClCompile Include="src\Runic2D\Assets\ResourceManager.cpp">
       <Filter>src\Runic2D\Assets</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\Audio\AudioClip.cpp">
+      <Filter>src\Runic2D\Audio</Filter>
+    </ClCompile>
     <ClCompile Include="src\Runic2D\Audio\AudioEngine.cpp">
       <Filter>src\Runic2D\Audio</Filter>
     </ClCompile>
@@ -1779,6 +1791,9 @@
       <Filter>src\Runic2D\Scripting</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\Animation2DSystem.cpp">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\AudioSystem.cpp">
       <Filter>src\Runic2D\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\DebugSystem.cpp">
