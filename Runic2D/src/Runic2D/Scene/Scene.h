@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Timestep.h"
-#include "Runic2D/Core/UUID.h"
+#include "Runic2D/Core/Base/Timestep.h"
+#include "Runic2D/Core/Base/UUID.h"
 #include "Runic2D/Renderer/EditorCamera.h"
 
 #include <entt.hpp>

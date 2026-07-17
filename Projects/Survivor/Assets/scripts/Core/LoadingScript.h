@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Runic2D/Scene/ScriptableEntity.h"
 #include "Runic2D/Scene/SceneManager.h"

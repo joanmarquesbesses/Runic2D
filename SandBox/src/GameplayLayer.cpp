@@ -1,9 +1,9 @@
-#include "GameplayLayer.h"
+ï»¿#include "GameplayLayer.h"
 
 //Debug
 #include "Runic2D/Systems/DebugSystem.h"
-#include "Runic2D/Core/JobSystem.h"
-#include "Runic2D/Core/BackgroundTaskSystem.h"
+#include "Runic2D/Core/Threading/JobSystem.h"
+#include "Runic2D/Core/Threading/BackgroundTaskSystem.h"
 
 using namespace Runic2D;
 
@@ -84,12 +84,12 @@ bool GameplayLayer::OnKeyPressed(KeyPressedEvent& e)
             if (s_Profiling)
             {
                 R2D_PROFILE_END_SESSION();
-                R2D_INFO("Profiling: Sessió finalitzada.");
+                R2D_INFO("Profiling: SessiÃ³ finalitzada.");
             }
             else
             {
                 R2D_PROFILE_BEGIN_SESSION("Gameplay_Session", "");
-                R2D_INFO("Profiling: Sessió iniciada.");
+                R2D_INFO("Profiling: SessiÃ³ iniciada.");
             }
             s_Profiling = !s_Profiling;
             return true;

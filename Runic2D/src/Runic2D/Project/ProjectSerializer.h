@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Project.h"
 
 namespace Runic2D {
@@ -15,3 +15,4 @@ namespace Runic2D {
 		Ref<Project> m_Project;
 	};
 }
+

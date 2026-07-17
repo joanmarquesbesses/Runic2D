@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Runic2D.h"
 #include "OrbitalProjectile.h"
 #include <vector>

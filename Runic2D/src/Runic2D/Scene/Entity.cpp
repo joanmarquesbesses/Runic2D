@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "Entity.h"
 
 #include "Components/CoreComponents.h"
@@ -123,7 +123,7 @@ namespace Runic2D {
             while (childID != entt::null)
             {
                 Entity childEntity{ childID, m_Scene };
-                childEntity.InvalidateTransform(); // Recursi� neta!
+                childEntity.InvalidateTransform(); // Recursió neta!
 
                 childID = childEntity.GetComponent<RelationshipComponent>().NextSibling;
             }

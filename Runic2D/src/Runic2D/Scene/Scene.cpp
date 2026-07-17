@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+ï»¿#include "R2Dpch.h"
 #include "Scene.h"
 
 #include "Runic2D/Systems/System.h"
@@ -368,7 +368,7 @@ namespace Runic2D {
 				childRC.Parent = rc.Parent;
 
 				// 2. Configurem el component del pare
-				auto& parentRC = parent.GetComponent<RelationshipComponent>(); // El pare ja té component segur
+				auto& parentRC = parent.GetComponent<RelationshipComponent>(); // El pare ja tÃ© component segur
 
 				// 3. Afegim al final de la llista de fills del pare
 				if (parentRC.FirstChild == entt::null)
@@ -377,7 +377,7 @@ namespace Runic2D {
 				}
 				else
 				{
-					// Busquem l'últim germà
+					// Busquem l'Ãºltim germÃ 
 					entt::entity prevNode = parentRC.FirstChild;
 					while (true)
 					{

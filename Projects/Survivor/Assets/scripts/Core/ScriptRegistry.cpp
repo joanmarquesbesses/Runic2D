@@ -1,10 +1,10 @@
-#include "SurvivorPCH.h"
+Ôªø#include "SurvivorPCH.h"
 #include "ScriptRegistry.h"
 
 #include "Runic2D/Scripting/ScriptEngine.h" 
-#include "Runic2D/Core/Core.h"
+#include "Runic2D/Core/Base/Core.h"
 #include "Runic2D/Scene/Components/ComponentRegistry.h"
-#include "Runic2D/Core/InputManager.h"
+#include "Runic2D/Core/Input/InputManager.h"
 
 #include "Core/GameComponents.h"
 
@@ -30,7 +30,7 @@ namespace Survivor
             Runic2D::InputManager::BindAction("MoveLeft", Runic2D::KeyCode::A, 0);
             Runic2D::InputManager::BindAction("MoveRight", Runic2D::KeyCode::D, 0);
 
-            // Jugador 2 (Teclat secundari / Coop Local - Õndex 1)
+            // Jugador 2 (Teclat secundari / Coop Local - √çndex 1)
             Runic2D::InputManager::BindAction("Shoot", Runic2D::KeyCode::RightControl, 1);
             Runic2D::InputManager::BindAction("MoveUp", Runic2D::KeyCode::Up, 1);
             Runic2D::InputManager::BindAction("MoveDown", Runic2D::KeyCode::Down, 1);
@@ -88,7 +88,7 @@ namespace Survivor
                     in.ReadRaw(c);
                     e.AddOrReplaceComponent<PlayerStatsComponent>(c);
                 },
-                false // …s component del joc, no del motor
+                false // √âs component del joc, no del motor
                 });
 
             // 2. ENEMY (AI) 
@@ -134,7 +134,7 @@ namespace Survivor
                     in.ReadRaw(c);
                     e.AddOrReplaceComponent<EnemyStatsComponent>(c);
                 },
-                false // …s component del joc, no del motor
+                false // √âs component del joc, no del motor
                 });
 
             R2D_CORE_INFO("Survivor DLL: Inicialitzada i dades carregades.");

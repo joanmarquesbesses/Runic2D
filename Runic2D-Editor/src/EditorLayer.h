@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Runic2D.h>
 #include "Panels/SceneHierarchyPanel.h"
@@ -77,4 +77,5 @@ namespace Runic2D {
 	};
 
 }
+
 

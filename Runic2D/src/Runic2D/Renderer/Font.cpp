@@ -1,8 +1,9 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "Font.h"
 
 #include "FontGeometry.h"
 #include "GlyphGeometry.h"
+#include "Runic2D/Project/Project.h"
 
 namespace Runic2D {
 
@@ -111,9 +112,17 @@ namespace Runic2D {
 	{
 		static Ref<Font> DefaultFont;
 		if (!DefaultFont)
-			DefaultFont = CreateRef<Font>("Resources/Fonts/Inter/Inter_18pt-Regular.ttf");
+		{
+			std::filesystem::path path = Project::GetEngineResourcesDirectory() / "Fonts/Inter/Inter_18pt-Regular.ttf";
+			DefaultFont = Font::Create(path.string());
+		}
 
 		return DefaultFont;
+	}
+
+	Ref<Font> Font::Create(const std::string& path)
+	{
+		return CreateRef<Font>(path);
 	}
 
 	float Font::GetStringWidth(const std::string& string, float kerning) const

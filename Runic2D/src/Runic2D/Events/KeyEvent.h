@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include "Event.h"
-#include "Runic2D/Core/KeyCodes.h"
+#include "Runic2D/Core/Input/KeyCodes.h"
 
 namespace Runic2D {
 

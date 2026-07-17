@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "SceneCamera.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -54,4 +54,5 @@ namespace Runic2D
 	}
 
 }
+
 

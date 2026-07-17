@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "System.h"
 
 #include "glm/glm.hpp"
@@ -14,4 +14,5 @@ namespace Runic2D {
 		glm::vec2 GetMousePositionInUISpace(Scene* scene);
 	};
 }
+
 

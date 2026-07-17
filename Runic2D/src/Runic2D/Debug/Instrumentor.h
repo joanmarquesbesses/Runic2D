@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <chrono>
@@ -56,7 +56,7 @@ namespace Runic2D
             m_MainThreadID = (uint32_t)std::hash<std::thread::id>{}(std::this_thread::get_id());
 
             m_OutputStream.open(filepath);
-            m_ProfileResults.reserve(100000); // Reservem memòria per no frenar l'Engine
+            m_ProfileResults.reserve(100000); // Reservem memÃ²ria per no frenar l'Engine
             m_CurrentSession = new InstrumentationSession{ name };
         }
 

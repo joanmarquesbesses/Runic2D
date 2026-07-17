@@ -1,4 +1,4 @@
-Scene: Scene Name
+﻿Scene: Scene Name
 Entities:
   - EntityID: 17659946315792279860
     TagComponent:

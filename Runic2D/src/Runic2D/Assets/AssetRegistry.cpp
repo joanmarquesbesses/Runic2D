@@ -1,7 +1,7 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "AssetRegistry.h"
 
-#include "Runic2D/Core/BackgroundTaskSystem.h"
+#include "Runic2D/Core/Threading/BackgroundTaskSystem.h"
 #include "Runic2D/Project/Project.h"
 
 #include <yaml-cpp/yaml.h> 

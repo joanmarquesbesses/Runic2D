@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+Ôªø#include "R2Dpch.h"
 #include "Renderer2D.h"
 
 #include "Shader.h"
@@ -365,7 +365,7 @@ namespace Runic2D
 	{
 		if (s_Data.CurrentPrimitive != type && s_Data.CurrentPrimitive != Renderer2D::PrimitiveType::None)
 		{
-			// NomÈs flushem si hi ha alguna cosa en els buffers
+			// Nom√©s flushem si hi ha alguna cosa en els buffers
 			if (s_Data.QuadIndexCount || s_Data.CircleIndexCount || s_Data.LineVertexCount || s_Data.TextIndexCount)
 				NextBatch(Renderer2D::FlushReason::PrimitiveChange);
 		}
@@ -503,12 +503,12 @@ namespace Runic2D
 		}
 
 		constexpr size_t quadVertexCount = 4;
-		// Aquesta Ès la diferËncia clau: agafem les coordenades de la subtextura
+		// Aquesta √©s la difer√®ncia clau: agafem les coordenades de la subtextura
 		const glm::vec2* texCoords = subtexture->GetTexCoords();
 		const Ref<Texture2D>& texture = subtexture->GetTexture();
 
 		float textureIndex = 0.0f;
-		// Busquem si la textura ja est‡ en un slot
+		// Busquem si la textura ja est√† en un slot
 		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; ++i) {
 			if (*s_Data.TextureSlots[i] == *texture) {
 				textureIndex = (float)i;
@@ -516,7 +516,7 @@ namespace Runic2D
 			}
 		}
 
-		// Si no hi Ès, l'afegim
+		// Si no hi √©s, l'afegim
 		if (textureIndex == 0.0f) {
 			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
 				NextBatch(FlushReason::TextureLimit);
@@ -687,7 +687,7 @@ namespace Runic2D
 
 	void Renderer2D::DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning, float lineSpacing, int entityID, int alignment)
 	{
-		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Text);
+		if (!font || !font->GetAtlasTexture() || !font->GetMSDFData()) { return; } CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Text);
 		const auto& fontGeometry = font->GetMSDFData()->FontGeometry;
 		const auto& metrics = fontGeometry.getMetrics();
 		Ref<Texture2D> fontAtlas = font->GetAtlasTexture();
@@ -695,7 +695,7 @@ namespace Runic2D
 		s_Data.FontAtlasTexture = fontAtlas;
 		double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
 
-		// --- 1. Calcular l'amplada de cada lÌnia individual ---
+		// --- 1. Calcular l'amplada de cada l√≠nia individual ---
 		std::vector<double> lineWidths;
 		double currentLineW = 0.0;
 		for (size_t i = 0; i < string.size(); i++)
@@ -727,27 +727,27 @@ namespace Runic2D
 				if (!isLastChar) currentLineW += kerning;
 			}
 		}
-		lineWidths.push_back(currentLineW); // Guardem la darrera lÌnia
+		lineWidths.push_back(currentLineW); // Guardem la darrera l√≠nia
 
-		// Busquem l'amplada m‡xima per tenir-la de referËncia
+		// Busquem l'amplada m√†xima per tenir-la de refer√®ncia
 		double maxWidth = 0.0;
 		for (double w : lineWidths) {
 			if (w > maxWidth) maxWidth = w;
 		}
 
-		// --- 2. Renderitzat del text amb alineaciÛ ---
+		// --- 2. Renderitzat del text amb alineaci√≥ ---
 		double x = 0.0;
 		double y = 0.0;
 		int lineIndex = 0;
 
-		// Lambda m‡gica: Calcula on comenÁa la X segons Left (0), Center (1) o Right (2)
+		// Lambda m√†gica: Calcula on comen√ßa la X segons Left (0), Center (1) o Right (2)
 		auto setStartingX = [&]() {
 			if (alignment == 1) x = (maxWidth - lineWidths[lineIndex]) * 0.5;
 			else if (alignment == 2) x = (maxWidth - lineWidths[lineIndex]);
 			else x = 0.0;
 			};
 
-		setStartingX(); // Col∑loquem la X per a la primera lÌnia!
+		setStartingX(); // Col¬∑loquem la X per a la primera l√≠nia!
 
 		for (size_t i = 0; i < string.size(); i++)
 		{
@@ -757,7 +757,7 @@ namespace Runic2D
 			if (character == '\n')
 			{
 				lineIndex++;
-				setStartingX(); // Col∑loquem la X cada cop que baixem de lÌnia!
+				setStartingX(); // Col¬∑loquem la X cada cop que baixem de l√≠nia!
 				y -= fsScale * metrics.lineHeight + lineSpacing;
 				continue;
 			}
@@ -787,7 +787,7 @@ namespace Runic2D
 			texCoordMin *= glm::vec2(texelWidth, texelHeight);
 			texCoordMax *= glm::vec2(texelWidth, texelHeight);
 
-			// VËrtexs (Dibuix)
+			// V√®rtexs (Dibuix)
 			s_Data.TextVertexBufferPtr->Position = transform * glm::vec4(quadMin, 0.0f, 1.0f);
 			s_Data.TextVertexBufferPtr->Color = color;
 			s_Data.TextVertexBufferPtr->TexCoord = texCoordMin;
@@ -858,3 +858,4 @@ namespace Runic2D
 	}
 
 }
+

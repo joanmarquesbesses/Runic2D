@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "System.h"
 
 #include "Runic2D/Scene/Entity.h"
@@ -21,4 +21,5 @@ namespace Runic2D {
 		void OnRigidbodyDestroyed(entt::registry& registry, entt::entity entity);
 	};
 }
+
 

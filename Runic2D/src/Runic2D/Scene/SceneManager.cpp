@@ -1,12 +1,12 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "SceneManager.h"
 
 #include "SceneSerializer.h"
 #include "Runic2D/Project/Project.h"
 
-#include "Runic2D/Core/Application.h"
-#include "Runic2D/Core/JobSystem.h"
-#include "Runic2D/Core/BackgroundTaskSystem.h"
+#include "Runic2D/Core/App/Application.h"
+#include "Runic2D/Core/Threading/JobSystem.h"
+#include "Runic2D/Core/Threading/BackgroundTaskSystem.h"
 
 #include "Runic2D/Scripting/ScriptEngine.h"
 #include "Components/ScriptingComponents.h"
@@ -63,20 +63,28 @@ namespace Runic2D {
         bool startRuntime)
     {
 
-        if (!std::filesystem::exists(absolutePath))
-        {
-            R2D_CORE_ERROR("SceneManager: Escena no trobada: '{0}'", absolutePath.string());
-            return false;
-        }
-
         StopActiveScene();
 
         auto newScene = CreateRef<Scene>();
         SceneSerializer serializer(newScene);
 
-        if (!serializer.DeserializeBinary(absolutePath.string() + "_bin"))
+        bool loaded = false;
+        std::string binPath = absolutePath.string() + "_bin";
+        
+        if (std::filesystem::exists(binPath))
         {
-            R2D_CORE_ERROR("SceneManager: Error deserialitzant '{0}'", absolutePath.string());
+            loaded = serializer.DeserializeBinary(binPath);
+        }
+        
+        if (!loaded && std::filesystem::exists(absolutePath))
+        {
+            R2D_CORE_WARN("SceneManager: Fallback a YAML per l'escena '{0}'", absolutePath.string());
+            loaded = serializer.Deserialize(absolutePath.string());
+        }
+
+        if (!loaded)
+        {
+            R2D_CORE_ERROR("SceneManager: Escena no trobada o error deserialitzant '{0}'", absolutePath.string());
             return false;
         }
 
@@ -177,3 +185,4 @@ namespace Runic2D {
         s_LoadingProgress = 0.0f;
     }
 }
+

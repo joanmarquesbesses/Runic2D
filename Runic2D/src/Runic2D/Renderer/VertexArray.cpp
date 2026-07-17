@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "VertexArray.h"
 
 #include "Renderer.h"
@@ -20,3 +20,4 @@ namespace Runic2D {
 	};
 
 } // namespace Runic2D
+

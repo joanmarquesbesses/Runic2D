@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <filesystem>
 #include <functional>
@@ -57,3 +57,4 @@ namespace Runic2D {
 	};
 
 }
+

@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+ï»¿#include "R2Dpch.h"
 #include "Math.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -18,7 +18,7 @@ namespace Runic2D::Math
 		if (epsilonEqual(LocalMatrix[3][3], static_cast<float>(0), epsilon<T>()))
 			return false;
 
-		// Isolar translació
+		// Isolar translaciÃ³
 		if (
 			epsilonNotEqual(LocalMatrix[0][3], static_cast<float>(0), epsilon<T>()) ||
 			epsilonNotEqual(LocalMatrix[1][3], static_cast<float>(0), epsilon<T>()) ||
@@ -44,7 +44,7 @@ namespace Runic2D::Math
 		scale.z = length(Row[2]);
 		Row[2] = detail::scale(Row[2], static_cast<T>(1));
 
-		// Rotació (Aquesta és la part clau que mantenim de Scene.cpp)
+		// RotaciÃ³ (Aquesta Ã©s la part clau que mantenim de Scene.cpp)
 		rotation.y = asin(-Row[0][2]);
 		if (cos(rotation.y) != 0) {
 			rotation.x = atan2(Row[1][2], Row[2][2]);

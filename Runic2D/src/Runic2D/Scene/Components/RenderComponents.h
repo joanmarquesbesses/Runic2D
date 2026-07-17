@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Core.h"
-#include "Runic2D/Core/UUID.h"
+#include "Runic2D/Core/Base/Core.h"
+#include "Runic2D/Core/Base/UUID.h"
 #include "Runic2D/Scene/SceneCamera.h"
 #include "Runic2D/Renderer/Texture.h"
 #include "Runic2D/Renderer/SubTexture2D.h"

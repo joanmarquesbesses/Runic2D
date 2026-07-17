@@ -1,9 +1,9 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "EditorCamera.h"
 
-#include "Runic2D/Core/Input.h"
-#include "Runic2D/Core/KeyCodes.h"
-#include "Runic2D/Core/MouseButtonCodes.h"
+#include "Runic2D/Core/Input/Input.h"
+#include "Runic2D/Core/Input/KeyCodes.h"
+#include "Runic2D/Core/Input/MouseButtonCodes.h"
 
 #include <glfw/glfw3.h>
 
@@ -182,3 +182,4 @@ namespace Runic2D {
 		}
 	}
 }
+

@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 
-#include "Runic2D/Core/Core.h"
+#include "Runic2D/Core/Base/Core.h"
 #include "Runic2D/Assets/Asset.h"
 
 namespace Runic2D

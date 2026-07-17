@@ -1,9 +1,9 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "OpenGLTexture.h"
 
 #include "stb_image.h"
-#include "Runic2D/Core/BackgroundTaskSystem.h"
-#include "Runic2D/Core/Application.h"
+#include "Runic2D/Core/Threading/BackgroundTaskSystem.h"
+#include "Runic2D/Core/App/Application.h"
 
 #include <glad/glad.h>
 

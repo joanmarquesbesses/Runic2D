@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "OpenGLBuffer.h"
 
 #include <glad/glad.h>
@@ -68,4 +68,5 @@ namespace Runic2D {
 	}
 
 }
+
 

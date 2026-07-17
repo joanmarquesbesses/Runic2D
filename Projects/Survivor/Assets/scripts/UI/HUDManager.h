@@ -1,4 +1,4 @@
-
+ï»¿
 #pragma once
 #include "Runic2D.h"
 #include "Core/GameComponents.h"
@@ -45,7 +45,7 @@ namespace Survivor {
 
         void OnDestroy() override {
             // Les entitats de UI es destruiran quan l'escena pari
-            // No cal fer res manualment — l'escena gestiona el cicle de vida
+            // No cal fer res manualment â€” l'escena gestiona el cicle de vida
         }
 
         void OnUpdate(Timestep ts) override {
@@ -59,7 +59,7 @@ namespace Survivor {
         bool UpdateWhenPaused() override { return true; }
 
     private:
-        // --- Helpers de creació ---
+        // --- Helpers de creaciÃ³ ---
         Entity CreateUIText(const std::string& name,
             const std::string& initial)
         {

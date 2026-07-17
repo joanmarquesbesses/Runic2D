@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Runic2D/Assets/Asset.h"
 

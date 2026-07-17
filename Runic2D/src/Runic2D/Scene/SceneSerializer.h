@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Scene.h"
 
@@ -20,5 +20,6 @@ namespace Runic2D
 		Ref<Scene> m_Scene;
 	};
 } // namespace Runic2D
+
 
 

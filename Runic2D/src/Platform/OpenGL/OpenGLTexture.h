@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Runic2D/Renderer/Texture.h"
 
@@ -40,6 +40,7 @@ namespace Runic2D
 		GLenum m_InternalFormat, m_DataFormat;
 	};
 }
+
 
 
 

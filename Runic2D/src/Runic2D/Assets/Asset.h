@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/UUID.h"
+#include "Runic2D/Core/Base/UUID.h"
 
 namespace Runic2D {
 

@@ -1,4 +1,4 @@
-#include "SurvivorPCH.h"
+Ôªø#include "SurvivorPCH.h"
 #include "Player.h"
 
 #include <Box2D/box2d.h>
@@ -221,7 +221,7 @@ namespace Survivor {
         {
             if (!anim->IsFinished())
             {
-                // Encara s'est‡ morint... esperem.
+                // Encara s'est√† morint... esperem.
             }
             else
             {
@@ -359,10 +359,11 @@ namespace Survivor {
             }
         }
 
-        // AquÌ pots posar els altres efectes (MultiShot, Speed, etc.)
+        // Aqu√≠ pots posar els altres efectes (MultiShot, Speed, etc.)
 
-        // (Opcional) AquÌ podries fer spawn de partÌcules al voltant del player
+        // (Opcional) Aqu√≠ podries fer spawn de part√≠cules al voltant del player
         // o reproduir un so de "Power Up".
     }
 
 }
+

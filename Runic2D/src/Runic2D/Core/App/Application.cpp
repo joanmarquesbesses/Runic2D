@@ -1,10 +1,9 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "Application.h"
-#include "JobSystem.h"
 
-#include "Core.h"
-#include "JobSystem.h"
-#include "BackgroundTaskSystem.h"
+#include "Runic2D/Core/Base/Core.h"
+#include "Runic2D/Core/Threading/JobSystem.h"
+#include "Runic2D/Core/Threading/BackgroundTaskSystem.h"
 
 #include "Runic2D/Renderer/Renderer.h"
 #include "Runic2D/Assets/ResourceManager.h"
@@ -14,7 +13,7 @@
 #include "Runic2D/Scene/Components/ComponentRegistry.h"
 #include "Runic2D/Scene/SceneManager.h"
 
-#include "Input.h"
+#include "Runic2D/Core/Input/Input.h"
 
 #include <GLFW/glfw3.h>
 
@@ -191,3 +190,4 @@ namespace Runic2D {
 	}
 
 }
+

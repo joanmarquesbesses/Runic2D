@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Core.h"
-#include "Runic2D/Core/Timestep.h"
+#include "Runic2D/Core/Base/Core.h"
+#include "Runic2D/Core/Base/Timestep.h"
 
 namespace Runic2D {
 	class Scene;
@@ -16,3 +16,4 @@ namespace Runic2D {
 		virtual void OnRender(Scene* scene) {};
 	};
 }
+

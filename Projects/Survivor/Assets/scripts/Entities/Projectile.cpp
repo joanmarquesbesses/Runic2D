@@ -1,4 +1,4 @@
-#include "SurvivorPCH.h"
+﻿#include "SurvivorPCH.h"
 #include "Projectile.h"
 #include "Enemy.h"
 
@@ -96,7 +96,7 @@ namespace Survivor {
             if (pc.Penetration > 0) {
                 pc.Penetration--;
 
-                // Opcional: Reduir una mica el mal o la velocitat despr�s de travessar?
+                // Opcional: Reduir una mica el mal o la velocitat després de travessar?
                 // pc.Damage *= 0.8f; 
             }
             else {
@@ -119,3 +119,4 @@ namespace Survivor {
     }
 
 }
+

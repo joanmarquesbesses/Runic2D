@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Core.h"
-#include "Runic2D/Core/KeyCodes.h"
-#include "Runic2D/Core/MouseButtonCodes.h"
+#include "Runic2D/Core/Base/Core.h"
+#include "Runic2D/Core/Input/KeyCodes.h"
+#include "Runic2D/Core/Input/MouseButtonCodes.h"
 
 #include <glm/glm.hpp>
 
@@ -19,3 +19,4 @@ namespace Runic2D
 		static float GetMouseY();
 	};
 }
+

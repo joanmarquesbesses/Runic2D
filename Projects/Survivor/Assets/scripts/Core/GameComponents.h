@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <glm/glm.hpp>
 #include "Systems/UpgradeDatabase.h"
@@ -92,7 +92,7 @@ namespace Survivor {
 
 		std::function<void(UpgradeType)> OnUpgradeApplied;
 
-		// M�todes d'ajuda (helper functions)
+		// Mètodes d'ajuda (helper functions)
 		void AddXP(float amount) {
 			CurrentXP += amount;
 			if (CurrentXP >= MaxXP) {

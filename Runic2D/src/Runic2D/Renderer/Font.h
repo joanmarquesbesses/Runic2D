@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Runic2D/Renderer/Texture.h"
 #include <filesystem>
@@ -24,6 +24,7 @@ namespace Runic2D {
 
 		const MSDFData* GetMSDFData() const { return m_Data; }
 
+		static Ref<Font> Create(const std::string& path);
 		static Ref<Font> GetDefault();
 
 		float GetStringWidth(const std::string& string, float kerning = 0.0f) const;

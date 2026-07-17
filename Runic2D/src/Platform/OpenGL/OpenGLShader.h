@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Runic2D/Renderer/Shader.h"
 #include <glm/glm.hpp>

@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "Runic2D/Utils/PlatformUtils.h"
 
 #include <commdlg.h>
@@ -7,7 +7,7 @@
 #include <GLFW/glfw3native.h>
 #include <filesystem>
 
-#include "Runic2D/Core/Application.h"
+#include "Runic2D/Core/App/Application.h"
 
 namespace Runic2D {
 

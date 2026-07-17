@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Runic2D/Systems/System.h"
 
 using namespace Runic2D;
@@ -10,4 +10,5 @@ namespace Survivor {
 		virtual void OnFixedUpdate(Runic2D::Timestep ts, Runic2D::Scene* scene) override;
 	};
 }
+
 

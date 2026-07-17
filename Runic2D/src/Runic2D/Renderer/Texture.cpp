@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "Texture.h"
 
 #include "Renderer.h"
@@ -30,3 +30,4 @@ namespace Runic2D
 		return nullptr;
 	}
 } // namespace Runic2D
+

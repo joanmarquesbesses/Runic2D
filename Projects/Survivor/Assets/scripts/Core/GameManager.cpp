@@ -1,4 +1,4 @@
-#include "SurvivorPCH.h"
+﻿#include "SurvivorPCH.h"
 #include "GameManager.h"
 #include "GameComponents.h"
 #include "Entities/Player.h"
@@ -23,7 +23,7 @@ namespace Survivor
         }
 
         if (Input::IsKeyPressed(KeyCode::M) && !m_IsLoading) {
-            m_IsLoading = true; // Marquem que ja estem en proc�s
+            m_IsLoading = true; // Marquem que ja estem en procés
             SceneManager::TransitionToAsync("scenes/heavy_scene.r2dscene", "scenes/a.r2dscene");
         }
 
@@ -118,3 +118,4 @@ namespace Survivor
         }
     }
 }
+

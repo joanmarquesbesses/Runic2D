@@ -1,11 +1,11 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "SettingsPanel.h"
 
 #include "Runic2D/Scene/Scene.h"
 
-#include "Runic2D/Core/Application.h"
-#include "Runic2D/Core/JobSystem.h"
-#include "Runic2D/Core/BackgroundTaskSystem.h"
+#include "Runic2D/Core/App/Application.h"
+#include "Runic2D/Core/Threading/JobSystem.h"
+#include "Runic2D/Core/Threading/BackgroundTaskSystem.h"
 
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Systems/DebugSystem.h"

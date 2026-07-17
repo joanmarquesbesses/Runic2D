@@ -1,4 +1,4 @@
-#include "SceneHierarchyPanel.h"
+ï»¿#include "SceneHierarchyPanel.h"
 
 #include <Imgui/imgui.h>
 #include <Imgui/imgui_internal.h>
@@ -48,7 +48,7 @@ namespace Runic2D
 			ImGui::PopFont();
 			ImGui::PopStyleVar();
 
-			// Botó de opcions (els tres puntets o "+") a la dreta
+			// BotÃ³ de opcions (els tres puntets o "+") a la dreta
 			bool removeComponent = false;
 			if (canBeDeleted) {
 				ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
@@ -208,7 +208,7 @@ namespace Runic2D
 			ImGui::EndDragDropSource();
 		}
 
-		// Drag Target (Destí)
+		// Drag Target (DestÃ­)
 		if (ImGui::BeginDragDropTarget())
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HIERARCHY_ENTITY"))
@@ -228,7 +228,7 @@ namespace Runic2D
 							isDescendant = true;
 							break;
 						}
-						// Pugem un nivell més
+						// Pugem un nivell mÃ©s
 						Entity parentEnt{ parentCheck, m_Context.get() };
 						if (parentEnt.HasComponent<RelationshipComponent>())
 							parentCheck = parentEnt.GetComponent<RelationshipComponent>().Parent;
@@ -341,7 +341,7 @@ namespace Runic2D
 			{
 				if (desc.HasOnEntity(entity))
 				{
-					// Utilitzem un estil similar al template DrawComponent per coherència visual
+					// Utilitzem un estil similar al template DrawComponent per coherÃ¨ncia visual
 					ImGui::PushID(desc.Name.c_str());
 
 					ImGui::Separator();
@@ -354,7 +354,7 @@ namespace Runic2D
 					bool open = ImGui::TreeNodeEx((void*)desc.Name.c_str(), treeNodeFlags, desc.Name.c_str());
 					ImGui::PopFont();
 
-					// Botó per eliminar el component (el "+" o "X" a la dreta)
+					// BotÃ³ per eliminar el component (el "+" o "X" a la dreta)
 					ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 					if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
 					{
@@ -383,7 +383,7 @@ namespace Runic2D
 				}
 			}
 
-		// BOTÓ D'AFEGIR COMPONENT
+		// BOTÃ“ D'AFEGIR COMPONENT
 		ImGui::Spacing();
 		ImGui::Separator();
 		ImGui::Spacing();

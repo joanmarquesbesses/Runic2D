@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Core.h"
+#include "Runic2D/Core/Base/Core.h"
 
 namespace Runic2D
 {
@@ -74,4 +74,5 @@ namespace Runic2D
 		static Ref<FrameBuffer> Create(const FrameBufferSpecification& spec);
 	};
 }
+
 

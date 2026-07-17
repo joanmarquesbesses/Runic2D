@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Runic2D.h"
 #include "Core/GameComponents.h"
 #include "Runic2D/Utils/SceneUtils.h"

@@ -1,5 +1,6 @@
-#include "R2Dpch.h"
-#include "JobSystem.h"
+﻿#include "R2Dpch.h"
+#include "Runic2D/Core/Threading/JobSystem.h"
+
 #include <thread>
 #include <condition_variable>
 #include <mutex>
@@ -161,3 +162,4 @@ namespace Runic2D {
 		return JobSystemImpl::s_WorkerIndex;
 	}
 }
+

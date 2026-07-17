@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 
@@ -55,5 +55,5 @@ namespace Runic2D{
 
 } // namespace Runic2D
 
-#include "Runic2D/Core/Log.h"
-#include "Runic2D/Core/Assert.h"
+#include "Runic2D/Core/Base/Log.h"
+#include "Runic2D/Core/Base/Assert.h"

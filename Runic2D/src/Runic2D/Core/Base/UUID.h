@@ -1,6 +1,6 @@
-#pragma once
+ï»¿#pragma once
 
-#include "Runic2D/Core/Core.h"
+#include "Runic2D/Core/Base/Core.h"
 #include <xhash> // Per hashing si cal
 
 namespace Runic2D {
@@ -9,7 +9,7 @@ namespace Runic2D {
 	{
 	public:
 		UUID(); // Genera un nou ID aleatori
-		UUID(uint64_t uuid); // Constructor per crear un UUID existent (deserialització)
+		UUID(uint64_t uuid); // Constructor per crear un UUID existent (deserialitzaciÃ³)
 		UUID(const UUID&) = default;
 
 		operator uint64_t() const { return m_UUID; }
@@ -19,7 +19,7 @@ namespace Runic2D {
 
 }
 
-// Hashing personalitzat perquè UUID pugui ser clau en un std::unordered_map
+// Hashing personalitzat perquÃ¨ UUID pugui ser clau en un std::unordered_map
 namespace std {
 	template<>
 	struct hash<Runic2D::UUID>

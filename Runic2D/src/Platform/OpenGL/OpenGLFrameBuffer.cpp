@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "OpenGLFrameBuffer.h"
 
 #include <glad/glad.h>
@@ -221,3 +221,4 @@ namespace Runic2D
 			Utils::HazelFBTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
 	}
 }
+

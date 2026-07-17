@@ -1,10 +1,10 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "Animation2DSystem.h"
 
 #include "Runic2D/Scene/Scene.h"
 #include "Runic2D/Scene/Components/MotionComponents.h"
 #include "Runic2D/Scene/Components/RenderComponents.h"
-#include "Runic2D/Core/JobSystem.h"
+#include "Runic2D/Core/Threading/JobSystem.h"
 
 namespace Runic2D {
 
@@ -18,7 +18,7 @@ namespace Runic2D {
 				{
 					if (profile.AtlasTexture)
 					{
-						int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
+						int numCols = std::max(1, (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x));
 						int col = profile.StartFrame % numCols;
 						int row = profile.StartFrame / numCols;
 

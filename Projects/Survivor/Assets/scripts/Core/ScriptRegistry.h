@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Runic2D/Scene/Entity.h"
 #include "Runic2D/Scene/Components/ScriptingComponents.h"
@@ -42,3 +42,4 @@ namespace Survivor
 	}
 
 }
+

@@ -1,12 +1,12 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "SceneViewportPanel.h"
 
-#include "Runic2D/Core/Application.h"
+#include "Runic2D/Core/App/Application.h"
 #include "Runic2D/Scene/Components/CoreComponents.h"
-#include "Runic2D/Core/Input.h"
+#include "Runic2D/Core/Input/Input.h"
 #include "Runic2D/Math/Math.h" 
 #include "Runic2D/Project/Project.h"
-#include "Runic2D/Core/InputManager.h"
+#include "Runic2D/Core/Input/InputManager.h"
 
 #include <imgui/imgui.h>
 #include "ImGuizmo.h"
@@ -134,3 +134,4 @@ namespace Runic2D {
 		ImGui::PopStyleVar();
 	}
 }
+

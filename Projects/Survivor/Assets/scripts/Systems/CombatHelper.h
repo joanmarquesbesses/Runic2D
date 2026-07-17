@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "Core/GameComponents.h"
 #include "Entities/EntityFactory.h" 
@@ -22,13 +22,13 @@ namespace Survivor {
 
                     EntityFactory::CreateExperienceGem(target.GetComponent<TransformComponent>().GetTranslation(), stats.XPDrop);
 
-                    // Parem el cos físic
+                    // Parem el cos fÃ­sic
                     if (target.HasComponent<Runic2D::Rigidbody2DComponent>()) {
                         auto& rb = target.GetComponent<Runic2D::Rigidbody2DComponent>();
                         if (B2_IS_NON_NULL(rb.RuntimeBody)) b2Body_SetLinearVelocity(rb.RuntimeBody, { 0.0f, 0.0f });
                     }
 
-                    // Tallem col·lisions
+                    // Tallem colÂ·lisions
                     if (target.HasComponent<Runic2D::CircleCollider2DComponent>()) {
                         auto& coll = target.GetComponent<Runic2D::CircleCollider2DComponent>();
                         coll.CategoryBits = 0;
@@ -55,7 +55,7 @@ namespace Survivor {
             auto& knockback = target.AddOrReplaceComponent<KnockbackComponent>();
             knockback.TimeRemaining = 0.2f;
 
-            // Apliquem la força física
+            // Apliquem la forÃ§a fÃ­sica
             glm::vec2 targetPos = target.GetComponent<Runic2D::TransformComponent>().GetTranslation();
             glm::vec2 knockbackDir = glm::normalize(targetPos - sourcePos);
 
@@ -64,7 +64,7 @@ namespace Survivor {
                 if (B2_IS_NON_NULL(rb.RuntimeBody)) {
                     b2Body_ApplyLinearImpulse(rb.RuntimeBody, { knockbackDir.x * 1.5f, knockbackDir.y * 1.5f }, { 0,0 }, true);
 
-                    // Treure el MaskBit d'enemics perquè no xoqui amb altres (el KnockbackSystem ja el tornarà a posar!)
+                    // Treure el MaskBit d'enemics perquÃ¨ no xoqui amb altres (el KnockbackSystem ja el tornarÃ  a posar!)
                     int shapeCount = b2Body_GetShapeCount(rb.RuntimeBody);
                     if (shapeCount > 0) {
                         std::vector<b2ShapeId> shapes(shapeCount);

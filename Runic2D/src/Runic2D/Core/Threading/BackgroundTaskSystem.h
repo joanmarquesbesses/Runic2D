@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <functional>
 #include <string>
@@ -16,7 +16,7 @@ namespace Runic2D {
 		static void Init();
 		static void Shutdown();
 
-		// Llança una tasca al fil de fons. No bloqueja mai el JobSystem principal.
+		// LlanÃ§a una tasca al fil de fons. No bloqueja mai el JobSystem principal.
 		static void Execute(const std::function<void()>& job);
 
 		static void SetEnabled(bool enabled);
@@ -26,3 +26,4 @@ namespace Runic2D {
 	};
 
 }
+

@@ -1,20 +1,5 @@
 AssetRegistry:
-  15069014557833081521: Resources/Shaders/Renderer2D_Quad.glsl
-  3464116388229423350: Resources/Shaders/Renderer2D_Circle.glsl
-  7714088953741291369: C:/Users/CLEVO/Desktop/Runic2D/Projects/Survivor/Assets/textures/upgrades/upgrade3.png
-  17323282893414967379: Resources/Shaders/Renderer2D_Line.glsl
-  11678808027605999734: Projects/Survivor/Assets/textures/wizard/Death.png
-  248893593584373473: Runic2D-Editor/Resources/Icons/ToolPanel/stop.png
-  564966840091318919: Runic2D-Editor/Resources/Icons/ContentBrowser/document.png
-  9831832362118754181: Resources/Shaders/Renderer2D_Text.glsl
-  1202420354457199674: Runic2D-Editor/Resources/Icons/ContentBrowser/folder.png
-  7289606915380736915: C:/Users/CLEVO/Desktop/Runic2D/Projects/Survivor/Assets/textures/upgrades/upgrade5.png
-  15756903518457097858: Runic2D-Editor/Resources/Icons/ToolPanel/play.png
-  5159972757021441996: C:/Users/CLEVO/Desktop/Runic2D/Projects/Survivor/Assets/textures/upgrades/upgrade1.png
-  15423740035417671586: C:/Users/CLEVO/Desktop/Runic2D/Projects/Survivor/Assets/textures/upgrades/upgrade2.png
-  4172221771977878400: C:/Users/CLEVO/Desktop/Runic2D/Projects/Survivor/Assets/textures/upgrades/upgrade4.png
-  8294938172782213516: C:/Users/CLEVO/Desktop/Runic2D/Projects/Survivor/Assets/textures/upgrades/orbital/orbital.png
-  9836400168119189379: Projects/Survivor/Assets/textures/wizard/Idle.png
-  17238546557165632302: Projects/Survivor/Assets/textures/wizard/Run.png
-  17358602378029189245: Projects/Survivor/Assets/textures/wizard/Attack.png
-  18303656750005806665: Projects/Survivor/Assets/textures/wizard/Hit.png
+  11707200877874620840: Resources/Shaders/Renderer2D_Quad.glsl
+  15252264125550409543: Resources/Shaders/Renderer2D_Circle.glsl
+  5832604082268916927: Resources/Shaders/Renderer2D_Line.glsl
+  9898843284382952113: Resources/Shaders/Renderer2D_Text.glsl

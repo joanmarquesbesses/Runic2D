@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "Render2DSystem.h"
 
 #include "Runic2D/Scene/Entity.h"
@@ -60,3 +60,4 @@ namespace Runic2D {
 		Renderer2D::EndScene();
 	}
 }
+

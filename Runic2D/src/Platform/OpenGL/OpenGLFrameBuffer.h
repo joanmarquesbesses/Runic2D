@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Runic2D/Renderer/FrameBuffer.h"
 
@@ -35,5 +35,6 @@ namespace Runic2D
 		uint32_t m_DepthAttachment = 0;
 	};
 }
+
 
 

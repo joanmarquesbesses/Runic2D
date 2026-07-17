@@ -1,4 +1,4 @@
-#include "SurvivorPCH.h"
+ï»¿#include "SurvivorPCH.h"
 #include "KnockbackSystem.h"
 
 #include "Core/GameComponents.h"
@@ -26,7 +26,7 @@ namespace Survivor {
 							b2Body_GetShapes(rb.RuntimeBody, shapes.data(), shapeCount);
 							for (auto shapeId : shapes) {
 								b2Filter filter = b2Shape_GetFilter(shapeId);
-								filter.maskBits |= PhysicsLayers::Enemy; // <-- Aquí és on podries fer servir knockback.MaskToRestore
+								filter.maskBits |= PhysicsLayers::Enemy; // <-- AquÃ­ Ã©s on podries fer servir knockback.MaskToRestore
 								b2Shape_SetFilter(shapeId, filter);
 							}
 						}
@@ -40,3 +40,4 @@ namespace Survivor {
 		}
 	}
 }
+

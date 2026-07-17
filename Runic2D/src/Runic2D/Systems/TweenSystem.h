@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "System.h"
 
 #include "glm/glm.hpp"
@@ -11,4 +11,5 @@ namespace Runic2D {
 		virtual void OnUpdate(Timestep ts, Scene* scene) override;
 	};
 }
+
 

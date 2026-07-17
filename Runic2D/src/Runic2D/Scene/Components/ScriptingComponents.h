@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Core.h"
+#include "Runic2D/Core/Base/Core.h"
 #include "Runic2D/Scene/ScriptableEntity.h"
 
 namespace Runic2D {

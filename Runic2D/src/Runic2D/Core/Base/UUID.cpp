@@ -1,11 +1,11 @@
-#include "R2Dpch.h"
-#include "UUID.h"
+ï»¿#include "R2Dpch.h"
+#include "Runic2D/Core/Base/UUID.h"
 
 #include <random>
 
 namespace Runic2D {
 
-	// Motor de generació aleatòria
+	// Motor de generaciÃ³ aleatÃ²ria
 	static std::random_device s_RandomDevice;
 	static std::mt19937_64 s_Engine(s_RandomDevice());
 	static std::uniform_int_distribution<uint64_t> s_UniformDistribution;

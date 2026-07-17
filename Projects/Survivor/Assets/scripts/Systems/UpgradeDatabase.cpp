@@ -1,4 +1,4 @@
-#include "SurvivorPCH.h"
+﻿#include "SurvivorPCH.h"
 #include "UpgradeDatabase.h"
 
 #include "Runic2D/Assets/ResourceManager.h"

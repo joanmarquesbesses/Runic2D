@@ -1,6 +1,6 @@
-#pragma once
+ï»¿#pragma once
 
-#include "Runic2D/Core/Core.h"
+#include "Runic2D/Core/Base/Core.h"
 #include "Runic2D/Core/Serialization/BufferStreamWriter.h"
 #include "Runic2D/Core/Serialization/BufferStreamReader.h"
 #include "Runic2D/Scene/Entity.h"
@@ -21,7 +21,7 @@ namespace Runic2D {
         std::string Name;           // "Health Component"
         std::string Category;       // "Gameplay", "AI", "Physics"...
 
-        // Type-Erased functions — no saben res del tipus concret
+        // Type-Erased functions â€” no saben res del tipus concret
         std::function<void(Entity)> AddToEntity;
         std::function<bool(Entity)> HasOnEntity;
         std::function<void(Entity)> DrawImGui;    // Dibuixa l'inspector
@@ -44,7 +44,7 @@ namespace Runic2D {
 
         static const std::vector<ComponentDescriptor>& GetAll();
 
-        // Per l'inspector: donat una entitat, quins components té?
+        // Per l'inspector: donat una entitat, quins components tÃ©?
         static std::vector<const ComponentDescriptor*> GetPresentOn(Entity entity);
 
     private:

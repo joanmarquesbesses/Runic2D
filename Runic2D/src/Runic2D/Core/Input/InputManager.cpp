@@ -1,7 +1,7 @@
-#include "R2Dpch.h"
-#include "InputManager.h"
-#include "Runic2D/Core/Input.h"
-#include "Runic2D/Core/Application.h"
+﻿#include "R2Dpch.h"
+#include "Runic2D/Core/Input/InputManager.h"
+#include "Runic2D/Core/Input/Input.h"
+#include "Runic2D/Core/App/Application.h"
 
 #ifndef R2D_DIST
 #include <imgui.h> 

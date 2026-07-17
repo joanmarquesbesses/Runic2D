@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include "Camera.h"
-#include "Runic2D/Core/Timestep.h"
+#include "Runic2D/Core/Base/Timestep.h"
 #include "Runic2D/Events/Event.h"
 #include "Runic2D/Events/MouseEvent.h"
 
@@ -96,4 +96,5 @@ namespace Runic2D {
 	};
 
 }
+
 

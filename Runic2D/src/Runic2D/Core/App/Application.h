@@ -1,12 +1,12 @@
-#pragma once
+﻿#pragma once
 
-#include "Core.h"
+#include "Runic2D/Core/Base/Core.h"
 
 #include "Window.h"
-#include "Runic2D/Core/LayerStack.h"
+#include "Runic2D/Core/App/LayerStack.h"
 #include "Runic2D/Events/ApplicationEvent.h"
 
-#include "Runic2D/Core/Timestep.h"
+#include "Runic2D/Core/Base/Timestep.h"
 
 #include "Runic2D/ImGui/ImGuiLayer.h"
 

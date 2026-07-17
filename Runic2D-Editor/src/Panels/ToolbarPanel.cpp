@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "ToolbarPanel.h"
 
 #include "Runic2D/Assets/ResourceManager.h"
@@ -35,7 +35,7 @@ namespace Runic2D {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 
-		// Bot� invisible per capturar events
+		// Botó invisible per capturar events
 		if (ImGui::InvisibleButton("##toolbar_play_stop", ImVec2(size, size)))
 		{
 			if (state == SceneState::Edit)

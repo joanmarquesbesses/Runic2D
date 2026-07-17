@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Window.h"
+#include "Runic2D/Core/App/Window.h"
 #include "Runic2D/Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>
@@ -48,4 +48,5 @@ namespace Runic2D {
 	};
 
 } // namespace Runic2D
+
 

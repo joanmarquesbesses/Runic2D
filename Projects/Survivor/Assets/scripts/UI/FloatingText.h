@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Runic2D.h"
 
 using namespace Runic2D;

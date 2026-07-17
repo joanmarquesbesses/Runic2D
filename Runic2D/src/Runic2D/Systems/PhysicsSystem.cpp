@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "PhysicsSystem.h"
 
 #include "Runic2D/Scene/Entity.h"
@@ -6,8 +6,8 @@
 #include "Runic2D/Scene/Components/PhysicsComponents.h"
 #include "Runic2D/Scene/Components/ScriptingComponents.h"
 
-#include "Runic2D/Core/Application.h"
-#include "Runic2D/Core/JobSystem.h"
+#include "Runic2D/Core/App/Application.h"
+#include "Runic2D/Core/Threading/JobSystem.h"
 
 #include <box2d/types.h>
 
@@ -145,7 +145,7 @@ namespace Runic2D {
 				b2Shape_SetFilter(bc2d.RuntimeShape, filter);
 			}
 		}
-		// Mirem si t� Circle Collider
+		// Mirem si té Circle Collider
 		if (entity.HasComponent<CircleCollider2DComponent>())
 		{
 			auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
@@ -421,3 +421,4 @@ namespace Runic2D {
 		}
 	}
 }
+

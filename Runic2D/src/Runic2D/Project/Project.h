@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <filesystem>
-#include "Runic2D/Core/Core.h"
+#include "Runic2D/Core/Base/Core.h"
 
 namespace Runic2D {
 
@@ -35,6 +35,14 @@ namespace Runic2D {
             return s_ActiveProject->m_ProjectDirectory / s_ActiveProject->m_Config.AssetDirectory;
         }
 
+        static std::filesystem::path GetEngineResourcesDirectory()
+        {
+            if (std::filesystem::exists("Resources")) return "Resources";
+            if (std::filesystem::exists("../../../Resources")) return "../../../Resources";
+            if (std::filesystem::exists("../../Resources")) return "../../Resources";
+            return "Resources"; // Fallback per defecte
+        }
+
         static bool Load(const std::filesystem::path& filepath);
         static bool Save(const std::filesystem::path& filepath);
         static Ref<Project> New();
@@ -55,3 +63,4 @@ namespace Runic2D {
         static Ref<Project>    s_ActiveProject;
 	};
 }
+

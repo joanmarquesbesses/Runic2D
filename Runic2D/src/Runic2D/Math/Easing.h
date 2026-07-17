@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp> 
@@ -67,3 +67,4 @@ namespace Runic2D {
         }
     };
 }
+

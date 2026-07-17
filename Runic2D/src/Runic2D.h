@@ -1,17 +1,17 @@
-#pragma once
+﻿#pragma once
 
 // For use in Runic2D applications
-#include "Runic2D/Core/Application.h"
+#include "Runic2D/Core/App/Application.h"
 
-#include "Runic2D/Core/Layer.h"
-#include "Runic2D/Core/Log.h"
+#include "Runic2D/Core/App/Layer.h"
+#include "Runic2D/Core/Base/Log.h"
 
-#include "Runic2D/Core/Timestep.h"
+#include "Runic2D/Core/Base/Timestep.h"
 
-#include "Runic2D/Core/Input.h"
-#include "Runic2D/Core/KeyCodes.h"
-#include "Runic2D/Core/MouseButtonCodes.h"
-#include "Runic2D/Core/InputManager.h"
+#include "Runic2D/Core/Input/Input.h"
+#include "Runic2D/Core/Input/KeyCodes.h"
+#include "Runic2D/Core/Input/MouseButtonCodes.h"
+#include "Runic2D/Core/Input/InputManager.h"
 
 #include "Runic2D/ImGui/ImGuiLayer.h"
 
@@ -56,3 +56,5 @@
 #include "Runic2D/Renderer/SubTexture2D.h"
 #include "Runic2D/Renderer/Animation2D.h"
 // --------
+
+

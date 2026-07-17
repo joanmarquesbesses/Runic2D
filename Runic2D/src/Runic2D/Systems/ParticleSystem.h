@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "System.h"
 #include "Runic2D/Renderer/Texture.h"

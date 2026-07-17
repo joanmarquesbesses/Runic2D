@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <iostream>
 #include <memory>
@@ -14,7 +14,7 @@
 #include <unordered_set>
 #include <cstdint>
 
-#include "Runic2D/Core/Log.h"
+#include "Runic2D/Core/Base/Log.h"
 
 #include "Runic2D/Debug/Instrumentor.h"
 
@@ -23,3 +23,4 @@
 #ifdef R2D_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif // RUNIC_PLATFORM_WINDOWS
+

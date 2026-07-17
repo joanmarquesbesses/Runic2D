@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifdef R2D_PLATFORM_WINDOWS
 
@@ -23,3 +23,4 @@ int main(int argc, char** argv)
 }
 
 #endif // RUNIC2D_PLATFORM_WINDOWS
+

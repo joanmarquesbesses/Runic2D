@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Runic2D/Renderer/Camera.h"
 
@@ -49,5 +49,6 @@ namespace Runic2D
 		float m_AspectRatio = 0.0f;
 	};
 }
+
 
 

@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+ï»¿#include "R2Dpch.h"
 #include "OpenGLUniformBuffer.h"
 
 #include <glad/glad.h>
@@ -10,10 +10,10 @@ namespace Runic2D {
 		// Creem el buffer amb l'estil modern d'OpenGL 4.5 (DSA)
 		glCreateBuffers(1, &m_RendererID);
 
-		// Reservem la memòria a la GPU (DYNAMIC_STORAGE perquè l'actualitzarem cada frame)
+		// Reservem la memÃ²ria a la GPU (DYNAMIC_STORAGE perquÃ¨ l'actualitzarem cada frame)
 		glNamedBufferData(m_RendererID, size, nullptr, GL_DYNAMIC_DRAW);
 
-		// El vinculem al punt d'unió (Binding Point) especificat (ex: 0 per la Càmera)
+		// El vinculem al punt d'uniÃ³ (Binding Point) especificat (ex: 0 per la CÃ mera)
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_RendererID);
 	}
 

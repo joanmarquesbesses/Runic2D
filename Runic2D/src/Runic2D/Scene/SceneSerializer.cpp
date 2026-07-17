@@ -1,4 +1,4 @@
-#include <thread>
+Ôªø#include <thread>
 #include <chrono>
 #include "R2Dpch.h"
 #include "SceneSerializer.h"
@@ -202,7 +202,7 @@ namespace Runic2D {
 
 	static void SerializeEntityBinary(BufferStreamWriter& out, Entity entity, Scene* scene)
 	{
-		// 1. Guardem el UUID (sempre hi Ès)
+		// 1. Guardem el UUID (sempre hi √©s)
 		out.WriteRaw(entity.GetUUID());
 		// 2. TagComponent
 		bool hasTag = entity.HasComponent<TagComponent>();
@@ -236,7 +236,7 @@ namespace Runic2D {
 		{
 			if (desc.HasOnEntity(entity) && desc.SerializeBinary)
 			{
-				// Hashegem el nom per tenir un ID numËric ˙nic i super r‡pid
+				// Hashegem el nom per tenir un ID num√®ric √∫nic i super r√†pid
 				uint32_t componentHash = (uint32_t)std::hash<std::string>{}(desc.Name);
 				out.WriteRaw(componentHash);
 
@@ -277,13 +277,13 @@ namespace Runic2D {
 	{
 		BufferStreamWriter out;
 
-		// 1. Escrivim capÁalera ('Magic Number' per seguretat)
+		// 1. Escrivim cap√ßalera ('Magic Number' per seguretat)
 		out.WriteString("R2DB");
 		// 2. Escrivim nombre total d'entitats
 		auto view = m_Scene->m_Registry.view<entt::entity>();
 		uint32_t entityCount = (uint32_t)view.size();
 		out.WriteRaw(entityCount);
-		// 3. Serialitzem entitat per entitat en memÚria cau
+		// 3. Serialitzem entitat per entitat en mem√≤ria cau
 		for (auto it = view.rbegin(); it != view.rend(); ++it)
 		{
 			Entity entity = { *it, m_Scene.get() };
@@ -293,10 +293,10 @@ namespace Runic2D {
 		// 4. Tenim tota l'escena crua a la RAM! Ara comprimim amb LZ4
 		Buffer rawBuffer = out.GetBuffer();
 
-		// Calculem l'espai m‡xim que pot ocupar un cop comprimit
+		// Calculem l'espai m√†xim que pot ocupar un cop comprimit
 		int maxCompressedSize = LZ4_compressBound((int)rawBuffer.Size);
 		Buffer compressedBuffer(maxCompressedSize);
-		// Comprimim (la m‡gia de la velocitat AAA)
+		// Comprimim (la m√†gia de la velocitat AAA)
 		int compressedSize = LZ4_compress_default(
 			(const char*)rawBuffer.Data,
 			(char*)compressedBuffer.Data,
@@ -456,7 +456,7 @@ namespace Runic2D {
 
 		if (decompressedSize < 0)
 		{
-			R2D_CORE_ERROR("Error descomprimint l'escena bin‡ria!");
+			R2D_CORE_ERROR("Error descomprimint l'escena bin√†ria!");
 			compressedBuffer.Release();
 			rawBuffer.Release();
 			return false;
@@ -469,7 +469,7 @@ namespace Runic2D {
 		in.ReadString(header);
 		if (header != "R2DB")
 		{
-			R2D_CORE_ERROR("Arxiu inv‡lid o corrupte!");
+			R2D_CORE_ERROR("Arxiu inv√†lid o corrupte!");
 			return false;
 		}
 
@@ -538,7 +538,7 @@ namespace Runic2D {
 					}
 				}
 
-				R2D_CORE_ASSERT(found, "CorrupciÛ: Component desconegut a l'arxiu binari!");
+				R2D_CORE_ASSERT(found, "Corrupci√≥: Component desconegut a l'arxiu binari!");
 			}
 		}
 
@@ -567,7 +567,7 @@ namespace Runic2D {
 		compressedBuffer.Release();
 		rawBuffer.Release();
 
-		R2D_CORE_INFO("Escena BIN¿RIA deserialitzada correctament! ({0} entitats)", entityCount);
+		R2D_CORE_INFO("Escena BIN√ÄRIA deserialitzada correctament! ({0} entitats)", entityCount);
 		return true;
 	}
 

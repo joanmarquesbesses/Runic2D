@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Scene.h"
 
@@ -81,4 +81,5 @@ namespace Runic2D
 		Scene* m_Scene = nullptr;
 	};
 }
+
 

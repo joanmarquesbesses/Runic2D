@@ -1,8 +1,8 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "SceneUtils.h"
 
-#include "Runic2D/Core/Application.h"
-#include "Runic2D/Core/Input.h"
+#include "Runic2D/Core/App/Application.h"
+#include "Runic2D/Core/Input/Input.h"
 #include "Runic2D/Scene/Scene.h"
 #include "Runic2D/Scene/Components/CoreComponents.h"
 #include "Runic2D/Scene/Components/RenderComponents.h"

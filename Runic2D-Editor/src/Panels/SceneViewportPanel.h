@@ -1,5 +1,5 @@
-#pragma once
-#include "Runic2D/Core/Core.h"
+﻿#pragma once
+#include "Runic2D/Core/Base/Core.h"
 #include "Runic2D/Renderer/FrameBuffer.h"
 #include "Runic2D/Scene/Entity.h"
 #include <glm/glm.hpp>

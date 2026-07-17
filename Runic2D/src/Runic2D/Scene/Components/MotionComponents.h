@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Runic2D/Math/Easing.h"
 #include "Runic2D/Renderer/Animation2D.h"

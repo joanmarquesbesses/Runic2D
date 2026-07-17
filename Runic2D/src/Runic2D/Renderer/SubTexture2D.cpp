@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "SubTexture2D.h"
 
 
@@ -38,3 +38,4 @@ namespace Runic2D
         return CreateFromPixelCoords(texture, coords.x, coords.y, cellSize.x, cellSize.y);
     }
 }
+

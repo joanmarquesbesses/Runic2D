@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Core.h"
-#include "Runic2D/Core/Log.h"
+#include "Runic2D/Core/Base/Core.h"
+#include "Runic2D/Core/Base/Log.h"
 #include <filesystem>
 
 #ifdef R2D_ENABLE_ASSERTS
@@ -22,3 +22,4 @@
 #define R2D_ASSERT(...)
 #define R2D_CORE_ASSERT(...)
 #endif
+

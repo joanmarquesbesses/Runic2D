@@ -1,4 +1,4 @@
-#include "SurvivorPCH.h"
+ï»¿#include "SurvivorPCH.h"
 #include "EntityFactory.h"
 
 #include "Core/GameComponents.h"
@@ -113,7 +113,7 @@ namespace Survivor {
         src.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         if (s_ProjectileTexture) src.Texture = s_ProjectileTexture;
 
-        // 3. Animació
+        // 3. AnimaciÃ³
         auto& anim = entity.AddComponent<Runic2D::AnimationComponent>();
 
         Runic2D::AnimationProfile travelAnim;
@@ -144,7 +144,7 @@ namespace Survivor {
         );
         anim.Animations["Travel"] = anim.CurrentAnimation;
 
-        // 3. Físiques (Configuració)
+        // 3. FÃ­siques (ConfiguraciÃ³)
         auto& rb = entity.AddComponent<Runic2D::Rigidbody2DComponent>();
         rb.Type = Runic2D::Rigidbody2DComponent::BodyType::Dynamic;
         rb.FixedRotation = true;
@@ -254,7 +254,7 @@ namespace Survivor {
         tc.SetTranslation({pos.x, pos.y, -1.0f});
         tc.SetScale({ 0.35f, 0.35f, 1.0f });
 
-        // 2. Sprite (Lògica visual segons valor)
+        // 2. Sprite (LÃ²gica visual segons valor)
         auto& src = entity.AddComponent<SpriteRendererComponent>();
         if (amount < 2) src.Texture = s_WhiteGemTexture;
         else if (amount < 11) src.Texture = s_GreenGemTexture;

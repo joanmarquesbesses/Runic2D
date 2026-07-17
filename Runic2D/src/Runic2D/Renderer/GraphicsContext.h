@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace Runic2D {
 
@@ -11,3 +11,4 @@ namespace Runic2D {
 	};
 
 } // namespace Runic2D
+

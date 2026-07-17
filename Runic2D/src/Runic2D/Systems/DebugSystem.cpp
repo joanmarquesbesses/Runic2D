@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "DebugSystem.h"
 
 #include "Runic2D/Scene/Scene.h"
@@ -9,7 +9,7 @@
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Systems/ParticleSystem.h"
 
-#include "Runic2D/Core/Application.h"
+#include "Runic2D/Core/App/Application.h"
 
 namespace Runic2D {
 

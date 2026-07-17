@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Runic2D.h>
 
@@ -20,4 +20,5 @@ private:
 private:
 	bool m_ShowPhysicsColliders = false;
 };
+
 

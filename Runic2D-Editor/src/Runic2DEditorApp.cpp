@@ -1,5 +1,5 @@
-#include <Runic2D.h>
-#include <Runic2D/Core/EntryPoint.h>
+﻿#include <Runic2D.h>
+#include <Runic2D/Core/App/EntryPoint.h>
 
 #include "EditorLayer.h"
 

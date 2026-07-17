@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "EditorLayer.h"
 
 #include <imgui/imgui.h>
@@ -188,7 +188,7 @@ namespace Runic2D
 			ImGui::DockSpace(ImGui::GetID("MyDockSpace"));
 		style.WindowMinSize.x = minWinSizeX;
 
-		// ---- MENÚ ----
+		// ---- MENÃš ----
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -349,7 +349,7 @@ namespace Runic2D
 	{
 		if (absolutePath.extension() != ".r2dscene")
 		{
-			R2D_CORE_WARN("EditorLayer: el fitxer '{0}' no és una escena vàlida.",
+			R2D_CORE_WARN("EditorLayer: el fitxer '{0}' no Ã©s una escena vÃ lida.",
 				absolutePath.string());
 			return;
 		}
@@ -359,19 +359,19 @@ namespace Runic2D
 
 		auto newScene = CreateRef<Scene>();
 		SceneSerializer serializer(newScene);
-		//if (!serializer.Deserialize(absolutePath.string()))
-		//{
-		//	R2D_CORE_ERROR("EditorLayer: no s'ha pogut carregar l'escena '{0}'",
-		//		absolutePath.string());
-		//	return;
-		//}
-
-		if (!serializer.DeserializeBinary(absolutePath.string() + "_bin"))
+		if (!serializer.Deserialize(absolutePath.string()))
 		{
 			R2D_CORE_ERROR("EditorLayer: no s'ha pogut carregar l'escena '{0}'",
 				absolutePath.string());
 			return;
 		}
+
+		//if (!serializer.DeserializeBinary(absolutePath.string() + "_bin"))
+		//{
+		//	R2D_CORE_ERROR("EditorLayer: no s'ha pogut carregar l'escena '{0}'",
+		//		absolutePath.string());
+		//	return;
+		//}
 
 		m_EditorScene = newScene;
 		m_EditorScenePath = absolutePath;
@@ -436,10 +436,10 @@ namespace Runic2D
 		m_SceneState = SceneState::Play;
 		m_ViewportPanel.SetPlayMode(true);
 
-		// Còpia de l'escena perquè el runtime no modifiqui l'original
+		// CÃ²pia de l'escena perquÃ¨ el runtime no modifiqui l'original
 		Ref<Scene> runtimeScene = Scene::Copy(m_EditorScene);
 
-		// Re-binding de scripts (necessari a la còpia)
+		// Re-binding de scripts (necessari a la cÃ²pia)
 		auto view = runtimeScene->GetAllEntitiesWith<NativeScriptComponent>();
 		for (auto e : view)
 		{
@@ -465,7 +465,7 @@ namespace Runic2D
 		m_SceneState = SceneState::Edit;
 		m_ViewportPanel.SetPlayMode(false);
 
-		// Parar el runtime (física, scripts, etc.)
+		// Parar el runtime (fÃ­sica, scripts, etc.)
 		SceneManager::StopActiveScene();
 
 		// Restaurar l'escena d'editor (sense runtime)
@@ -500,16 +500,16 @@ namespace Runic2D
 		std::string projectsRootStr = projectsRoot.string();
 		std::string rawPath = FileDialogs::SaveFile(
 			"Runic2D Project (*.r2dproj)\0*.r2dproj\0",
-			projectsRootStr.c_str()   // <-- initialDir: obre el diàleg a Projects/
+			projectsRootStr.c_str()   // <-- initialDir: obre el diÃ leg a Projects/
 		);
 
-		if (rawPath.empty()) return; // l'usuari ha cancel·lat
+		if (rawPath.empty()) return; // l'usuari ha cancelÂ·lat
 
 		// 3. Extreure el nom del projecte a partir del fitxer escollit
-		//    Ex: rawPath = "C:/.../Projects/MyGame.r2dproj"  → name = "MyGame"
+		//    Ex: rawPath = "C:/.../Projects/MyGame.r2dproj"  â†’ name = "MyGame"
 		std::filesystem::path chosenPath = rawPath;
 
-		// Assegurar extensió (per si l'usuari no l'ha posat)
+		// Assegurar extensiÃ³ (per si l'usuari no l'ha posat)
 		if (chosenPath.extension() != ".r2dproj")
 			chosenPath += ".r2dproj";
 
@@ -574,7 +574,7 @@ namespace Runic2D
 			return;
 		}
 
-		// 2. Ara sí, desmuntem l'antic (Això evita els crashes de memòria)
+		// 2. Ara sÃ­, desmuntem l'antic (AixÃ² evita els crashes de memÃ²ria)
 		CleanupCurrentProject();
 
 		// 3. Carreguem el nou
@@ -586,7 +586,7 @@ namespace Runic2D
 		}
 		else
 		{
-			R2D_CORE_ERROR("Ha fallat la càrrega del projecte a: {0}", path.string());
+			R2D_CORE_ERROR("Ha fallat la cÃ rrega del projecte a: {0}", path.string());
 		}
 	}
 
@@ -621,7 +621,7 @@ namespace Runic2D
 	{
 		if (!Project::GetActive())
 		{
-			R2D_CORE_ERROR("S'ha intentat cridar OnProjectLoaded però no hi ha cap projecte actiu!");
+			R2D_CORE_ERROR("S'ha intentat cridar OnProjectLoaded perÃ² no hi ha cap projecte actiu!");
 			return;
 		}
 
@@ -660,7 +660,8 @@ namespace Runic2D
 	{
 		std::string title = "Runic2D Editor";
 		if (Project::GetActive())
-			title += " — " + Project::GetConfig().Name;
-		Application::Get().GetWindow().SetTitle(title); // si tens aquest mètode
+			title += " â€” " + Project::GetConfig().Name;
+		Application::Get().GetWindow().SetTitle(title); // si tens aquest mÃ¨tode
 	}
 }
+

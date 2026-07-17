@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <glm/glm.hpp>
 #include "Texture.h"
@@ -27,5 +27,6 @@ namespace Runic2D
 		glm::vec2 m_TexCoords[4];
 	};
 }
+
 
 

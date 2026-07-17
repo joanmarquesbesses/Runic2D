@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Log.h"
+#include "Runic2D/Core/Base/Log.h"
 #include "Runic2D/Scene/Scene.h"
 #include "Runic2D/Scene/Entity.h"
 
@@ -25,3 +25,4 @@ namespace Runic2D
 		Entity m_DeferredDeleteEntity = {};
 	};
 }
+

@@ -1,11 +1,11 @@
-#include "R2Dpch.h"
+ï»¿#include "R2Dpch.h"
 #include "ImGuiLayer.h"
 
 #include "backends/imgui_impl_opengl3.h"
 #include "backends/imgui_impl_glfw.h"
 
 
-#include "Runic2D/Core/Application.h"
+#include "Runic2D/Core/App/Application.h"
 
 //Temporary includes for ImGui
 #include <GLFW/glfw3.h>
@@ -133,11 +133,11 @@ namespace Runic2D
 
 		// --- COLORS ---
 
-		// Fons general de les finestres (Gris fosc, gairebé negre)
+		// Fons general de les finestres (Gris fosc, gairebÃ© negre)
 		colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f };
 
-		// Headers (La barra de títol que deies "blava")
-		// La posem gris fosc perquè es fusioni amb la finestra o destaqui poc
+		// Headers (La barra de tÃ­tol que deies "blava")
+		// La posem gris fosc perquÃ¨ es fusioni amb la finestra o destaqui poc
 		colors[ImGuiCol_Header] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
 		colors[ImGuiCol_HeaderHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
 		colors[ImGuiCol_HeaderActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };

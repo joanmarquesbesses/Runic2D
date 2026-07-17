@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -6,7 +6,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
-#include "Runic2D/Core/UUID.h"
+#include "Runic2D/Core/Base/UUID.h"
 #include <entt.hpp>
 
 namespace Runic2D {

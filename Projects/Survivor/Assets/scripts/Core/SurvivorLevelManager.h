@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Runic2D/Scene/ScriptableEntity.h"
 
 #include "Systems/MovementSystem.h"
@@ -10,7 +10,7 @@ using namespace Runic2D;
 
 namespace Survivor {
 
-    // Aquest script �s el 'Cap' del Nivell
+    // Aquest script és el 'Cap' del Nivell
     class SurvivorLevelManager : public ScriptableEntity
     {
     public:

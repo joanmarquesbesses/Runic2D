@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 #include "TweenSystem.h"
 
 #include "Runic2D/Scene/Entity.h"
@@ -102,3 +102,4 @@ namespace Runic2D {
 		for (auto e : toDestroy) registry.destroy(e);
 	}
 }
+

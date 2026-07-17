@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Runic2D/Renderer/Texture.h"
 #include <functional>
 
@@ -25,3 +25,4 @@ namespace Runic2D {
 		std::function<void()> m_OnStopCallback;
 	};
 }
+

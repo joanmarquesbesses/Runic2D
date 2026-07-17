@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+﻿#include "R2Dpch.h"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
 

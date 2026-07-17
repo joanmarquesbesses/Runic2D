@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Core.h"
-#include "Runic2D/Core/KeyCodes.h"
-#include "Runic2D/Core/MouseButtonCodes.h"
+#include "Runic2D/Core/Base/Core.h"
+#include "Runic2D/Core/Input/KeyCodes.h"
+#include "Runic2D/Core/Input/MouseButtonCodes.h"
 #include <string>
 #include <unordered_map>
 
@@ -36,3 +36,4 @@ namespace Runic2D {
 #endif
 	};
 }
+

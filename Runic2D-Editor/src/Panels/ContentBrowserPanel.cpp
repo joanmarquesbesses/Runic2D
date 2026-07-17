@@ -1,4 +1,4 @@
-#include "R2Dpch.h"
+Ôªø#include "R2Dpch.h"
 #include "ContentBrowserPanel.h"
 
 #include <imgui/imgui.h>
@@ -57,7 +57,7 @@ namespace Runic2D {
 		for (auto& entry : std::filesystem::directory_iterator(path))
 		{
 			if (!entry.is_directory())
-				continue; // NomÈs volem carpetes a l'arbre
+				continue; // Nom√©s volem carpetes a l'arbre
 
 			FileNode node;
 			node.Path = entry.path();
@@ -115,7 +115,7 @@ namespace Runic2D {
 
 		ImGui::Columns(2);
 
-		if (m_FirstFrame) // Necessitar‡s afegir bool m_FirstFrame = true; al header i constructor
+		if (m_FirstFrame) // Necessitar√†s afegir bool m_FirstFrame = true; al header i constructor
 		{
 			ImGui::SetColumnWidth(0, 200.0f);
 			m_FirstFrame = false;

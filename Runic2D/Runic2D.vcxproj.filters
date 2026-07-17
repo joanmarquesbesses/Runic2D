@@ -25,8 +25,20 @@
     <Filter Include="src\Runic2D\Core">
       <UniqueIdentifier>{2B001899-17F9-36EB-402B-1C702C8316F7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Core\App">
+      <UniqueIdentifier>{DB063D68-C795-C631-70B4-DA2C5C22D7D7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Core\Base">
+      <UniqueIdentifier>{952FDE6F-019C-996A-CA8F-31C836BBBBD2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Core\Input">
+      <UniqueIdentifier>{6AE4296C-56DE-52BE-3F4B-E9CE2BE4B82A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Core\Serialization">
       <UniqueIdentifier>{F8C7958D-E4ED-5FF4-CD33-E5BFB9F884C0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Core\Threading">
+      <UniqueIdentifier>{30A84A69-1CB8-F639-8571-5B5871A0E5D2}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Runic2D\Debug">
       <UniqueIdentifier>{A96024BC-1577-2252-5EEE-AD73CA43F3D9}</UniqueIdentifier>
@@ -135,44 +147,47 @@
     <ClInclude Include="src\Runic2D\Audio\AudioEngine.h">
       <Filter>src\Runic2D\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\Application.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\App\Application.h">
+      <Filter>src\Runic2D\Core\App</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\Assert.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\App\EntryPoint.h">
+      <Filter>src\Runic2D\Core\App</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\BackgroundTaskSystem.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\App\Layer.h">
+      <Filter>src\Runic2D\Core\App</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\Core.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\App\LayerStack.h">
+      <Filter>src\Runic2D\Core\App</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\EntryPoint.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\App\Window.h">
+      <Filter>src\Runic2D\Core\App</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\Input.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Base\Assert.h">
+      <Filter>src\Runic2D\Core\Base</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\InputManager.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Base\Core.h">
+      <Filter>src\Runic2D\Core\Base</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\JobSystem.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Base\Log.h">
+      <Filter>src\Runic2D\Core\Base</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\KeyCodes.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Base\Timestep.h">
+      <Filter>src\Runic2D\Core\Base</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\Layer.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Base\UUID.h">
+      <Filter>src\Runic2D\Core\Base</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\LayerStack.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Input\Input.h">
+      <Filter>src\Runic2D\Core\Input</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\Log.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Input\InputManager.h">
+      <Filter>src\Runic2D\Core\Input</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\MouseButtonCodes.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Input\KeyCodes.h">
+      <Filter>src\Runic2D\Core\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Core\Input\MouseButtonCodes.h">
+      <Filter>src\Runic2D\Core\Input</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Core\PlatformDetection.h">
       <Filter>src\Runic2D\Core</Filter>
@@ -180,14 +195,17 @@
     <ClInclude Include="src\Runic2D\Core\Serialization\Buffer.h">
       <Filter>src\Runic2D\Core\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\Timestep.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Serialization\BufferStreamReader.h">
+      <Filter>src\Runic2D\Core\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\UUID.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Serialization\BufferStreamWriter.h">
+      <Filter>src\Runic2D\Core\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\Window.h">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClInclude Include="src\Runic2D\Core\Threading\BackgroundTaskSystem.h">
+      <Filter>src\Runic2D\Core\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Core\Threading\JobSystem.h">
+      <Filter>src\Runic2D\Core\Threading</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Debug\Instrumentor.h">
       <Filter>src\Runic2D\Debug</Filter>
@@ -1611,8 +1629,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Core\Serialization\BufferStreamWriter.h" />
-    <ClInclude Include="src\Runic2D\Core\Serialization\BufferStreamReader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1660,29 +1676,29 @@
     <ClCompile Include="src\Runic2D\Audio\AudioEngine.cpp">
       <Filter>src\Runic2D\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Core\Application.cpp">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClCompile Include="src\Runic2D\Core\App\Application.cpp">
+      <Filter>src\Runic2D\Core\App</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Core\BackgroundTaskSystem.cpp">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClCompile Include="src\Runic2D\Core\App\Layer.cpp">
+      <Filter>src\Runic2D\Core\App</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Core\InputManager.cpp">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClCompile Include="src\Runic2D\Core\App\LayerStack.cpp">
+      <Filter>src\Runic2D\Core\App</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Core\JobSystem.cpp">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClCompile Include="src\Runic2D\Core\Base\Log.cpp">
+      <Filter>src\Runic2D\Core\Base</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Core\Layer.cpp">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClCompile Include="src\Runic2D\Core\Base\UUID.cpp">
+      <Filter>src\Runic2D\Core\Base</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Core\LayerStack.cpp">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClCompile Include="src\Runic2D\Core\Input\InputManager.cpp">
+      <Filter>src\Runic2D\Core\Input</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Core\Log.cpp">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClCompile Include="src\Runic2D\Core\Threading\BackgroundTaskSystem.cpp">
+      <Filter>src\Runic2D\Core\Threading</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Core\UUID.cpp">
-      <Filter>src\Runic2D\Core</Filter>
+    <ClCompile Include="src\Runic2D\Core\Threading\JobSystem.cpp">
+      <Filter>src\Runic2D\Core\Threading</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\ImGui\ImGuiBuild.cpp">
       <Filter>src\Runic2D\ImGui</Filter>

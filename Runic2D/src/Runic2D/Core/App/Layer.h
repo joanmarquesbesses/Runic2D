@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#include "Runic2D/Core/Timestep.h"
+#include "Runic2D/Core/Base/Timestep.h"
 #include "Runic2D/Events/Event.h"
 
 namespace Runic2D {

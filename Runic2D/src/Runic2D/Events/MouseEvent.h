@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Event.h"
 
@@ -93,3 +93,4 @@ namespace Runic2D {
 		EVENT_CLASS_TYPE(MouseButtonReleased)
 	};
 }
+

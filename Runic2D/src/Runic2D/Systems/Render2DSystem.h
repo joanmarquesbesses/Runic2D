@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "System.h"
 
 #include "glm/glm.hpp"
@@ -24,4 +24,5 @@ namespace Runic2D {
 		bool m_UseCustomCamera = false;
 	};
 }
+
 
