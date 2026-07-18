@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <filesystem>
@@ -37,10 +37,11 @@ namespace Runic2D {
 
         static std::filesystem::path GetEngineResourcesDirectory()
         {
-            if (std::filesystem::exists("Resources")) return "Resources";
-            if (std::filesystem::exists("../../../Resources")) return "../../../Resources";
-            if (std::filesystem::exists("../../Resources")) return "../../Resources";
-            return "Resources"; // Fallback per defecte
+            if (std::filesystem::exists("Runic2D/Resources/Shaders")) return "Runic2D/Resources";
+            if (std::filesystem::exists("../Runic2D/Resources/Shaders")) return "../Runic2D/Resources";
+            if (std::filesystem::exists("../../Runic2D/Resources/Shaders")) return "../../Runic2D/Resources";
+            if (std::filesystem::exists("../../../Runic2D/Resources/Shaders")) return "../../../Runic2D/Resources";
+            return "Runic2D/Resources"; // Fallback per defecte
         }
 
         static bool Load(const std::filesystem::path& filepath);

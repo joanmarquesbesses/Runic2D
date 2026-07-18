@@ -1,5 +1,0 @@
-AssetRegistry:
-  17723277076726264681: Resources/Shaders/Renderer2D_Text.glsl
-  8306472894462935769: Resources/Shaders/Renderer2D_Quad.glsl
-  11290463199899645822: Resources/Shaders/Renderer2D_Circle.glsl
-  6224749274159084572: Resources/Shaders/Renderer2D_Line.glsl

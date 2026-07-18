@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "ImGuiLayer.h"
 
 #include "backends/imgui_impl_opengl3.h"
@@ -6,6 +6,7 @@
 
 
 #include "Runic2D/Core/App/Application.h"
+#include "Runic2D/Project/Project.h"
 
 //Temporary includes for ImGui
 #include <GLFW/glfw3.h>
@@ -40,8 +41,12 @@ namespace Runic2D
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		io.Fonts->Clear();
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Inter/Inter_18pt-Regular.ttf", 16.0f);
-		io.Fonts->AddFontFromFileTTF("Resources/Fonts/Inter/Inter_18pt-Bold.ttf", 16.0f);
+		
+		std::string fontPathRegular = (Runic2D::Project::GetEngineResourcesDirectory() / "Fonts/Inter/Inter_18pt-Regular.ttf").string();
+		std::string fontPathBold = (Runic2D::Project::GetEngineResourcesDirectory() / "Fonts/Inter/Inter_18pt-Bold.ttf").string();
+
+		io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPathRegular.c_str(), 16.0f);
+		io.Fonts->AddFontFromFileTTF(fontPathBold.c_str(), 16.0f);
 
 		//Style setup
 		SetDarkThemeColors(); // Set ImGui style

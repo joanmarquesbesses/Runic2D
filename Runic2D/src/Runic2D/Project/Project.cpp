@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "Project.h"
 #include "ProjectSerializer.h"
 
@@ -36,7 +36,7 @@ namespace Runic2D {
 		R2D_CORE_INFO("Project carregat: '{0}' des de '{1}'",
 			project->m_Config.Name, filepath.string());
 
-		AssetRegistry::Deserialize(project->GetAssetDirectory() / "AssetRegistry.r2dregistry");
+		AssetRegistry::Deserialize(project->GetAssetDirectory());
 
 		return true;
 	}
@@ -49,8 +49,8 @@ namespace Runic2D {
 		s_ActiveProject->m_ProjectDirectory = filepath.parent_path();
 		R2D_CORE_INFO("Project guardat: '{0}'", filepath.string());
 
-		std::filesystem::path AssetDirecotry = s_ActiveProject->GetAssetDirectory();
-		AssetRegistry::Serialize(AssetDirecotry / "AssetRegistry.r2dregistry");
+		std::filesystem::path AssetDirectory = s_ActiveProject->GetAssetDirectory();
+		AssetRegistry::Serialize(AssetDirectory);
 
 		return true;
 	}

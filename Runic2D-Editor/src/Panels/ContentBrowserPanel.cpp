@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "ContentBrowserPanel.h"
 
 #include <imgui/imgui.h>
@@ -39,6 +39,7 @@ namespace Runic2D {
 		m_DirectoryEntries.clear();
 		for (auto& directoryEntry : std::filesystem::directory_iterator(m_CurrentDirectory))
 		{
+			if (directoryEntry.path().extension() == ".meta") continue;
 			m_DirectoryEntries.push_back(directoryEntry);
 		}
 	}

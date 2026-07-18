@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Runic2D/Core/Base/UUID.h"
 #include <unordered_map>
@@ -17,8 +17,8 @@ namespace Runic2D {
         static bool Contains(UUID uuid);
         static void Clear();
 
-        static void Serialize(const std::filesystem::path& filepath);
-        static void Deserialize(const std::filesystem::path& filepath);
+        static void Serialize(const std::filesystem::path& assetDirectory);
+        static void Deserialize(const std::filesystem::path& assetDirectory);
 
     private:
         static std::unordered_map<UUID, std::filesystem::path> s_Registry;
