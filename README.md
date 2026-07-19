@@ -33,7 +33,7 @@
 
 To validate the engine's architecture, I am developing a **Survivor-like game** alongside the engine (*Dogfooding*). The gameplay logic is built on top of the engine using a powerful **Native Scripting** system.
 
-Scripts are compiled into dynamic libraries (`.dll`) or statically linked depending on the configuration. Game entities can attach C++ scripts that inherit from `ScriptableEntity` to control their behavior securely and efficiently.
+Scripts are compiled into dynamic libraries (`.dll`) and loaded by the engine at runtime. Game entities can attach C++ scripts that inherit from `ScriptableEntity` to control their behavior securely and efficiently.
 
 ```cpp
 class PlayerScript : public Runic2D::ScriptableEntity
