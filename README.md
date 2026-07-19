@@ -31,44 +31,29 @@
 
 ## 🎮 Gameplay Integration (Survivor Demo)
 
-To validate the engine's architecture, I am developing a **Survivor-like game** alongside the engine (*Dogfooding*). The gameplay logic is decoupled from the engine core using an event-driven approach.
+To validate the engine's architecture, I am developing a **Survivor-like game** alongside the engine (*Dogfooding*). The gameplay logic is built on top of the engine using a powerful **Native Scripting** system.
 
-The **Game Context** manages the global state and uses `std::function` callbacks to trigger UI events (like Level Up screens) or Upgrade applications without hardcoding dependencies.
+Scripts are compiled into dynamic libraries (`.dll`) or statically linked depending on the configuration. Game entities can attach C++ scripts that inherit from `ScriptableEntity` to control their behavior securely and efficiently.
 
 ```cpp
-enum class GameState {
-    Running,
-    LevelUp,
-    GameOver
-};
-
-struct GameContext {
-    static GameContext* s_Instance;  
-
-    GameContext() { s_Instance = this; }
-    ~GameContext() { s_Instance = nullptr; }
-
-    static GameContext& Get() { return *s_Instance; }
-
-    // Game State Data
-    float TimeAlive = 0.0f; 
-    GameState State = GameState::Running;
-    int CurrentLevel = 1;
-    float CurrentXP = 0.0f;
-    
-    // Event Callbacks (Decoupled Logic)
-    std::function<void(int)> OnLevelUp;
-    std::function<void(UpgradeType)> OnUpgradeApplied;
-
-    void TriggerLevelUp(int level) {
-        // Pauses the game loop and triggers the UI Layer via callback
-        State = GameState::LevelUp;
-        if (OnLevelUp) OnLevelUp(level);
+class PlayerScript : public Runic2D::ScriptableEntity
+{
+public:
+    void OnCreate() override
+    {
+        auto& transform = GetComponent<TransformComponent>();
+        transform.Translation.x = 0.0f;
     }
 
-    void TriggerUpgradeApplied(UpgradeType type) {
-        if (OnUpgradeApplied) OnUpgradeApplied(type);
-        State = GameState::Running; // Resume game
+    void OnUpdate(Runic2D::Timestep ts) override
+    {
+        auto& transform = GetComponent<TransformComponent>();
+        float speed = 5.0f * ts;
+
+        if (Input::IsKeyPressed(Key::A))
+            transform.Translation.x -= speed;
+        if (Input::IsKeyPressed(Key::D))
+            transform.Translation.x += speed;
     }
 };
 ```
@@ -100,25 +85,24 @@ To build Runic2D from source, follow these steps:
     ```
 
 2.  **Setup Premake:**
-    * Download the **Premake 5.0** binary (zip) from the [official website](https://premake.github.io/).
-    * Extract and place the `premake5.exe` file inside the `vendor/bin/premake` directory (create the folder structure if it doesn't exist).
+    * Good news! The `premake5.exe` binary is already included in the repository at `vendor/bin/premake/premake5.exe`, so you don't need to download it manually.
 
 3.  **Generate Project Files:**
-    Run the generation script located in the scripts folder:
+    Run the generation script located in the scripts folder (this uses the included premake5 binary):
     ```bash
     scripts/GenerateProjects.bat
     ```
 
 4.  **Build & Run:**
-    Open `Runic2D.sln` in Visual Studio. The build configuration depends on the target:
+    Open `Runic2D.sln` in Visual Studio. Runic2D uses a strict configuration separation for development vs. distribution:
     
-    * **To run the Editor:**
+    * **To run the Engine Editor (Development):**
         * Set **`Runic2D-Editor`** as the *Startup Project* (Right-click -> Set as Startup Project).
-        * Select **`Release`** configuration.
+        * Select the **`Release`** configuration. This builds the Editor with UI tools and profiling enabled, but with optimizations turned on for performance.
         
-    * **To run the Game (Survivor Demo):**
-        * Set **`Sandbox`** as the *Startup Project*.
-        * Select **`Dist`** (Distribution) configuration for maximum performance.
+    * **To run the Standalone Game (Distribution):**
+        * Set **`SandBox`** as the *Startup Project*. This is the standalone player application.
+        * Select the **`Dist`** (Distribution) configuration. This strips out all Editor and profiling code, providing maximum performance for the final game executable.
 
 ---
 

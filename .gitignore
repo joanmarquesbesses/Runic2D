@@ -1,7 +1,7 @@
 # Directories
 .vs/
 **/bin/
-!vendor/premake/bin/
+!vendor/bin/
 bin-int/
 .antigravity/
 
