@@ -5,6 +5,9 @@
 
 #include "Runic2D/Project/Project.h"
 #include "Runic2D/Assets/ResourceManager.h"
+#include "Runic2D/Scene/SceneSerializer.h"
+#include "Runic2D/Scene/Entity.h"
+#include "Runic2D/Scene/Components/CoreComponents.h"
 
 namespace Runic2D {
 
@@ -13,6 +16,12 @@ namespace Runic2D {
 	{
 		m_DirectoryIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/folder.png");
 		m_FileIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/document.png");
+		m_SceneIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/scene.png");
+		m_PrefabIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/prefab.png");
+		m_CodeIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/code.png");
+		m_FontIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/ttf.png");
+		m_AudioIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/audio.png");
+		m_ImageIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/image.png");
 	}
 
 	void ContentBrowserPanel::SetRootDirectory(const std::filesystem::path& path)
@@ -114,6 +123,13 @@ namespace Runic2D {
 			return;
 		}
 
+		if (m_CurrentDirectory.empty())
+		{
+			m_CurrentDirectory = Project::GetAssetFileSystemPath("");
+			RefreshDirectoryEntries();
+			RefreshTree();
+		}
+
 		ImGui::Columns(2);
 
 		if (m_FirstFrame) // Necessitaràs afegir bool m_FirstFrame = true; al header i constructor
@@ -127,7 +143,7 @@ namespace Runic2D {
 		std::filesystem::path assetPath = Project::GetAssetFileSystemPath("");
 
 		ImGuiTreeNodeFlags rootFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
-		if (m_CurrentDirectory == assetPath) rootFlags |= ImGuiTreeNodeFlags_Selected;
+		if (std::filesystem::equivalent(m_CurrentDirectory, assetPath)) rootFlags |= ImGuiTreeNodeFlags_Selected;
 
 		bool rootOpen = ImGui::TreeNodeEx("Assets", rootFlags, "Assets");
 		if (ImGui::IsItemClicked())
@@ -148,7 +164,7 @@ namespace Runic2D {
 
 		ImGui::BeginChild("FileGrid");
 
-		if (m_CurrentDirectory != assetPath)
+		if (!std::filesystem::equivalent(m_CurrentDirectory, assetPath))
 		{
 			if (ImGui::Button("<-"))
 			{
@@ -190,9 +206,29 @@ namespace Runic2D {
 
 			ImGui::PushID(i++);
 
-			Ref<Texture2D> icon = directoryEntry.is_directory() ? m_DirectoryIcon : m_FileIcon;
+			Ref<Texture2D> icon = m_FileIcon;
+			if (directoryEntry.is_directory())
+			{
+				icon = m_DirectoryIcon;
+			}
+			else
+			{
+				std::string extension = path.extension().string();
+				if (extension == ".r2dscene") icon = m_SceneIcon;
+				else if (extension == ".r2dprefab") icon = m_PrefabIcon;
+				else if (extension == ".h" || extension == ".cpp") icon = m_CodeIcon;
+				else if (extension == ".ttf" || extension == ".otf") icon = m_FontIcon;
+				else if (extension == ".wav" || extension == ".mp3" || extension == ".ogg") icon = m_AudioIcon;
+				else if (extension == ".png" || extension == ".jpg" || extension == ".jpeg") icon = m_ImageIcon;
+			}
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+
+			float columnWidth = ImGui::GetColumnWidth();
+			float imageButtonWidth = m_ThumbnailSize;
+			float imageCursorPosX = ImGui::GetCursorPosX() + (columnWidth - imageButtonWidth) * 0.5f;
+			if (imageCursorPosX < ImGui::GetCursorPosX()) imageCursorPosX = ImGui::GetCursorPosX();
+			ImGui::SetCursorPosX(imageCursorPosX);
 
 			ImGui::ImageButton("btn", (ImTextureID)icon->GetRendererID(), { m_ThumbnailSize, m_ThumbnailSize }, { 0, 1 }, { 1, 0 });
 
@@ -219,6 +255,12 @@ namespace Runic2D {
 					m_OnFileOpenCallback(std::filesystem::path(absolutePathString));
 				}
 			}
+
+			float textWidth = ImGui::CalcTextSize(filenameString.c_str()).x;
+			float textCursorPosX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f;
+			if (textCursorPosX < ImGui::GetCursorPosX()) textCursorPosX = ImGui::GetCursorPosX();
+			if (textWidth < columnWidth) ImGui::SetCursorPosX(textCursorPosX);
+			
 			ImGui::TextWrapped(filenameString.c_str());
 
 			ImGui::NextColumn();
@@ -226,6 +268,28 @@ namespace Runic2D {
 		}
 
 		ImGui::EndChild();
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HIERARCHY_ENTITY"))
+			{
+				Entity entity = *(Entity*)payload->Data;
+				
+				if (entity)
+				{
+					std::string filename = entity.GetComponent<TagComponent>().Tag + ".r2dprefab";
+					std::filesystem::path filepath = m_CurrentDirectory / filename;
+					
+					// Això guarda el Prefab al disc
+					SceneSerializer::SerializeEntityToPrefab(entity, filepath);
+
+					// També hem d'avisar al ResourceManager que carregui aquest nou asset de manera explícita (tot i que es farà sol al proper start, està bé forçar-ho per veure'l l'icona)
+					UUID uuid = UUID();
+					AssetRegistry::RegisterAsset(uuid, filepath);
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		ImGui::Columns(1);
 

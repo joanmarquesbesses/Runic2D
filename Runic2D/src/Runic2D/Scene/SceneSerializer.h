@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Scene.h"
 
@@ -16,6 +16,9 @@ namespace Runic2D
 		bool Deserialize(const std::string& filepath);
 		bool DeserializeBinary(const std::string& filepath);
 		bool DeserializeRuntime(const std::string& filepath);
+
+		static void SerializeEntityToPrefab(Entity entity, const std::filesystem::path& filepath);
+		static Entity DeserializePrefabToScene(const std::filesystem::path& filepath, Scene* scene);
 	private:
 		Ref<Scene> m_Scene;
 	};

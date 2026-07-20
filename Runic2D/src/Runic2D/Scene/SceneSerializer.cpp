@@ -1,4 +1,4 @@
-﻿#include <thread>
+#include <thread>
 #include <chrono>
 #include "R2Dpch.h"
 #include "SceneSerializer.h"
@@ -277,7 +277,7 @@ namespace Runic2D {
 	{
 		BufferStreamWriter out;
 
-		// 1. Escrivim capçalera ('Magic Number' per seguretat)
+		// 1. Escrivim capçalera 
 		out.WriteString("R2DB");
 		// 2. Escrivim nombre total d'entitats
 		auto view = m_Scene->m_Registry.view<entt::entity>();
@@ -290,7 +290,7 @@ namespace Runic2D {
 			if (!entity) continue;
 			SerializeEntityBinary(out, entity, m_Scene.get());
 		}
-		// 4. Tenim tota l'escena crua a la RAM! Ara comprimim amb LZ4
+		// 4. Tenim tota l'escena crua a la RAM, ara comprimim amb LZ4
 		Buffer rawBuffer = out.GetBuffer();
 
 		// Calculem l'espai màxim que pot ocupar un cop comprimit
@@ -319,6 +319,152 @@ namespace Runic2D {
 	void SceneSerializer::SerializeRuntime(const std::string& filepath)
 	{
 		R2D_ASSERT(false, "Not Implemented!");
+	}
+
+	static void SerializeEntityRecursively(YAML::Emitter& out, Entity entity, Scene* scene)
+	{
+		if (!entity) return;
+
+		SerializeEntity(out, entity, scene);
+
+		if (entity.HasComponent<RelationshipComponent>())
+		{
+			auto& rc = entity.GetComponent<RelationshipComponent>();
+			entt::entity currentChildHandle = rc.FirstChild;
+			while (currentChildHandle != entt::null)
+			{
+				Entity child = { currentChildHandle, scene };
+				SerializeEntityRecursively(out, child, scene);
+				currentChildHandle = child.GetComponent<RelationshipComponent>().NextSibling;
+			}
+		}
+	}
+
+	void SceneSerializer::SerializeEntityToPrefab(Entity entity, const std::filesystem::path& filepath)
+	{
+		YAML::Emitter out;
+		out << YAML::BeginMap;
+		out << YAML::Key << "Prefab" << YAML::Value << "Runic2D Prefab";
+		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
+
+		SerializeEntityRecursively(out, entity, entity.GetScene());
+
+		out << YAML::EndSeq;
+		out << YAML::EndMap;
+
+		std::ofstream fout(filepath);
+		fout << out.c_str();
+
+		R2D_CORE_INFO("Guardat Prefab a: {0}", filepath.string());
+	}
+
+	Entity SceneSerializer::DeserializePrefabToScene(const std::filesystem::path& filepath, Scene* scene)
+	{
+		YAML::Node data;
+		try {
+			data = YAML::LoadFile(filepath.string());
+		}
+		catch (YAML::ParserException& e) {
+			R2D_CORE_ERROR("Error llegint el Prefab '{0}': {1}", filepath.string(), e.what());
+			return {};
+		}
+
+		if (!data["Prefab"]) return {};
+
+		auto entities = data["Entities"];
+		if (!entities) return {};
+
+		std::unordered_map<UUID, Entity> newEntityMap;
+		std::unordered_map<UUID, UUID> oldToNewUUIDs;
+		Entity rootEntity;
+
+		std::unordered_map<UUID, UUID> parentMap;
+
+		for (auto entityNode : entities)
+		{
+			uint64_t oldUUID = entityNode["EntityID"].as<uint64_t>();
+
+			std::string name;
+			auto tagComponent = entityNode["TagComponent"];
+			if (tagComponent) name = tagComponent["Tag"].as<std::string>();
+
+			// Generem un NOU UUID
+			UUID newUUID = UUID();
+			Entity deserializedEntity = scene->CreateEntityWithUUID(newUUID, name);
+
+			oldToNewUUIDs[oldUUID] = newUUID;
+			newEntityMap[oldUUID] = deserializedEntity;
+
+			if (!rootEntity)
+			{
+				rootEntity = deserializedEntity; // La primera entitat a la llista sempre es el Root del Prefab
+			}
+
+			auto transformComponent = entityNode["TransformComponent"];
+			if (transformComponent)
+			{
+				auto& tc = deserializedEntity.GetComponent<TransformComponent>();
+				glm::vec3 tempTranslation;
+				glm::vec3 tempRotation;
+				glm::vec3 tempScale;
+
+				YAML_LOAD(transformComponent, "Translation", tempTranslation);
+				tc.SetTranslation(tempTranslation);
+				YAML_LOAD(transformComponent, "Rotation", tempRotation);
+				tc.SetRotation(tempRotation);
+				YAML_LOAD(transformComponent, "Scale", tempScale);
+				tc.SetScale(tempScale);
+			}
+
+			auto relationshipComponent = entityNode["RelationshipComponent"];
+			if (relationshipComponent)
+			{
+				UUID oldParentUUID = relationshipComponent["Parent"].as<uint64_t>();
+
+				if (oldParentUUID != 0)
+				{
+					parentMap[deserializedEntity.GetUUID()] = oldParentUUID;
+				}
+			}
+
+			for (const auto& desc : ComponentRegistry::GetAll())
+			{
+				auto componentNode = entityNode[desc.Name];
+				if (componentNode && desc.Deserialize)
+				{
+					desc.Deserialize(componentNode, deserializedEntity);
+				}
+			}
+		}
+
+		// Re-enllaçar pare-fill fent servir el diccionari antic->nou
+		for (auto const& [childNewUUID, oldParentUUID] : parentMap)
+		{
+			if (oldToNewUUIDs.find(oldParentUUID) != oldToNewUUIDs.end())
+			{
+				UUID newParentUUID = oldToNewUUIDs[oldParentUUID];
+				Entity child = scene->GetEntityByUUID(childNewUUID);
+				Entity parent = scene->GetEntityByUUID(newParentUUID);
+
+				if (child && parent)
+				{
+					auto& tc = child.GetComponent<TransformComponent>();
+					glm::vec3 oldTranslation = tc.GetTranslation();
+					glm::vec3 oldRotation = tc.GetRotation();
+					glm::vec3 oldScale = tc.GetScale();
+
+					child.SetParent(parent);
+
+					tc.SetTranslation(oldTranslation);
+					tc.SetRotation(oldRotation);
+					tc.SetScale(oldScale);
+				}
+			}
+		}
+
+		R2D_CORE_INFO("Instanciat Prefab '{0}' a l'Escena!", filepath.filename().string());
+
+		return rootEntity;
 	}
 
 	bool SceneSerializer::Deserialize(const std::string& filepath)

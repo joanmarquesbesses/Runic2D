@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "SceneViewportPanel.h"
 
 #include "Runic2D/Core/App/Application.h"
@@ -7,6 +7,7 @@
 #include "Runic2D/Math/Math.h" 
 #include "Runic2D/Project/Project.h"
 #include "Runic2D/Core/Input/InputManager.h"
+#include "Runic2D/Scene/SceneSerializer.h"
 
 #include <imgui/imgui.h>
 #include "ImGuizmo.h"
@@ -48,11 +49,20 @@ namespace Runic2D {
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
 			{
 				const char* path = (const char*)payload->Data;
-				std::filesystem::path scenePath = Project::GetAssetFileSystemPath(path);
+				std::filesystem::path assetPath = Project::GetAssetFileSystemPath(path);
 
-				if (scenePath.extension().string() == ".r2dscene" && m_OnSceneOpenCallback)
+				if (assetPath.extension().string() == ".r2dscene" && m_OnSceneOpenCallback)
 				{
-					m_OnSceneOpenCallback(scenePath.string());
+					m_OnSceneOpenCallback(assetPath.string());
+				}
+				else if (assetPath.extension().string() == ".r2dprefab")
+				{
+					// Instanciem el Prefab a l'Escena actual!
+					Entity instancedEntity = SceneSerializer::DeserializePrefabToScene(assetPath, scene.get());
+					if (instancedEntity)
+					{
+						selectedEntity = instancedEntity; // Seleccionem la nova instància
+					}
 				}
 			}
 			ImGui::EndDragDropTarget();

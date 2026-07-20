@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <filesystem>
 #include <functional>
@@ -47,6 +47,12 @@ namespace Runic2D {
 
 		Ref<Texture2D> m_DirectoryIcon;
 		Ref<Texture2D> m_FileIcon;
+		Ref<Texture2D> m_SceneIcon;
+		Ref<Texture2D> m_PrefabIcon;
+		Ref<Texture2D> m_CodeIcon;
+		Ref<Texture2D> m_FontIcon;
+		Ref<Texture2D> m_AudioIcon;
+		Ref<Texture2D> m_ImageIcon;
 
 		bool m_FirstFrame = true;
 

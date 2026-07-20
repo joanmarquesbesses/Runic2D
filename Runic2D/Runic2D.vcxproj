@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -236,6 +236,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Scene\Components\ScriptingComponents.h" />
     <ClInclude Include="src\Runic2D\Scene\Components\UIComponents.h" />
     <ClInclude Include="src\Runic2D\Scene\Entity.h" />
+    <ClInclude Include="src\Runic2D\Scene\Prefab.h" />
     <ClInclude Include="src\Runic2D\Scene\Scene.h" />
     <ClInclude Include="src\Runic2D\Scene\SceneCamera.h" />
     <ClInclude Include="src\Runic2D\Scene\SceneManager.h" />
@@ -726,6 +727,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClCompile Include="src\Runic2D\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Runic2D\Scene\Components\ComponentRegistry.cpp" />
     <ClCompile Include="src\Runic2D\Scene\Entity.cpp" />
+    <ClCompile Include="src\Runic2D\Scene\Prefab.cpp" />
     <ClCompile Include="src\Runic2D\Scene\Scene.cpp" />
     <ClCompile Include="src\Runic2D\Scene\SceneCamera.cpp" />
     <ClCompile Include="src\Runic2D\Scene\SceneManager.cpp" />

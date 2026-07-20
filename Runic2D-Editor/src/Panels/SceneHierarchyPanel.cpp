@@ -1,4 +1,4 @@
-﻿#include "SceneHierarchyPanel.h"
+#include "SceneHierarchyPanel.h"
 
 #include <Imgui/imgui.h>
 #include <Imgui/imgui_internal.h>
@@ -6,8 +6,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Runic2D/Scene/Components/CoreComponents.h"
+#include "Runic2D/Scene/Components/UIComponents.h"
+#include "Runic2D/Scene/SceneSerializer.h"
 #include "Runic2D/Scene/Components/ComponentRegistry.h"
+
+#include "Runic2D/Scene/Components/CoreComponents.h"
 
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Project/Project.h"
@@ -202,8 +205,8 @@ namespace Runic2D
 		// Drag Source (Origen)
 		if (ImGui::BeginDragDropSource())
 		{
-			entt::entity entityID = (entt::entity)entity;
-			ImGui::SetDragDropPayload("SCENE_HIERARCHY_ENTITY", &entityID, sizeof(entt::entity));
+			Entity draggedEntity = entity;
+			ImGui::SetDragDropPayload("SCENE_HIERARCHY_ENTITY", &draggedEntity, sizeof(Entity));
 			ImGui::Text("%s", tag.c_str());
 			ImGui::EndDragDropSource();
 		}
@@ -213,9 +216,8 @@ namespace Runic2D
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HIERARCHY_ENTITY"))
 			{
-				entt::entity payloadEntityID = *(const entt::entity*)payload->Data;
-				Entity payloadEntity{ payloadEntityID, m_Context.get() };
-
+				Entity payloadEntity = *(const Entity*)payload->Data;
+				
 				bool isDescendant = false;
 
 				if (entity.HasComponent<RelationshipComponent>())
@@ -223,27 +225,37 @@ namespace Runic2D
 					entt::entity parentCheck = entity.GetComponent<RelationshipComponent>().Parent;
 					while (parentCheck != entt::null)
 					{
-						if (parentCheck == payloadEntityID)
+						if (parentCheck == (entt::entity)payloadEntity)
 						{
 							isDescendant = true;
 							break;
 						}
-						// Pugem un nivell més
-						Entity parentEnt{ parentCheck, m_Context.get() };
-						if (parentEnt.HasComponent<RelationshipComponent>())
-							parentCheck = parentEnt.GetComponent<RelationshipComponent>().Parent;
-						else
-							parentCheck = entt::null;
+						Entity pEntity = { parentCheck, m_Context.get() };
+						parentCheck = pEntity.GetComponent<RelationshipComponent>().Parent;
 					}
 				}
 
-				if (payloadEntity != entity && !isDescendant)
+				if (!isDescendant && payloadEntity != entity)
 				{
 					payloadEntity.SetParent(entity);
 				}
 				else if (isDescendant)
 				{
 					R2D_CORE_WARN("Cannot parent an entity to its own descendant!");
+				}
+			}
+			else if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+			{
+				const char* path = (const char*)payload->Data;
+				std::filesystem::path assetPath = Project::GetAssetFileSystemPath(path);
+
+				if (assetPath.extension().string() == ".r2dprefab")
+				{
+					Entity instancedEntity = SceneSerializer::DeserializePrefabToScene(assetPath, m_Context.get());
+					if (instancedEntity)
+					{
+						instancedEntity.SetParent(entity);
+					}
 				}
 			}
 			ImGui::EndDragDropTarget();
@@ -541,6 +553,26 @@ namespace Runic2D
 				Entity newEntity = m_Context->CreateEntity("Empty Entity");
 			}
 			ImGui::EndPopup();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+			{
+				const char* path = (const char*)payload->Data;
+				std::filesystem::path assetPath = Project::GetAssetFileSystemPath(path);
+
+				if (assetPath.extension().string() == ".r2dprefab")
+				{
+					// Instanciem el Prefab al root de l'Escena
+					Entity instancedEntity = SceneSerializer::DeserializePrefabToScene(assetPath, m_Context.get());
+					if (instancedEntity)
+					{
+						m_SelectionContext = instancedEntity;
+					}
+				}
+			}
+			ImGui::EndDragDropTarget();
 		}
 
 		ImGui::End();
