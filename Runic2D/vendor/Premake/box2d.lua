@@ -1,12 +1,12 @@
 project "Box2D"
-    location "%{wks.location}/Runic2D/vendor/Box2D"
+    location (EngineRoot .. "/Runic2D/vendor/Box2D")
     kind "SharedLib"
     language "C" 
     cdialect "C17"  
     staticruntime "off"
 
-    targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+    targetdir ((EngineRoot .. "/bin/") .. outputdir .. "/%{prj.name}")
+    objdir ((EngineRoot .. "/bin-int/") .. outputdir .. "/%{prj.name}")
 
     files
     {

@@ -1,5 +1,5 @@
 project "ImGui"
-	location "%{wks.location}/Runic2D/vendor/imgui"
+	location (EngineRoot .. "/Runic2D/vendor/imgui")
 	kind "StaticLib"
 	language "C++"
 	staticruntime "off"
@@ -34,8 +34,8 @@ project "ImGui"
     {
         "%{prj.location}",             
         "%{prj.location}/../ImGuizmo",
-		"%{wks.location}/Runic2D/vendor/GLFW/include",
-		"%{wks.location}/Runic2D/vendor/Glad/include"
+		(EngineRoot .. "/Runic2D/vendor/GLFW/include"),
+		(EngineRoot .. "/Runic2D/vendor/Glad/include")
     }
 
 	filter "configurations:Debug"

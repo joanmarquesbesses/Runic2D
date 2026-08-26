@@ -1,5 +1,5 @@
 project "GLFW"
-	location "%{wks.location}/Runic2D/vendor/GLFW"
+	location (EngineRoot .. "/Runic2D/vendor/GLFW")
 	kind "StaticLib"
 	language "C"
 	staticruntime "off"

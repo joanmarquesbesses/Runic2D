@@ -1,5 +1,5 @@
 project "yaml-cpp"
-	location "%{wks.location}/Runic2D/vendor/yaml-cpp"
+	location (EngineRoot .. "/Runic2D/vendor/yaml-cpp")
 	kind "StaticLib"
 	language "C++"
 	staticruntime "off"

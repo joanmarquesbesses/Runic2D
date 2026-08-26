@@ -1,41 +1,46 @@
-workspace "Runic2D"
-	architecture "x64"
-	startproject "Runic2D-Editor"
+local isSubmodule = _WORKING_DIR ~= os.getcwd()
+EngineRoot = isSubmodule and "%{wks.location}/vendor/Runic2D" or "%{wks.location}"
 
-	configurations
-	{
-		"Debug",
-		"Release",
-		"Dist"
-	}
+if not isSubmodule then
+	workspace "Runic2D"
+		architecture "x64"
+		startproject "Runic2D-Editor"
 
-	flags
-	{
-		"MultiProcessorCompile"
-	}
+		configurations
+		{
+			"Debug",
+			"Release",
+			"Dist"
+		}
 
-	activeGame = "Survivor" 
-    -- local activeGame = "Arkanoid"
-    
-    local gameSourcePath = "Projects/" .. activeGame .. "/Assets/scripts"
+		flags
+		{
+			"MultiProcessorCompile"
+		}
+
+		activeGame = "Survivor" 
+		-- local activeGame = "Arkanoid"
+		
+		local gameSourcePath = "Projects/" .. activeGame .. "/Assets/scripts"
+end
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
-IncludeDir["GLFW"] = "%{wks.location}/Runic2D/vendor/GLFW/include"
-IncludeDir["Glad"] = "%{wks.location}/Runic2D/vendor/Glad/include"
-IncludeDir["ImGui"] = "%{wks.location}/Runic2D/vendor/imgui"
-IncludeDir["glm"] = "%{wks.location}/Runic2D/vendor/glm"
-IncludeDir["stb_image"] = "%{wks.location}/Runic2D/vendor/stb_image"
-IncludeDir["entt"] = "%{wks.location}/Runic2D/vendor/entt/include"
-IncludeDir["yaml_cpp"] = "%{wks.location}/Runic2D/vendor/yaml-cpp/include"
-IncludeDir["ImGuizmo"] = "%{wks.location}/Runic2D/vendor/ImGuizmo"
-IncludeDir["Box2D"] = "%{wks.location}/Runic2D/vendor/Box2D/include"
-IncludeDir["msdf_atlas_gen"] = "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdf-atlas-gen"
-IncludeDir["msdfgen"] = "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdfgen"
-IncludeDir["miniaudio"] = "%{wks.location}/Runic2D/vendor/miniaudio"
-IncludeDir["lz4"] = "%{wks.location}/Runic2D/vendor/lz4"
+IncludeDir["GLFW"] = EngineRoot .. "/Runic2D/vendor/GLFW/include"
+IncludeDir["Glad"] = EngineRoot .. "/Runic2D/vendor/Glad/include"
+IncludeDir["ImGui"] = EngineRoot .. "/Runic2D/vendor/imgui"
+IncludeDir["glm"] = EngineRoot .. "/Runic2D/vendor/glm"
+IncludeDir["stb_image"] = EngineRoot .. "/Runic2D/vendor/stb_image"
+IncludeDir["entt"] = EngineRoot .. "/Runic2D/vendor/entt/include"
+IncludeDir["yaml_cpp"] = EngineRoot .. "/Runic2D/vendor/yaml-cpp/include"
+IncludeDir["ImGuizmo"] = EngineRoot .. "/Runic2D/vendor/ImGuizmo"
+IncludeDir["Box2D"] = EngineRoot .. "/Runic2D/vendor/Box2D/include"
+IncludeDir["msdf_atlas_gen"] = EngineRoot .. "/Runic2D/vendor/msdf-atlas-gen/msdf-atlas-gen"
+IncludeDir["msdfgen"] = EngineRoot .. "/Runic2D/vendor/msdf-atlas-gen/msdfgen"
+IncludeDir["miniaudio"] = EngineRoot .. "/Runic2D/vendor/miniaudio"
+IncludeDir["lz4"] = EngineRoot .. "/Runic2D/vendor/lz4"
 -- Include the vendor libraries
 
 group "Dependencies"
@@ -96,7 +101,7 @@ project "Runic2D"
 		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.msdfgen}",
-		"%{wks.location}/Runic2D/vendor/msdf-atlas-gen",
+		EngineRoot .. "/Runic2D/vendor/msdf-atlas-gen",
 		"%{IncludeDir.miniaudio}",
 		"%{IncludeDir.lz4}"
 	}
@@ -310,6 +315,7 @@ project "Runic2D-Editor"
         entrypoint "mainCRTStartup"
 
 
+if activeGame then
 project (activeGame)
     location ("Projects/" .. activeGame)
     kind "SharedLib" 
@@ -346,8 +352,8 @@ project (activeGame)
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.msdfgen}",
-        "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdfgen/include",
-        "%{wks.location}/Runic2D/vendor/msdf-atlas-gen/msdfgen/core",
+        EngineRoot .. "/Runic2D/vendor/msdf-atlas-gen/msdfgen/include",
+        EngineRoot .. "/Runic2D/vendor/msdf-atlas-gen/msdfgen/core",
         "Projects/" .. activeGame .. "/Assets/scripts"
     }
 
@@ -376,3 +382,4 @@ project (activeGame)
     {
         ("{COPY} ../../bin/" .. outputdir .. "/Runic2D/Runic2D.dll %{cfg.buildtarget.directory}")
     }
+end

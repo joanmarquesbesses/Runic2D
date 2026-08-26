@@ -1,5 +1,5 @@
 project "Glad"
-	location "%{wks.location}/Runic2D/vendor/GLAD"
+	location (EngineRoot .. "/Runic2D/vendor/GLAD")
 	kind "StaticLib"
 	language "C"
 	staticruntime "off"
