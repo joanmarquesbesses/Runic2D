@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "ScriptingSystem.h"
 
 #include "Runic2D/Scene/Components/ScriptingComponents.h"
@@ -10,7 +10,7 @@ namespace Runic2D {
 		scene->GetEntityRegistry().view<NativeScriptComponent>().each(
 			[=](auto entity, auto& nsc)
 			{
-				if (!nsc.Instance) {
+				if (!nsc.Instance && nsc.InstantiateScript) {
 					nsc.Instance = nsc.InstantiateScript();
 					nsc.Instance->m_Entity = Entity{ entity, scene };
 					nsc.Instance->OnCreate();
@@ -45,7 +45,7 @@ namespace Runic2D {
 		scene->GetEntityRegistry().view<NativeScriptComponent>().each(
 			[=](auto entity, auto& nsc)
 			{
-				if (!nsc.Instance) {
+				if (!nsc.Instance && nsc.InstantiateScript) {
 					nsc.Instance = nsc.InstantiateScript();
 					nsc.Instance->m_Entity = Entity{ entity, scene };
 					nsc.Instance->OnCreate();
@@ -67,7 +67,7 @@ namespace Runic2D {
 		scene->GetEntityRegistry().view<NativeScriptComponent>().each(
 			[=](auto entity, auto& nsc)
 			{
-				if (!nsc.Instance) {
+				if (!nsc.Instance && nsc.InstantiateScript) {
 					nsc.Instance = nsc.InstantiateScript();
 					nsc.Instance->m_Entity = Entity{ entity, scene };
 					nsc.Instance->OnCreate();
