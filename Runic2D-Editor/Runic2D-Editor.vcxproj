@@ -55,22 +55,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Debug-windows-x86_64\Runic2D-Editor\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Debug-windows-x86_64\Runic2D-Editor\</IntDir>
+    <OutDir>$(ProjectDir)..\..\..\bin\Debug-windows-x86_64\Runic2D-Editor\</OutDir>
+    <IntDir>$(ProjectDir)..\..\..\bin-int\Debug-windows-x86_64\Runic2D-Editor\</IntDir>
     <TargetName>Runic2D-Editor</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Release-windows-x86_64\Runic2D-Editor\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Release-windows-x86_64\Runic2D-Editor\</IntDir>
+    <OutDir>$(ProjectDir)..\..\..\bin\Release-windows-x86_64\Runic2D-Editor\</OutDir>
+    <IntDir>$(ProjectDir)..\..\..\bin-int\Release-windows-x86_64\Runic2D-Editor\</IntDir>
     <TargetName>Runic2D-Editor</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Dist-windows-x86_64\Runic2D-Editor\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Dist-windows-x86_64\Runic2D-Editor\</IntDir>
+    <OutDir>$(ProjectDir)..\..\..\bin\Dist-windows-x86_64\Runic2D-Editor\</OutDir>
+    <IntDir>$(ProjectDir)..\..\..\bin-int\Dist-windows-x86_64\Runic2D-Editor\</IntDir>
     <TargetName>Runic2D-Editor</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>

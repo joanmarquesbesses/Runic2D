@@ -4,8 +4,8 @@ project "GLFW"
 	language "C"
 	staticruntime "off"
 
-	targetdir ("%{prj.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("%{prj.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
@@ -64,3 +64,5 @@ project "GLFW"
 	filter "configurations:Release"
 		runtime "Release"
 		optimize "on"
+
+
