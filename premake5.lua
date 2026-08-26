@@ -315,7 +315,7 @@ project "Runic2D-Editor"
         entrypoint "mainCRTStartup"
 
 
-if activeGame then
+if not isSubmodule and activeGame then
 project (activeGame)
     location ("Projects/" .. activeGame)
     kind "SharedLib" 

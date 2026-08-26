@@ -14,14 +14,14 @@ namespace Runic2D {
 	ContentBrowserPanel::ContentBrowserPanel()
 		: m_FirstFrame(true)
 	{
-		m_DirectoryIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/folder.png");
-		m_FileIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/document.png");
-		m_SceneIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/scene.png");
-		m_PrefabIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/prefab.png");
-		m_CodeIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/code.png");
-		m_FontIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/ttf.png");
-		m_AudioIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/audio.png");
-		m_ImageIcon = ResourceManager::Get<Texture2D>("Runic2D-Editor/Resources/Icons/ContentBrowser/image.png");
+		m_DirectoryIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/folder.png");
+		m_FileIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/document.png");
+		m_SceneIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/scene.png");
+		m_PrefabIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/prefab.png");
+		m_CodeIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/code.png");
+		m_FontIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/ttf.png");
+		m_AudioIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/audio.png");
+		m_ImageIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/image.png");
 	}
 
 	void ContentBrowserPanel::SetRootDirectory(const std::filesystem::path& path)
@@ -297,3 +297,4 @@ namespace Runic2D {
 	}
 
 }
+
