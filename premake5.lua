@@ -59,8 +59,8 @@ project "Runic2D"
 	cppdialect "C++20"
 	staticruntime "off"
 
-	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "R2Dpch.h"
 	pchsource "Runic2D/src/R2Dpch.cpp"
@@ -118,7 +118,7 @@ project "Runic2D"
 	}
 
 	libdirs { 
-        "%{wks.location}/bin/" .. outputdir .. "/Box2D" 
+        "bin/" .. outputdir .. "/Box2D" 
     }
 
 	filter "system:windows"
@@ -135,8 +135,8 @@ project "Runic2D"
 
 	postbuildcommands
     {
-        ("{COPY} %{cfg.buildtarget.relpath} %{wks.location}/bin/" .. outputdir .. "/Runic2D-Editor"),
-        ("{COPY} %{cfg.buildtarget.relpath} %{wks.location}/bin/" .. outputdir .. "/SandBox")
+        ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Runic2D-Editor"),
+        ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/SandBox")
     }
 
 	filter "configurations:Debug"
@@ -177,8 +177,8 @@ project "SandBox"
 
 	debugdir "%{wks.location}"
 
-	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	defines
 	{
@@ -252,8 +252,8 @@ project "Runic2D-Editor"
 
 	debugdir "%{wks.location}"
 
-	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
@@ -315,7 +315,7 @@ project "Runic2D-Editor"
         entrypoint "mainCRTStartup"
 
 
-if not isSubmodule and activeGame then
+if activeGame then
 project (activeGame)
     location ("Projects/" .. activeGame)
     kind "SharedLib" 
@@ -323,8 +323,8 @@ project (activeGame)
     cppdialect "C++20"
     staticruntime "off"
 
-    targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
     files {
         "Projects/" .. activeGame .. "/Assets/scripts/**.h",
@@ -380,6 +380,6 @@ project (activeGame)
 
 	postbuildcommands
     {
-        ("{COPY} %{wks.location}/bin/" .. outputdir .. "/Runic2D/Runic2D.dll %{cfg.buildtarget.directory}")
+        ("{COPY} ../../bin/" .. outputdir .. "/Runic2D/Runic2D.dll %{cfg.buildtarget.directory}")
     }
 end

@@ -37,7 +37,6 @@ namespace Runic2D {
 
         static std::filesystem::path GetEngineResourcesDirectory()
         {
-            if (std::filesystem::exists("vendor/Runic2D/Runic2D/Resources/Shaders")) return "vendor/Runic2D/Runic2D/Resources";
             if (std::filesystem::exists("Runic2D/Resources/Shaders")) return "Runic2D/Resources";
             if (std::filesystem::exists("../Runic2D/Resources/Shaders")) return "../Runic2D/Resources";
             if (std::filesystem::exists("../../Runic2D/Resources/Shaders")) return "../../Runic2D/Resources";

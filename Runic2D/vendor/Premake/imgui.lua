@@ -6,8 +6,8 @@ project "ImGui"
 
 	defines { "IMGUI_API=__declspec(dllexport)", "IMGUI_IMPL_OPENGL_LOADER_GLAD" }
 
-	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("%{prj.location}/bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("%{prj.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
@@ -45,5 +45,3 @@ project "ImGui"
 	filter "configurations:Release"
 		runtime "Release"
 		optimize "on"
-
-

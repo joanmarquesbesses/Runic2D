@@ -5,8 +5,8 @@ project "Box2D"
     cdialect "C17"  
     staticruntime "off"
 
-    targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+    targetdir ((EngineRoot .. "/bin/") .. outputdir .. "/%{prj.name}")
+    objdir ((EngineRoot .. "/bin-int/") .. outputdir .. "/%{prj.name}")
 
     files
     {
@@ -32,14 +32,13 @@ project "Box2D"
         systemversion "latest"
 
         postbuildcommands {
-            '{COPY} "%{cfg.buildtarget.relpath}" "%{wks.location}/bin/' .. outputdir .. '/SandBox/"',
-            '{COPY} "%{cfg.buildtarget.relpath}" "%{wks.location}/bin/' .. outputdir .. '/Runic2D-Editor/"'
+            ('if not exist "..\\..\\..\\bin\\' .. outputdir .. '\\SandBox" mkdir "..\\..\\..\\bin\\' .. outputdir .. '\\SandBox"'),
+            ('copy /Y "..\\..\\..\\bin\\' .. outputdir .. '\\Box2D\\Box2D.dll" "..\\..\\..\\bin\\' .. outputdir .. '\\SandBox\\"'),
+            ('if not exist "..\\..\\..\\bin\\' .. outputdir .. '\\Runic2D-Editor" mkdir "..\\..\\..\\bin\\' .. outputdir .. '\\Runic2D-Editor"'),
+            ('copy /Y "..\\..\\..\\bin\\' .. outputdir .. '\\Box2D\\Box2D.dll" "..\\..\\..\\bin\\' .. outputdir .. '\\Runic2D-Editor\\"'),
+            ('if not exist "..\\..\\..\\bin\\' .. outputdir .. '\\' .. activeGame .. '" mkdir "..\\..\\..\\bin\\' .. outputdir .. '\\' .. activeGame .. '"'),
+            ('copy /Y "..\\..\\..\\bin\\' .. outputdir .. '\\Box2D\\Box2D.dll" "..\\..\\..\\bin\\' .. outputdir .. '\\' .. activeGame .. '\\"')
         }
-        if activeGame then
-            postbuildcommands {
-                '{COPY} "%{cfg.buildtarget.relpath}" "%{wks.location}/bin/' .. outputdir .. '/' .. activeGame .. '/"'
-            }
-        end
 
     filter "configurations:Debug"
         runtime "Debug" 
@@ -52,5 +51,3 @@ project "Box2D"
     filter "configurations:Dist"
         runtime "Release"
         optimize "on"
-
-

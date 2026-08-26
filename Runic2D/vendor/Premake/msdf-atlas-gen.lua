@@ -5,8 +5,8 @@ project "msdf-atlas-gen"
 	cppdialect "C++17"
 	staticruntime "off"
 
-	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ((EngineRoot .. "/bin/") .. outputdir .. "/%{prj.name}")
+	objdir ((EngineRoot .. "/bin-int/") .. outputdir .. "/%{prj.name}")
 
 	files
     {
@@ -92,5 +92,3 @@ project "msdf-atlas-gen"
 	filter "configurations:Dist"
 		runtime "Release"
 		optimize "on"
-
-

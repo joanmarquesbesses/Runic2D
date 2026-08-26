@@ -4,8 +4,8 @@ project "yaml-cpp"
 	language "C++"
 	staticruntime "off"
 
-	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("%{prj.location}/bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("%{prj.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
@@ -36,5 +36,3 @@ project "yaml-cpp"
 	filter "configurations:Dist"
 		runtime "Release"
 		optimize "on"
-
-
