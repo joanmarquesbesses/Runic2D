@@ -70,10 +70,16 @@ namespace Runic2D {
 		configName = "Dist-windows-x86_64";
 #endif
 
-		std::filesystem::path dllPath = std::filesystem::current_path()
-			/ "bin" / configName
-			/ s_ActiveProject->m_Config.Name
-			/ s_ActiveProject->m_Config.ScriptModulePath;
+		std::filesystem::path dllPath = std::filesystem::current_path() / s_ActiveProject->m_Config.ScriptModulePath;
+
+		if (!std::filesystem::exists(dllPath))
+		{
+			// Fallback pel mode de desenvolupament (Visual Studio)
+			dllPath = std::filesystem::current_path()
+				/ "bin" / configName
+				/ s_ActiveProject->m_Config.Name
+				/ s_ActiveProject->m_Config.ScriptModulePath;
+		}
 
 		// Normalitzar per evitar //..// etc.
 		dllPath = std::filesystem::weakly_canonical(dllPath);
