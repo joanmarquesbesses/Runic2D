@@ -41,7 +41,17 @@ public:
 
         if (!projectLoaded)
         {
+            // Fallback: per si estem compilant el motor original aïllat
+            if (Runic2D::Project::Load("Projects/Survivor/Survivor.r2dproj"))
+            {
+                projectLoaded = true;
+            }
+        }
+
+        if (!projectLoaded)
+        {
             R2D_CORE_ERROR("SandboxApp: No s'ha trobat cap arxiu .r2dproj a la carpeta actual o pare!");
+            exit(1);
         }
         
         if (Runic2D::Project::GetActive())
@@ -49,7 +59,10 @@ public:
             Runic2D::Project::LoadRuntimeLibrary();
         }
 
-        std::string gameName = Runic2D::Project::GetConfig().Name;
+        std::string gameName = "Runic2D Engine";
+        if (Runic2D::Project::GetActive())
+            gameName = Runic2D::Project::GetConfig().Name;
+            
         Runic2D::Application::Get().GetWindow().SetTitle(gameName);
 
         PushLayer(new GameplayLayer());
