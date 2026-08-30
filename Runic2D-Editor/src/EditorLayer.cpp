@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "EditorLayer.h"
 
 #include <imgui/imgui.h>
@@ -490,17 +490,13 @@ namespace Runic2D
 			OnSceneStop();
 
 		CleanupCurrentProject();
+		
+		std::filesystem::path initialDir = std::filesystem::current_path();
+		std::string initialDirStr = initialDir.string();
 
-		// 1. Assegurar que la carpeta "Projects" existeix
-		std::filesystem::path projectsRoot =
-			std::filesystem::current_path() / "Projects";
-		std::filesystem::create_directories(projectsRoot);
-
-		// 2. Obrir SaveFile apuntant a "Projects/"
-		std::string projectsRootStr = projectsRoot.string();
 		std::string rawPath = FileDialogs::SaveFile(
 			"Runic2D Project (*.r2dproj)\0*.r2dproj\0",
-			projectsRootStr.c_str()   // <-- initialDir: obre el diÃ leg a Projects/
+			initialDirStr.c_str()   // <-- initialDir: obre el diàleg a la carpeta actual
 		);
 
 		if (rawPath.empty()) return; // l'usuari ha cancelÂ·lat
@@ -554,12 +550,11 @@ namespace Runic2D
 
 	void EditorLayer::OpenProject()
 	{
-		std::filesystem::path projectsDir = std::filesystem::current_path() / "Projects";
-		std::filesystem::create_directories(projectsDir);
+		std::filesystem::path initialDir = std::filesystem::current_path();
 
 		std::string filepath = FileDialogs::OpenFile(
 			"Runic2D Project (*.r2dproj)\0*.r2dproj\0",
-			projectsDir.string().c_str()
+			initialDir.string().c_str()
 		);
 
 		if (!filepath.empty())
