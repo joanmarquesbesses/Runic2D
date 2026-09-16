@@ -424,7 +424,7 @@ namespace Runic2D
 	void EditorLayer::SerializeScene(Ref<Scene> scene, const std::filesystem::path& path)
 	{
 		SceneSerializer serializer(scene);
-		//serializer.Serialize(path.string());
+		serializer.Serialize(path.string());
 		serializer.SerializeBinary(path.string() + "_bin");
 		R2D_CORE_INFO("EditorLayer: Escena guardada a '{0}'", path.string());
 	}
