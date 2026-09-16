@@ -57,6 +57,8 @@ namespace Runic2D {
 
 		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, float kerning, float lineSpacing, int entityID, int alignment);
 
+		static void DrawPointLight(const glm::mat4& transform, const PointLight2DComponent& light, int entityID);
+
 		// Stats
 		enum class FlushReason
 		{
@@ -65,6 +67,7 @@ namespace Runic2D {
 			TextureLimit,
 			PrimitiveChange,
 			UIZIndexChange,
+			ShaderChange,
 			Count 
 		};
 

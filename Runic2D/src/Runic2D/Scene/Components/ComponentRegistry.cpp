@@ -1167,6 +1167,91 @@ namespace Runic2D {
 			},
 			true
 		});
+
+		Register({
+			"PointLight2DComponent", "Light",
+			[](Entity e) { if (!e.HasComponent<PointLight2DComponent>()) e.AddComponent<PointLight2DComponent>(); },
+			[](Entity e) { return e.HasComponent<PointLight2DComponent>(); },
+#ifndef R2D_DIST
+			[](Entity e) {
+				auto& component = e.GetComponent<PointLight2DComponent>();
+				ImGui::ColorEdit3("Color", &component.Color[0]);
+				ImGui::DragFloat("Intensity", &component.Intensity, 0.01f, 0.0f, 10.0f, "%.2f");
+				ImGui::DragFloat("Radius", &component.Radius, 0.01f, 0.1f, 20.0f, "%.2f");
+				ImGui::DragFloat("Falloff", &component.Falloff, 0.01f, 0.1f, 5.0f, "%.2f");
+			},
+#else
+			nullptr,
+#endif
+			[](Entity e) { e.RemoveComponent<PointLight2DComponent>(); },
+			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<PointLight2DComponent>(src.GetComponent<PointLight2DComponent>()); },
+			[](YAML::Emitter& out, Entity e) {
+				auto& c = e.GetComponent<PointLight2DComponent>();
+				out << YAML::Key << "Color" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Color.r << c.Color.g << c.Color.b << YAML::EndSeq;
+				out << YAML::Key << "Intensity" << YAML::Value << c.Intensity;
+				out << YAML::Key << "Radius" << YAML::Value << c.Radius;
+				out << YAML::Key << "Falloff" << YAML::Value << c.Falloff;
+			},
+			[](YAML::Node& node, Entity e) {
+				auto& c = e.AddComponent<PointLight2DComponent>();
+				if (node["Color"]) { c.Color.r = node["Color"][0].as<float>(); c.Color.g = node["Color"][1].as<float>(); c.Color.b = node["Color"][2].as<float>(); }
+				if (node["Intensity"]) c.Intensity = node["Intensity"].as<float>();
+				if (node["Radius"]) c.Radius = node["Radius"].as<float>();
+				if (node["Falloff"]) c.Falloff = node["Falloff"].as<float>();
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& c = e.GetComponent<PointLight2DComponent>();
+				out.WriteRaw(c.Color);
+				out.WriteRaw(c.Intensity);
+				out.WriteRaw(c.Radius);
+				out.WriteRaw(c.Falloff);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				PointLight2DComponent c;
+				in.ReadRaw(c.Color);
+				in.ReadRaw(c.Intensity);
+				in.ReadRaw(c.Radius);
+				in.ReadRaw(c.Falloff);
+
+				e.AddOrReplaceComponent<PointLight2DComponent>(c);
+			},
+			true
+			});
+
+		Register({
+			"AmbientLightComponent", "AmbientLight",
+			[](Entity e) { if (!e.HasComponent<AmbientLightComponent>()) e.AddComponent<AmbientLightComponent>(); },
+			[](Entity e) { return e.HasComponent<AmbientLightComponent>(); },
+#ifndef R2D_DIST
+			[](Entity e) {
+				auto& component = e.GetComponent<AmbientLightComponent>();
+				ImGui::ColorEdit4("Color", &component.Color[0]);
+			},
+#else
+			nullptr,
+#endif
+			[](Entity e) { e.RemoveComponent<AmbientLightComponent>(); },
+			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<AmbientLightComponent>(src.GetComponent<AmbientLightComponent>()); },
+			[](YAML::Emitter& out, Entity e) {
+				auto& c = e.GetComponent<AmbientLightComponent>();
+				out << YAML::Key << "Color" << YAML::Value << YAML::Flow << YAML::BeginSeq << c.Color.r << c.Color.g << c.Color.b << c.Color.a << YAML::EndSeq;
+			},
+			[](YAML::Node& node, Entity e) {
+				auto& c = e.AddComponent<AmbientLightComponent>();
+				if (node["Color"]) { c.Color.r = node["Color"][0].as<float>(); c.Color.g = node["Color"][1].as<float>(); c.Color.b = node["Color"][2].as<float>(); c.Color.a = node["Color"][3].as<float>(); }
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& c = e.GetComponent<AmbientLightComponent>();
+				out.WriteRaw(c.Color);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				AmbientLightComponent c;
+				in.ReadRaw(c.Color);
+
+				e.AddOrReplaceComponent<AmbientLightComponent>(c);
+			},
+			true
+			});
 	}
 }
 

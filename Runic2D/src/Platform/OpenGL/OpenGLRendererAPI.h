@@ -24,5 +24,13 @@ namespace Runic2D
 		virtual void DisableScissor() override;
 
 		virtual void ClearDepth() override;
+
+		virtual void SetBlendMode(BlendMode mode) override;
+
+		virtual int GetBoundFramebuffer() override;
+
+		virtual void BindFramebuffer(uint32_t framebufferID) override;
+
+		virtual void EnableEntityIDWriting(bool enable) override;
 	};
 }

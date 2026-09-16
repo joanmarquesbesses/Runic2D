@@ -52,6 +52,26 @@ namespace Runic2D {
 			s_RendererAPI->ClearDepth();
 		}
 
+		inline static void SetBlendMode(BlendMode mode)
+		{
+			s_RendererAPI->SetBlendMode(mode);
+		}
+
+		inline static int GetBoundFramebuffer() 
+		{ 
+			return s_RendererAPI->GetBoundFramebuffer(); 
+		}
+
+		inline static void BindFramebuffer(uint32_t framebufferID) 
+		{ 
+			s_RendererAPI->BindFramebuffer(framebufferID); 
+		}
+
+		inline static void EnableEntityIDWriting(bool enable) 
+		{ 
+			s_RendererAPI->EnableEntityIDWriting(enable); 
+		}
+
 	private:
 		static RendererAPI* s_RendererAPI;
 	};

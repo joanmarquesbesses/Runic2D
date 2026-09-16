@@ -88,4 +88,21 @@ namespace Runic2D {
 
 		void MarkDirty() { m_IsDirty = true; }
 	};
+
+	struct RUNIC_API PointLight2DComponent {
+		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
+		float Intensity = 1.0f;
+		float Radius = 5.0f;
+		float Falloff = 1.0f; // How quickly the edge of the circle blurs
+
+		PointLight2DComponent() = default;
+		PointLight2DComponent(const PointLight2DComponent&) = default;
+	};
+
+	struct RUNIC_API AmbientLightComponent
+	{
+		glm::vec4 Color = { 0.1f, 0.1f, 0.15f, 1.0f };
+		AmbientLightComponent() = default;
+		AmbientLightComponent(const AmbientLightComponent&) = default;
+	};
 }

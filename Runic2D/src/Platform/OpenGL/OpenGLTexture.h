@@ -11,6 +11,7 @@ namespace Runic2D
 	public:
 		OpenGLTexture2D(const TextureSpecification& specification);
 		OpenGLTexture2D(const std::string& path);
+		OpenGLTexture2D(uint32_t rendererID, uint32_t width, uint32_t height);
 
 		virtual ~OpenGLTexture2D();
 
@@ -38,6 +39,8 @@ namespace Runic2D
 		uint32_t m_Width, m_Height;
 		uint32_t m_RendererID;
 		GLenum m_InternalFormat, m_DataFormat;
+
+		bool m_IsWrapper = false;
 	};
 }
 

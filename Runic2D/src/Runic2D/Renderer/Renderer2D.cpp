@@ -69,6 +69,9 @@ namespace Runic2D
 		Ref<Shader> QuadShader;
 		Ref<Texture2D> WhiteTexture;
 
+		Ref<Shader> LightShader;
+		Ref<Shader> CurrentShader;
+
 		Ref<VertexArray> CircleVertexArray;
 		Ref<VertexBuffer> CircleVertexBuffer;
 		Ref<Shader> CircleShader;
@@ -216,6 +219,9 @@ namespace Runic2D
 		s_Data.QuadShader->Bind();
 		s_Data.QuadShader->SetIntArray("u_Texture", samplers, s_Data.MaxTextureSlots);
 
+		s_Data.LightShader = ResourceManager::Get<Shader>("Resources/Shaders/Renderer2D_Light.glsl");
+		s_Data.LightShader->Bind();
+
 		s_Data.CircleShader = ResourceManager::Get<Shader>("Resources/Shaders/Renderer2D_Circle.glsl");
 		s_Data.CircleShader->Bind();
 
@@ -224,6 +230,8 @@ namespace Runic2D
 
 		s_Data.TextShader = ResourceManager::Get<Shader>("Resources/Shaders/Renderer2D_Text.glsl");
 		s_Data.TextShader->Bind();
+
+		s_Data.CurrentShader = s_Data.QuadShader;
 
 		// Set texture slots to 0
 		s_Data.TextureSlots[0] = s_Data.WhiteTexture;
@@ -280,6 +288,8 @@ namespace Runic2D
 
 	void Renderer2D::StartBatch()
 	{
+		s_Data.CurrentShader = s_Data.QuadShader;
+
 		s_Data.CurrentPrimitive = Renderer2D::PrimitiveType::None;
 		s_Data.QuadIndexCount = 0;
 		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
@@ -310,7 +320,7 @@ namespace Runic2D
 				s_Data.TextureSlots[i]->Bind(i);
 			}
 
-			s_Data.QuadShader->Bind();
+			s_Data.CurrentShader->Bind();
 
 			RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
 
@@ -412,6 +422,12 @@ namespace Runic2D
 
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
 
+		if (s_Data.CurrentShader != s_Data.QuadShader)
+		{
+			NextBatch(Renderer2D::FlushReason::ShaderChange);
+			s_Data.CurrentShader = s_Data.QuadShader;
+		}
+
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
 			NextBatch(FlushReason::VertexIndexLimit);
 		}
@@ -446,6 +462,12 @@ namespace Runic2D
 	{		
 
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
+
+		if (s_Data.CurrentShader != s_Data.QuadShader)
+		{
+			NextBatch(Renderer2D::FlushReason::ShaderChange);
+			s_Data.CurrentShader = s_Data.QuadShader;
+		}
 
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
 			NextBatch(FlushReason::VertexIndexLimit);
@@ -497,6 +519,12 @@ namespace Runic2D
 	{	
 
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
+
+		if (s_Data.CurrentShader != s_Data.QuadShader)
+		{
+			NextBatch(Renderer2D::FlushReason::ShaderChange);
+			s_Data.CurrentShader = s_Data.QuadShader;
+		}
 
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
 			NextBatch(FlushReason::VertexIndexLimit);
@@ -826,6 +854,42 @@ namespace Runic2D
 		}
 	}
 
+	void Renderer2D::DrawPointLight(const glm::mat4& transform, const PointLight2DComponent& light, int entityID)
+	{
+		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
+
+		if (s_Data.CurrentShader != s_Data.LightShader)
+		{
+			NextBatch(FlushReason::ShaderChange);
+			s_Data.CurrentShader = s_Data.LightShader;
+		}
+
+		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+		{
+			NextBatch(FlushReason::VertexIndexLimit);
+			s_Data.CurrentShader = s_Data.LightShader;
+		}
+
+		constexpr size_t quadVertexCount = 4;
+		constexpr glm::vec2 texCoords[quadVertexCount] = {
+			{ 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f }
+		};
+
+		glm::vec4 shaderColor = { light.Color.r, light.Color.g, light.Color.b, light.Intensity };
+
+		for (size_t i = 0; i < quadVertexCount; ++i)
+		{
+			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
+			s_Data.QuadVertexBufferPtr->Color = shaderColor;
+			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
+			s_Data.QuadVertexBufferPtr->TexIndex = 0.0f; 
+			s_Data.QuadVertexBufferPtr->TilingFactor = light.Falloff; 
+			s_Data.QuadVertexBufferPtr->EntityID = entityID;
+			++s_Data.QuadVertexBufferPtr;
+		}
+
+		s_Data.QuadIndexCount += 6;
+	}
 	
 	void Renderer2D::SetRecordStats(bool record)
 	{

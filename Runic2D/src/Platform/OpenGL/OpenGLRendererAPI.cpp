@@ -59,4 +59,49 @@ namespace Runic2D {
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
 
+	void OpenGLRendererAPI::SetBlendMode(BlendMode mode)
+	{
+		switch (mode)
+		{
+		case BlendMode::Alpha:
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		case BlendMode::Additive:
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			break;
+		case BlendMode::Multiply:
+			glBlendFunc(GL_DST_COLOR, GL_ZERO);
+			break;
+		}
+	}
+
+	int OpenGLRendererAPI::GetBoundFramebuffer()
+	{
+		int previousFBO = 0;
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFBO);
+		return previousFBO;
+	}
+
+	void OpenGLRendererAPI::BindFramebuffer(uint32_t framebufferID)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
+	}
+
+	void OpenGLRendererAPI::EnableEntityIDWriting(bool enable)
+	{
+		int boundFBO = 0;
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &boundFBO);
+		if (boundFBO == 0) return;
+		if (enable)
+		{
+			GLenum buffers[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+			glDrawBuffers(2, buffers);
+		}
+		else
+		{
+			GLenum buffers[1] = { GL_COLOR_ATTACHMENT0 };
+			glDrawBuffers(1, buffers);
+		}
+	}
+
 }

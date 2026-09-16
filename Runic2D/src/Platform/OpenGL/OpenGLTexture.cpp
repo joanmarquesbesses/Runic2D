@@ -123,11 +123,21 @@ namespace Runic2D {
 		});
 	}
 
+	OpenGLTexture2D::OpenGLTexture2D(uint32_t rendererID, uint32_t width, uint32_t height)
+		: m_Width(width), m_Height(height), m_RendererID(rendererID)
+	{
+		m_InternalFormat = GL_RGBA8; 
+		m_DataFormat = GL_RGBA;
+		m_IsWrapper = true;
+	}
+
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
 		R2D_PROFILE_FUNCTION();
-
-		glDeleteTextures(1, &m_RendererID);
+		if (!m_IsWrapper)
+		{
+			glDeleteTextures(1, &m_RendererID);
+		}
 	}
 
 	void OpenGLTexture2D::Bind(uint32_t slot) const

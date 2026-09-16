@@ -123,6 +123,8 @@ namespace Runic2D {
 		CopyComponent<RectTransformComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<ButtonComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<AudioSourceComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<PointLight2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<AmbientLightComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		for (auto e : idView)
 		{
@@ -355,6 +357,11 @@ namespace Runic2D {
 			if (!cameraComponent.FixedAspectRatio) {
 				cameraComponent.Camera.SetViewportSize(width, height);
 			}
+		}
+
+		auto render2DSystem = GetSystem<Render2DSystem>();
+		if (render2DSystem) {
+			render2DSystem->ResizeLightmap(width, height);
 		}
 	}
 

@@ -6,6 +6,13 @@
 
 namespace Runic2D {
 
+	enum class BlendMode
+	{
+		Alpha,
+		Additive,
+		Multiply
+	};
+
 	class RUNIC_API RendererAPI
 	{
 	public:
@@ -16,6 +23,7 @@ namespace Runic2D {
 			Vulkan = 2,
 			DirectX = 3
 		};
+
 	public:
 		virtual ~RendererAPI() = default;
 		virtual void Init() = 0;
@@ -30,6 +38,12 @@ namespace Runic2D {
 
 		virtual void DisableScissor() = 0;
 		virtual void ClearDepth() = 0;
+
+		virtual void SetBlendMode(BlendMode mode) = 0;
+		virtual int GetBoundFramebuffer() = 0;
+		virtual void BindFramebuffer(uint32_t framebufferID) = 0;
+
+		virtual void EnableEntityIDWriting(bool enable) = 0;
 
 		inline static API GetAPI() { return s_API; }
 	private:
