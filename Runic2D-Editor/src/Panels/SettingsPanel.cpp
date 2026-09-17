@@ -112,7 +112,7 @@ namespace Runic2D {
 
 			ImGui::Separator();
 			ImGui::Text("Flush Reasons:");
-			static const char* reasons[] = { "Scene End", "Vertex/Index Limit", "Texture Limit", "Primitive Change", "UI ZIndex Change" };
+			static const char* reasons[] = { "Scene End", "Vertex/Index Limit", "Texture Limit", "Primitive Change", "UI ZIndex Change", "Shader Change" };
 			for (int i = 0; i < (int)Renderer2D::FlushReason::Count; i++)
 			{
 				if (stats.FlushReasons[i] > 0)
