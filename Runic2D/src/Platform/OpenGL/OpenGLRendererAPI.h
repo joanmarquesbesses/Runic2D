@@ -32,5 +32,7 @@ namespace Runic2D
 		virtual void BindFramebuffer(uint32_t framebufferID) override;
 
 		virtual void EnableEntityIDWriting(bool enable) override;
+
+		virtual void SetDepthMask(bool mask) override;
 	};
 }

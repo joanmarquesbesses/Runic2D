@@ -476,6 +476,8 @@ namespace Runic2D {
 		CopyComponentIfExists<AnimationComponent>(dst, src);
 		CopyComponentIfExists<RectTransformComponent>(dst, src);
 		CopyComponentIfExists<ButtonComponent>(dst, src);
+		CopyComponentIfExists<AmbientLightComponent>(dst, src);
+		CopyComponentIfExists<PointLight2DComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

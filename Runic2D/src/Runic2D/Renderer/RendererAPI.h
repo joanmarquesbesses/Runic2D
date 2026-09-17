@@ -45,6 +45,8 @@ namespace Runic2D {
 
 		virtual void EnableEntityIDWriting(bool enable) = 0;
 
+		virtual void SetDepthMask(bool mask) = 0;
+
 		inline static API GetAPI() { return s_API; }
 	private:
 		static API s_API;

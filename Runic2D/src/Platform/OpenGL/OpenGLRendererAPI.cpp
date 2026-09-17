@@ -104,4 +104,9 @@ namespace Runic2D {
 		}
 	}
 
+	void OpenGLRendererAPI::SetDepthMask(bool mask)
+	{
+		glDepthMask(mask ? GL_TRUE : GL_FALSE);
+	}
+
 }

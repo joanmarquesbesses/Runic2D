@@ -100,6 +100,7 @@ namespace Runic2D {
 		RenderCommand::SetClearColor(ambientColor);
 		RenderCommand::Clear();
 		RenderCommand::SetBlendMode(BlendMode::Additive);
+		RenderCommand::SetDepthMask(false);
 
 		BeginSceneWrapper();
 
@@ -110,6 +111,8 @@ namespace Runic2D {
 			});
 
 		Renderer2D::EndScene();
+
+		RenderCommand::SetDepthMask(true);
 
 		// === PASS 3: MULTIPLY ===
 		m_LightmapFBO->Unbind();

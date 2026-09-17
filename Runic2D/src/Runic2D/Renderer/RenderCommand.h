@@ -72,6 +72,11 @@ namespace Runic2D {
 			s_RendererAPI->EnableEntityIDWriting(enable); 
 		}
 
+		static void SetDepthMask(bool mask) 
+		{ 
+			s_RendererAPI->SetDepthMask(mask);
+		}
+
 	private:
 		static RendererAPI* s_RendererAPI;
 	};

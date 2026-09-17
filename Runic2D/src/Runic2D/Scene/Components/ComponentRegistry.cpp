@@ -246,7 +246,8 @@ namespace Runic2D {
 			[](BufferStreamWriter& out, Entity e) {
 				auto& src = e.GetComponent<SpriteRendererComponent>();
 				out.WriteRaw(src.Color);
-				out.WriteRaw(src.TextureUUID); // Guardem l'UUID, no el punter!
+				uint64_t uuid = src.Texture ? (uint64_t)src.Texture->Handle : 0;
+				out.WriteRaw(uuid);
 				out.WriteRaw(src.TilingFactor);
 			},
 			[](BufferStreamReader& in, Entity e) {
