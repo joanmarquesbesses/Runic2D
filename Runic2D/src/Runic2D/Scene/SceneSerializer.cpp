@@ -462,8 +462,6 @@ namespace Runic2D {
 			}
 		}
 
-		R2D_CORE_INFO("Instanciat Prefab '{0}' a l'Escena!", filepath.filename().string());
-
 		return rootEntity;
 	}
 

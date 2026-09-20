@@ -726,7 +726,7 @@ namespace Runic2D {
 								const char* path = (const char*)payload->Data;
 								std::filesystem::path texturePath = Project::GetAssetFileSystemPath(path);
 								profile.AtlasTexture = ResourceManager::Get<Texture2D>(texturePath.string());
-								profile.TexturePath = texturePath.string();
+								profile.TexturePath = path;
 								if (profile.TileSize.x > 0)
 									profile.FramesPerRow = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
 							}
@@ -830,7 +830,6 @@ namespace Runic2D {
 						auto& profile = ac.Profiles[0];
 						if (ac.CurrentStateName.empty()) ac.CurrentStateName = profile.Name;
 						
-						R2D_CORE_INFO("Checking to create SubTexture for profile {0}. Atlas: {1}, HasSpriteRenderer: {2}", profile.Name, (profile.AtlasTexture ? "Valid" : "Null"), e.HasComponent<SpriteRendererComponent>());
 						if (profile.AtlasTexture && e.HasComponent<SpriteRendererComponent>())
 						{
 							int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
@@ -907,7 +906,6 @@ namespace Runic2D {
 					auto& profile = ac.Profiles[0];
 					if (ac.CurrentStateName.empty()) ac.CurrentStateName = profile.Name;
 
-					R2D_CORE_INFO("Checking to create SubTexture for profile {0}. Atlas: {1}, HasSpriteRenderer: {2}", profile.Name, (profile.AtlasTexture ? "Valid" : "Null"), e.HasComponent<SpriteRendererComponent>());
 					if (profile.AtlasTexture && e.HasComponent<SpriteRendererComponent>())
 					{
 						int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
