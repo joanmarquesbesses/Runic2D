@@ -23,6 +23,8 @@ namespace Runic2D
 		virtual const FrameBufferSpecification& GetSpecification() const override { return m_Specification; }
 
 		void Invalidate();
+
+		virtual void CopyEntityIDsTo(uint32_t targetFramebufferID, uint32_t width, uint32_t height) override;
 	
 	private:
 		uint32_t m_RendererID = 0;

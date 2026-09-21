@@ -75,6 +75,8 @@ namespace Runic2D
 		virtual const FrameBufferSpecification& GetSpecification() const = 0;
 
 		static Ref<FrameBuffer> Create(const FrameBufferSpecification& spec);
+
+		virtual void CopyEntityIDsTo(uint32_t targetFramebufferID, uint32_t width, uint32_t height) = 0;
 	};
 }
 

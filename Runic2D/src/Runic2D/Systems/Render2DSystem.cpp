@@ -24,7 +24,7 @@ namespace Runic2D {
 
 		// HDR
 		FrameBufferSpecification hdrSpec;
-		hdrSpec.Attachments = { FramebufferTextureFormat::RGBA16F, FramebufferTextureFormat::Depth };
+		hdrSpec.Attachments = { FramebufferTextureFormat::RGBA16F, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
 		hdrSpec.Width = 1280;
 		hdrSpec.Height = 720;
 		m_MainHDR_FBO = FrameBuffer::Create(hdrSpec);
@@ -48,7 +48,9 @@ namespace Runic2D {
 		int editorFBO = RenderCommand::GetBoundFramebuffer();
 
 		m_MainHDR_FBO->Bind();
+		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		RenderCommand::Clear();
+		m_MainHDR_FBO->ClearAttachment(1, -1);
 
 		bool hasCamera = false;
 		glm::mat4 cameraViewProj;
@@ -180,6 +182,8 @@ namespace Runic2D {
 		PostProcessing::Render(hdrTexture);
 
 		RenderCommand::SetDepthMask(true);
+
+		m_MainHDR_FBO->CopyEntityIDsTo(editorFBO, m_ViewportWidth, m_ViewportHeight);
 	}
 }
 

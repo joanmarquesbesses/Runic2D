@@ -224,5 +224,19 @@ namespace Runic2D
 		glClearTexImage(m_ColorAttachments[attachmentIndex], 0,
 			Utils::Runic2DFBTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
 	}
+
+	void OpenGLFrameBuffer::CopyEntityIDsTo(uint32_t targetFramebufferID, uint32_t width, uint32_t height)
+	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetFramebufferID);
+
+		glReadBuffer(GL_COLOR_ATTACHMENT1);
+		glDrawBuffer(GL_COLOR_ATTACHMENT1);
+
+		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	}
 }
 
