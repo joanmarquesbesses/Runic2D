@@ -95,4 +95,9 @@ namespace Runic2D {
 		RelationshipComponent() = default;
 		RelationshipComponent(const RelationshipComponent&) = default;
 	};
+
+	struct RUNIC_API LifetimeComponent
+	{
+		float TimeRemaining = 1.0f;
+	};
 }

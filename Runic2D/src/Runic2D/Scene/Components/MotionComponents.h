@@ -94,4 +94,9 @@ namespace Runic2D {
 		TweenComponent() = default;
 		TweenComponent(const TweenComponent&) = default;
 	};
+
+	struct RUNIC_API MovementComponent {
+		float speed = 0.0f;
+		glm::vec2 direction{ 0.0f };
+	};
 }

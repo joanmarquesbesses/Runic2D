@@ -291,6 +291,9 @@
     <ClInclude Include="src\Runic2D\Renderer\VertexArray.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Components\AIComponents.h">
+      <Filter>src\Runic2D\Scene\Components</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Scene\Components\AudioComponents.h">
       <Filter>src\Runic2D\Scene\Components</Filter>
     </ClInclude>
@@ -349,6 +352,15 @@
       <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\DebugSystem.h">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\FlockingSystem.h">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\LifetimeSystem.h">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\MovementSystem.h">
       <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\ParticleSystem.h">
@@ -1809,6 +1821,15 @@
       <Filter>src\Runic2D\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\DebugSystem.cpp">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\FlockingSystem.cpp">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\LifetimeSystem.cpp">
+      <Filter>src\Runic2D\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\MovementSystem.cpp">
       <Filter>src\Runic2D\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\ParticleSystem.cpp">

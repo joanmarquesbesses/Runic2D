@@ -228,6 +228,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Renderer\Texture.h" />
     <ClInclude Include="src\Runic2D\Renderer\UniformBuffer.h" />
     <ClInclude Include="src\Runic2D\Renderer\VertexArray.h" />
+    <ClInclude Include="src\Runic2D\Scene\Components\AIComponents.h" />
     <ClInclude Include="src\Runic2D\Scene\Components\AudioComponents.h" />
     <ClInclude Include="src\Runic2D\Scene\Components\ComponentRegistry.h" />
     <ClInclude Include="src\Runic2D\Scene\Components\CoreComponents.h" />
@@ -248,6 +249,9 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Systems\Animation2DSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\AudioSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\DebugSystem.h" />
+    <ClInclude Include="src\Runic2D\Systems\FlockingSystem.h" />
+    <ClInclude Include="src\Runic2D\Systems\LifetimeSystem.h" />
+    <ClInclude Include="src\Runic2D\Systems\MovementSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\ParticleSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\PhysicsSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\Render2DSystem.h" />
@@ -738,6 +742,9 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClCompile Include="src\Runic2D\Systems\Animation2DSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\AudioSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\DebugSystem.cpp" />
+    <ClCompile Include="src\Runic2D\Systems\FlockingSystem.cpp" />
+    <ClCompile Include="src\Runic2D\Systems\LifetimeSystem.cpp" />
+    <ClCompile Include="src\Runic2D\Systems\MovementSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\ParticleSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\Render2DSystem.cpp" />

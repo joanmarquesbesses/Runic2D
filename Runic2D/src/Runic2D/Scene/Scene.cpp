@@ -12,6 +12,9 @@
 #include "Runic2D/Systems/TweenSystem.h"
 #include "Runic2D/Systems/DebugSystem.h"
 #include "Runic2D/Systems/AudioSystem.h"
+#include "Runic2D/Systems/MovementSystem.h"
+#include "Runic2D/Systems/LifetimeSystem.h"
+#include "Runic2D/Systems/FlockingSystem.h"
 
 #include "Entity.h"
 #include "Components/CoreComponents.h"
@@ -22,6 +25,7 @@
 #include "Components/UIComponents.h"
 #include "Components/AudioComponents.h"
 #include "Components/ComponentRegistry.h"
+#include "Components/AIComponents.h"
 
 namespace Runic2D {
 	
@@ -31,6 +35,12 @@ namespace Runic2D {
 
 		// Scripting
 		AddSystem(CreateRef<ScriptingSystem>(), { SystemPhase::Logic });
+		// AI (Flocking)
+		AddSystem(CreateRef<FlockingSystem>(), { SystemPhase::Logic });
+		// Movement
+		AddSystem(CreateRef<MovementSystem>(), { SystemPhase::Logic });
+		// Lifetime
+		AddSystem(CreateRef<LifetimeSystem>(), { SystemPhase::Logic });
 		// Physiscs
 		AddSystem(CreateRef<PhysicsSystem>(), { SystemPhase::Physics });
 		// TransformSystem
@@ -125,6 +135,9 @@ namespace Runic2D {
 		CopyComponent<AudioSourceComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<PointLight2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<AmbientLightComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<MovementComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<LifetimeComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<FlockingComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		for (auto e : idView)
 		{
@@ -478,6 +491,9 @@ namespace Runic2D {
 		CopyComponentIfExists<ButtonComponent>(dst, src);
 		CopyComponentIfExists<AmbientLightComponent>(dst, src);
 		CopyComponentIfExists<PointLight2DComponent>(dst, src);
+		CopyComponentIfExists<MovementComponent>(dst, src);
+		CopyComponentIfExists<LifetimeComponent>(dst, src);
+		CopyComponentIfExists<FlockingComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

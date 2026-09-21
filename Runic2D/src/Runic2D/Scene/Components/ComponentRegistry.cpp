@@ -5,12 +5,14 @@
 #include "Runic2D/Renderer/Renderer2D.h"
 
 #include "ComponentRegistry.h"
+#include "CoreComponents.h" // treure lifetime i posarla a un logiccomponents per treure aquest include
 #include "MotionComponents.h"
 #include "PhysicsComponents.h"
 #include "RenderComponents.h"
 #include "ScriptingComponents.h"
 #include "UIComponents.h"
 #include "AudioComponents.h"
+#include "AIComponents.h"
 
 #include <yaml-cpp/yaml.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -669,7 +671,7 @@ namespace Runic2D {
 		});
 
 		Register({
-			"AnimationComponent", "Renderer",
+			"AnimationComponent", "Motion",
 			[](Entity e) { if (!e.HasComponent<AnimationComponent>()) e.AddComponent<AnimationComponent>(); },
 			[](Entity e) { return e.HasComponent<AnimationComponent>(); },
 #ifndef R2D_DIST
@@ -1218,7 +1220,7 @@ namespace Runic2D {
 			});
 
 		Register({
-			"AmbientLightComponent", "AmbientLight",
+			"AmbientLightComponent", "Light",
 			[](Entity e) { if (!e.HasComponent<AmbientLightComponent>()) e.AddComponent<AmbientLightComponent>(); },
 			[](Entity e) { return e.HasComponent<AmbientLightComponent>(); },
 #ifndef R2D_DIST
@@ -1251,6 +1253,138 @@ namespace Runic2D {
 			},
 			true
 			});
+
+		Runic2D::ComponentRegistry::Register({
+			"MovementComponent", "Motion",
+			[](Runic2D::Entity e) { if (!e.HasComponent<MovementComponent>()) e.AddComponent<MovementComponent>(); },
+			[](Runic2D::Entity e) { return e.HasComponent<MovementComponent>(); },
+#ifndef R2D_DIST
+			[](Runic2D::Entity e) {
+				auto& c = e.GetComponent<MovementComponent>();
+				ImGui::DragFloat("Speed", &c.speed, 0.1f, 0.0f, 50.0f);
+			},
+#else
+			nullptr,
+#endif
+			[](Runic2D::Entity e) { e.RemoveComponent<MovementComponent>(); },
+			[](Runic2D::Entity src, Runic2D::Entity dst) {
+				dst.AddOrReplaceComponent<MovementComponent>(src.GetComponent<MovementComponent>());
+			},
+			// SERIALITZA YAML
+			[](YAML::Emitter& out, Runic2D::Entity e) {
+				auto& c = e.GetComponent<MovementComponent>();
+				out << YAML::Key << "Speed" << YAML::Value << c.speed;
+			},
+			// DESERIALITZA YAML
+			[](YAML::Node& node, Runic2D::Entity e) {
+				auto& c = e.AddComponent<MovementComponent>();
+				if (node["Speed"]) c.speed = node["Speed"].as<float>();
+			},
+			// SERIALITZA BINARI
+			[](Runic2D::BufferStreamWriter& out, Runic2D::Entity e) {
+				out.WriteRaw(e.GetComponent<MovementComponent>());
+			},
+			// DESERIALITZA BINARI
+			[](Runic2D::BufferStreamReader& in, Runic2D::Entity e) {
+				MovementComponent c;
+				in.ReadRaw(c);
+				e.AddOrReplaceComponent<MovementComponent>(c);
+			},
+			true 
+			}
+		);
+
+		Runic2D::ComponentRegistry::Register({
+			"LifetimeComponent", "Core",
+			[](Runic2D::Entity e) { if (!e.HasComponent<LifetimeComponent>()) e.AddComponent<LifetimeComponent>(); },
+			[](Runic2D::Entity e) { return e.HasComponent<LifetimeComponent>(); },
+#ifndef R2D_DIST
+			[](Runic2D::Entity e) {
+				auto& c = e.GetComponent<LifetimeComponent>();
+				ImGui::DragFloat("LifeTime", &c.TimeRemaining, 0.1f, 0.0f, 50.0f);
+			},
+#else
+			nullptr,
+#endif
+			[](Runic2D::Entity e) { e.RemoveComponent<LifetimeComponent>(); },
+			[](Runic2D::Entity src, Runic2D::Entity dst) {
+				dst.AddOrReplaceComponent<LifetimeComponent>(src.GetComponent<LifetimeComponent>());
+			},
+			// SERIALITZA YAML
+			[](YAML::Emitter& out, Runic2D::Entity e) {
+				auto& c = e.GetComponent<LifetimeComponent>();
+				out << YAML::Key << "LifeTime" << YAML::Value << c.TimeRemaining;
+			},
+			// DESERIALITZA YAML
+			[](YAML::Node& node, Runic2D::Entity e) {
+				auto& c = e.AddComponent<LifetimeComponent>();
+				if (node["LifeTime"]) c.TimeRemaining = node["LifeTime"].as<float>();
+			},
+			// SERIALITZA BINARI
+			[](Runic2D::BufferStreamWriter& out, Runic2D::Entity e) {
+				out.WriteRaw(e.GetComponent<LifetimeComponent>());
+			},
+			// DESERIALITZA BINARI
+			[](Runic2D::BufferStreamReader& in, Runic2D::Entity e) {
+				LifetimeComponent c;
+				in.ReadRaw(c);
+				e.AddOrReplaceComponent<LifetimeComponent>(c);
+			},
+			true
+			}
+		);
+
+		Runic2D::ComponentRegistry::Register({
+			"FlockingComponent", "AI",
+			[](Runic2D::Entity e) { if (!e.HasComponent<FlockingComponent>()) e.AddComponent<FlockingComponent>(); },
+			[](Runic2D::Entity e) { return e.HasComponent<FlockingComponent>(); },
+#ifndef R2D_DIST
+			[](Runic2D::Entity e) {
+				auto& c = e.GetComponent<FlockingComponent>();
+				ImGui::DragFloat("Neighbor Radius", &c.NeighborRadius, 0.1f, 0.0f, 15.0f);
+				ImGui::DragFloat("Separation Weight", &c.SeparationWeight, 0.1f, 0.0f, 10.0f);
+				ImGui::DragFloat("Alignment Weight", &c.AlignmentWeight, 0.1f, 0.0f, 10.0f);
+				ImGui::DragFloat("Cohesion Weight", &c.CohesionWeight, 0.1f, 0.0f, 10.0f);
+				ImGui::DragFloat("Target Weight", &c.TargetWeight, 0.1f, 0.0f, 10.0f);
+			},
+#else
+			nullptr,
+#endif
+			[](Runic2D::Entity e) { e.RemoveComponent<FlockingComponent>(); },
+			[](Runic2D::Entity src, Runic2D::Entity dst) {
+				dst.AddOrReplaceComponent<FlockingComponent>(src.GetComponent<FlockingComponent>());
+			},
+			// SERIALITZA YAML
+			[](YAML::Emitter& out, Runic2D::Entity e) {
+				auto& c = e.GetComponent<FlockingComponent>();
+				out << YAML::Key << "Neighbor Radius" << YAML::Value << c.NeighborRadius;
+				out << YAML::Key << "Separation Weight" << YAML::Value << c.SeparationWeight;
+				out << YAML::Key << "Alignment Weight" << YAML::Value << c.AlignmentWeight;
+				out << YAML::Key << "Cohesion Weight" << YAML::Value << c.CohesionWeight;
+				out << YAML::Key << "Target Weight" << YAML::Value << c.TargetWeight;
+			},
+			// DESERIALITZA YAML
+			[](YAML::Node& node, Runic2D::Entity e) {
+				auto& c = e.AddComponent<FlockingComponent>();
+				if (node["Neighbor Radius"]) c.NeighborRadius = node["Neighbor Radius"].as<float>();
+				if (node["Separation Weight"]) c.SeparationWeight = node["Separation Weight"].as<float>();
+				if (node["Alignment Weight"]) c.AlignmentWeight = node["Alignment Weight"].as<float>();
+				if (node["Cohesion Weight"]) c.CohesionWeight = node["Cohesion Weight"].as<float>();
+				if (node["Target Weight"]) c.TargetWeight = node["Target Weight"].as<float>();
+			},
+			// SERIALITZA BINARI
+			[](Runic2D::BufferStreamWriter& out, Runic2D::Entity e) {
+				out.WriteRaw(e.GetComponent<FlockingComponent>());
+			},
+			// DESERIALITZA BINARI
+			[](Runic2D::BufferStreamReader& in, Runic2D::Entity e) {
+				FlockingComponent c;
+				in.ReadRaw(c);
+				e.AddOrReplaceComponent<FlockingComponent>(c);
+			},
+			true
+			}
+		);
 	}
 }
 
