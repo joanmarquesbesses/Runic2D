@@ -12,6 +12,9 @@ namespace Runic2D
 		// Color
 		RGBA8,
 
+		// HDR FORMAT (16-bit Float)
+		RGBA16F,
+
 		//Red only for picking
 		RED_INTEGER,
 

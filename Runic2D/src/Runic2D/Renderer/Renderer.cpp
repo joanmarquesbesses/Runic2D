@@ -3,6 +3,7 @@
 
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Renderer2D.h"
+#include "PostProcessing.h"
 
 namespace Runic2D
 {
@@ -15,6 +16,7 @@ namespace Runic2D
 
 		RenderCommand::Init();
 		Renderer2D::Init();
+		PostProcessing::Init();
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
@@ -42,6 +44,7 @@ namespace Runic2D
 		R2D_PROFILE_FUNCTION();
 		
 		Renderer2D::Shutdown();
+		PostProcessing::Shutdown();
 		delete s_SceneData;
 	}
 }

@@ -261,6 +261,9 @@
     <ClInclude Include="src\Runic2D\Renderer\GraphicsContext.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Renderer\PostProcessing.h">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Renderer\RenderCommand.h">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClInclude>
@@ -1743,6 +1746,9 @@
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\FrameBuffer.cpp">
+      <Filter>src\Runic2D\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Renderer\PostProcessing.cpp">
       <Filter>src\Runic2D\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Renderer\RenderCommand.cpp">

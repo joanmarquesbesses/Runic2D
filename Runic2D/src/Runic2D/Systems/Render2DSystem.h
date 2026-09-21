@@ -30,6 +30,8 @@ namespace Runic2D {
 
 		Ref<FrameBuffer> m_LightmapFBO;
 		uint32_t m_ViewportWidth = 1280, m_ViewportHeight = 720;
+
+		Ref<FrameBuffer> m_MainHDR_FBO;
 	};
 }
 
