@@ -85,6 +85,24 @@ namespace Runic2D {
 					}
 				});
 
+			auto viewpc = registry.view<TransformComponent, PolygonCollider2DComponent>();
+			viewpc.each([&](auto entityID, auto& tc, auto& pc2d)
+				{
+					if (pc2d.Vertices.size() < 2) return; 
+					Entity e{ entityID, scene };
+					glm::mat4 worldTransform = e.GetWorldTransform();
+
+					glm::mat4 colliderTransform = worldTransform
+						* glm::translate(glm::mat4(1.0f), glm::vec3(pc2d.Offset, 0.001f));
+					glm::vec4 greenColor = { 0.0f, 1.0f, 0.0f, 1.0f }; 
+					for (size_t i = 0; i < pc2d.Vertices.size(); i++)
+					{
+						glm::vec3 p0 = colliderTransform * glm::vec4(pc2d.Vertices[i], 0.0f, 1.0f);
+						glm::vec3 p1 = colliderTransform * glm::vec4(pc2d.Vertices[(i + 1) % pc2d.Vertices.size()], 0.0f, 1.0f);
+						Renderer2D::DrawLine(p0, p1, greenColor);
+					}
+				});
+
 			Renderer2D::EndScene();
         }
 

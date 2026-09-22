@@ -126,6 +126,38 @@ namespace Runic2D {
 			cc2d.RuntimeShape = shapeId;
 		}
 
+		if (entity.HasComponent<PolygonCollider2DComponent>())
+		{
+			auto& pc2d = entity.GetComponent<PolygonCollider2DComponent>();
+			if (pc2d.Vertices.size() >= 3)
+			{
+				b2ShapeDef shapeDef = b2DefaultShapeDef();
+				shapeDef.density = pc2d.Density;
+				shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
+				shapeDef.isSensor = pc2d.IsSensor;
+				shapeDef.filter.categoryBits = pc2d.CategoryBits;
+				shapeDef.filter.maskBits = pc2d.MaskBits;
+				shapeDef.filter.groupIndex = pc2d.GroupIndex;
+				shapeDef.enableSensorEvents = pc2d.EnableSensorEvents;
+				shapeDef.enableContactEvents = pc2d.EnableContactEvents;
+
+				glm::vec3 scale = transform.GetScale();
+				std::vector<b2Vec2> b2Points(pc2d.Vertices.size());
+				for (size_t i = 0; i < pc2d.Vertices.size(); i++)
+				{
+					b2Points[i] = { (pc2d.Vertices[i].x + pc2d.Offset.x) * scale.x,
+									(pc2d.Vertices[i].y + pc2d.Offset.y) * scale.y };
+				}
+
+				b2Hull hull = b2ComputeHull(b2Points.data(), b2Points.size());
+				b2Polygon polygon = b2MakePolygon(&hull, 0.0f);
+				b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &polygon);
+				b2Shape_SetFriction(shapeId, pc2d.Friction);
+				b2Shape_SetRestitution(shapeId, pc2d.Restitution);
+				pc2d.RuntimeShape = shapeId;
+			}
+		}
+
 		if (rb2d.Type == Rigidbody2DComponent::BodyType::Dynamic)
 		{
 			b2Body_ApplyMassFromShapes(bodyId);
@@ -145,7 +177,7 @@ namespace Runic2D {
 				b2Shape_SetFilter(bc2d.RuntimeShape, filter);
 			}
 		}
-		// Mirem si té Circle Collider
+
 		if (entity.HasComponent<CircleCollider2DComponent>())
 		{
 			auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
@@ -154,6 +186,17 @@ namespace Runic2D {
 				b2Filter filter = b2Shape_GetFilter(cc2d.RuntimeShape);
 				filter.maskBits = enabled ? 0xFFFFFFFF : 0x00000000;
 				b2Shape_SetFilter(cc2d.RuntimeShape, filter);
+			}
+		}
+
+		if (entity.HasComponent<PolygonCollider2DComponent>())
+		{
+			auto& pc2d = entity.GetComponent<PolygonCollider2DComponent>();
+			if (b2Shape_IsValid(pc2d.RuntimeShape))
+			{
+				b2Filter filter = b2Shape_GetFilter(pc2d.RuntimeShape);
+				filter.maskBits = enabled ? 0xFFFFFFFF : 0x00000000;
+				b2Shape_SetFilter(pc2d.RuntimeShape, filter);
 			}
 		}
 	}
@@ -233,6 +276,44 @@ namespace Runic2D {
 			cc2d.RuntimeShape = shapeId;
 		}
 
+		if (entity.HasComponent<PolygonCollider2DComponent>())
+		{
+			auto& pc2d = entity.GetComponent<PolygonCollider2DComponent>();
+			if (B2_IS_NON_NULL(pc2d.RuntimeShape))
+			{
+				b2DestroyShape(pc2d.RuntimeShape, false);
+			}
+			if (pc2d.Vertices.size() >= 3)
+			{
+				b2ShapeDef shapeDef = b2DefaultShapeDef();
+				shapeDef.density = pc2d.Density;
+				shapeDef.userData = (void*)(uintptr_t)entity.GetUUID();
+				shapeDef.filter.categoryBits = pc2d.CategoryBits;
+				shapeDef.filter.maskBits = pc2d.MaskBits;
+				shapeDef.filter.groupIndex = pc2d.GroupIndex;
+				shapeDef.isSensor = pc2d.IsSensor;
+				shapeDef.enableSensorEvents = pc2d.EnableSensorEvents;
+				shapeDef.enableContactEvents = pc2d.EnableContactEvents;
+				glm::vec3 scale = transform.GetScale();
+				std::vector<b2Vec2> b2Points(pc2d.Vertices.size());
+				for (size_t i = 0; i < pc2d.Vertices.size(); i++)
+				{
+					b2Points[i] = { (pc2d.Vertices[i].x + pc2d.Offset.x) * scale.x,
+									(pc2d.Vertices[i].y + pc2d.Offset.y) * scale.y };
+				}
+				b2Hull hull = b2ComputeHull(b2Points.data(), b2Points.size());
+				b2Polygon polygon = b2MakePolygon(&hull, 0.0f);
+				b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &polygon);
+				b2Shape_SetFriction(shapeId, pc2d.Friction);
+				b2Shape_SetRestitution(shapeId, pc2d.Restitution);
+				pc2d.RuntimeShape = shapeId;
+			}
+			else
+			{
+				pc2d.RuntimeShape = b2_nullShapeId;
+			}
+		}
+
 		if (rb2d.Type == Rigidbody2DComponent::BodyType::Dynamic)
 		{
 			b2Body_ApplyMassFromShapes(bodyId);
@@ -290,6 +371,12 @@ namespace Runic2D {
 			{
 				auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
 				cc2d.RuntimeShape = b2_nullShapeId;
+			}
+
+			if (entity.HasComponent<PolygonCollider2DComponent>())
+			{
+				auto& pc2d = entity.GetComponent<PolygonCollider2DComponent>();
+				pc2d.RuntimeShape = b2_nullShapeId;
 			}
 		}
 	}

@@ -140,6 +140,7 @@ namespace Runic2D {
 		CopyComponent<LifetimeComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<FlockingComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<ShadowCaster2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<PolygonCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		for (auto e : idView)
 		{
@@ -497,6 +498,7 @@ namespace Runic2D {
 		CopyComponentIfExists<LifetimeComponent>(dst, src);
 		CopyComponentIfExists<FlockingComponent>(dst, src);
 		CopyComponentIfExists<ShadowCaster2DComponent>(dst, src);
+		CopyComponentIfExists<PolygonCollider2DComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

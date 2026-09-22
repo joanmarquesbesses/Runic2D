@@ -1472,6 +1472,134 @@ namespace Runic2D {
 			true
 			}
 		);
+
+		Register({
+			"PolygonCollider2DComponent", "Physics",
+			[](Entity e) { if (!e.HasComponent<PolygonCollider2DComponent>()) e.AddComponent<PolygonCollider2DComponent>(); },
+			[](Entity e) { return e.HasComponent<PolygonCollider2DComponent>(); },
+#ifndef R2D_DIST
+			[](Entity e) {
+				auto& component = e.GetComponent<PolygonCollider2DComponent>();
+
+				// Llista de punts desplegable
+				if (ImGui::TreeNode("Polygon Vertices"))
+				{
+					if (ImGui::Button("Add Vertex"))
+						component.Vertices.push_back({ 0.0f, 0.0f });
+					for (size_t i = 0; i < component.Vertices.size(); i++)
+					{
+						ImGui::PushID((int)i);
+						ImGui::DragFloat2("##vertex", glm::value_ptr(component.Vertices[i]), 0.05f);
+						ImGui::SameLine();
+						if (ImGui::Button("-"))
+						{
+							component.Vertices.erase(component.Vertices.begin() + i);
+							i--;
+						}
+						ImGui::PopID();
+					}
+					ImGui::TreePop();
+				}
+				ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
+				ImGui::DragFloat("Density", &component.Density, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f);
+				ImGui::Checkbox("Is Sensor", &component.IsSensor);
+				ImGui::Checkbox("Enable Contact Events", &component.EnableContactEvents);
+				ImGui::Checkbox("Enable Sensor Events", &component.EnableSensorEvents);
+			},
+#else
+			nullptr,
+#endif
+			[](Entity e) { e.RemoveComponent<PolygonCollider2DComponent>(); },
+			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<PolygonCollider2DComponent>(src.GetComponent<PolygonCollider2DComponent>()); },
+			[](YAML::Emitter& out, Entity e) {
+				auto& component = e.GetComponent<PolygonCollider2DComponent>();
+
+				// Guardem el vector de punts 1 per 1
+				out << YAML::Key << "Vertices" << YAML::Value << YAML::BeginSeq;
+				for (const auto& pt : component.Vertices) {
+					out << YAML::Flow << YAML::BeginSeq << pt.x << pt.y << YAML::EndSeq;
+				}
+				out << YAML::EndSeq;
+				out << YAML::Key << "Offset" << YAML::Value << YAML::Flow << YAML::BeginSeq << component.Offset.x << component.Offset.y << YAML::EndSeq;
+				out << YAML::Key << "Density" << YAML::Value << component.Density;
+				out << YAML::Key << "Friction" << YAML::Value << component.Friction;
+				out << YAML::Key << "Restitution" << YAML::Value << component.Restitution;
+				out << YAML::Key << "RestitutionThreshold" << YAML::Value << component.RestitutionThreshold;
+				out << YAML::Key << "IsSensor" << YAML::Value << component.IsSensor;
+				out << YAML::Key << "EnableContactEvents" << YAML::Value << component.EnableContactEvents;
+				out << YAML::Key << "EnableSensorEvents" << YAML::Value << component.EnableSensorEvents;
+			},
+			[](YAML::Node& node, Entity e) {
+				auto& component = e.AddComponent<PolygonCollider2DComponent>();
+
+				// Llegim el vector de punts
+				if (node["Vertices"] && node["Vertices"].IsSequence()) {
+					for (auto ptNode : node["Vertices"]) {
+						if (ptNode.IsSequence() && ptNode.size() >= 2) {
+							component.Vertices.push_back({ ptNode[0].as<float>(), ptNode[1].as<float>() });
+						}
+					}
+				}
+				if (node["Offset"]) { component.Offset.x = node["Offset"][0].as<float>(); component.Offset.y = node["Offset"][1].as<float>(); }
+				if (node["Density"]) component.Density = node["Density"].as<float>();
+				if (node["Friction"]) component.Friction = node["Friction"].as<float>();
+				if (node["Restitution"]) component.Restitution = node["Restitution"].as<float>();
+				if (node["RestitutionThreshold"]) component.RestitutionThreshold = node["RestitutionThreshold"].as<float>();
+				if (node["IsSensor"]) component.IsSensor = node["IsSensor"].as<bool>();
+				if (node["EnableContactEvents"]) component.EnableContactEvents = node["EnableContactEvents"].as<bool>();
+				if (node["EnableSensorEvents"]) component.EnableSensorEvents = node["EnableSensorEvents"].as<bool>();
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& component = e.GetComponent<PolygonCollider2DComponent>();
+
+				// Escriptura segura de std::vector
+				uint32_t vertSize = (uint32_t)component.Vertices.size();
+				out.WriteRaw<uint32_t>(vertSize);
+				for (const auto& pt : component.Vertices) {
+					out.WriteRaw<glm::vec2>(pt);
+				}
+				out.WriteRaw(component.Offset);
+				out.WriteRaw(component.Density);
+				out.WriteRaw(component.Friction);
+				out.WriteRaw(component.Restitution);
+				out.WriteRaw(component.RestitutionThreshold);
+				out.WriteRaw(component.CategoryBits);
+				out.WriteRaw(component.MaskBits);
+				out.WriteRaw(component.GroupIndex);
+				out.WriteRaw(component.IsSensor);
+				out.WriteRaw(component.EnableContactEvents);
+				out.WriteRaw(component.EnableSensorEvents);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				PolygonCollider2DComponent component;
+
+				// Lectura segura de std::vector
+				uint32_t vertSize;
+				in.ReadRaw<uint32_t>(vertSize);
+				component.Vertices.resize(vertSize);
+				for (uint32_t i = 0; i < vertSize; i++) {
+					in.ReadRaw<glm::vec2>(component.Vertices[i]);
+				}
+				in.ReadRaw(component.Offset);
+				in.ReadRaw(component.Density);
+				in.ReadRaw(component.Friction);
+				in.ReadRaw(component.Restitution);
+				in.ReadRaw(component.RestitutionThreshold);
+				in.ReadRaw(component.CategoryBits);
+				in.ReadRaw(component.MaskBits);
+				in.ReadRaw(component.GroupIndex);
+				in.ReadRaw(component.IsSensor);
+				in.ReadRaw(component.EnableContactEvents);
+				in.ReadRaw(component.EnableSensorEvents);
+				e.AddOrReplaceComponent<PolygonCollider2DComponent>(component);
+			},
+			true
+			}
+		);
+
 	}
 }
 

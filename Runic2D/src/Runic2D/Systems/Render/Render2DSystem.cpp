@@ -163,6 +163,13 @@ namespace Runic2D {
 								corners.push_back(transform * glm::vec4(point.x, point.y, 0.0f, 1.0f));
 							}
 						}
+						else if (casterE.HasComponent<PolygonCollider2DComponent>() && !casterE.GetComponent<PolygonCollider2DComponent>().Vertices.empty())
+						{
+							auto& pc = casterE.GetComponent<PolygonCollider2DComponent>();
+							for (const auto& point : pc.Vertices) {
+								corners.push_back(transform * glm::vec4(point.x + pc.Offset.x, point.y + pc.Offset.y, 0.0f, 1.0f));
+							}
+						}
 						else
 						{
 							glm::vec2 offset = { 0.0f, 0.0f };

@@ -73,4 +73,28 @@ namespace Runic2D {
 		CircleCollider2DComponent() = default;
 		CircleCollider2DComponent(const CircleCollider2DComponent&) = default;
 	};
+
+	struct RUNIC_API PolygonCollider2DComponent
+	{
+		std::vector<glm::vec2> Vertices;
+		glm::vec2 Offset = { 0.0f, 0.0f };
+
+		float Density = 1.0f;
+		float Friction = 0.5f;
+		float Restitution = 0.0f;
+		float RestitutionThreshold = 0.5f;
+
+		uint32_t CategoryBits = 0x0001;
+		uint32_t MaskBits = 0xFFFFFFFF;
+		int32_t GroupIndex = 0;
+
+		bool IsSensor = false;
+		bool EnableContactEvents = true;
+		bool EnableSensorEvents = false;
+
+		b2ShapeId RuntimeShape = b2_nullShapeId;
+
+		PolygonCollider2DComponent() = default;
+		PolygonCollider2DComponent(const PolygonCollider2DComponent&) = default;
+	};
 }
