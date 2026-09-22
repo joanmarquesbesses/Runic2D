@@ -109,4 +109,34 @@ namespace Runic2D {
 		glDepthMask(mask ? GL_TRUE : GL_FALSE);
 	}
 
+	void OpenGLRendererAPI::ClearStencil()
+	{
+		glStencilMask(0xFF);
+		glClear(GL_STENCIL_BUFFER_BIT);
+	}
+
+	void OpenGLRendererAPI::BeginStencilWrite()
+	{
+		glEnable(GL_STENCIL_TEST);
+		glStencilMask(0xFF);                                 
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);                   
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);           
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); 
+	}
+
+	void OpenGLRendererAPI::BeginStencilTest()
+	{
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);     
+		glStencilFunc(GL_EQUAL, 0, 0xFF);                    
+		glStencilMask(0x00);                                 
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	}
+
+	void OpenGLRendererAPI::DisableStencil()
+	{
+		glDisable(GL_STENCIL_TEST);
+		glStencilMask(0xFF);                                  
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	}
+
 }

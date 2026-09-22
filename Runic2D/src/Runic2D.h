@@ -31,8 +31,8 @@
 #include "Runic2D/Scene/Components/ScriptingComponents.h"
 
 #include "Runic2D/Systems/System.h"
-#include "Runic2D/Systems/PhysicsSystem.h"
-#include "Runic2D/Systems/ParticleSystem.h"
+#include "Runic2D/Systems/Physics/PhysicsSystem.h"
+#include "Runic2D/Systems/Render/ParticleSystem.h"
 
 #include "Runic2D/Scripting/ScriptEngine.h"
 

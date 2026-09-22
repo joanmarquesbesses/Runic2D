@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "System.h"
+#include "Runic2D/Systems/System.h"
 
 #include "glm/glm.hpp"
 

@@ -1,7 +1,7 @@
 ﻿#include "GameplayLayer.h"
 
 //Debug
-#include "Runic2D/Systems/DebugSystem.h"
+#include "Runic2D/Systems/Render/DebugSystem.h"
 #include "Runic2D/Core/Threading/JobSystem.h"
 #include "Runic2D/Core/Threading/BackgroundTaskSystem.h"
 

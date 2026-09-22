@@ -5,7 +5,7 @@
 #include "Runic2D/Renderer/Renderer2D.h"
 
 #include "ComponentRegistry.h"
-#include "CoreComponents.h" // treure lifetime i posarla a un logiccomponents per treure aquest include
+#include "LogicComponents.h" 
 #include "MotionComponents.h"
 #include "PhysicsComponents.h"
 #include "RenderComponents.h"
@@ -1170,7 +1170,7 @@ namespace Runic2D {
 		});
 
 		Register({
-			"PointLight2DComponent", "Light",
+			"PointLight2DComponent", "Renderer",
 			[](Entity e) { if (!e.HasComponent<PointLight2DComponent>()) e.AddComponent<PointLight2DComponent>(); },
 			[](Entity e) { return e.HasComponent<PointLight2DComponent>(); },
 #ifndef R2D_DIST
@@ -1220,7 +1220,7 @@ namespace Runic2D {
 			});
 
 		Register({
-			"AmbientLightComponent", "Light",
+			"AmbientLightComponent", "Renderer",
 			[](Entity e) { if (!e.HasComponent<AmbientLightComponent>()) e.AddComponent<AmbientLightComponent>(); },
 			[](Entity e) { return e.HasComponent<AmbientLightComponent>(); },
 #ifndef R2D_DIST
@@ -1381,6 +1381,93 @@ namespace Runic2D {
 				FlockingComponent c;
 				in.ReadRaw(c);
 				e.AddOrReplaceComponent<FlockingComponent>(c);
+			},
+			true
+			}
+		);
+
+		Runic2D::ComponentRegistry::Register({
+			"ShadowCaster2DComponent", "Renderer",
+			[](Runic2D::Entity e) { if (!e.HasComponent<ShadowCaster2DComponent>()) e.AddComponent<ShadowCaster2DComponent>(); },
+			[](Runic2D::Entity e) { return e.HasComponent<ShadowCaster2DComponent>(); },
+#ifndef R2D_DIST
+			[](Runic2D::Entity e) {
+				auto& c = e.GetComponent<ShadowCaster2DComponent>();
+				ImGui::Checkbox("Cast Shadows", &c.CastShadows);
+				if (ImGui::TreeNode("Custom Shape Polygon"))
+				{
+					if (ImGui::Button("Add Point"))
+						c.CustomShape.push_back({ 0.0f, 0.0f });
+					for (size_t i = 0; i < c.CustomShape.size(); i++)
+					{
+						ImGui::PushID((int)i);
+						ImGui::DragFloat2("##point", glm::value_ptr(c.CustomShape[i]), 0.1f);
+						ImGui::SameLine();
+						if (ImGui::Button("-"))
+						{
+							c.CustomShape.erase(c.CustomShape.begin() + i);
+							i--; // Ajustem l'índex per compensar l'esborrat
+						}
+						ImGui::PopID();
+					}
+					ImGui::TreePop();
+				}
+			},
+#else
+			nullptr,
+#endif
+			[](Runic2D::Entity e) { e.RemoveComponent<ShadowCaster2DComponent>(); },
+			[](Runic2D::Entity src, Runic2D::Entity dst) {
+				dst.AddOrReplaceComponent<ShadowCaster2DComponent>(src.GetComponent<ShadowCaster2DComponent>());
+			},
+			// SERIALITZA YAML
+			[](YAML::Emitter& out, Runic2D::Entity e) {
+				auto& c = e.GetComponent<ShadowCaster2DComponent>();
+				out << YAML::Key << "Cast Shadows" << YAML::Value << c.CastShadows;
+
+				out << YAML::Key << "CustomShape" << YAML::Value << YAML::BeginSeq;
+				for (const auto& pt : c.CustomShape) {
+					out << YAML::Flow << YAML::BeginSeq << pt.x << pt.y << YAML::EndSeq;
+				}
+				out << YAML::EndSeq;
+			},
+			// DESERIALITZA YAML
+			[](YAML::Node& node, Runic2D::Entity e) {
+				auto& c = e.AddComponent<ShadowCaster2DComponent>();
+				if (node["Cast Shadows"]) c.CastShadows = node["Cast Shadows"].as<bool>();
+
+				if (node["CustomShape"] && node["CustomShape"].IsSequence()) {
+					for (auto ptNode : node["CustomShape"]) {
+						if (ptNode.IsSequence() && ptNode.size() >= 2) {
+							c.CustomShape.push_back({ ptNode[0].as<float>(), ptNode[1].as<float>() });
+						}
+					}
+				}
+			},
+			// SERIALITZA BINARI
+			[](Runic2D::BufferStreamWriter& out, Runic2D::Entity e) {
+				auto& c = e.GetComponent<ShadowCaster2DComponent>();
+				out.WriteRaw<bool>(c.CastShadows);
+
+				uint32_t shapeSize = (uint32_t)c.CustomShape.size();
+				out.WriteRaw<uint32_t>(shapeSize);
+				for (const auto& pt : c.CustomShape) {
+					out.WriteRaw<glm::vec2>(pt);
+				}
+			},
+			// DESERIALITZA BINARI
+			[](Runic2D::BufferStreamReader& in, Runic2D::Entity e) {
+				ShadowCaster2DComponent c;
+				in.ReadRaw<bool>(c.CastShadows);
+
+				uint32_t shapeSize;
+				in.ReadRaw<uint32_t>(shapeSize);
+				c.CustomShape.resize(shapeSize);
+				for (uint32_t i = 0; i < shapeSize; i++) {
+					in.ReadRaw<glm::vec2>(c.CustomShape[i]);
+				}
+
+				e.AddOrReplaceComponent<ShadowCaster2DComponent>(c);
 			},
 			true
 			}

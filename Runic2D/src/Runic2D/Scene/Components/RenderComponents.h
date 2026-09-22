@@ -105,4 +105,11 @@ namespace Runic2D {
 		AmbientLightComponent() = default;
 		AmbientLightComponent(const AmbientLightComponent&) = default;
 	};
+
+	struct RUNIC_API ShadowCaster2DComponent
+	{
+		bool CastShadows = true;
+		std::vector<glm::vec2> CustomShape;
+	};
+
 }

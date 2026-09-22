@@ -65,6 +65,7 @@ namespace Runic2D {
 		int m_GizmoMode = 0;
 
 		bool m_ShowPhysicsColliders = false;
+		bool m_ShowFlockingGrid = false;
 
 		glm::vec2  m_LastViewportSize = { 0.f, 0.f };
 

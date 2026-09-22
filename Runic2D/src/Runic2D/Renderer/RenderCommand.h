@@ -77,6 +77,26 @@ namespace Runic2D {
 			s_RendererAPI->SetDepthMask(mask);
 		}
 
+		inline static void ClearStencil() 
+		{ 
+			s_RendererAPI->ClearStencil(); 
+		}
+
+		inline static void BeginStencilWrite() 
+		{ 
+			s_RendererAPI->BeginStencilWrite(); 
+		}
+
+		inline static void BeginStencilTest() 
+		{ 
+			s_RendererAPI->BeginStencilTest();
+		}
+
+		inline static void DisableStencil() 
+		{ 
+			s_RendererAPI->DisableStencil();
+		}
+
 	private:
 		static RendererAPI* s_RendererAPI;
 	};

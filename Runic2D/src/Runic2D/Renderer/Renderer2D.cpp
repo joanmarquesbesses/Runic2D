@@ -890,6 +890,33 @@ namespace Runic2D
 
 		s_Data.QuadIndexCount += 6;
 	}
+
+	void Renderer2D::DrawShadowPolygon(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3)
+	{
+		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
+		if (s_Data.CurrentShader != s_Data.QuadShader)
+		{
+			NextBatch(Renderer2D::FlushReason::ShaderChange);
+			s_Data.CurrentShader = s_Data.QuadShader;
+		}
+		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
+			NextBatch(FlushReason::VertexIndexLimit);
+		}
+		glm::vec3 positions[4] = { p0, p1, p2, p3 };
+		glm::vec2 texCoords[4] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+		for (size_t i = 0; i < 4; ++i)
+		{
+			s_Data.QuadVertexBufferPtr->Position = positions[i];
+			s_Data.QuadVertexBufferPtr->Color = { 0.0f, 0.0f, 0.0f, 1.0f }; 
+			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
+			s_Data.QuadVertexBufferPtr->TexIndex = 0.0f;
+			s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+			s_Data.QuadVertexBufferPtr->EntityID = -1;
+			++s_Data.QuadVertexBufferPtr;
+		}
+		s_Data.QuadIndexCount += 6;
+		++s_Data.Stats.QuadCount;
+	}
 	
 	void Renderer2D::SetRecordStats(bool record)
 	{

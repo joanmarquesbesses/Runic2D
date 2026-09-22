@@ -11,7 +11,7 @@
 #include "Runic2D/Utils/PlatformUtils.h"
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Scripting/ScriptEngine.h"
-#include "Runic2D/Systems/DebugSystem.h"
+#include "Runic2D/Systems/Render/DebugSystem.h"
 
 namespace Runic2D
 {
@@ -127,6 +127,7 @@ namespace Runic2D
 			DebugSystem* debugSystem = scene->GetSystem<DebugSystem>().get();
 			if (debugSystem) {
 				debugSystem->SetShowColliders(m_ShowPhysicsColliders);
+				debugSystem->SetShowFlockingGrid(m_ShowFlockingGrid);
 			}
 
 			if (m_SceneState == SceneState::Edit)
@@ -244,7 +245,7 @@ namespace Runic2D
 		m_SceneHierarchyPanel.OnImGuiRender();
 		m_ContentBrowserPanel.OnImGuiRender();
 		m_SettingsPanel.OnImGuiRender(SceneManager::GetActiveScene(), m_EditorCamera, m_ContentBrowserPanel,
-			m_GizmoType, m_GizmoMode, m_ShowPhysicsColliders);
+			m_GizmoType, m_GizmoMode, m_ShowPhysicsColliders, m_ShowFlockingGrid);
 		m_ToolbarPanel.OnImGuiRender(m_SceneState);
 
 		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();

@@ -13,6 +13,6 @@ namespace Runic2D {
 		SettingsPanel() = default;
 
 		// Passem punters als objectes que volem configurar
-		void OnImGuiRender(Ref<Scene> activeScene, EditorCamera& camera, ContentBrowserPanel& contentBrowser, int& gizmoType, int& gizmoMode, bool& showColliders);
+		void OnImGuiRender(Ref<Scene> activeScene, EditorCamera& camera, ContentBrowserPanel& contentBrowser, int& gizmoType, int& gizmoMode, bool& showColliders, bool& showFlockingGrid);
 	};
 }

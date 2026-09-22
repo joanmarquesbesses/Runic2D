@@ -7,7 +7,8 @@
 #include "Runic2D/Scene/Components/PhysicsComponents.h"
 
 #include "Runic2D/Renderer/Renderer2D.h"
-#include "Runic2D/Systems/ParticleSystem.h"
+#include "Runic2D/Systems/Render/ParticleSystem.h"
+#include "Runic2D/Systems/AI/FlockingSystem.h"
 
 #include "Runic2D/Core/App/Application.h"
 
@@ -44,31 +45,44 @@ namespace Runic2D {
 			auto& registry = scene->GetEntityRegistry();
 
 			auto viewbc = registry.view<TransformComponent, BoxCollider2DComponent>();
-
-			viewbc.each([&](auto entity, auto& tc, auto& bc2d)
+			viewbc.each([&](auto entityID, auto& tc, auto& bc2d)
 				{
-					glm::vec3 scale = tc.GetScale() * glm::vec3(bc2d.Size, 1.0f);
+					Entity e{ entityID, scene };
 
-					glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.GetTranslation())
-						* glm::rotate(glm::mat4(1.0f), tc.GetRotation().z, glm::vec3(0.0f, 0.0f, 1.0f))
+					glm::mat4 worldTransform = e.GetWorldTransform();
+
+					glm::mat4 colliderTransform = worldTransform
 						* glm::translate(glm::mat4(1.0f), glm::vec3(bc2d.Offset, 0.001f))
-						* glm::scale(glm::mat4(1.0f), scale);
-
-					Renderer2D::DrawRect(transform, glm::vec4(0, 1, 0, 1));
+						* glm::scale(glm::mat4(1.0f), glm::vec3(bc2d.Size, 1.0f));
+					Renderer2D::DrawRect(colliderTransform, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 				});
 
 			auto viewcc = registry.view<TransformComponent, CircleCollider2DComponent>();
-
-			viewcc.each([&](auto entity, auto& tc, auto& cc2d)
+			viewcc.each([&](auto entityID, auto& tc, auto& cc2d)
 				{
-					float scale = std::max(tc.GetScale().x, tc.GetScale().y) * cc2d.Radius * 2.0f;
+					Entity e{ entityID, scene };
 
-					glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.GetTranslation())
-						* glm::rotate(glm::mat4(1.0f), tc.GetRotation().z, glm::vec3(0.0f, 0.0f, 1.0f))
+					glm::mat4 worldTransform = e.GetWorldTransform();
+
+					glm::mat4 colliderTransform = worldTransform
 						* glm::translate(glm::mat4(1.0f), glm::vec3(cc2d.Offset, 0.001f))
-						* glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, 1.0f));
+						* glm::scale(glm::mat4(1.0f), glm::vec3(cc2d.Radius * 2.0f));
+					Renderer2D::DrawCircle(colliderTransform, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0.05f, 0.01f, (int)entityID);
+				});
 
-					Renderer2D::DrawCircle(transform, glm::vec4(0, 1, 0, 1), 0.05f, 0.01f, (int)entity);
+			auto viewShadow = registry.view<TransformComponent, ShadowCaster2DComponent>();
+			viewShadow.each([&](auto entity, auto& tc, auto& caster)
+				{
+					if (caster.CustomShape.empty()) return;
+					Entity e{ entity, scene };
+					glm::mat4 worldTransform = e.GetWorldTransform();
+					glm::vec4 magentaColor = { 1.0f, 0.0f, 1.0f, 1.0f };
+					for (size_t i = 0; i < caster.CustomShape.size(); i++)
+					{
+						glm::vec3 p0 = worldTransform * glm::vec4(caster.CustomShape[i], 0.0f, 1.0f);
+						glm::vec3 p1 = worldTransform * glm::vec4(caster.CustomShape[(i + 1) % caster.CustomShape.size()], 0.0f, 1.0f);
+						Renderer2D::DrawLine(p0, p1, magentaColor);
+					}
 				});
 
 			Renderer2D::EndScene();
@@ -107,6 +121,44 @@ namespace Runic2D {
 			Renderer2D::EndScene();
 			Renderer2D::SetRecordStats(true);
         }
+
+		if (s_ShowFlockingGrid)
+		{
+			if (m_UseCustomCamera) {
+				Renderer2D::BeginScene(m_CustomViewProj);
+			}
+			else {
+				Entity cam = scene->GetPrimaryCameraEntity();
+				if (cam) {
+					auto& camera = cam.GetComponent<CameraComponent>().Camera;
+					auto& tc = cam.GetComponent<TransformComponent>();
+					Renderer2D::BeginScene(camera, tc.GetTransform());
+				}
+			}
+
+			auto flockingSystem = scene->GetSystem<FlockingSystem>();
+			if (flockingSystem)
+			{
+				const auto& spatialHash = flockingSystem->GetSpatialHash();
+				float cellSize = spatialHash.GetCellSize();
+				for (const auto& [key, entities] : spatialHash.GetGrid())
+				{
+					if (entities.empty()) continue; 
+					int cellX, cellY;
+					spatialHash.GetCellCoordinates(key, cellX, cellY);
+
+					glm::vec2 center = { (cellX * cellSize) + (cellSize * 0.5f),
+										 (cellY * cellSize) + (cellSize * 0.5f) };
+
+					glm::vec3 pos = { center.x, center.y, 0.5f };
+
+					glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * glm::scale(glm::mat4(1.0f), { cellSize, cellSize, 1.0f });
+					Renderer2D::DrawRect(transform, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+				}
+			}
+
+			Renderer2D::EndScene();
+		}
 	}
 
 	void DebugSystem::DrawCameraBounds(Scene* scene)

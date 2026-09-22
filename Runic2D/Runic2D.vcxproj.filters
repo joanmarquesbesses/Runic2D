@@ -70,6 +70,33 @@
     <Filter Include="src\Runic2D\Systems">
       <UniqueIdentifier>{FA044309-6666-2017-EFD3-66C95B3457D6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\Systems\AI">
+      <UniqueIdentifier>{536B1E29-3F65-477B-28D2-DD8B146BADE7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Systems\Audio">
+      <UniqueIdentifier>{7BE65137-E7A8-85C1-3059-144E9C5A5E9F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Systems\Core">
+      <UniqueIdentifier>{925568EA-7E7A-B76A-A7C5-9CFA9349B688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Systems\Logic">
+      <UniqueIdentifier>{77B61538-E378-49C2-2C29-D84E982A22A0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Systems\Motion">
+      <UniqueIdentifier>{DFD0283D-CBE0-D40D-349A-392C20C9C3A6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Systems\Physics">
+      <UniqueIdentifier>{6C623DB9-D86F-6B9F-6156-678ACD623756}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Systems\Render">
+      <UniqueIdentifier>{29461A48-1556-C618-7E0F-2B376A3EB5B1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Systems\Scripting">
+      <UniqueIdentifier>{7C7AA88C-E892-8FB6-B13F-1F501D172450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Runic2D\Systems\UI">
+      <UniqueIdentifier>{E76D1E29-D367-477B-BCD4-DD8BA86DADE7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Utils">
       <UniqueIdentifier>{935760BD-FF6D-5E53-48E5-E974B43A2FDB}</UniqueIdentifier>
     </Filter>
@@ -234,6 +261,9 @@
     <ClInclude Include="src\Runic2D\Math\Math.h">
       <Filter>src\Runic2D\Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Math\SpatialHash.h">
+      <Filter>src\Runic2D\Math</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Project\Project.h">
       <Filter>src\Runic2D\Project</Filter>
     </ClInclude>
@@ -303,6 +333,9 @@
     <ClInclude Include="src\Runic2D\Scene\Components\CoreComponents.h">
       <Filter>src\Runic2D\Scene\Components</Filter>
     </ClInclude>
+    <ClInclude Include="src\Runic2D\Scene\Components\LogicComponents.h">
+      <Filter>src\Runic2D\Scene\Components</Filter>
+    </ClInclude>
     <ClInclude Include="src\Runic2D\Scene\Components\MotionComponents.h">
       <Filter>src\Runic2D\Scene\Components</Filter>
     </ClInclude>
@@ -345,47 +378,47 @@
     <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h">
       <Filter>src\Runic2D\Scripting</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\Animation2DSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\AI\FlockingSystem.h">
+      <Filter>src\Runic2D\Systems\AI</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\AudioSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\Audio\AudioSystem.h">
+      <Filter>src\Runic2D\Systems\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\DebugSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\Core\TransformSystem.h">
+      <Filter>src\Runic2D\Systems\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\FlockingSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\Logic\LifetimeSystem.h">
+      <Filter>src\Runic2D\Systems\Logic</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\LifetimeSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\Motion\Animation2DSystem.h">
+      <Filter>src\Runic2D\Systems\Motion</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\MovementSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\Motion\MovementSystem.h">
+      <Filter>src\Runic2D\Systems\Motion</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\ParticleSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\Motion\TweenSystem.h">
+      <Filter>src\Runic2D\Systems\Motion</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\PhysicsSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\Physics\PhysicsSystem.h">
+      <Filter>src\Runic2D\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\Render2DSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\Render\DebugSystem.h">
+      <Filter>src\Runic2D\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\ScriptingSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\Render\ParticleSystem.h">
+      <Filter>src\Runic2D\Systems\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\Render\Render2DSystem.h">
+      <Filter>src\Runic2D\Systems\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\Scripting\ScriptingSystem.h">
+      <Filter>src\Runic2D\Systems\Scripting</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\System.h">
       <Filter>src\Runic2D\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\TransformSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\TweenSystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Runic2D\Systems\UISystem.h">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClInclude Include="src\Runic2D\Systems\UI\UISystem.h">
+      <Filter>src\Runic2D\Systems\UI</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Utils\PlatformUtils.h">
       <Filter>src\Runic2D\Utils</Filter>
@@ -1814,44 +1847,44 @@
     <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp">
       <Filter>src\Runic2D\Scripting</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\Animation2DSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\AI\FlockingSystem.cpp">
+      <Filter>src\Runic2D\Systems\AI</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\AudioSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Audio\AudioSystem.cpp">
+      <Filter>src\Runic2D\Systems\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\DebugSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Core\TransformSystem.cpp">
+      <Filter>src\Runic2D\Systems\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\FlockingSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Logic\LifetimeSystem.cpp">
+      <Filter>src\Runic2D\Systems\Logic</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\LifetimeSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Motion\Animation2DSystem.cpp">
+      <Filter>src\Runic2D\Systems\Motion</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\MovementSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Motion\MovementSystem.cpp">
+      <Filter>src\Runic2D\Systems\Motion</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\ParticleSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Motion\TweenSystem.cpp">
+      <Filter>src\Runic2D\Systems\Motion</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\PhysicsSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Physics\PhysicsSystem.cpp">
+      <Filter>src\Runic2D\Systems\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\Render2DSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Render\DebugSystem.cpp">
+      <Filter>src\Runic2D\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\ScriptingSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Render\ParticleSystem.cpp">
+      <Filter>src\Runic2D\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\TransformSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Render\Render2DSystem.cpp">
+      <Filter>src\Runic2D\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\TweenSystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\Scripting\ScriptingSystem.cpp">
+      <Filter>src\Runic2D\Systems\Scripting</Filter>
     </ClCompile>
-    <ClCompile Include="src\Runic2D\Systems\UISystem.cpp">
-      <Filter>src\Runic2D\Systems</Filter>
+    <ClCompile Include="src\Runic2D\Systems\UI\UISystem.cpp">
+      <Filter>src\Runic2D\Systems\UI</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Utils\Random.cpp">
       <Filter>src\Runic2D\Utils</Filter>

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "System.h"
+#include "Runic2D/Systems/System.h"
 
 #include "glm/glm.hpp"
 
@@ -20,6 +20,7 @@ namespace Runic2D {
         bool m_ShowStats = false;
         glm::mat4 m_CustomViewProj = glm::mat4(1.0f);
         bool m_UseCustomCamera = false;
+        bool s_ShowFlockingGrid = false;
 
     public:
         virtual void OnRender(Scene* scene) override;
@@ -31,6 +32,9 @@ namespace Runic2D {
 
         void SetShowStats(bool show) { m_ShowStats = show; }
         bool GetShowStats() const { return m_ShowStats; }
+
+        void SetShowFlockingGrid(bool show) { s_ShowFlockingGrid = show; }
+        bool GetShowFlockingGrid() const { return s_ShowFlockingGrid; }
 
         void SetCustomCamera(const glm::mat4& vp) {
             m_CustomViewProj = vp;

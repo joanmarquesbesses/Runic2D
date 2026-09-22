@@ -8,14 +8,14 @@
 #include "Runic2D/Core/Threading/BackgroundTaskSystem.h"
 
 #include "Runic2D/Renderer/Renderer2D.h"
-#include "Runic2D/Systems/DebugSystem.h"
+#include "Runic2D/Systems/Render/DebugSystem.h"
 
 #include <imgui/imgui.h>
 #include "ImGuizmo.h"
 
 namespace Runic2D {
 
-	void SettingsPanel::OnImGuiRender(Ref<Scene> activeScene, EditorCamera& camera, ContentBrowserPanel& contentBrowser, int& gizmoType, int& gizmoMode, bool& showColliders)
+	void SettingsPanel::OnImGuiRender(Ref<Scene> activeScene, EditorCamera& camera, ContentBrowserPanel& contentBrowser, int& gizmoType, int& gizmoMode, bool& showColliders, bool& showFlockingGrid)
 	{
 		ImGui::Begin("Settings");
 
@@ -151,6 +151,12 @@ namespace Runic2D {
         if (ImGui::CollapsingHeader("Physics", ImGuiTreeNodeFlags_CollapsingHeader))
         {
             ImGui::Checkbox("Show Physics Colliders", &showColliders);
+		}
+
+		// --- AI ---
+		if (ImGui::CollapsingHeader("AI", ImGuiTreeNodeFlags_CollapsingHeader))
+		{
+			ImGui::Checkbox("Show Flocking Grid", &showFlockingGrid);
 		}
 
 		// --- Profiling ---

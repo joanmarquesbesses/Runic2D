@@ -2,19 +2,19 @@
 #include "Scene.h"
 
 #include "Runic2D/Systems/System.h"
-#include "Runic2D/Systems/ScriptingSystem.h"
-#include "Runic2D/Systems/PhysicsSystem.h"
-#include "Runic2D/Systems/TransformSystem.h"
-#include "Runic2D/Systems/UISystem.h"
-#include "Runic2D/Systems/Render2DSystem.h"
-#include "Runic2D/Systems/ParticleSystem.h"
-#include "Runic2D/Systems/Animation2DSystem.h"
-#include "Runic2D/Systems/TweenSystem.h"
-#include "Runic2D/Systems/DebugSystem.h"
-#include "Runic2D/Systems/AudioSystem.h"
-#include "Runic2D/Systems/MovementSystem.h"
-#include "Runic2D/Systems/LifetimeSystem.h"
-#include "Runic2D/Systems/FlockingSystem.h"
+#include "Runic2D/Systems/Scripting/ScriptingSystem.h"
+#include "Runic2D/Systems/Physics/PhysicsSystem.h"
+#include "Runic2D/Systems/Core/TransformSystem.h"
+#include "Runic2D/Systems/UI/UISystem.h"
+#include "Runic2D/Systems/Render/Render2DSystem.h"
+#include "Runic2D/Systems/Render/ParticleSystem.h"
+#include "Runic2D/Systems/Motion/Animation2DSystem.h"
+#include "Runic2D/Systems/Motion/TweenSystem.h"
+#include "Runic2D/Systems/Render/DebugSystem.h"
+#include "Runic2D/Systems/Audio/AudioSystem.h"
+#include "Runic2D/Systems/Motion/MovementSystem.h"
+#include "Runic2D/Systems/Logic/LifetimeSystem.h"
+#include "Runic2D/Systems/AI/FlockingSystem.h"
 
 #include "Entity.h"
 #include "Components/CoreComponents.h"
@@ -26,6 +26,7 @@
 #include "Components/AudioComponents.h"
 #include "Components/ComponentRegistry.h"
 #include "Components/AIComponents.h"
+#include "Components/LogicComponents.h"
 
 namespace Runic2D {
 	
@@ -138,6 +139,7 @@ namespace Runic2D {
 		CopyComponent<MovementComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<LifetimeComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<FlockingComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<ShadowCaster2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		for (auto e : idView)
 		{
@@ -494,6 +496,7 @@ namespace Runic2D {
 		CopyComponentIfExists<MovementComponent>(dst, src);
 		CopyComponentIfExists<LifetimeComponent>(dst, src);
 		CopyComponentIfExists<FlockingComponent>(dst, src);
+		CopyComponentIfExists<ShadowCaster2DComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

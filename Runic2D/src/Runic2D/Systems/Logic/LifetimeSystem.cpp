@@ -2,7 +2,7 @@
 #include "LifetimeSystem.h"
 
 #include "Runic2D/Scene/Scene.h"
-#include "Runic2D/Scene/Components/CoreComponents.h"
+#include "Runic2D/Scene/Components/LogicComponents.h"
 #include "Runic2D/Scene/Entity.h"
 
 namespace Runic2D {

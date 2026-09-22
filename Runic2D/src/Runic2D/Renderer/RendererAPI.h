@@ -47,6 +47,11 @@ namespace Runic2D {
 
 		virtual void SetDepthMask(bool mask) = 0;
 
+		virtual void ClearStencil() = 0;
+		virtual void BeginStencilWrite() = 0;
+		virtual void BeginStencilTest() = 0;
+		virtual void DisableStencil() = 0;
+
 		inline static API GetAPI() { return s_API; }
 	private:
 		static API s_API;

@@ -17,7 +17,6 @@ namespace Runic2D {
 		auto& registry = scene->GetEntityRegistry();
 		auto view = registry.view<TransformComponent, MovementComponent, FlockingComponent>();
 
-		// 1. Recopilem les entitats amb view.each
 		std::vector<entt::entity> flockEntities;
 		flockEntities.reserve(view.size_hint());
 
@@ -27,14 +26,24 @@ namespace Runic2D {
 
 		if (flockEntities.empty()) return;
 
+		m_SpatialHash.Clear();
+		for (entt::entity entity : flockEntities)
+		{
+			auto& tc = registry.get<TransformComponent>(entity);
+			m_SpatialHash.Insert(entity, tc.GetTranslation());
+		}
+
 		std::vector<glm::vec2> newDirections(flockEntities.size(), glm::vec2(0.0f));
 
 		uint32_t count = (uint32_t)flockEntities.size();
-		uint32_t groupSize = 16; 
+		uint32_t groupSize = 16;
 
 		auto stats = JobSystem::Dispatch(count, groupSize, [&](uint32_t start, uint32_t end)
 			{
 				R2D_PROFILE_SCOPE("Flocking Job");
+
+				std::vector<entt::entity> nearbyEntities;
+				nearbyEntities.reserve(64); // Bona pràctica inicial
 
 				for (uint32_t i = start; i < end; i++)
 				{
@@ -56,7 +65,9 @@ namespace Runic2D {
 					glm::vec2 cohesion{ 0.0f };
 					int neighbors = 0;
 
-					for (entt::entity otherEntity : flockEntities)
+					m_SpatialHash.GetNearby(myPos, flock.NeighborRadius, nearbyEntities);
+
+					for (entt::entity otherEntity : nearbyEntities)
 					{
 						if (entity == otherEntity) continue;
 

@@ -34,5 +34,13 @@ namespace Runic2D
 		virtual void EnableEntityIDWriting(bool enable) override;
 
 		virtual void SetDepthMask(bool mask) override;
+
+		virtual void ClearStencil() override;
+
+		virtual void BeginStencilWrite() override;
+
+		virtual void BeginStencilTest() override;
+
+		virtual void DisableStencil() override;
 	};
 }

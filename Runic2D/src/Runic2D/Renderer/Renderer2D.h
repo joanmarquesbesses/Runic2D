@@ -59,6 +59,8 @@ namespace Runic2D {
 
 		static void DrawPointLight(const glm::mat4& transform, const PointLight2DComponent& light, int entityID);
 
+		static void DrawShadowPolygon(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
+
 		// Stats
 		enum class FlushReason
 		{
