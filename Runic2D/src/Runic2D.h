@@ -29,6 +29,9 @@
 #include "Runic2D/Scene/Components/RenderComponents.h"
 #include "Runic2D/Scene/Components/UIComponents.h"
 #include "Runic2D/Scene/Components/ScriptingComponents.h"
+#include "Runic2D/Scene/Components/AIComponents.h"
+#include "Runic2D/Scene/Components/AudioComponents.h"
+#include "Runic2D/Scene/Components/LogicComponents.h"
 
 #include "Runic2D/Systems/System.h"
 #include "Runic2D/Systems/Physics/PhysicsSystem.h"

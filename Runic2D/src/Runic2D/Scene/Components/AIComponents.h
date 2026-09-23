@@ -16,4 +16,16 @@ namespace Runic2D {
 		float TargetWeight = 2.0f;       // Les ganes de matar al jugador pesen més que els companys
 	};
 
+	struct RUNIC_API PathfindingComponent
+	{
+		UUID TargetEntity = 0;
+		bool Enabled = false;
+		std::vector<glm::vec2> Path;
+		size_t CurrentWaypointIndex = 0;
+		float RepathTimer = 0.0f;
+		float RepathInterval = 0.5f;
+		PathfindingComponent() = default;
+		PathfindingComponent(const PathfindingComponent&) = default;
+	};
+
 }

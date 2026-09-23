@@ -176,6 +176,8 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\R2Dpch.h" />
     <ClInclude Include="src\Runic2D.h" />
+    <ClInclude Include="src\Runic2D\AI\AStar.h" />
+    <ClInclude Include="src\Runic2D\AI\NavGrid.h" />
     <ClInclude Include="src\Runic2D\Assets\Asset.h" />
     <ClInclude Include="src\Runic2D\Assets\AssetRegistry.h" />
     <ClInclude Include="src\Runic2D\Assets\ResourceManager.h" />
@@ -249,6 +251,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClInclude Include="src\Runic2D\Scene\Tween.h" />
     <ClInclude Include="src\Runic2D\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Runic2D\Systems\AI\FlockingSystem.h" />
+    <ClInclude Include="src\Runic2D\Systems\AI\PathfindingSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\Audio\AudioSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\Core\TransformSystem.h" />
     <ClInclude Include="src\Runic2D\Systems\Logic\LifetimeSystem.h" />
@@ -701,6 +704,8 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClCompile Include="src\R2Dpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\AI\AStar.cpp" />
+    <ClCompile Include="src\Runic2D\AI\NavGrid.cpp" />
     <ClCompile Include="src\Runic2D\Assets\AssetRegistry.cpp" />
     <ClCompile Include="src\Runic2D\Assets\ResourceManager.cpp" />
     <ClCompile Include="src\Runic2D\Audio\AudioClip.cpp" />
@@ -742,6 +747,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Runic2D\Runic2D.dll\ (xcopy /Q /E /Y /I ..\b
     <ClCompile Include="src\Runic2D\Scene\SceneSerializer.cpp" />
     <ClCompile Include="src\Runic2D\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Runic2D\Systems\AI\FlockingSystem.cpp" />
+    <ClCompile Include="src\Runic2D\Systems\AI\PathfindingSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\Audio\AudioSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\Core\TransformSystem.cpp" />
     <ClCompile Include="src\Runic2D\Systems\Logic\LifetimeSystem.cpp" />

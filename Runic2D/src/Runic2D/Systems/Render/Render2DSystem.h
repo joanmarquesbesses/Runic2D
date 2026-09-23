@@ -24,6 +24,9 @@ namespace Runic2D {
 
 		void ResizeLightmap(uint32_t width, uint32_t height);
 
+		int GetShadowBlurIterations() const { return m_ShadowBlurIterations; }
+		void SetShadowBlurIterations(int iterations) { m_ShadowBlurIterations = iterations; }
+
 	private:
 		glm::mat4 m_CustomViewProj = glm::mat4(1.0f);
 		bool m_UseCustomCamera = false;
@@ -32,6 +35,8 @@ namespace Runic2D {
 		uint32_t m_ViewportWidth = 1280, m_ViewportHeight = 720;
 
 		Ref<FrameBuffer> m_MainHDR_FBO;
+
+		int m_ShadowBlurIterations = 4;
 	};
 }
 

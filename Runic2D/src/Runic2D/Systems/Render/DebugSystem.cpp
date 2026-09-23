@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "DebugSystem.h"
 
 #include "Runic2D/Scene/Scene.h"
@@ -9,6 +9,7 @@
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Systems/Render/ParticleSystem.h"
 #include "Runic2D/Systems/AI/FlockingSystem.h"
+#include "Runic2D/Systems/AI/PathfindingSystem.h"
 
 #include "Runic2D/Core/App/Application.h"
 
@@ -70,21 +71,6 @@ namespace Runic2D {
 					Renderer2D::DrawCircle(colliderTransform, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0.05f, 0.01f, (int)entityID);
 				});
 
-			auto viewShadow = registry.view<TransformComponent, ShadowCaster2DComponent>();
-			viewShadow.each([&](auto entity, auto& tc, auto& caster)
-				{
-					if (caster.CustomShape.empty()) return;
-					Entity e{ entity, scene };
-					glm::mat4 worldTransform = e.GetWorldTransform();
-					glm::vec4 magentaColor = { 1.0f, 0.0f, 1.0f, 1.0f };
-					for (size_t i = 0; i < caster.CustomShape.size(); i++)
-					{
-						glm::vec3 p0 = worldTransform * glm::vec4(caster.CustomShape[i], 0.0f, 1.0f);
-						glm::vec3 p1 = worldTransform * glm::vec4(caster.CustomShape[(i + 1) % caster.CustomShape.size()], 0.0f, 1.0f);
-						Renderer2D::DrawLine(p0, p1, magentaColor);
-					}
-				});
-
 			auto viewpc = registry.view<TransformComponent, PolygonCollider2DComponent>();
 			viewpc.each([&](auto entityID, auto& tc, auto& pc2d)
 				{
@@ -140,6 +126,40 @@ namespace Runic2D {
 			Renderer2D::SetRecordStats(true);
         }
 
+		if (m_ShowCustomShadowCaster)
+		{
+			if (m_UseCustomCamera) {
+				Renderer2D::BeginScene(m_CustomViewProj);
+			}
+			else {
+				Entity cam = scene->GetPrimaryCameraEntity();
+				if (cam) {
+					auto& camera = cam.GetComponent<CameraComponent>().Camera;
+					auto& tc = cam.GetComponent<TransformComponent>();
+					Renderer2D::BeginScene(camera, tc.GetTransform());
+				}
+			}
+
+			auto& registry = scene->GetEntityRegistry();
+
+			auto viewShadow = registry.view<TransformComponent, ShadowCaster2DComponent>();
+			viewShadow.each([&](auto entity, auto& tc, auto& caster)
+				{
+					if (caster.CustomShape.empty()) return;
+					Entity e{ entity, scene };
+					glm::mat4 worldTransform = e.GetWorldTransform();
+					glm::vec4 magentaColor = { 1.0f, 0.0f, 1.0f, 1.0f };
+					for (size_t i = 0; i < caster.CustomShape.size(); i++)
+					{
+						glm::vec3 p0 = worldTransform * glm::vec4(caster.CustomShape[i], 0.0f, 1.0f);
+						glm::vec3 p1 = worldTransform * glm::vec4(caster.CustomShape[(i + 1) % caster.CustomShape.size()], 0.0f, 1.0f);
+						Renderer2D::DrawLine(p0, p1, magentaColor);
+					}
+				});
+
+			Renderer2D::EndScene();
+		}
+
 		if (s_ShowFlockingGrid)
 		{
 			if (m_UseCustomCamera) {
@@ -172,6 +192,51 @@ namespace Runic2D {
 
 					glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * glm::scale(glm::mat4(1.0f), { cellSize, cellSize, 1.0f });
 					Renderer2D::DrawRect(transform, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+				}
+			}
+
+			Renderer2D::EndScene();
+		}
+
+		if (m_ShowNavGrid)
+		{
+			if (m_UseCustomCamera) {
+				Renderer2D::BeginScene(m_CustomViewProj);
+			}
+			else {
+				Entity cam = scene->GetPrimaryCameraEntity();
+				if (cam) {
+					auto& camera = cam.GetComponent<CameraComponent>().Camera;
+					auto& tc = cam.GetComponent<TransformComponent>();
+					Renderer2D::BeginScene(camera, tc.GetTransform());
+				}
+			}
+
+			Ref<NavGrid> navGrid = nullptr;
+			if (auto pfSystem = scene->GetSystem<PathfindingSystem>()) {
+				navGrid = pfSystem->GetNavGrid();
+			}
+
+			if (navGrid)
+			{
+				float cellSize = navGrid->GetCellSize();
+				int width = navGrid->GetWidth();
+				int height = navGrid->GetHeight();
+				
+				glm::vec4 redColor = { 1.0f, 0.0f, 0.0f, 0.5f }; 
+
+				for (int y = 0; y < height; y++)
+				{
+					for (int x = 0; x < width; x++)
+					{
+						if (!navGrid->IsWalkable(x, y))
+						{
+							glm::vec2 worldPos = navGrid->GetWorldPosition(x, y);
+							glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(worldPos, 0.01f)) 
+												* glm::scale(glm::mat4(1.0f), glm::vec3(cellSize * 0.9f, cellSize * 0.9f, 1.0f));
+							Renderer2D::DrawRect(transform, redColor);
+						}
+					}
 				}
 			}
 

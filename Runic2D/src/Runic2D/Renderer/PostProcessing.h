@@ -15,6 +15,8 @@ namespace Runic2D {
 
         static void OnWindowResize(uint32_t width, uint32_t height);
 
+        static Ref<Texture2D> ApplyBlur(const Ref<Texture2D>& texture, int iterations = 10);
+
         static void Render(const Ref<Texture2D>& baseTexture);
 
     private:

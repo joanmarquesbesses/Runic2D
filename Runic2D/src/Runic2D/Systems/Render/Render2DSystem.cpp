@@ -232,7 +232,17 @@ namespace Runic2D {
 
 		// === PASS 3: MULTIPLY ===
 		m_LightmapFBO->Unbind();
+
+		Ref<Texture2D> rawLightmap = Texture2D::Create(m_LightmapFBO->GetColorAttachmentRendererID(), m_ViewportWidth, m_ViewportHeight);
+		Ref<Texture2D> blurredLightmap = rawLightmap;
+
+		if (m_ShadowBlurIterations > 0)
+		{
+			blurredLightmap = PostProcessing::ApplyBlur(rawLightmap, m_ShadowBlurIterations);
+		}
+
 		m_MainHDR_FBO->Bind();
+
 		RenderCommand::BindFramebuffer(hdrFBO);
 		RenderCommand::SetViewport(0, 0, m_ViewportWidth, m_ViewportHeight);
 		RenderCommand::SetBlendMode(BlendMode::Multiply);
@@ -241,11 +251,12 @@ namespace Runic2D {
 
 		Renderer2D::BeginScene(glm::mat4(1.0f));
 
-		Ref<Texture2D> lightmapTexture = Texture2D::Create(m_LightmapFBO->GetColorAttachmentRendererID(), m_ViewportWidth, m_ViewportHeight);
 		glm::mat4 quadTransform = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 1.0f));
-		Renderer2D::DrawQuad(quadTransform, lightmapTexture);
 
+
+		Renderer2D::DrawQuad(quadTransform, blurredLightmap);
 		Renderer2D::EndScene();
+
 		RenderCommand::EnableEntityIDWriting(true);
 
 		// === PASS 4: TEXT (Per sobre de la llum) ===

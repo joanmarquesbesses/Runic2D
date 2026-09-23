@@ -426,8 +426,8 @@ namespace Runic2D {
 #ifndef R2D_DIST
 			[](Entity e) {
 				auto& component = e.GetComponent<BoxCollider2DComponent>();
-				ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
-				ImGui::DragFloat2("Size", glm::value_ptr(component.Size));
+				ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset), 0.05f);
+				ImGui::DragFloat2("Size", glm::value_ptr(component.Size), 0.05f);
 				ImGui::DragFloat("Density", &component.Density, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
@@ -1401,7 +1401,7 @@ namespace Runic2D {
 					for (size_t i = 0; i < c.CustomShape.size(); i++)
 					{
 						ImGui::PushID((int)i);
-						ImGui::DragFloat2("##point", glm::value_ptr(c.CustomShape[i]), 0.1f);
+						ImGui::DragFloat2("##point", glm::value_ptr(c.CustomShape[i]), 0.05f);
 						ImGui::SameLine();
 						if (ImGui::Button("-"))
 						{
@@ -1600,6 +1600,81 @@ namespace Runic2D {
 			}
 		);
 
+		Register({
+			"PathfindingComponent", "AI",
+			[](Entity e) { if (!e.HasComponent<PathfindingComponent>()) e.AddComponent<PathfindingComponent>(); },
+			[](Entity e) { return e.HasComponent<PathfindingComponent>(); },
+#ifndef R2D_DIST
+			[](Entity e) {
+				auto& component = e.GetComponent<PathfindingComponent>();
+
+				ImGui::Checkbox("Enabled", &component.Enabled);
+				ImGui::DragFloat("Repath Interval", &component.RepathInterval, 0.01f, 0.1f, 5.0f, "%.2f");
+
+				uint64_t targetUUID = component.TargetEntity;
+
+				ImGui::Text("Target Entity");
+				ImGui::SameLine();
+				std::string buttonText = targetUUID == 0 ? "Drop Entity Here" : std::to_string(targetUUID);
+				ImGui::Button(buttonText.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 0.0f));
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HIERARCHY_ENTITY"))
+					{
+						Entity droppedEntity = *(const Entity*)payload->Data;
+						if (droppedEntity)
+						{
+							component.TargetEntity = droppedEntity.GetUUID();
+							targetUUID = component.TargetEntity;
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+
+				if (ImGui::InputScalar("UUID Manual", ImGuiDataType_U64, &targetUUID)) {
+					component.TargetEntity = targetUUID;
+				}
+
+				ImGui::Spacing();
+				ImGui::TextDisabled("--- Runtime Info ---");
+				ImGui::TextDisabled("Path Nodes: %d", (int)component.Path.size());
+				ImGui::TextDisabled("Current Waypoint: %d", (int)component.CurrentWaypointIndex);
+			},
+#else
+			nullptr,
+#endif
+			[](Entity e) { e.RemoveComponent<PathfindingComponent>(); },
+			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<PathfindingComponent>(src.GetComponent<PathfindingComponent>()); },
+			[](YAML::Emitter& out, Entity e) {
+				auto& c = e.GetComponent<PathfindingComponent>();
+				out << YAML::Key << "Enabled" << YAML::Value << c.Enabled;
+				out << YAML::Key << "TargetEntity" << YAML::Value << (uint64_t)c.TargetEntity;
+				out << YAML::Key << "RepathInterval" << YAML::Value << c.RepathInterval;
+			},
+			[](YAML::Node& node, Entity e) {
+				auto& c = e.AddComponent<PathfindingComponent>();
+				if (node["Enabled"]) c.Enabled = node["Enabled"].as<bool>();
+				if (node["TargetEntity"]) c.TargetEntity = node["TargetEntity"].as<uint64_t>();
+				if (node["RepathInterval"]) c.RepathInterval = node["RepathInterval"].as<float>();
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& c = e.GetComponent<PathfindingComponent>();
+				out.WriteRaw(c.Enabled);
+				out.WriteRaw((uint64_t)c.TargetEntity);
+				out.WriteRaw(c.RepathInterval);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				PathfindingComponent c;
+				in.ReadRaw(c.Enabled);
+				uint64_t uuid;
+				in.ReadRaw(uuid);
+				c.TargetEntity = uuid;
+				in.ReadRaw(c.RepathInterval);
+
+				e.AddOrReplaceComponent<PathfindingComponent>(c);
+			},
+			true
+			});
 	}
 }
 

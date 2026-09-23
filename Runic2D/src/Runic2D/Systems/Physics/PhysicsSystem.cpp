@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "PhysicsSystem.h"
 
 #include "Runic2D/Scene/Entity.h"
@@ -90,7 +90,7 @@ namespace Runic2D {
 			float hx = std::abs(bc2d.Size.x * transform.GetScale().x) * 0.5f;
 			float hy = std::abs(bc2d.Size.y * transform.GetScale().y) * 0.5f;
 
-			b2Polygon boxPolygon = b2MakeOffsetBox(hx, hy, { bc2d.Offset.x, bc2d.Offset.y }, b2MakeRot(0.0f));
+			b2Polygon boxPolygon = b2MakeOffsetBox(hx, hy, { bc2d.Offset.x * transform.GetScale().x, bc2d.Offset.y * transform.GetScale().y }, b2MakeRot(0.0f));
 
 			b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &boxPolygon);
 			b2Shape_SetFriction(shapeId, bc2d.Friction);
@@ -113,11 +113,11 @@ namespace Runic2D {
 			shapeDef.enableSensorEvents = cc2d.EnableSensorEvents;
 			shapeDef.enableContactEvents = cc2d.EnableContactEvents;
 
-			float maxScale = std::max(transform.GetScale().x, transform.GetScale().y);
+			float maxScale = std::max(std::abs(transform.GetScale().x), std::abs(transform.GetScale().y));
 			float radius = cc2d.Radius * maxScale;
 
 			b2Circle circle;
-			circle.center = { cc2d.Offset.x, cc2d.Offset.y };
+			circle.center = { cc2d.Offset.x * transform.GetScale().x, cc2d.Offset.y * transform.GetScale().y };
 			circle.radius = radius;
 
 			b2ShapeId shapeId = b2CreateCircleShape(bodyId, &shapeDef, &circle);
@@ -232,7 +232,7 @@ namespace Runic2D {
 			float hx = std::abs(bc2d.Size.x * transform.GetScale().x) * 0.5f;
 			float hy = std::abs(bc2d.Size.y * transform.GetScale().y) * 0.5f;
 
-			b2Polygon boxPolygon = b2MakeOffsetBox(hx, hy, { bc2d.Offset.x, bc2d.Offset.y }, b2MakeRot(0.0f));
+			b2Polygon boxPolygon = b2MakeOffsetBox(hx, hy, { bc2d.Offset.x * transform.GetScale().x, bc2d.Offset.y * transform.GetScale().y }, b2MakeRot(0.0f));
 
 			b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &boxPolygon);
 
@@ -265,7 +265,7 @@ namespace Runic2D {
 			float radius = cc2d.Radius * maxScale;
 
 			b2Circle circle;
-			circle.center = { cc2d.Offset.x, cc2d.Offset.y };
+			circle.center = { cc2d.Offset.x * transform.GetScale().x, cc2d.Offset.y * transform.GetScale().y };
 			circle.radius = radius;
 
 			b2ShapeId shapeId = b2CreateCircleShape(bodyId, &shapeDef, &circle);

@@ -15,6 +15,7 @@
 #include "Runic2D/Systems/Motion/MovementSystem.h"
 #include "Runic2D/Systems/Logic/LifetimeSystem.h"
 #include "Runic2D/Systems/AI/FlockingSystem.h"
+#include "Runic2D/Systems/AI/PathfindingSystem.h"
 
 #include "Entity.h"
 #include "Components/CoreComponents.h"
@@ -36,6 +37,8 @@ namespace Runic2D {
 
 		// Scripting
 		AddSystem(CreateRef<ScriptingSystem>(), { SystemPhase::Logic });
+		// AI (Pathfinding)
+		AddSystem(CreateRef<PathfindingSystem>(), { SystemPhase::Logic });
 		// AI (Flocking)
 		AddSystem(CreateRef<FlockingSystem>(), { SystemPhase::Logic });
 		// Movement
@@ -141,6 +144,7 @@ namespace Runic2D {
 		CopyComponent<FlockingComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<ShadowCaster2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<PolygonCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<PathfindingComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		for (auto e : idView)
 		{
@@ -499,6 +503,7 @@ namespace Runic2D {
 		CopyComponentIfExists<FlockingComponent>(dst, src);
 		CopyComponentIfExists<ShadowCaster2DComponent>(dst, src);
 		CopyComponentIfExists<PolygonCollider2DComponent>(dst, src);
+		CopyComponentIfExists<PathfindingComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

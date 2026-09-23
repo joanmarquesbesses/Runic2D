@@ -9,6 +9,7 @@
 
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Systems/Render/DebugSystem.h"
+#include "Runic2D/Systems/Render/Render2DSystem.h"
 
 #include <imgui/imgui.h>
 #include "ImGuizmo.h"
@@ -157,6 +158,27 @@ namespace Runic2D {
 		if (ImGui::CollapsingHeader("AI", ImGuiTreeNodeFlags_CollapsingHeader))
 		{
 			ImGui::Checkbox("Show Flocking Grid", &showFlockingGrid);
+
+			auto debugSystem = activeScene->GetSystem<DebugSystem>();
+			if (debugSystem) {
+				bool showNav = debugSystem->GetShowNavGrid();
+				if (ImGui::Checkbox("Show Nav Grid", &showNav)) {
+					debugSystem->SetShowNavGrid(showNav);
+				}
+			}
+		}
+
+		// --- Render ---
+		if (ImGui::CollapsingHeader("Render", ImGuiTreeNodeFlags_CollapsingHeader))
+		{
+			auto renderSystem = activeScene->GetSystem<Render2DSystem>();
+			if (renderSystem) {
+				int blurIters = renderSystem->GetShadowBlurIterations();
+				if (ImGui::SliderInt("Shadow Blur", &blurIters, 0, 20))
+				{
+					renderSystem->SetShadowBlurIterations(blurIters);
+				}
+			}
 		}
 
 		// --- Profiling ---

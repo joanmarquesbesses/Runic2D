@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Runic2D/Core/Base/Timestep.h"
 #include "Runic2D/Core/Base/UUID.h"

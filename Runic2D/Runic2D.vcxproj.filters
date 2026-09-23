@@ -16,6 +16,9 @@
     <Filter Include="src\Runic2D">
       <UniqueIdentifier>{F36B0ECE-5F21-87C3-E815-819A54CA7DC7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Runic2D\AI">
+      <UniqueIdentifier>{AC9B80F6-9869-74FC-81FD-E4226D6A5061}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Runic2D\Assets">
       <UniqueIdentifier>{7563B73A-6147-7890-CAA7-72E3B6AA6212}</UniqueIdentifier>
     </Filter>
@@ -161,6 +164,12 @@
     </ClInclude>
     <ClInclude Include="src\Runic2D.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\AI\AStar.h">
+      <Filter>src\Runic2D\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\AI\NavGrid.h">
+      <Filter>src\Runic2D\AI</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Assets\Asset.h">
       <Filter>src\Runic2D\Assets</Filter>
@@ -379,6 +388,9 @@
       <Filter>src\Runic2D\Scripting</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\AI\FlockingSystem.h">
+      <Filter>src\Runic2D\Systems\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Runic2D\Systems\AI\PathfindingSystem.h">
       <Filter>src\Runic2D\Systems\AI</Filter>
     </ClInclude>
     <ClInclude Include="src\Runic2D\Systems\Audio\AudioSystem.h">
@@ -1727,6 +1739,12 @@
     <ClCompile Include="src\R2Dpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Runic2D\AI\AStar.cpp">
+      <Filter>src\Runic2D\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\AI\NavGrid.cpp">
+      <Filter>src\Runic2D\AI</Filter>
+    </ClCompile>
     <ClCompile Include="src\Runic2D\Assets\AssetRegistry.cpp">
       <Filter>src\Runic2D\Assets</Filter>
     </ClCompile>
@@ -1848,6 +1866,9 @@
       <Filter>src\Runic2D\Scripting</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\AI\FlockingSystem.cpp">
+      <Filter>src\Runic2D\Systems\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Runic2D\Systems\AI\PathfindingSystem.cpp">
       <Filter>src\Runic2D\Systems\AI</Filter>
     </ClCompile>
     <ClCompile Include="src\Runic2D\Systems\Audio\AudioSystem.cpp">

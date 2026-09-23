@@ -63,51 +63,69 @@ namespace Runic2D {
         s_PingPongFBO[1]->Resize(width, height);
     }
 
-    void PostProcessing::Render(const Ref<Texture2D>& baseTexture)
+    Ref<Texture2D> PostProcessing::ApplyBlur(const Ref<Texture2D>& texture, int iterations)
     {
-        // 0. GUARDEM ON ESTÀVEM DIBUIXANT (L'Editor)
         int originalFBO = RenderCommand::GetBoundFramebuffer();
 
-        // PAS 1: BLOOM PING-PONG
+        RenderCommand::SetBlendMode(BlendMode::Alpha);
+
         bool horizontal = true, first_iteration = true;
-        int amount = 10;
+
         s_BlurShader->Bind();
         s_BlurShader->SetInt("u_Image", 0);
-        for (int i = 0; i < amount; i++)
+
+        for (int i = 0; i < iterations; i++)
         {
             s_PingPongFBO[horizontal]->Bind();
+
+            RenderCommand::SetDepthMask(true);
+            RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+            RenderCommand::Clear();
+            RenderCommand::SetDepthMask(false);
+
+            auto& fboSpec = s_PingPongFBO[horizontal]->GetSpecification();
+
+            RenderCommand::SetViewport(0, 0, fboSpec.Width, fboSpec.Height);
+
             s_BlurShader->SetInt("u_Horizontal", horizontal);
+
             if (first_iteration) {
-                baseTexture->Bind(0);
+                texture->Bind(0);
             }
             else {
-                auto& fboSpec = s_PingPongFBO[!horizontal]->GetSpecification();
-                Ref<Texture2D> pingPongTex = Texture2D::Create(
-                    s_PingPongFBO[!horizontal]->GetColorAttachmentRendererID(),
-                    fboSpec.Width, fboSpec.Height);
+                auto& prevSpec = s_PingPongFBO[!horizontal]->GetSpecification();
+                Ref<Texture2D> pingPongTex = Texture2D::Create(s_PingPongFBO[!horizontal]->GetColorAttachmentRendererID(), prevSpec.Width, prevSpec.Height);
                 pingPongTex->Bind(0);
             }
+
             RenderCommand::DrawIndexed(s_FullscreenQuadVAO);
+
             horizontal = !horizontal;
             first_iteration = false;
         }
-        // 1. TORNEM A L'EDITOR (Sense fer cap Unbind!)
-        RenderCommand::BindFramebuffer(originalFBO);
 
+        RenderCommand::BindFramebuffer(originalFBO);
+        RenderCommand::SetDepthMask(true);
+
+        auto& finalSpec = s_PingPongFBO[!horizontal]->GetSpecification();
+        return Texture2D::Create(s_PingPongFBO[!horizontal]->GetColorAttachmentRendererID(), finalSpec.Width, finalSpec.Height);
+    }
+
+    void PostProcessing::Render(const Ref<Texture2D>& baseTexture)
+    {
+        int originalFBO = RenderCommand::GetBoundFramebuffer();
+
+        Ref<Texture2D> bloomTex = ApplyBlur(baseTexture, 10);
+
+        RenderCommand::BindFramebuffer(originalFBO);
         RenderCommand::SetViewport(0, 0, baseTexture->GetWidth(), baseTexture->GetHeight());
 
-        // PAS 2: COMPOSICIÓ FINAL
         s_PostProcessShader->Bind();
         s_PostProcessShader->SetInt("u_SceneTexture", 0);
         s_PostProcessShader->SetInt("u_BloomTexture", 1);
+
         baseTexture->Bind(0);
-
-        auto& fboSpecFinal = s_PingPongFBO[!horizontal]->GetSpecification();
-        Ref<Texture2D> bloomTex = Texture2D::Create(
-            s_PingPongFBO[!horizontal]->GetColorAttachmentRendererID(),
-            fboSpecFinal.Width, fboSpecFinal.Height);
         bloomTex->Bind(1);
-
         RenderCommand::DrawIndexed(s_FullscreenQuadVAO);
     }
 }
