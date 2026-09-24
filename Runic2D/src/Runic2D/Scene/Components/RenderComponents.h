@@ -17,6 +17,8 @@ namespace Runic2D {
 		Ref<Texture2D> Texture;
 		Ref<SubTexture2D> SubTexture;
 		float TilingFactor = 1.0f;
+		bool FlipX = false;
+		bool FlipY = false;
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;

@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "Renderer2D.h"
 
 #include "Shader.h"
@@ -435,7 +435,7 @@ namespace Runic2D
 		constexpr size_t quadVertexCount = 4;
 		const float textureIndex = 0.0f; // White texture
 		const float tilingFactor = 1.0f;
-		constexpr glm::vec2 texCoords[quadVertexCount] = {
+		glm::vec2 texCoords[quadVertexCount] = {
 			{ 0.0f, 0.0f },
 			{ 1.0f, 0.0f },
 			{ 1.0f, 1.0f },
@@ -458,7 +458,7 @@ namespace Runic2D
 		++s_Data.Stats.QuadCount;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID, bool flipX, bool flipY)
 	{		
 
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
@@ -474,12 +474,20 @@ namespace Runic2D
 		}
 
 		constexpr size_t quadVertexCount = 4;
-		constexpr glm::vec2 texCoords[quadVertexCount] = {
+		glm::vec2 texCoords[quadVertexCount] = {
 			{ 0.0f, 0.0f },
 			{ 1.0f, 0.0f },
 			{ 1.0f, 1.0f },
 			{ 0.0f, 1.0f }
 		};
+		if (flipX) {
+			std::swap(texCoords[0], texCoords[1]);
+			std::swap(texCoords[3], texCoords[2]);
+		}
+		if (flipY) {
+			std::swap(texCoords[0], texCoords[3]);
+			std::swap(texCoords[1], texCoords[2]);
+		}
 
 		float textureIndex = 0.0f;
 		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; ++i) {
@@ -515,7 +523,7 @@ namespace Runic2D
 		++s_Data.Stats.QuadCount;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor, int entityID)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor, int entityID, bool flipX, bool flipY)
 	{	
 
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
@@ -532,7 +540,18 @@ namespace Runic2D
 
 		constexpr size_t quadVertexCount = 4;
 		// Aquesta és la diferència clau: agafem les coordenades de la subtextura
-		const glm::vec2* texCoords = subtexture->GetTexCoords();
+		glm::vec2 texCoords[4];
+		for (size_t i = 0; i < 4; i++) texCoords[i] = subtexture->GetTexCoords()[i];
+		
+		if (flipX) {
+			std::swap(texCoords[0], texCoords[1]);
+			std::swap(texCoords[3], texCoords[2]);
+		}
+		if (flipY) {
+			std::swap(texCoords[0], texCoords[3]);
+			std::swap(texCoords[1], texCoords[2]);
+		}
+
 		const Ref<Texture2D>& texture = subtexture->GetTexture();
 
 		float textureIndex = 0.0f;
@@ -701,11 +720,11 @@ namespace Runic2D
 	{
 		if (src.SubTexture)
 		{
-			DrawQuad(transform, src.SubTexture, src.TilingFactor, src.Color, entityID);
+			DrawQuad(transform, src.SubTexture, src.TilingFactor, src.Color, entityID, src.FlipX, src.FlipY);
 		}
 		else if (src.Texture)
 		{
-			DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID);
+			DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID, src.FlipX, src.FlipY);
 		}
 		else
 		{

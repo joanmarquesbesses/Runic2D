@@ -213,6 +213,9 @@ namespace Runic2D {
 				}
 				if (ImGui::Button("Clear Texture")) component.Texture = nullptr;
 				ImGui::DragFloat("Tiling Factor", &component.TilingFactor, 0.1f, 0.0f, 100.0f);
+				ImGui::Checkbox("Flip X", &component.FlipX);
+				ImGui::SameLine();
+				ImGui::Checkbox("Flip Y", &component.FlipY);
 			},
 #else
 			nullptr,
@@ -227,6 +230,8 @@ namespace Runic2D {
 					out << YAML::Key << "TextureUUID" << YAML::Value << (uint64_t)spriteRenderer.Texture->Handle;
 				}
 				out << YAML::Key << "TilingFactor" << YAML::Value << spriteRenderer.TilingFactor;
+				out << YAML::Key << "FlipX" << YAML::Value << spriteRenderer.FlipX;
+				out << YAML::Key << "FlipY" << YAML::Value << spriteRenderer.FlipY;
 			},
 			[](YAML::Node& node, Entity e) {
 				auto& src = e.AddComponent<SpriteRendererComponent>();
@@ -244,6 +249,8 @@ namespace Runic2D {
 					else R2D_CORE_WARN("Texture not found: {0}", path.string());
 				}
 				if (node["TilingFactor"]) src.TilingFactor = node["TilingFactor"].as<float>();
+				if (node["FlipX"]) src.FlipX = node["FlipX"].as<bool>();
+				if (node["FlipY"]) src.FlipY = node["FlipY"].as<bool>();
 			},
 			[](BufferStreamWriter& out, Entity e) {
 				auto& src = e.GetComponent<SpriteRendererComponent>();
@@ -251,6 +258,8 @@ namespace Runic2D {
 				uint64_t uuid = src.Texture ? (uint64_t)src.Texture->Handle : 0;
 				out.WriteRaw(uuid);
 				out.WriteRaw(src.TilingFactor);
+				out.WriteRaw(src.FlipX);
+				out.WriteRaw(src.FlipY);
 			},
 			[](BufferStreamReader& in, Entity e) {
 				SpriteRendererComponent src;
@@ -261,6 +270,8 @@ namespace Runic2D {
 					src.Texture = ResourceManager::Get<Texture2D>(src.TextureUUID);
 				}
 				in.ReadRaw(src.TilingFactor);
+				in.ReadRaw(src.FlipX);
+				in.ReadRaw(src.FlipY);
 				// El punter Ref<Texture> el deixem null. Quan el joc arrenqui, el Scene ja buscarà la textura usant l'UUID!
 				e.AddOrReplaceComponent<SpriteRendererComponent>(src);
 			},
