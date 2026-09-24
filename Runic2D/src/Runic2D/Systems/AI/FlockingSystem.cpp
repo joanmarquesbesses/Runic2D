@@ -113,7 +113,11 @@ namespace Runic2D {
 		for (size_t i = 0; i < flockEntities.size(); i++)
 		{
 			if (glm::length(newDirections[i]) > 0.01f) {
-				registry.get<MovementComponent>(flockEntities[i]).direction = newDirections[i];
+				auto& mc = registry.get<MovementComponent>(flockEntities[i]);
+				float lerpSpeed = 10.0f * (float)ts;
+				if (lerpSpeed > 1.0f) lerpSpeed = 1.0f;
+				mc.direction = glm::mix(mc.direction, newDirections[i], lerpSpeed);
+				if (glm::length(mc.direction) > 0.001f) mc.direction = glm::normalize(mc.direction);
 			}
 		}
 	}
