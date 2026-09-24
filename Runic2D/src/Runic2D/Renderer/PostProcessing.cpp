@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "PostProcessing.h"
 
 #include "Runic2D/Renderer/RenderCommand.h"
@@ -63,7 +63,7 @@ namespace Runic2D {
         s_PingPongFBO[1]->Resize(width, height);
     }
 
-    Ref<Texture2D> PostProcessing::ApplyBlur(const Ref<Texture2D>& texture, int iterations)
+    Ref<Texture2D> PostProcessing::ApplyBlur(const Ref<Texture2D>& texture, int iterations, float threshold)
     {
         int originalFBO = RenderCommand::GetBoundFramebuffer();
 
@@ -88,6 +88,7 @@ namespace Runic2D {
             RenderCommand::SetViewport(0, 0, fboSpec.Width, fboSpec.Height);
 
             s_BlurShader->SetInt("u_Horizontal", horizontal);
+            s_BlurShader->SetFloat("u_Threshold", first_iteration ? threshold : 0.0f);
 
             if (first_iteration) {
                 texture->Bind(0);
@@ -111,11 +112,11 @@ namespace Runic2D {
         return Texture2D::Create(s_PingPongFBO[!horizontal]->GetColorAttachmentRendererID(), finalSpec.Width, finalSpec.Height);
     }
 
-    void PostProcessing::Render(const Ref<Texture2D>& baseTexture)
+    void PostProcessing::Render(const Ref<Texture2D>& baseTexture, int bloomIterations, float bloomIntensity, float bloomThreshold)
     {
         int originalFBO = RenderCommand::GetBoundFramebuffer();
 
-        Ref<Texture2D> bloomTex = ApplyBlur(baseTexture, 10);
+        Ref<Texture2D> bloomTex = ApplyBlur(baseTexture, bloomIterations, bloomThreshold);
 
         RenderCommand::BindFramebuffer(originalFBO);
         RenderCommand::SetViewport(0, 0, baseTexture->GetWidth(), baseTexture->GetHeight());
@@ -123,6 +124,7 @@ namespace Runic2D {
         s_PostProcessShader->Bind();
         s_PostProcessShader->SetInt("u_SceneTexture", 0);
         s_PostProcessShader->SetInt("u_BloomTexture", 1);
+        s_PostProcessShader->SetFloat("u_BloomIntensity", bloomIntensity);
 
         baseTexture->Bind(0);
         bloomTex->Bind(1);

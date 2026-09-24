@@ -25,6 +25,12 @@ namespace Runic2D {
 		void ResizeLightmap(uint32_t width, uint32_t height);
 
 		int GetShadowBlurIterations() const { return m_ShadowBlurIterations; }
+		int GetBloomIterations() const { return m_BloomIterations; }
+		void SetBloomIterations(int iterations) { m_BloomIterations = iterations; }
+		float GetBloomIntensity() const { return m_BloomIntensity; }
+		void SetBloomIntensity(float intensity) { m_BloomIntensity = intensity; }
+		float GetBloomThreshold() const { return m_BloomThreshold; }
+		void SetBloomThreshold(float threshold) { m_BloomThreshold = threshold; }
 		void SetShadowBlurIterations(int iterations) { m_ShadowBlurIterations = iterations; }
 
 	private:
@@ -37,6 +43,9 @@ namespace Runic2D {
 		Ref<FrameBuffer> m_MainHDR_FBO;
 
 		int m_ShadowBlurIterations = 4;
+		int m_BloomIterations = 10;
+		float m_BloomIntensity = 2.5f;
+		float m_BloomThreshold = 1.0f;
 	};
 }
 

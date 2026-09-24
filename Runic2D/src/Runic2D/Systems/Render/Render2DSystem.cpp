@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "Render2DSystem.h"
 
 #include "Runic2D/Scene/Entity.h"
@@ -283,7 +283,7 @@ namespace Runic2D {
 
 		Ref<Texture2D> hdrTexture = Texture2D::Create(m_MainHDR_FBO->GetColorAttachmentRendererID(), m_ViewportWidth, m_ViewportHeight);
 
-		PostProcessing::Render(hdrTexture);
+		PostProcessing::Render(hdrTexture, m_BloomIterations, m_BloomIntensity, m_BloomThreshold);
 
 		RenderCommand::SetDepthMask(true);
 

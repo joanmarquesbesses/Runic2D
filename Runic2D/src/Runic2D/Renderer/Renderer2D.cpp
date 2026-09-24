@@ -718,17 +718,22 @@ namespace Runic2D
 
 	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
 	{
+		glm::vec4 finalColor = src.Color;
+		finalColor.r *= src.Emission;
+		finalColor.g *= src.Emission;
+		finalColor.b *= src.Emission;
+
 		if (src.SubTexture)
 		{
-			DrawQuad(transform, src.SubTexture, src.TilingFactor, src.Color, entityID, src.FlipX, src.FlipY);
+			DrawQuad(transform, src.SubTexture, src.TilingFactor, finalColor, entityID, src.FlipX, src.FlipY);
 		}
 		else if (src.Texture)
 		{
-			DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID, src.FlipX, src.FlipY);
+			DrawQuad(transform, src.Texture, src.TilingFactor, finalColor, entityID, src.FlipX, src.FlipY);
 		}
 		else
 		{
-			DrawQuad(transform, src.Color, entityID);
+			DrawQuad(transform, finalColor, entityID);
 		}
 	}
 

@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "SettingsPanel.h"
 
 #include "Runic2D/Scene/Scene.h"
@@ -177,6 +177,24 @@ namespace Runic2D {
 				if (ImGui::SliderInt("Shadow Blur", &blurIters, 0, 20))
 				{
 					renderSystem->SetShadowBlurIterations(blurIters);
+				}
+				
+				int bloomIters = renderSystem->GetBloomIterations();
+				if (ImGui::SliderInt("Bloom Iterations", &bloomIters, 1, 30))
+				{
+					renderSystem->SetBloomIterations(bloomIters);
+				}
+				
+				float bloomIntensity = renderSystem->GetBloomIntensity();
+				if (ImGui::SliderFloat("Bloom Intensity", &bloomIntensity, 0.0f, 10.0f))
+				{
+					renderSystem->SetBloomIntensity(bloomIntensity);
+				}
+				
+				float bloomThreshold = renderSystem->GetBloomThreshold();
+				if (ImGui::SliderFloat("Bloom Threshold", &bloomThreshold, 0.0f, 2.0f))
+				{
+					renderSystem->SetBloomThreshold(bloomThreshold);
 				}
 			}
 		}

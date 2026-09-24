@@ -14,6 +14,8 @@
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Scripting/ScriptEngine.h"
 
+#include "Runic2D/Systems/Render/Render2DSystem.h"
+
 #include <fstream>
 #include <yaml-cpp/yaml.h>
 
@@ -253,6 +255,17 @@ namespace Runic2D {
 		YAML::Emitter out;
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << "Scene Name";
+		
+		auto renderSys = m_Scene->GetSystem<Render2DSystem>();
+		if (renderSys) {
+			out << YAML::Key << "RenderSettings" << YAML::BeginMap;
+			out << YAML::Key << "BloomIterations" << YAML::Value << renderSys->GetBloomIterations();
+			out << YAML::Key << "BloomIntensity" << YAML::Value << renderSys->GetBloomIntensity();
+			out << YAML::Key << "BloomThreshold" << YAML::Value << renderSys->GetBloomThreshold();
+			out << YAML::Key << "ShadowBlurIterations" << YAML::Value << renderSys->GetShadowBlurIterations();
+			out << YAML::EndMap;
+		}
+
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 		
 		auto view = m_Scene->m_Registry.view<TagComponent>();
@@ -279,6 +292,17 @@ namespace Runic2D {
 
 		// 1. Escrivim capçalera 
 		out.WriteString("R2DB");
+
+		auto renderSys = m_Scene->GetSystem<Render2DSystem>();
+		bool hasRenderSettings = renderSys != nullptr;
+		out.WriteRaw(hasRenderSettings);
+		if (hasRenderSettings) {
+			out.WriteRaw(renderSys->GetBloomIterations());
+			out.WriteRaw(renderSys->GetBloomIntensity());
+			out.WriteRaw(renderSys->GetBloomThreshold());
+			out.WriteRaw(renderSys->GetShadowBlurIterations());
+		}
+
 		// 2. Escrivim nombre total d'entitats
 		auto view = m_Scene->m_Registry.view<entt::entity>();
 		uint32_t entityCount = (uint32_t)view.size();
@@ -480,6 +504,17 @@ namespace Runic2D {
 		std::string sceneName = data["Scene"].as<std::string>();
 		R2D_CORE_TRACE("Deserializing scene '{0}'", sceneName);
 
+		auto renderSettings = data["RenderSettings"];
+		if (renderSettings) {
+			auto renderSys = m_Scene->GetSystem<Render2DSystem>();
+			if (renderSys) {
+				if (renderSettings["BloomIterations"]) renderSys->SetBloomIterations(renderSettings["BloomIterations"].as<int>());
+				if (renderSettings["BloomIntensity"]) renderSys->SetBloomIntensity(renderSettings["BloomIntensity"].as<float>());
+				if (renderSettings["BloomThreshold"]) renderSys->SetBloomThreshold(renderSettings["BloomThreshold"].as<float>());
+				if (renderSettings["ShadowBlurIterations"]) renderSys->SetShadowBlurIterations(renderSettings["ShadowBlurIterations"].as<int>());
+			}
+		}
+
 		auto entities = data["Entities"];
 
 		std::unordered_map<UUID, UUID> parentMap;
@@ -615,6 +650,23 @@ namespace Runic2D {
 		{
 			R2D_CORE_ERROR("Arxiu invàlid o corrupte!");
 			return false;
+		}
+
+		bool hasRenderSettings;
+		in.ReadRaw(hasRenderSettings);
+		if (hasRenderSettings) {
+			int bIters; float bIntens; float bThresh; int sIters;
+			in.ReadRaw(bIters);
+			in.ReadRaw(bIntens);
+			in.ReadRaw(bThresh);
+			in.ReadRaw(sIters);
+			auto renderSys = m_Scene->GetSystem<Render2DSystem>();
+			if (renderSys) {
+				renderSys->SetBloomIterations(bIters);
+				renderSys->SetBloomIntensity(bIntens);
+				renderSys->SetBloomThreshold(bThresh);
+				renderSys->SetShadowBlurIterations(sIters);
+			}
 		}
 
 		// 5. Creem les entitats

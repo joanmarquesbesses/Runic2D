@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Runic2D/Renderer/FrameBuffer.h"
 #include "Runic2D/Renderer/Shader.h"
@@ -15,9 +15,9 @@ namespace Runic2D {
 
         static void OnWindowResize(uint32_t width, uint32_t height);
 
-        static Ref<Texture2D> ApplyBlur(const Ref<Texture2D>& texture, int iterations = 10);
+        static Ref<Texture2D> ApplyBlur(const Ref<Texture2D>& texture, int iterations = 10, float threshold = 0.0f);
 
-        static void Render(const Ref<Texture2D>& baseTexture);
+        static void Render(const Ref<Texture2D>& baseTexture, int bloomIterations = 10, float bloomIntensity = 2.5f, float bloomThreshold = 1.0f);
 
     private:
         static Ref<FrameBuffer> s_PingPongFBO[2];

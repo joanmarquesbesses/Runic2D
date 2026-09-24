@@ -216,6 +216,7 @@ namespace Runic2D {
 				ImGui::Checkbox("Flip X", &component.FlipX);
 				ImGui::SameLine();
 				ImGui::Checkbox("Flip Y", &component.FlipY);
+				ImGui::DragFloat("Emission", &component.Emission, 0.1f, 0.0f, 100.0f);
 			},
 #else
 			nullptr,
@@ -232,6 +233,7 @@ namespace Runic2D {
 				out << YAML::Key << "TilingFactor" << YAML::Value << spriteRenderer.TilingFactor;
 				out << YAML::Key << "FlipX" << YAML::Value << spriteRenderer.FlipX;
 				out << YAML::Key << "FlipY" << YAML::Value << spriteRenderer.FlipY;
+				out << YAML::Key << "Emission" << YAML::Value << spriteRenderer.Emission;
 			},
 			[](YAML::Node& node, Entity e) {
 				auto& src = e.AddComponent<SpriteRendererComponent>();
@@ -251,6 +253,7 @@ namespace Runic2D {
 				if (node["TilingFactor"]) src.TilingFactor = node["TilingFactor"].as<float>();
 				if (node["FlipX"]) src.FlipX = node["FlipX"].as<bool>();
 				if (node["FlipY"]) src.FlipY = node["FlipY"].as<bool>();
+				if (node["Emission"]) src.Emission = node["Emission"].as<float>();
 			},
 			[](BufferStreamWriter& out, Entity e) {
 				auto& src = e.GetComponent<SpriteRendererComponent>();
@@ -260,6 +263,7 @@ namespace Runic2D {
 				out.WriteRaw(src.TilingFactor);
 				out.WriteRaw(src.FlipX);
 				out.WriteRaw(src.FlipY);
+				out.WriteRaw(src.Emission);
 			},
 			[](BufferStreamReader& in, Entity e) {
 				SpriteRendererComponent src;
@@ -272,6 +276,7 @@ namespace Runic2D {
 				in.ReadRaw(src.TilingFactor);
 				in.ReadRaw(src.FlipX);
 				in.ReadRaw(src.FlipY);
+				in.ReadRaw(src.Emission);
 				// El punter Ref<Texture> el deixem null. Quan el joc arrenqui, el Scene ja buscarà la textura usant l'UUID!
 				e.AddOrReplaceComponent<SpriteRendererComponent>(src);
 			},

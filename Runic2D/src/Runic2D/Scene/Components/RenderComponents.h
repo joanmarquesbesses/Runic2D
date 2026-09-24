@@ -19,6 +19,7 @@ namespace Runic2D {
 		float TilingFactor = 1.0f;
 		bool FlipX = false;
 		bool FlipY = false;
+		float Emission = 1.0f;
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;

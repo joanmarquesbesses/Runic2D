@@ -20,6 +20,7 @@ in vec2 v_TexCoord;
 
 uniform sampler2D u_SceneTexture;
 uniform sampler2D u_BloomTexture; 
+uniform float u_BloomIntensity;
 
 void main()
 {
@@ -27,7 +28,5 @@ void main()
     
     vec3 bloomColor = texture(u_BloomTexture, v_TexCoord).rgb;
 
-    bloomColor = max(bloomColor - vec3(1.0), vec3(0.0));
-
-    color = vec4(hdrColor + bloomColor, 1.0);
+    color = vec4(hdrColor + bloomColor * u_BloomIntensity, 1.0);
 }

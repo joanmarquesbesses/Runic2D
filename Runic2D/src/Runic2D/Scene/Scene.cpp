@@ -104,6 +104,15 @@ namespace Runic2D {
 		newScene->m_ViewportWidth = other->m_ViewportWidth;
 		newScene->m_ViewportHeight = other->m_ViewportHeight;
 
+		auto newRenderSys = newScene->GetSystem<Render2DSystem>();
+		auto oldRenderSys = other->GetSystem<Render2DSystem>();
+		if (newRenderSys && oldRenderSys) {
+			newRenderSys->SetBloomIterations(oldRenderSys->GetBloomIterations());
+			newRenderSys->SetBloomIntensity(oldRenderSys->GetBloomIntensity());
+			newRenderSys->SetBloomThreshold(oldRenderSys->GetBloomThreshold());
+			newRenderSys->SetShadowBlurIterations(oldRenderSys->GetShadowBlurIterations());
+		}
+
 		auto& srcSceneRegistry = other->m_Registry;
 		auto& dstSceneRegistry = newScene->m_Registry;
 
