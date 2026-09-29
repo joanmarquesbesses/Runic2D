@@ -41,6 +41,7 @@ IncludeDir["msdf_atlas_gen"] = EngineRoot .. "/Runic2D/vendor/msdf-atlas-gen/msd
 IncludeDir["msdfgen"] = EngineRoot .. "/Runic2D/vendor/msdf-atlas-gen/msdfgen"
 IncludeDir["miniaudio"] = EngineRoot .. "/Runic2D/vendor/miniaudio"
 IncludeDir["lz4"] = EngineRoot .. "/Runic2D/vendor/lz4"
+IncludeDir["nlohmann"] = EngineRoot .. "/Runic2D/vendor/nlohmann"
 -- Include the vendor libraries
 
 group "Dependencies"
@@ -103,7 +104,8 @@ project "Runic2D"
 		"%{IncludeDir.msdfgen}",
 		EngineRoot .. "/Runic2D/vendor/msdf-atlas-gen",
 		"%{IncludeDir.miniaudio}",
-		"%{IncludeDir.lz4}"
+		"%{IncludeDir.lz4}",
+		"%{IncludeDir.nlohmann}"
 	}
 
 	links
@@ -350,6 +352,7 @@ project (activeGame)
         "%{IncludeDir.entt}",
         "%{IncludeDir.Box2D}",
 		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.nlohmann}",
 		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.msdfgen}",
         EngineRoot .. "/Runic2D/vendor/msdf-atlas-gen/msdfgen/include",

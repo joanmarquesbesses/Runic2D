@@ -21,7 +21,7 @@ namespace Runic2D
 		}
 
 		static Ref<SubTexture2D> CreateFromPixelCoords(const Ref<Texture2D>& texture, float x, float y, float width, float height);
-		static Ref<SubTexture2D> CreateFromPixelCoords(const Ref<Texture2D>& texture, const glm::vec2& coords, const glm::vec2& cellSize);
+		static Ref<SubTexture2D> CreateFromPixelCoords(const Ref<Texture2D>& texture, const glm::vec2& coords, const glm::vec2& cellSize, const glm::vec2& spriteSize = { 1.0f, 1.0f });
 	private:
 		Ref<Texture2D> m_Texture;
 		glm::vec2 m_TexCoords[4];

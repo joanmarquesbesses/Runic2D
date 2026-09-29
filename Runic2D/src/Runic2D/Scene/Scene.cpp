@@ -154,6 +154,7 @@ namespace Runic2D {
 		CopyComponent<ShadowCaster2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<PolygonCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<PathfindingComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<TilemapComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		for (auto e : idView)
 		{
@@ -513,6 +514,7 @@ namespace Runic2D {
 		CopyComponentIfExists<ShadowCaster2DComponent>(dst, src);
 		CopyComponentIfExists<PolygonCollider2DComponent>(dst, src);
 		CopyComponentIfExists<PathfindingComponent>(dst, src);
+		CopyComponentIfExists<TilemapComponent>(dst, src);
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

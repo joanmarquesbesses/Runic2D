@@ -22,6 +22,7 @@ namespace Runic2D {
 		m_FontIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/ttf.png");
 		m_AudioIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/audio.png");
 		m_ImageIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/image.png");
+		m_MapIcon = ResourceManager::Get<Texture2D>("../Runic2D-Editor/Resources/Icons/ContentBrowser/map.png");
 	}
 
 	void ContentBrowserPanel::SetRootDirectory(const std::filesystem::path& path)
@@ -220,6 +221,7 @@ namespace Runic2D {
 				else if (extension == ".ttf" || extension == ".otf") icon = m_FontIcon;
 				else if (extension == ".wav" || extension == ".mp3" || extension == ".ogg") icon = m_AudioIcon;
 				else if (extension == ".png" || extension == ".jpg" || extension == ".jpeg") icon = m_ImageIcon;
+				else if (extension == ".tmj") icon = m_MapIcon;
 			}
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));

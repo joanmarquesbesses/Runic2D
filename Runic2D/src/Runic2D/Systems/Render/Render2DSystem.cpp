@@ -11,6 +11,9 @@
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Renderer/RenderCommand.h"
 #include "Runic2D/Renderer/PostProcessing.h"
+#include "Runic2D/Renderer/TiledMapAsset.h"
+
+#include "Runic2D/Assets/ResourceManager.h"
 
 namespace Runic2D {
 
@@ -107,6 +110,64 @@ namespace Runic2D {
 				Entity e{ entityID, scene };
 				glm::mat4 worldTransform = e.GetWorldTransform();
 				Renderer2D::DrawCircle(worldTransform, circle.Color, circle.Thickness, circle.Fade, (int)entityID);
+			});
+
+		auto tilemapView = registry.view<TransformComponent, TilemapComponent>(entt::exclude<RectTransformComponent>);
+		tilemapView.each([&](auto entityID, auto& transform, auto& tilemap)
+			{
+				if (tilemap.MapHandle == 0) return;
+
+				auto map = ResourceManager::Get<TiledMapAsset>(tilemap.MapHandle);
+				if (!map || map->TilesetTextureHandle == 0) return;
+
+				auto texture = ResourceManager::Get<Texture2D>(map->TilesetTextureHandle);
+				if (!texture) return;
+
+				Entity e{ entityID, scene };
+				glm::mat4 baseTransform = e.GetWorldTransform();
+
+				float tileWidthUnits = 1.0f;
+				float tileHeightUnits = 1.0f;
+				float layerZOffset = 0.0f;
+
+				for (const auto& layer : map->TileLayers)
+				{
+					for (int y = 0; y < map->MapHeight; y++)
+					{
+						for (int x = 0; x < map->MapWidth; x++)
+						{
+							int i = x + (y * map->MapWidth);
+							if (layer.Data.empty() || i >= layer.Data.size()) continue;
+
+							unsigned int rawTileID = layer.Data[i];
+							if (rawTileID == 0) continue;
+
+							bool flipX = (rawTileID & 0x80000000) != 0;
+							bool flipY = (rawTileID & 0x40000000) != 0;
+							bool flipDiag = (rawTileID & 0x20000000) != 0; 
+							unsigned int tileID = rawTileID & 0x1FFFFFFF;
+							int localID = tileID - 1;
+
+							if (map->TileCache.find(localID) == map->TileCache.end())
+							{
+								int col = localID % map->TilesetColumns;
+								int row = localID / map->TilesetColumns;
+								int totalRows = texture->GetHeight() / map->TileHeight;
+								int openGLRow = (totalRows - 1) - row;
+
+								map->TileCache[localID] = SubTexture2D::CreateFromCoords(texture, { col, openGLRow }, { (float)map->TileWidth, (float)map->TileHeight });
+							}
+
+							auto subTex = map->TileCache[localID];
+
+							glm::vec3 pos(x * tileWidthUnits, -y * tileHeightUnits, layerZOffset);
+							glm::mat4 tileTransform = glm::translate(baseTransform, pos) * glm::scale(glm::mat4(1.0f), glm::vec3(tileWidthUnits, tileHeightUnits, 1.0f));
+
+							Renderer2D::DrawQuad(tileTransform, subTex, 1.0f, glm::vec4(1.0f), (int)entityID, flipX, flipY);
+						}
+					}
+					layerZOffset += 0.1f;
+				}
 			});
 
 		Renderer2D::EndScene();

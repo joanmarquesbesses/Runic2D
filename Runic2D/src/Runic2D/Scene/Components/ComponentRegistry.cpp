@@ -3,8 +3,10 @@
 #include "Runic2D/Project/Project.h"
 #include "Runic2D/Assets/ResourceManager.h"
 #include "Runic2D/Renderer/Renderer2D.h"
+#include "Runic2D/Utils/TiledParser.h"
 
 #include "ComponentRegistry.h"
+#include "CoreComponents.h"
 #include "LogicComponents.h" 
 #include "MotionComponents.h"
 #include "PhysicsComponents.h"
@@ -1690,7 +1692,145 @@ namespace Runic2D {
 				e.AddOrReplaceComponent<PathfindingComponent>(c);
 			},
 			true
-			});
+			}
+		);
+
+		Register({
+			"TilemapComponent", "Renderer",
+			[](Entity e) { if (!e.HasComponent<TilemapComponent>()) e.AddComponent<TilemapComponent>(); },
+			[](Entity e) { return e.HasComponent<TilemapComponent>(); },
+#ifndef R2D_DIST
+			[](Entity e) {
+				auto& component = e.GetComponent<TilemapComponent>();
+				uint64_t targetUUID = component.MapHandle;
+
+				ImGui::Text("Map Asset");
+				ImGui::SameLine();
+
+				std::string buttonText = targetUUID == 0 ? "Drop .tmj Here" : std::to_string(targetUUID);
+				ImGui::Button(buttonText.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 0.0f));
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const char* path = (const char*)payload->Data;
+						std::filesystem::path relativePath(path);
+
+						if (relativePath.extension() == ".tmj") {
+							std::filesystem::path absolutePath = Project::GetAssetFileSystemPath(relativePath);
+
+							UUID uuid = AssetRegistry::GetUUID(absolutePath);
+
+							if (uuid == 0) {
+								uuid = UUID();
+								AssetRegistry::RegisterAsset(uuid, absolutePath);
+							}
+
+							component.MapHandle = uuid;
+
+							ResourceManager::Get<TiledMapAsset>(component.MapHandle);
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+
+				ImGui::Spacing();
+				ImGui::TextDisabled("--- Map Data ---");
+
+				if (component.MapHandle != 0)
+				{
+					auto mapAsset = ResourceManager::Get<TiledMapAsset>(component.MapHandle);
+					if (mapAsset)
+					{
+						ImGui::TextDisabled("Size: %d x %d", mapAsset->MapWidth, mapAsset->MapHeight);
+						ImGui::TextDisabled("Layers Loaded: %d", (int)mapAsset->TileLayers.size());
+
+						ImGui::Spacing();
+						if (ImGui::Button("Reload Map", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
+						{
+							std::filesystem::path filepath = AssetRegistry::GetFilepath(component.MapHandle);
+							std::filesystem::path absolutePath = Project::GetAssetFileSystemPath(filepath);
+
+							mapAsset->TileCache.clear();
+							mapAsset->TileLayers.clear();
+							mapAsset->Colliders.clear();
+
+							TiledParser::LoadMap(absolutePath.string(), nullptr, mapAsset.get());
+						}
+					}
+					else
+					{
+						ImGui::TextDisabled("Error: Asset no trobat");
+					}
+					if (ImGui::Button("Generar Colliders a l'Escena", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
+					{
+						if (mapAsset && !mapAsset->Colliders.empty())
+						{
+							auto scene = e.GetScene();
+							Entity parentEntity = scene->CreateEntity("Map Colliders");
+							parentEntity.SetParent(e);
+							for (int i = 0; i < mapAsset->Colliders.size(); i++)
+							{
+								const auto& colData = mapAsset->Colliders[i];
+
+								Entity colliderEntity = scene->CreateEntity("Collider_" + std::to_string(i));
+								colliderEntity.SetParent(parentEntity);
+
+								float wUnits = colData.Width / (float)mapAsset->TileWidth;
+								float hUnits = colData.Height / (float)mapAsset->TileHeight;
+								float xTopLeft = colData.X / (float)mapAsset->TileWidth;
+								float yTopLeft = colData.Y / (float)mapAsset->TileHeight;
+
+								float centerX = (xTopLeft + (wUnits / 2.0f)) - 0.5f;
+								float centerY = -((yTopLeft + (hUnits / 2.0f)) - 0.5f);
+
+								auto& tc = colliderEntity.GetComponent<TransformComponent>();
+								tc.SetTranslation(glm::vec3{ centerX, centerY, 0.0f });
+
+								auto& rb = colliderEntity.AddComponent<Rigidbody2DComponent>();
+								rb.Type = Rigidbody2DComponent::BodyType::Static;
+
+								auto& bc = colliderEntity.AddComponent<BoxCollider2DComponent>();
+								bc.Size = { wUnits, hUnits };
+							}
+						}
+					}
+				}
+				else
+				{
+					ImGui::TextDisabled("No map assigned.");
+				}
+			},
+#else
+			nullptr,
+#endif
+			[](Entity e) { e.RemoveComponent<TilemapComponent>(); },
+			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<TilemapComponent>(src.GetComponent<TilemapComponent>()); },
+			[](YAML::Emitter& out, Entity e) {
+				auto& c = e.GetComponent<TilemapComponent>();
+				out << YAML::Key << "MapHandle" << YAML::Value << (uint64_t)c.MapHandle;
+			},
+			[](YAML::Node& node, Entity e) {
+				auto& c = e.AddComponent<TilemapComponent>();
+				if (node["MapHandle"]) {
+					c.MapHandle = node["MapHandle"].as<uint64_t>();
+				}
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& c = e.GetComponent<TilemapComponent>();
+				out.WriteRaw((uint64_t)c.MapHandle);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				TilemapComponent c;
+				uint64_t uuid;
+				in.ReadRaw(uuid);
+				c.MapHandle = uuid;
+				e.AddOrReplaceComponent<TilemapComponent>(c);
+			},
+			true
+			}
+		);
 	}
 }
 

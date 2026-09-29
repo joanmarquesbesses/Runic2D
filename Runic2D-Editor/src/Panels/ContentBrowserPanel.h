@@ -53,6 +53,7 @@ namespace Runic2D {
 		Ref<Texture2D> m_FontIcon;
 		Ref<Texture2D> m_AudioIcon;
 		Ref<Texture2D> m_ImageIcon;
+		Ref<Texture2D> m_MapIcon;
 
 		bool m_FirstFrame = true;
 

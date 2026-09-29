@@ -406,7 +406,7 @@ namespace Runic2D {
 						entt::entity entity = entities[i];
 						auto& transform = registry.get<TransformComponent>(entity);
 						auto& rb = registry.get<Rigidbody2DComponent>(entity);
-						if (B2_IS_NON_NULL(rb.RuntimeBody))
+						if (B2_IS_NON_NULL(rb.RuntimeBody) && rb.Type != Rigidbody2DComponent::BodyType::Static)
 						{
 							b2Vec2 currentPos = b2Body_GetPosition(rb.RuntimeBody);
 							float currentRot = b2Rot_GetAngle(b2Body_GetRotation(rb.RuntimeBody));

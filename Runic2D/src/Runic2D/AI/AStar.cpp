@@ -40,7 +40,56 @@ namespace Runic2D {
         if (!grid.GetGridCoordinates(startPos, startX, startY)) return {};
         if (!grid.GetGridCoordinates(targetPos, targetX, targetY)) return {};
 
-        if (!grid.IsWalkable(targetX, targetY)) return {}; // Destí impossible
+        if (!grid.IsWalkable(startX, startY))
+        {
+            bool foundStart = false;
+            int maxRadiusStart = 3;
+            for (int r = 1; r <= maxRadiusStart && !foundStart; r++)
+            {
+                for (int dx = -r; dx <= r && !foundStart; dx++)
+                {
+                    for (int dy = -r; dy <= r && !foundStart; dy++)
+                    {
+                        if (std::abs(dx) == r || std::abs(dy) == r)
+                        {
+                            if (grid.IsWalkable(startX + dx, startY + dy))
+                            {
+                                startX += dx;
+                                startY += dy;
+                                foundStart = true;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!foundStart) return {}; // L'enemic està totalment atrapat
+        }
+
+        if (!grid.IsWalkable(targetX, targetY))
+        {
+            bool found = false;
+            int maxRadius = 3;
+
+            for (int r = 1; r <= maxRadius && !found; r++)
+            {
+                for (int dx = -r; dx <= r && !found; dx++)
+                {
+                    for (int dy = -r; dy <= r && !found; dy++)
+                    {
+                        if (std::abs(dx) == r || std::abs(dy) == r)
+                        {
+                            if (grid.IsWalkable(targetX + dx, targetY + dy))
+                            {
+                                targetX += dx;
+                                targetY += dy;
+                                found = true;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!found) return {};
+        }
 
         std::priority_queue<Node*, std::vector<Node*>, CompareNode> openSet;
         
@@ -87,7 +136,6 @@ namespace Runic2D {
                 if (!grid.IsWalkable(neighborX, neighborY))
                     continue;
 
-                // Evitem tallar cantonades
                 if (i >= 4) // És un moviment diagonal
                 {
                     if (!grid.IsWalkable(current->x, neighborY) || !grid.IsWalkable(neighborX, current->y))

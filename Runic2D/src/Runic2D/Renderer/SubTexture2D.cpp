@@ -33,9 +33,19 @@ namespace Runic2D
         return CreateRef<SubTexture2D>(texture, min, max);
     }
 
-    Ref<SubTexture2D> SubTexture2D::CreateFromPixelCoords(const Ref<Texture2D>& texture, const glm::vec2& coords, const glm::vec2& cellSize)
+    Ref<SubTexture2D> SubTexture2D::CreateFromPixelCoords(const Ref<Texture2D>& texture, const glm::vec2& coords, const glm::vec2& cellSize,
+        const glm::vec2& spriteSize)
     {
-        return CreateFromPixelCoords(texture, coords.x, coords.y, cellSize.x, cellSize.y);
+        float bleedOffset = 0.5f;
+        glm::vec2 min = {
+            ((coords.x * cellSize.x) + bleedOffset) / texture->GetWidth(),
+            ((coords.y * cellSize.y) + bleedOffset) / texture->GetHeight()
+        };
+        glm::vec2 max = {
+            (((coords.x + spriteSize.x) * cellSize.x) - bleedOffset) / texture->GetWidth(),
+            (((coords.y + spriteSize.y) * cellSize.y) - bleedOffset) / texture->GetHeight()
+        };
+        return CreateRef<SubTexture2D>(texture, min, max);
     }
 }
 

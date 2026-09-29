@@ -9,6 +9,8 @@
 
 #include <glm/glm.hpp>
 
+#include <vector>
+
 namespace Runic2D {
 
 	struct RUNIC_API SpriteRendererComponent {
@@ -113,6 +115,15 @@ namespace Runic2D {
 	{
 		bool CastShadows = true;
 		std::vector<glm::vec2> CustomShape;
+	};
+
+	struct RUNIC_API TilemapComponent
+	{
+		AssetHandle MapHandle = 0;
+
+		TilemapComponent() = default;
+		TilemapComponent(const TilemapComponent&) = default;
+		TilemapComponent(AssetHandle handle) : MapHandle(handle) {}
 	};
 
 }
