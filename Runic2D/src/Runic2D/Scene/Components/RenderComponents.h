@@ -21,6 +21,9 @@ namespace Runic2D {
 		float TilingFactor = 1.0f;
 		bool FlipX = false;
 		bool FlipY = false;
+
+		UUID EmissiveTextureUUID = 0;
+		Ref<Texture2D> EmissiveTexture;
 		float Emission = 1.0f;
 
 		SpriteRendererComponent() = default;

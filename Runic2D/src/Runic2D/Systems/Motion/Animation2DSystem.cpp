@@ -1,4 +1,4 @@
-﻿#include "R2Dpch.h"
+#include "R2Dpch.h"
 #include "Animation2DSystem.h"
 
 #include "Runic2D/Scene/Scene.h"
@@ -157,6 +157,14 @@ namespace Runic2D {
 							anim.CurrentFrameIndex = 0;
 						}
 						sprite.SubTexture = anim.CurrentAnimation->GetFrame(anim.CurrentFrameIndex);
+					}
+
+					// Sincronitza la textura emissiva basada en l'estat actual
+					for (const auto& profile : anim.Profiles) {
+						if (profile.Name == anim.CurrentStateName) {
+							sprite.EmissiveTexture = profile.EmissiveTexture;
+							break;
+						}
 					}
 				}
 			});

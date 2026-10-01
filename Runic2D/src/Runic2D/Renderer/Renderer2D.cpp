@@ -19,6 +19,8 @@ namespace Runic2D
 		glm::vec2 TexCoord;
 		float TexIndex;
 		float TilingFactor;
+		float EmissiveTexIndex;
+		float EmissiveIntensity;
 
 		// Editor-only
 		int EntityID;
@@ -138,6 +140,8 @@ namespace Runic2D
 			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float,  "a_TexIndex" },
 			{ ShaderDataType::Float,  "a_TilingFactor" },
+			{ ShaderDataType::Float, "a_EmissiveTexIndex" },
+			{ ShaderDataType::Float, "a_EmissiveIntensity" },
 			{ ShaderDataType::Int,    "a_EntityID"     }
 		};
 		s_Data.QuadVertexBuffer->SetLayout(squareLayout);
@@ -449,6 +453,8 @@ namespace Runic2D
 			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
 			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
 			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+			s_Data.QuadVertexBufferPtr->EmissiveTexIndex = 0.0f;
+			s_Data.QuadVertexBufferPtr->EmissiveIntensity = 1.0f;
 			s_Data.QuadVertexBufferPtr->EntityID = entityID;
 			++s_Data.QuadVertexBufferPtr;
 		}
@@ -458,9 +464,8 @@ namespace Runic2D
 		++s_Data.Stats.QuadCount;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID, bool flipX, bool flipY)
-	{		
-
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID, bool flipX, bool flipY, const Ref<Texture2D>& emissiveTexture, float emissiveIntensity)
+	{
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
 
 		if (s_Data.CurrentShader != s_Data.QuadShader)
@@ -475,10 +480,7 @@ namespace Runic2D
 
 		constexpr size_t quadVertexCount = 4;
 		glm::vec2 texCoords[quadVertexCount] = {
-			{ 0.0f, 0.0f },
-			{ 1.0f, 0.0f },
-			{ 1.0f, 1.0f },
-			{ 0.0f, 1.0f }
+			{ 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f }
 		};
 		if (flipX) {
 			std::swap(texCoords[0], texCoords[1]);
@@ -498,13 +500,26 @@ namespace Runic2D
 		}
 
 		if (textureIndex == 0.0f) {
-
-			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
-				NextBatch(FlushReason::TextureLimit);
-
+			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots) NextBatch(FlushReason::TextureLimit);
 			textureIndex = (float)s_Data.TextureSlotIndex;
 			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;
-			++s_Data.TextureSlotIndex;
+			s_Data.TextureSlotIndex++;
+		}
+
+		float emissiveTextureIndex = 0.0f;
+		if (emissiveTexture) {
+			for (uint32_t i = 1; i < s_Data.TextureSlotIndex; ++i) {
+				if (*s_Data.TextureSlots[i] == *emissiveTexture) {
+					emissiveTextureIndex = (float)i;
+					break;
+				}
+			}
+			if (emissiveTextureIndex == 0.0f) {
+				if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots) NextBatch(FlushReason::TextureLimit);
+				emissiveTextureIndex = (float)s_Data.TextureSlotIndex;
+				s_Data.TextureSlots[s_Data.TextureSlotIndex] = emissiveTexture;
+				s_Data.TextureSlotIndex++;
+			}
 		}
 
 		for (size_t i = 0; i < quadVertexCount; ++i)
@@ -514,18 +529,17 @@ namespace Runic2D
 			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
 			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
 			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+			s_Data.QuadVertexBufferPtr->EmissiveTexIndex = emissiveTextureIndex; 
+			s_Data.QuadVertexBufferPtr->EmissiveIntensity = emissiveIntensity;   
 			s_Data.QuadVertexBufferPtr->EntityID = entityID;
 			++s_Data.QuadVertexBufferPtr;
 		}
-
 		s_Data.QuadIndexCount += 6;
-
 		++s_Data.Stats.QuadCount;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor, int entityID, bool flipX, bool flipY)
-	{	
-
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<SubTexture2D>& subtexture, float tilingFactor, const glm::vec4& tintColor, int entityID, bool flipX, bool flipY, const Ref<Texture2D>& emissiveTexture, float emissiveIntensity)
+	{
 		CheckPrimitive(FlushReason::PrimitiveChange, PrimitiveType::Quad);
 
 		if (s_Data.CurrentShader != s_Data.QuadShader)
@@ -539,10 +553,9 @@ namespace Runic2D
 		}
 
 		constexpr size_t quadVertexCount = 4;
-		// Aquesta és la diferència clau: agafem les coordenades de la subtextura
 		glm::vec2 texCoords[4];
 		for (size_t i = 0; i < 4; i++) texCoords[i] = subtexture->GetTexCoords()[i];
-		
+
 		if (flipX) {
 			std::swap(texCoords[0], texCoords[1]);
 			std::swap(texCoords[3], texCoords[2]);
@@ -551,29 +564,38 @@ namespace Runic2D
 			std::swap(texCoords[0], texCoords[3]);
 			std::swap(texCoords[1], texCoords[2]);
 		}
-
 		const Ref<Texture2D>& texture = subtexture->GetTexture();
 
 		float textureIndex = 0.0f;
-		// Busquem si la textura ja està en un slot
 		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; ++i) {
 			if (*s_Data.TextureSlots[i] == *texture) {
 				textureIndex = (float)i;
 				break;
 			}
 		}
-
-		// Si no hi és, l'afegim
 		if (textureIndex == 0.0f) {
-			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
-				NextBatch(FlushReason::TextureLimit);
-
+			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots) NextBatch(FlushReason::TextureLimit);
 			textureIndex = (float)s_Data.TextureSlotIndex;
 			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;
-			++s_Data.TextureSlotIndex;
+			s_Data.TextureSlotIndex++;
 		}
 
-		// Omplim el buffer utilitzant el Transform i les coords de la SubTexture
+		float emissiveTextureIndex = 0.0f;
+		if (emissiveTexture) {
+			for (uint32_t i = 1; i < s_Data.TextureSlotIndex; ++i) {
+				if (*s_Data.TextureSlots[i] == *emissiveTexture) {
+					emissiveTextureIndex = (float)i;
+					break;
+				}
+			}
+			if (emissiveTextureIndex == 0.0f) {
+				if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots) NextBatch(FlushReason::TextureLimit);
+				emissiveTextureIndex = (float)s_Data.TextureSlotIndex;
+				s_Data.TextureSlots[s_Data.TextureSlotIndex] = emissiveTexture;
+				s_Data.TextureSlotIndex++;
+			}
+		}
+
 		for (size_t i = 0; i < quadVertexCount; ++i)
 		{
 			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
@@ -581,10 +603,11 @@ namespace Runic2D
 			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
 			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
 			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+			s_Data.QuadVertexBufferPtr->EmissiveTexIndex = emissiveTextureIndex; 
+			s_Data.QuadVertexBufferPtr->EmissiveIntensity = emissiveIntensity;   
 			s_Data.QuadVertexBufferPtr->EntityID = entityID;
 			++s_Data.QuadVertexBufferPtr;
 		}
-
 		s_Data.QuadIndexCount += 6;
 		++s_Data.Stats.QuadCount;
 	}
@@ -718,22 +741,22 @@ namespace Runic2D
 
 	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
 	{
-		glm::vec4 finalColor = src.Color;
-		finalColor.r *= src.Emission;
-		finalColor.g *= src.Emission;
-		finalColor.b *= src.Emission;
-
 		if (src.SubTexture)
 		{
-			DrawQuad(transform, src.SubTexture, src.TilingFactor, finalColor, entityID, src.FlipX, src.FlipY);
+			DrawQuad(transform, src.SubTexture, src.TilingFactor, src.Color, entityID, src.FlipX, src.FlipY, src.EmissiveTexture, src.Emission);
 		}
 		else if (src.Texture)
 		{
-			DrawQuad(transform, src.Texture, src.TilingFactor, finalColor, entityID, src.FlipX, src.FlipY);
+			DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID, src.FlipX, src.FlipY, src.EmissiveTexture, src.Emission);
 		}
 		else
 		{
-			DrawQuad(transform, finalColor, entityID);
+			glm::vec4 flatColor = src.Color;
+			flatColor.r *= src.Emission;
+			flatColor.g *= src.Emission;
+			flatColor.b *= src.Emission;
+
+			DrawQuad(transform, flatColor, entityID);
 		}
 	}
 
@@ -908,6 +931,8 @@ namespace Runic2D
 			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
 			s_Data.QuadVertexBufferPtr->TexIndex = 0.0f; 
 			s_Data.QuadVertexBufferPtr->TilingFactor = light.Falloff; 
+			s_Data.QuadVertexBufferPtr->EmissiveTexIndex = 0.0f;
+			s_Data.QuadVertexBufferPtr->EmissiveIntensity = 1.0f;
 			s_Data.QuadVertexBufferPtr->EntityID = entityID;
 			++s_Data.QuadVertexBufferPtr;
 		}
@@ -935,6 +960,8 @@ namespace Runic2D
 			s_Data.QuadVertexBufferPtr->TexCoord = texCoords[i];
 			s_Data.QuadVertexBufferPtr->TexIndex = 0.0f;
 			s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+			s_Data.QuadVertexBufferPtr->EmissiveTexIndex = 0.0f;
+			s_Data.QuadVertexBufferPtr->EmissiveIntensity = 1.0f;
 			s_Data.QuadVertexBufferPtr->EntityID = -1;
 			++s_Data.QuadVertexBufferPtr;
 		}

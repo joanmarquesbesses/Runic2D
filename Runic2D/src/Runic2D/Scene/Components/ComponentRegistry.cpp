@@ -199,6 +199,8 @@ namespace Runic2D {
 			[](Entity e) {
 				auto& component = e.GetComponent<SpriteRendererComponent>();
 				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
+
+				// --- BASE TEXTURE ---
 				ImGui::Text("Texture");
 				ImGui::SameLine();
 				Ref<Texture2D> textureToShow = component.Texture ? component.Texture : Renderer2D::GetWhiteTexture();
@@ -214,6 +216,23 @@ namespace Runic2D {
 					ImGui::EndDragDropTarget();
 				}
 				if (ImGui::Button("Clear Texture")) component.Texture = nullptr;
+				// --- EMISSIVE TEXTURE ---
+				ImGui::Text("Emissive");
+				ImGui::SameLine();
+				Ref<Texture2D> emissiveToShow = component.EmissiveTexture ? component.EmissiveTexture : Renderer2D::GetWhiteTexture();
+				ImGui::ImageButton("EmissiveTexturePreview", (ImTextureID)emissiveToShow->GetRendererID(), ImVec2(64, 64), ImVec2(0, 1), ImVec2(1, 0));
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const char* path = (const char*)payload->Data;
+						std::filesystem::path texturePath = Project::GetAssetFileSystemPath(path);
+						component.EmissiveTexture = ResourceManager::Get<Texture2D>(texturePath.string());
+					}
+					ImGui::EndDragDropTarget();
+				}
+				if (ImGui::Button("Clear Emissive")) component.EmissiveTexture = nullptr;
+				// --- PARAMS ---
 				ImGui::DragFloat("Tiling Factor", &component.TilingFactor, 0.1f, 0.0f, 100.0f);
 				ImGui::Checkbox("Flip X", &component.FlipX);
 				ImGui::SameLine();
@@ -232,6 +251,10 @@ namespace Runic2D {
 				{
 					out << YAML::Key << "TextureUUID" << YAML::Value << (uint64_t)spriteRenderer.Texture->Handle;
 				}
+				if (spriteRenderer.EmissiveTexture)
+				{
+					out << YAML::Key << "EmissiveTextureUUID" << YAML::Value << (uint64_t)spriteRenderer.EmissiveTexture->Handle;
+				}
 				out << YAML::Key << "TilingFactor" << YAML::Value << spriteRenderer.TilingFactor;
 				out << YAML::Key << "FlipX" << YAML::Value << spriteRenderer.FlipX;
 				out << YAML::Key << "FlipY" << YAML::Value << spriteRenderer.FlipY;
@@ -240,17 +263,19 @@ namespace Runic2D {
 			[](YAML::Node& node, Entity e) {
 				auto& src = e.AddComponent<SpriteRendererComponent>();
 				if (node["Color"]) { src.Color.r = node["Color"][0].as<float>(); src.Color.g = node["Color"][1].as<float>(); src.Color.b = node["Color"][2].as<float>(); src.Color.a = node["Color"][3].as<float>(); }
+
 				if (node["TextureUUID"]) {
 					src.Texture = ResourceManager::Get<Texture2D>(node["TextureUUID"].as<uint64_t>());
 				}
-				else if (node["TexturePath"])
-				{
+				else if (node["TexturePath"]) {
 					std::string texturePathString = node["TexturePath"].as<std::string>();
 					std::filesystem::path path = Project::GetAssetFileSystemPath(texturePathString);
 					if (!std::filesystem::exists(path) && std::filesystem::exists(texturePathString)) path = texturePathString;
-
-					if (std::filesystem::exists(path)) src.Texture = ResourceManager::Get<Texture2D>(path); // Aquest Get generarà l'UUID sol!
+					if (std::filesystem::exists(path)) src.Texture = ResourceManager::Get<Texture2D>(path);
 					else R2D_CORE_WARN("Texture not found: {0}", path.string());
+				}
+				if (node["EmissiveTextureUUID"]) {
+					src.EmissiveTexture = ResourceManager::Get<Texture2D>(node["EmissiveTextureUUID"].as<uint64_t>());
 				}
 				if (node["TilingFactor"]) src.TilingFactor = node["TilingFactor"].as<float>();
 				if (node["FlipX"]) src.FlipX = node["FlipX"].as<bool>();
@@ -260,8 +285,13 @@ namespace Runic2D {
 			[](BufferStreamWriter& out, Entity e) {
 				auto& src = e.GetComponent<SpriteRendererComponent>();
 				out.WriteRaw(src.Color);
+
 				uint64_t uuid = src.Texture ? (uint64_t)src.Texture->Handle : 0;
 				out.WriteRaw(uuid);
+
+				uint64_t emissiveUuid = src.EmissiveTexture ? (uint64_t)src.EmissiveTexture->Handle : 0;
+				out.WriteRaw(emissiveUuid);
+
 				out.WriteRaw(src.TilingFactor);
 				out.WriteRaw(src.FlipX);
 				out.WriteRaw(src.FlipY);
@@ -270,16 +300,17 @@ namespace Runic2D {
 			[](BufferStreamReader& in, Entity e) {
 				SpriteRendererComponent src;
 				in.ReadRaw(src.Color);
+
 				in.ReadRaw(src.TextureUUID);
-				if (src.TextureUUID != 0)
-				{
-					src.Texture = ResourceManager::Get<Texture2D>(src.TextureUUID);
-				}
+				if (src.TextureUUID != 0) src.Texture = ResourceManager::Get<Texture2D>(src.TextureUUID);
+
+				in.ReadRaw(src.EmissiveTextureUUID);
+				if (src.EmissiveTextureUUID != 0) src.EmissiveTexture = ResourceManager::Get<Texture2D>(src.EmissiveTextureUUID);
+
 				in.ReadRaw(src.TilingFactor);
 				in.ReadRaw(src.FlipX);
 				in.ReadRaw(src.FlipY);
 				in.ReadRaw(src.Emission);
-				// El punter Ref<Texture> el deixem null. Quan el joc arrenqui, el Scene ja buscarà la textura usant l'UUID!
 				e.AddOrReplaceComponent<SpriteRendererComponent>(src);
 			},
 			true
@@ -697,14 +728,13 @@ namespace Runic2D {
 				auto& component = e.GetComponent<AnimationComponent>();
 				ImGui::Checkbox("Playing", &component.Playing);
 				ImGui::Checkbox("Loop All", &component.Loop);
-				
+
 				if (ImGui::Button("Add Animation Profile"))
 				{
 					AnimationProfile newProfile;
 					newProfile.Name = "New Animation";
 					component.Profiles.push_back(newProfile);
 				}
-
 				if (ImGui::BeginCombo("Current State", component.CurrentStateName.c_str()))
 				{
 					for (auto& profile : component.Profiles)
@@ -723,7 +753,6 @@ namespace Runic2D {
 					}
 					ImGui::EndCombo();
 				}
-
 				for (size_t i = 0; i < component.Profiles.size(); i++)
 				{
 					auto& profile = component.Profiles[i];
@@ -734,11 +763,12 @@ namespace Runic2D {
 						memset(buffer, 0, sizeof(buffer));
 						std::strncpy(buffer, profile.Name.c_str(), sizeof(buffer));
 						if (ImGui::InputText("Name", buffer, sizeof(buffer))) profile.Name = std::string(buffer);
-						
+
+						// --- BASE SHEET ---
 						ImGui::Text("Sprite Sheet");
+						ImGui::SameLine();
 						Ref<Texture2D> textureToShow = profile.AtlasTexture ? profile.AtlasTexture : Renderer2D::GetWhiteTexture();
 						ImGui::ImageButton("TexturePreview", (ImTextureID)textureToShow->GetRendererID(), ImVec2(64, 64), ImVec2(0, 1), ImVec2(1, 0));
-
 						if (ImGui::BeginDragDropTarget())
 						{
 							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
@@ -752,7 +782,22 @@ namespace Runic2D {
 							}
 							ImGui::EndDragDropTarget();
 						}
-
+						// --- EMISSIVE SHEET ---
+						ImGui::Text("Emissive Sheet");
+						ImGui::SameLine();
+						Ref<Texture2D> emissiveToShow = profile.EmissiveTexture ? profile.EmissiveTexture : Renderer2D::GetWhiteTexture();
+						ImGui::ImageButton("EmissivePreview", (ImTextureID)emissiveToShow->GetRendererID(), ImVec2(64, 64), ImVec2(0, 1), ImVec2(1, 0));
+						if (ImGui::BeginDragDropTarget())
+						{
+							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+							{
+								const char* path = (const char*)payload->Data;
+								std::filesystem::path texturePath = Project::GetAssetFileSystemPath(path);
+								profile.EmissiveTexture = ResourceManager::Get<Texture2D>(texturePath.string());
+								profile.EmissiveTexturePath = path; // NOU
+							}
+							ImGui::EndDragDropTarget();
+						}
 						bool dirty = false;
 						dirty |= ImGui::DragFloat2("Tile Size", glm::value_ptr(profile.TileSize));
 						dirty |= ImGui::DragInt("Start Frame", &profile.StartFrame);
@@ -763,7 +808,6 @@ namespace Runic2D {
 						if (dirty) {
 							component.Animations.clear();
 						}
-
 						if (profile.AtlasTexture && ImGui::Button("Auto-Calc Size from Rows"))
 						{
 							if (profile.FramesPerRow > 0)
@@ -777,7 +821,6 @@ namespace Runic2D {
 								component.Animations.clear();
 							}
 						}
-
 						if (ImGui::Checkbox("Loop", &profile.Loop))
 						{
 							if (component.CurrentStateName == profile.Name) component.Loop = profile.Loop;
@@ -802,6 +845,7 @@ namespace Runic2D {
 					out << YAML::BeginMap;
 					out << YAML::Key << "Name" << YAML::Value << profile.Name;
 					out << YAML::Key << "TexturePath" << YAML::Value << profile.TexturePath;
+					out << YAML::Key << "EmissiveTexturePath" << YAML::Value << profile.EmissiveTexturePath; // NOU
 					out << YAML::Key << "TileSize" << YAML::Value << YAML::Flow << YAML::BeginSeq << profile.TileSize.x << profile.TileSize.y << YAML::EndSeq;
 					out << YAML::Key << "StartFrame" << YAML::Value << profile.StartFrame;
 					out << YAML::Key << "FrameCount" << YAML::Value << profile.FrameCount;
@@ -816,7 +860,7 @@ namespace Runic2D {
 				auto& ac = e.AddComponent<AnimationComponent>();
 				if (node["Playing"]) ac.Playing = node["Playing"].as<bool>();
 				if (node["Loop"]) ac.Loop = node["Loop"].as<bool>();
-				
+
 				auto profilesNode = node["Profiles"];
 				if (profilesNode)
 				{
@@ -829,11 +873,20 @@ namespace Runic2D {
 							profile.TexturePath = profileNode["TexturePath"].as<std::string>();
 							std::filesystem::path path = Project::GetAssetFileSystemPath(profile.TexturePath);
 							if (!std::filesystem::exists(path) && std::filesystem::exists(profile.TexturePath)) path = profile.TexturePath;
-
 							if (std::filesystem::exists(path)) {
 								profile.AtlasTexture = ResourceManager::Get<Texture2D>(profile.TexturePath);
-							} else {
-								R2D_CORE_WARN("Animation Texture not found: {0}", path.string());
+							}
+							else {
+							  R2D_CORE_WARN("Animation Texture not found: {0}", path.string());
+							}
+						}
+						if (profileNode["EmissiveTexturePath"])
+						{
+							profile.EmissiveTexturePath = profileNode["EmissiveTexturePath"].as<std::string>();
+							std::filesystem::path ePath = Project::GetAssetFileSystemPath(profile.EmissiveTexturePath);
+							if (!std::filesystem::exists(ePath) && std::filesystem::exists(profile.EmissiveTexturePath)) ePath = profile.EmissiveTexturePath;
+							if (std::filesystem::exists(ePath)) {
+								profile.EmissiveTexture = ResourceManager::Get<Texture2D>(profile.EmissiveTexturePath);
 							}
 						}
 						if (profileNode["TileSize"]) { profile.TileSize.x = profileNode["TileSize"][0].as<float>(); profile.TileSize.y = profileNode["TileSize"][1].as<float>(); }
@@ -844,26 +897,25 @@ namespace Runic2D {
 						if (profileNode["Loop"]) profile.Loop = profileNode["Loop"].as<bool>();
 						ac.Profiles.push_back(profile);
 					}
-					
+
 					if (!ac.Profiles.empty())
 					{
 						auto& profile = ac.Profiles[0];
 						if (ac.CurrentStateName.empty()) ac.CurrentStateName = profile.Name;
-						
+
 						if (profile.AtlasTexture && e.HasComponent<SpriteRendererComponent>())
 						{
 							int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
 							int frameIndex = profile.StartFrame;
 							int col = frameIndex % numCols;
 							int row = frameIndex / numCols;
-
 							auto subtex = SubTexture2D::CreateFromPixelCoords(
 								profile.AtlasTexture,
 								col * profile.TileSize.x, row * profile.TileSize.y,
 								profile.TileSize.x, profile.TileSize.y
 							);
-
 							e.GetComponent<SpriteRendererComponent>().SubTexture = subtex;
+							e.GetComponent<SpriteRendererComponent>().EmissiveTexture = profile.EmissiveTexture; // NOU
 							e.GetComponent<SpriteRendererComponent>().Color = glm::vec4(1.0f);
 						}
 					}
@@ -871,18 +923,17 @@ namespace Runic2D {
 			},
 			[](BufferStreamWriter& out, Entity e) {
 				auto& ac = e.GetComponent<AnimationComponent>();
-
 				out.WriteString(ac.CurrentStateName);
 				out.WriteRaw(ac.Playing);
 				out.WriteRaw(ac.Loop);
-
 				uint32_t profileCount = (uint32_t)ac.Profiles.size();
 				out.WriteRaw(profileCount);
-
 				for (auto& profile : ac.Profiles) {
 					out.WriteString(profile.Name);
 					if (profile.AtlasTexture) profile.AtlasTextureUUID = profile.AtlasTexture->Handle;
 					out.WriteRaw(profile.AtlasTextureUUID);
+					if (profile.EmissiveTexture) profile.EmissiveTextureUUID = profile.EmissiveTexture->Handle;
+					out.WriteRaw(profile.EmissiveTextureUUID);
 					out.WriteRaw(profile.TileSize);
 					out.WriteRaw(profile.StartFrame);
 					out.WriteRaw(profile.FrameCount);
@@ -893,53 +944,44 @@ namespace Runic2D {
 			},
 			[](BufferStreamReader& in, Entity e) {
 				AnimationComponent ac;
-
 				in.ReadString(ac.CurrentStateName);
 				in.ReadRaw(ac.Playing);
 				in.ReadRaw(ac.Loop);
-
 				uint32_t profileCount;
 				in.ReadRaw(profileCount);
-
 				for (uint32_t i = 0; i < profileCount; i++) {
 					AnimationProfile profile;
 					in.ReadString(profile.Name);
-
 					in.ReadRaw(profile.AtlasTextureUUID);
-					if (profile.AtlasTextureUUID != 0) {
-						profile.AtlasTexture = ResourceManager::Get<Texture2D>(profile.AtlasTextureUUID);
-					}
-
+					if (profile.AtlasTextureUUID != 0) profile.AtlasTexture = ResourceManager::Get<Texture2D>(profile.AtlasTextureUUID);
+					in.ReadRaw(profile.EmissiveTextureUUID);
+					if (profile.EmissiveTextureUUID != 0) profile.EmissiveTexture = ResourceManager::Get<Texture2D>(profile.EmissiveTextureUUID);
 					in.ReadRaw(profile.TileSize);
 					in.ReadRaw(profile.StartFrame);
 					in.ReadRaw(profile.FrameCount);
 					in.ReadRaw(profile.FramesPerRow);
 					in.ReadRaw(profile.FrameTime);
 					in.ReadRaw(profile.Loop);
-
 					ac.Profiles.push_back(profile);
 				}
 				e.AddOrReplaceComponent<AnimationComponent>(ac);
-
 				if (!ac.Profiles.empty())
 				{
 					auto& profile = ac.Profiles[0];
 					if (ac.CurrentStateName.empty()) ac.CurrentStateName = profile.Name;
-
 					if (profile.AtlasTexture && e.HasComponent<SpriteRendererComponent>())
 					{
 						int numCols = (int)(profile.AtlasTexture->GetWidth() / profile.TileSize.x);
 						int frameIndex = profile.StartFrame;
 						int col = frameIndex % numCols;
 						int row = frameIndex / numCols;
-
 						auto subtex = SubTexture2D::CreateFromPixelCoords(
 							profile.AtlasTexture,
 							col * profile.TileSize.x, row * profile.TileSize.y,
 							profile.TileSize.x, profile.TileSize.y
 						);
-
 						e.GetComponent<SpriteRendererComponent>().SubTexture = subtex;
+						e.GetComponent<SpriteRendererComponent>().EmissiveTexture = profile.EmissiveTexture; // NOU
 						e.GetComponent<SpriteRendererComponent>().Color = glm::vec4(1.0f);
 					}
 				}
@@ -1280,6 +1322,7 @@ namespace Runic2D {
 			[](Runic2D::Entity e) {
 				auto& c = e.GetComponent<MovementComponent>();
 				ImGui::DragFloat("Speed", &c.speed, 0.1f, 0.0f, 50.0f);
+				ImGui::Checkbox("Auto Flip Visuals", &c.AutoFlipVisuals);
 			},
 #else
 			nullptr,
@@ -1292,11 +1335,13 @@ namespace Runic2D {
 			[](YAML::Emitter& out, Runic2D::Entity e) {
 				auto& c = e.GetComponent<MovementComponent>();
 				out << YAML::Key << "Speed" << YAML::Value << c.speed;
+				out << YAML::Key << "Auto Flip Visuals" << YAML::Value << c.AutoFlipVisuals;
 			},
 			// DESERIALITZA YAML
 			[](YAML::Node& node, Runic2D::Entity e) {
 				auto& c = e.AddComponent<MovementComponent>();
 				if (node["Speed"]) c.speed = node["Speed"].as<float>();
+				if (node["Auto Flip Visuals"]) c.AutoFlipVisuals = node["Auto Flip Visuals"].as<bool>();
 			},
 			// SERIALITZA BINARI
 			[](Runic2D::BufferStreamWriter& out, Runic2D::Entity e) {

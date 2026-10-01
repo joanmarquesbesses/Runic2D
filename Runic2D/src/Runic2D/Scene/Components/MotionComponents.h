@@ -13,6 +13,10 @@ namespace Runic2D {
 		Ref<Texture2D> AtlasTexture = nullptr;
 		std::string TexturePath = "";
 
+		UUID EmissiveTextureUUID = 0;
+		Ref<Texture2D> EmissiveTexture;
+		std::string EmissiveTexturePath = "";
+
 		glm::vec2 TileSize = { 32.0f, 32.0f };
 
 		int StartFrame = 0; 
@@ -98,5 +102,6 @@ namespace Runic2D {
 	struct RUNIC_API MovementComponent {
 		float speed = 0.0f;
 		glm::vec2 direction{ 0.0f };
+		bool AutoFlipVisuals = true;
 	};
 }

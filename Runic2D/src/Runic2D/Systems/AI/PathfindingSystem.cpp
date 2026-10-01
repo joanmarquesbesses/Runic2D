@@ -53,7 +53,12 @@ namespace Runic2D {
 
                             // A* concurrent! Totalment thread-safe.
                             path.Path = AStar::FindPath(*m_NavGrid, myPos, targetPos);
-                            path.CurrentWaypointIndex = 0;
+                            if (path.Path.size() > 1) {
+                                path.CurrentWaypointIndex = 1;
+                            }
+                            else {
+                                path.CurrentWaypointIndex = 0;
+                            }
                         }
 
                         float randomOffset = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 0.1f;
