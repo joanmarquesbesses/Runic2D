@@ -265,7 +265,7 @@ namespace Runic2D {
 				if (node["Color"]) { src.Color.r = node["Color"][0].as<float>(); src.Color.g = node["Color"][1].as<float>(); src.Color.b = node["Color"][2].as<float>(); src.Color.a = node["Color"][3].as<float>(); }
 
 				if (node["TextureUUID"]) {
-					src.Texture = ResourceManager::Get<Texture2D>(node["TextureUUID"].as<uint64_t>());
+					uint64_t uuid = node["TextureUUID"].as<uint64_t>(); if (uuid != 0) src.Texture = ResourceManager::Get<Texture2D>(uuid);
 				}
 				else if (node["TexturePath"]) {
 					std::string texturePathString = node["TexturePath"].as<std::string>();
@@ -275,7 +275,7 @@ namespace Runic2D {
 					else R2D_CORE_WARN("Texture not found: {0}", path.string());
 				}
 				if (node["EmissiveTextureUUID"]) {
-					src.EmissiveTexture = ResourceManager::Get<Texture2D>(node["EmissiveTextureUUID"].as<uint64_t>());
+					uint64_t uuid = node["EmissiveTextureUUID"].as<uint64_t>(); if (uuid != 0) src.EmissiveTexture = ResourceManager::Get<Texture2D>(uuid);
 				}
 				if (node["TilingFactor"]) src.TilingFactor = node["TilingFactor"].as<float>();
 				if (node["FlipX"]) src.FlipX = node["FlipX"].as<bool>();
@@ -883,11 +883,7 @@ namespace Runic2D {
 						if (profileNode["EmissiveTexturePath"])
 						{
 							profile.EmissiveTexturePath = profileNode["EmissiveTexturePath"].as<std::string>();
-							std::filesystem::path ePath = Project::GetAssetFileSystemPath(profile.EmissiveTexturePath);
-							if (!std::filesystem::exists(ePath) && std::filesystem::exists(profile.EmissiveTexturePath)) ePath = profile.EmissiveTexturePath;
-							if (std::filesystem::exists(ePath)) {
-								profile.EmissiveTexture = ResourceManager::Get<Texture2D>(profile.EmissiveTexturePath);
-							}
+							if (!profile.EmissiveTexturePath.empty()) { std::filesystem::path ePath = Project::GetAssetFileSystemPath(profile.EmissiveTexturePath); if (!std::filesystem::exists(ePath) && std::filesystem::exists(profile.EmissiveTexturePath)) ePath = profile.EmissiveTexturePath; if (std::filesystem::exists(ePath)) { profile.EmissiveTexture = ResourceManager::Get<Texture2D>(profile.EmissiveTexturePath); } }
 						}
 						if (profileNode["TileSize"]) { profile.TileSize.x = profileNode["TileSize"][0].as<float>(); profile.TileSize.y = profileNode["TileSize"][1].as<float>(); }
 						if (profileNode["StartFrame"]) profile.StartFrame = profileNode["StartFrame"].as<int>();
@@ -1878,4 +1874,6 @@ namespace Runic2D {
 		);
 	}
 }
+
+
 
