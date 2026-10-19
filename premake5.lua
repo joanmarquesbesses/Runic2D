@@ -157,13 +157,13 @@ project "Runic2D"
 		optimize "on"
 
 	filter { "system:windows", "configurations:Debug" }
-		buildoptions "/utf-8"
+		buildoptions { "/utf-8", "/bigobj" }
 
 	filter { "system:windows", "configurations:Release" }
-		buildoptions "/utf-8"
+		buildoptions { "/utf-8", "/bigobj" }
 
 	filter { "system:windows", "configurations:Dist" }
-        buildoptions "/utf-8"
+        buildoptions { "/utf-8", "/bigobj" }
 
 	filter "files:**.c"
 		flags { "NoPCH" }
