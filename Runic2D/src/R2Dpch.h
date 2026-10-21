@@ -5,6 +5,7 @@
 #include <utility>
 #include <algorithm>
 #include <functional>
+#include <cmath>
 
 #include <string>
 #include <sstream>
@@ -13,6 +14,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <cstdint>
+#include <queue>
 
 #include "Runic2D/Core/Base/Log.h"
 

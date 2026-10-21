@@ -5,6 +5,8 @@
 
 namespace Runic2D {
 
+	enum class PathfindingType { FlowField, AStar };
+
 	struct RUNIC_API FlockingComponent
 	{
 		float NeighborRadius = 3.0f;     // A quina distància un altre monstre es considera "veí"
@@ -18,14 +20,16 @@ namespace Runic2D {
 
 	struct RUNIC_API PathfindingComponent
 	{
+		PathfindingType Type = PathfindingType::FlowField;
 		UUID TargetEntity = 0;
 		bool Enabled = false;
+
 		std::vector<glm::vec2> Path;
 		size_t CurrentWaypointIndex = 0;
 		float RepathTimer = 0.0f;
 		float RepathInterval = 0.5f;
+
 		PathfindingComponent() = default;
 		PathfindingComponent(const PathfindingComponent&) = default;
 	};
-
 }

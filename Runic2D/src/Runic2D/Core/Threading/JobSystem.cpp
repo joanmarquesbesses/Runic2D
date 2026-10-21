@@ -4,9 +4,7 @@
 #include <thread>
 #include <condition_variable>
 #include <mutex>
-#include <queue>
 #include <atomic>
-#include <algorithm>
 
 namespace Runic2D {
 

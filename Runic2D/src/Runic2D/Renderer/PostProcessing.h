@@ -21,6 +21,7 @@ namespace Runic2D {
 
     private:
         static Ref<FrameBuffer> s_PingPongFBO[2];
+        static Ref<Texture2D> s_PingPongTextures[2];
 
         static Ref<Shader> s_PostProcessShader;
         static Ref<Shader> s_BlurShader;

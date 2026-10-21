@@ -1,9 +1,5 @@
 #include "R2Dpch.h"
 #include "AStar.h"
-#include <queue>
-#include <unordered_map>
-#include <cmath>
-#include <algorithm>
 
 namespace Runic2D {
 

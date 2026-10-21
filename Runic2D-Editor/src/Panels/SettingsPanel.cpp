@@ -10,6 +10,7 @@
 #include "Runic2D/Renderer/Renderer2D.h"
 #include "Runic2D/Systems/Render/DebugSystem.h"
 #include "Runic2D/Systems/Render/Render2DSystem.h"
+#include "Runic2D/Systems/AI/PathfindingSystem.h"
 
 #include <imgui/imgui.h>
 #include "ImGuizmo.h"
@@ -166,6 +167,14 @@ namespace Runic2D {
 					debugSystem->SetShowNavGrid(showNav);
 				}
 			}
+
+			auto pathfindingSystem = activeScene->GetSystem<PathfindingSystem>();
+			if (pathfindingSystem) {
+				float interval = pathfindingSystem->GetFlowFieldUpdateInterval();
+				if (ImGui::SliderFloat("FlowField Interval", &interval, 0.01f, 1.0f, "%.2f s")) {
+					pathfindingSystem->SetFlowFieldUpdateInterval(interval);
+				}
+			}
 		}
 
 		// --- Render ---
@@ -173,28 +182,52 @@ namespace Runic2D {
 		{
 			auto renderSystem = activeScene->GetSystem<Render2DSystem>();
 			if (renderSystem) {
-				int blurIters = renderSystem->GetShadowBlurIterations();
-				if (ImGui::SliderInt("Shadow Blur", &blurIters, 0, 20))
+				// CHECKBOXES D'ACTIVAR / DESACTIVAR
+				bool lighting = renderSystem->IsLightingEnabled();
+				if (ImGui::Checkbox("Enable Lighting", &lighting))
+					renderSystem->SetLightingEnabled(lighting);
+
+				if (lighting)
 				{
-					renderSystem->SetShadowBlurIterations(blurIters);
+					ImGui::Indent();
+
+					bool shadows = renderSystem->IsShadowsEnabled();
+					if (ImGui::Checkbox("Enable Shadows", &shadows))
+						renderSystem->SetShadowsEnabled(shadows);
+
+					if (shadows)
+					{
+						int blurIters = renderSystem->GetShadowBlurIterations();
+						if (ImGui::SliderInt("Shadow Blur", &blurIters, 0, 20))
+							renderSystem->SetShadowBlurIterations(blurIters);
+					}
+
+					ImGui::Unindent();
 				}
-				
-				int bloomIters = renderSystem->GetBloomIterations();
-				if (ImGui::SliderInt("Bloom Iterations", &bloomIters, 1, 30))
+
+				ImGui::Separator();
+
+				bool bloom = renderSystem->IsBloomEnabled();
+				if (ImGui::Checkbox("Enable Bloom", &bloom))
+					renderSystem->SetBloomEnabled(bloom);
+
+				if (bloom)
 				{
-					renderSystem->SetBloomIterations(bloomIters);
-				}
-				
-				float bloomIntensity = renderSystem->GetBloomIntensity();
-				if (ImGui::SliderFloat("Bloom Intensity", &bloomIntensity, 0.0f, 10.0f))
-				{
-					renderSystem->SetBloomIntensity(bloomIntensity);
-				}
-				
-				float bloomThreshold = renderSystem->GetBloomThreshold();
-				if (ImGui::SliderFloat("Bloom Threshold", &bloomThreshold, 0.0f, 2.0f))
-				{
-					renderSystem->SetBloomThreshold(bloomThreshold);
+					ImGui::Indent();
+
+					int bloomIters = renderSystem->GetBloomIterations();
+					if (ImGui::SliderInt("Bloom Iterations", &bloomIters, 1, 30))
+						renderSystem->SetBloomIterations(bloomIters);
+
+					float bloomIntensity = renderSystem->GetBloomIntensity();
+					if (ImGui::SliderFloat("Bloom Intensity", &bloomIntensity, 0.0f, 10.0f))
+						renderSystem->SetBloomIntensity(bloomIntensity);
+
+					float bloomThreshold = renderSystem->GetBloomThreshold();
+					if (ImGui::SliderFloat("Bloom Threshold", &bloomThreshold, 0.0f, 2.0f))
+						renderSystem->SetBloomThreshold(bloomThreshold);
+
+					ImGui::Unindent();
 				}
 			}
 		}

@@ -7,6 +7,7 @@
 #include "Runic2D/Scene/Components/PhysicsComponents.h"
 
 #include "Runic2D/Renderer/Renderer2D.h"
+#include "Runic2D/Systems/Render/Render2DSystem.h"
 #include "Runic2D/Systems/Render/ParticleSystem.h"
 #include "Runic2D/Systems/AI/FlockingSystem.h"
 #include "Runic2D/Systems/AI/PathfindingSystem.h"
@@ -111,6 +112,17 @@ namespace Runic2D {
 			debugStr += "Renderer Stats:\n";
 			debugStr += "  Draw Calls: " + std::to_string(renderStats.DrawCalls) + "\n";
 			debugStr += "  Quads: " + std::to_string(renderStats.QuadCount) + "\n";
+
+			if (auto renderSystem = scene->GetSystem<Render2DSystem>())
+			{
+				debugStr += "\nRender Settings:\n";
+				debugStr += "  Lighting: " + std::string(renderSystem->IsLightingEnabled() ? "ON" : "OFF") + "\n";
+				debugStr += "  Shadows:  " + std::string(renderSystem->IsShadowsEnabled() ? "ON" : "OFF") +
+					" (" + std::to_string(renderSystem->GetShadowBlurIterations()) + " blur)\n";
+				debugStr += "  Bloom:    " + std::string(renderSystem->IsBloomEnabled() ? "ON" : "OFF") +
+					" (" + std::to_string(renderSystem->GetBloomIterations()) + " iters)\n";
+			}
+
 			debugStr += "\nScene Stats:\n";
 			debugStr += "  Entities: " + std::to_string(sceneStats.TotalEntities) + "\n";
 			debugStr += "  Scripts: " + std::to_string(sceneStats.ScriptUpdates) + "\n";

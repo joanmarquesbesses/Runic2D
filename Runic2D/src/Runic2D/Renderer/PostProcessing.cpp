@@ -8,6 +8,7 @@
 namespace Runic2D {
 
     Ref<FrameBuffer> PostProcessing::s_PingPongFBO[2];
+    Ref<Texture2D> PostProcessing::s_PingPongTextures[2];
     Ref<Shader> PostProcessing::s_PostProcessShader;
     Ref<Shader> PostProcessing::s_BlurShader;
     Ref<VertexArray> PostProcessing::s_FullscreenQuadVAO;
@@ -26,6 +27,10 @@ namespace Runic2D {
 
         s_PingPongFBO[0] = FrameBuffer::Create(fbSpec);
         s_PingPongFBO[1] = FrameBuffer::Create(fbSpec);
+
+        s_PingPongTextures[0] = Texture2D::Create(s_PingPongFBO[0]->GetColorAttachmentRendererID(), fbSpec.Width, fbSpec.Height);
+        s_PingPongTextures[1] = Texture2D::Create(s_PingPongFBO[1]->GetColorAttachmentRendererID(), fbSpec.Width, fbSpec.Height);
+
         s_FullscreenQuadVAO = VertexArray::Create();
 
         float quadVertices[] = {
@@ -52,6 +57,8 @@ namespace Runic2D {
     void PostProcessing::Shutdown()
     {
         s_FullscreenQuadVAO = nullptr;
+        s_PingPongTextures[0] = nullptr; 
+        s_PingPongTextures[1] = nullptr;
         s_PingPongFBO[0] = nullptr;
         s_PingPongFBO[1] = nullptr;
         s_PostProcessShader = nullptr;
@@ -61,6 +68,9 @@ namespace Runic2D {
     {
         s_PingPongFBO[0]->Resize(width, height);
         s_PingPongFBO[1]->Resize(width, height);
+
+        s_PingPongTextures[0] = Texture2D::Create(s_PingPongFBO[0]->GetColorAttachmentRendererID(), width, height);
+        s_PingPongTextures[1] = Texture2D::Create(s_PingPongFBO[1]->GetColorAttachmentRendererID(), width, height);
     }
 
     Ref<Texture2D> PostProcessing::ApplyBlur(const Ref<Texture2D>& texture, int iterations, float threshold)
@@ -94,9 +104,7 @@ namespace Runic2D {
                 texture->Bind(0);
             }
             else {
-                auto& prevSpec = s_PingPongFBO[!horizontal]->GetSpecification();
-                Ref<Texture2D> pingPongTex = Texture2D::Create(s_PingPongFBO[!horizontal]->GetColorAttachmentRendererID(), prevSpec.Width, prevSpec.Height);
-                pingPongTex->Bind(0);
+                s_PingPongTextures[!horizontal]->Bind(0);
             }
 
             RenderCommand::DrawIndexed(s_FullscreenQuadVAO);
@@ -109,7 +117,7 @@ namespace Runic2D {
         RenderCommand::SetDepthMask(true);
 
         auto& finalSpec = s_PingPongFBO[!horizontal]->GetSpecification();
-        return Texture2D::Create(s_PingPongFBO[!horizontal]->GetColorAttachmentRendererID(), finalSpec.Width, finalSpec.Height);
+        return s_PingPongTextures[!horizontal];
     }
 
     void PostProcessing::Render(const Ref<Texture2D>& baseTexture, int bloomIterations, float bloomIntensity, float bloomThreshold)

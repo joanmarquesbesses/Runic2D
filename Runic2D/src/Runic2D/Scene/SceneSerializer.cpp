@@ -259,6 +259,9 @@ namespace Runic2D {
 		auto renderSys = m_Scene->GetSystem<Render2DSystem>();
 		if (renderSys) {
 			out << YAML::Key << "RenderSettings" << YAML::BeginMap;
+			out << YAML::Key << "LightingEnabled" << YAML::Value << renderSys->IsLightingEnabled();
+			out << YAML::Key << "ShadowsEnabled" << YAML::Value << renderSys->IsShadowsEnabled();
+			out << YAML::Key << "BloomEnabled" << YAML::Value << renderSys->IsBloomEnabled();
 			out << YAML::Key << "BloomIterations" << YAML::Value << renderSys->GetBloomIterations();
 			out << YAML::Key << "BloomIntensity" << YAML::Value << renderSys->GetBloomIntensity();
 			out << YAML::Key << "BloomThreshold" << YAML::Value << renderSys->GetBloomThreshold();
@@ -297,6 +300,10 @@ namespace Runic2D {
 		bool hasRenderSettings = renderSys != nullptr;
 		out.WriteRaw(hasRenderSettings);
 		if (hasRenderSettings) {
+			out.WriteRaw(renderSys->IsLightingEnabled());
+			out.WriteRaw(renderSys->IsShadowsEnabled());
+			out.WriteRaw(renderSys->IsBloomEnabled());
+
 			out.WriteRaw(renderSys->GetBloomIterations());
 			out.WriteRaw(renderSys->GetBloomIntensity());
 			out.WriteRaw(renderSys->GetBloomThreshold());
@@ -508,6 +515,9 @@ namespace Runic2D {
 		if (renderSettings) {
 			auto renderSys = m_Scene->GetSystem<Render2DSystem>();
 			if (renderSys) {
+				if (renderSettings["LightingEnabled"]) renderSys->SetLightingEnabled(renderSettings["LightingEnabled"].as<bool>());
+				if (renderSettings["ShadowsEnabled"]) renderSys->SetShadowsEnabled(renderSettings["ShadowsEnabled"].as<bool>());
+				if (renderSettings["BloomEnabled"]) renderSys->SetBloomEnabled(renderSettings["BloomEnabled"].as<bool>());
 				if (renderSettings["BloomIterations"]) renderSys->SetBloomIterations(renderSettings["BloomIterations"].as<int>());
 				if (renderSettings["BloomIntensity"]) renderSys->SetBloomIntensity(renderSettings["BloomIntensity"].as<float>());
 				if (renderSettings["BloomThreshold"]) renderSys->SetBloomThreshold(renderSettings["BloomThreshold"].as<float>());
@@ -655,13 +665,23 @@ namespace Runic2D {
 		bool hasRenderSettings;
 		in.ReadRaw(hasRenderSettings);
 		if (hasRenderSettings) {
+			bool lighting, shadows, bloom;
+			in.ReadRaw(lighting);
+			in.ReadRaw(shadows);
+			in.ReadRaw(bloom);
+
 			int bIters; float bIntens; float bThresh; int sIters;
 			in.ReadRaw(bIters);
 			in.ReadRaw(bIntens);
 			in.ReadRaw(bThresh);
 			in.ReadRaw(sIters);
+
 			auto renderSys = m_Scene->GetSystem<Render2DSystem>();
 			if (renderSys) {
+				renderSys->SetLightingEnabled(lighting);
+				renderSys->SetShadowsEnabled(shadows);
+				renderSys->SetBloomEnabled(bloom);
+
 				renderSys->SetBloomIterations(bIters);
 				renderSys->SetBloomIntensity(bIntens);
 				renderSys->SetBloomThreshold(bThresh);

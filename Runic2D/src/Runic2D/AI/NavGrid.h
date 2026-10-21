@@ -32,6 +32,11 @@ namespace Runic2D {
         // Escaneja l'escena i marca com a 'false' aquelles cel·les que intersectin amb un Collider
         void GenerateFromScene(Scene* scene);
 
+        // Genera el camp de flux cap a una posició d'objectiu (normalment el Player)
+        void UpdateFlowField(const glm::vec2& targetWorldPos);
+        // Obté la direcció normalitzada cap a on ha de caminar una entitat des del món
+        glm::vec2 GetFlowDirection(const glm::vec2& worldPos) const;
+
     private:
         int m_Width = 0;
         int m_Height = 0;
@@ -40,6 +45,9 @@ namespace Runic2D {
         
         // 1D array per cache-friendly data. Accés: y * m_Width + x
         std::vector<bool> m_Walkable;
+
+        std::vector<uint16_t> m_IntegrationField;
+        std::vector<glm::vec2> m_FlowField;
     };
 
 }
