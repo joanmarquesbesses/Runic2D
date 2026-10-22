@@ -445,68 +445,38 @@ namespace Runic2D
 				}
 			}
 
-			auto windowWidth = ImGui::GetWindowWidth();
-
-			if (!engineCategories.empty()) {
-				ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-				auto textWidth = ImGui::CalcTextSize("-- Engine Components --").x;
-				float posX = (windowWidth - textWidth) * 0.5f;
-				if (posX < 0) posX = 0;
-				ImGui::SetCursorPosX(posX);
-				ImGui::TextDisabled("-- Engine Components --");
-				ImGui::PopFont();
-
-				for (const auto& cat : engineCategories) {
-					if (!cat.Name.empty()) {
-						ImGui::Spacing();
-						auto catWidth = ImGui::CalcTextSize(cat.Name.c_str()).x;
-						posX = (windowWidth - catWidth) * 0.5f;
-						if (posX < 0) posX = 0;
-						ImGui::SetCursorPosX(posX);
-						ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), cat.Name.c_str());
-					}
-
-					for (const auto* desc : cat.Components) {
-						ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
-						if (ImGui::Selectable(desc->Name.c_str())) {
-							desc->AddToEntity(entity);
-							ImGui::CloseCurrentPopup();
+			auto DrawCategoryMenus = [&](const std::vector<CategoryData>& categories)
+			{
+				for (const auto& cat : categories)
+				{
+					std::string catName = cat.Name.empty() ? "General" : cat.Name;
+					// Submenú en cascada
+					if (ImGui::BeginMenu(catName.c_str()))
+					{
+						for (const auto* desc : cat.Components)
+						{
+							if (ImGui::MenuItem(desc->Name.c_str()))
+							{
+								desc->AddToEntity(entity);
+								ImGui::CloseCurrentPopup();
+							}
 						}
-						ImGui::PopStyleVar();
+						ImGui::EndMenu();
 					}
 				}
+			};
+			
+			if (!engineCategories.empty()) {
+				ImGui::TextDisabled("-- Engine Components --");
+				DrawCategoryMenus(engineCategories);
 			}
-
+			
 			if (!gameCategories.empty()) {
 				if (!engineCategories.empty()) ImGui::Separator();
-				ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-				auto textWidth = ImGui::CalcTextSize("-- Game Components --").x;
-				float posX = (windowWidth - textWidth) * 0.5f;
-				if (posX < 0) posX = 0;
-				ImGui::SetCursorPosX(posX);
 				ImGui::TextDisabled("-- Game Components --");
-				ImGui::PopFont();
-
-				for (const auto& cat : gameCategories) {
-					if (!cat.Name.empty()) {
-						ImGui::Spacing();
-						auto catWidth = ImGui::CalcTextSize(cat.Name.c_str()).x;
-						posX = (windowWidth - catWidth) * 0.5f;
-						if (posX < 0) posX = 0;
-						ImGui::SetCursorPosX(posX);
-						ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), cat.Name.c_str());
-					}
-
-					for (const auto* desc : cat.Components) {
-						ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
-						if (ImGui::Selectable(desc->Name.c_str())) {
-							desc->AddToEntity(entity);
-							ImGui::CloseCurrentPopup();
-						}
-						ImGui::PopStyleVar();
-					}
-				}
+				DrawCategoryMenus(gameCategories);
 			}
+			
 			ImGui::EndPopup();
 		}
 

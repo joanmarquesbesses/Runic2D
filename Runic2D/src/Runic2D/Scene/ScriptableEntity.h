@@ -11,9 +11,30 @@ namespace Runic2D
 		T& GetComponent() {
 			return m_Entity.GetComponent<T>();
 		}
+
 		template<typename T>
 		bool HasComponent() {
 			return m_Entity.HasComponent<T>();
+		}
+
+		template<typename T, typename... Args>
+		T& AddComponent(Args&&... args) {
+			return m_Entity.AddComponent<T>(std::forward<Args>(args)...);
+		}
+
+		template<typename T, typename... Args>
+		T& AddOrReplaceComponent(Args&&... args) {
+			return m_Entity.AddOrReplaceComponent<T>(std::forward<Args>(args)...);
+		}
+
+		template<typename T, typename... Args>
+		T& GetOrAddComponent(Args&&... args) {
+			return m_Entity.GetOrAddComponent<T>(std::forward<Args>(args)...);
+		}
+
+		template<typename T>
+		void RemoveComponent() {
+			m_Entity.RemoveComponent<T>();
 		}
 
 		Entity GetEntity() const { return m_Entity; }
