@@ -16,6 +16,8 @@
 #include "AudioComponents.h"
 #include "AIComponents.h"
 
+#include "Runic2D/Systems/Physics/PhysicsSystem.h"
+
 #include <yaml-cpp/yaml.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -72,6 +74,52 @@ namespace Runic2D {
 		}
 
 		return presentComponents;
+	}
+
+	template<typename TComponent>
+	static void DrawCollisionLayersUI(TComponent& component)
+	{
+		const auto& layerNames = PhysicsSystem::GetLayerNames();
+		if (layerNames.empty()) return;
+		// 1. Selector de Capa (Category)
+		int currentCategoryIdx = 0;
+		for (int i = 0; i < (int)layerNames.size(); i++)
+		{
+			if (component.CategoryBits & (1 << i))
+			{
+				currentCategoryIdx = i;
+				break;
+			}
+		}
+		if (ImGui::BeginCombo("Layer", layerNames[currentCategoryIdx].c_str()))
+		{
+			for (int i = 0; i < (int)layerNames.size(); i++)
+			{
+				bool isSelected = (currentCategoryIdx == i);
+				if (ImGui::Selectable(layerNames[i].c_str(), isSelected))
+				{
+					component.CategoryBits = (1 << i);
+				}
+				if (isSelected) ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+		// 2. Checkboxes de Màscara de Col·lisió (Mask)
+		if (ImGui::TreeNodeEx("Collision Mask", ImGuiTreeNodeFlags_Framed))
+		{
+			for (int i = 0; i < (int)layerNames.size(); i++)
+			{
+				bool isChecked = (component.MaskBits & (1 << i)) != 0;
+				if (ImGui::Checkbox(layerNames[i].c_str(), &isChecked))
+				{
+					if (isChecked)
+						component.MaskBits |= (1 << i);
+					else
+						component.MaskBits &= ~(1 << i);
+				}
+			}
+			ImGui::TreePop();
+		}
 	}
 
 	void ComponentRegistry::InitEngineComponents()
@@ -484,6 +532,7 @@ namespace Runic2D {
 				ImGui::Checkbox("Is Sensor", &component.IsSensor);
 				ImGui::Checkbox("Enable Contact Events", &component.EnableContactEvents);
 				ImGui::Checkbox("Enable Sensor Events", &component.EnableSensorEvents);
+				DrawCollisionLayersUI(component);
 			},
 #else
 			nullptr,
@@ -501,6 +550,8 @@ namespace Runic2D {
 				out << YAML::Key << "IsSensor" << YAML::Value << bc2dComponent.IsSensor;
 				out << YAML::Key << "EnableContactEvents" << YAML::Value << bc2dComponent.EnableContactEvents;
 				out << YAML::Key << "EnableSensorEvents" << YAML::Value << bc2dComponent.EnableSensorEvents;
+				out << YAML::Key << "CategoryBits" << YAML::Value << bc2dComponent.CategoryBits;
+				out << YAML::Key << "MaskBits" << YAML::Value << bc2dComponent.MaskBits;
 			},
 			[](YAML::Node& node, Entity e) {
 				auto& bc2d = e.AddComponent<BoxCollider2DComponent>();
@@ -513,6 +564,8 @@ namespace Runic2D {
 				if (node["IsSensor"]) bc2d.IsSensor = node["IsSensor"].as<bool>();
 				if (node["EnableContactEvents"]) bc2d.EnableContactEvents = node["EnableContactEvents"].as<bool>();
 				if (node["EnableSensorEvents"]) bc2d.EnableSensorEvents = node["EnableSensorEvents"].as<bool>();
+				if (node["CategoryBits"]) bc2d.CategoryBits = node["CategoryBits"].as<uint32_t>();
+				if (node["MaskBits"]) bc2d.MaskBits = node["MaskBits"].as<uint32_t>();
 			},
 			[](BufferStreamWriter& out, Entity e) {
 				auto& bcc = e.GetComponent<BoxCollider2DComponent>();
@@ -546,7 +599,8 @@ namespace Runic2D {
 				e.AddOrReplaceComponent<BoxCollider2DComponent>(bcc);
 			},
 			true
-		});
+			}
+		);
 
 		Register({
 			"CircleCollider2DComponent", "Physics",
@@ -564,6 +618,7 @@ namespace Runic2D {
 				ImGui::Checkbox("Is Sensor", &component.IsSensor);
 				ImGui::Checkbox("Enable Contact Events", &component.EnableContactEvents);
 				ImGui::Checkbox("Enable Sensor Events", &component.EnableSensorEvents);
+				DrawCollisionLayersUI(component);
 			},
 #else
 			nullptr,
@@ -581,6 +636,8 @@ namespace Runic2D {
 				out << YAML::Key << "IsSensor" << YAML::Value << cc2dComponent.IsSensor;
 				out << YAML::Key << "EnableContactEvents" << YAML::Value << cc2dComponent.EnableContactEvents;
 				out << YAML::Key << "EnableSensorEvents" << YAML::Value << cc2dComponent.EnableSensorEvents;
+				out << YAML::Key << "CategoryBits" << YAML::Value << cc2dComponent.CategoryBits;
+				out << YAML::Key << "MaskBits" << YAML::Value << cc2dComponent.MaskBits;
 			},
 			[](YAML::Node& node, Entity e) {
 				auto& cc2d = e.AddComponent<CircleCollider2DComponent>();
@@ -593,6 +650,8 @@ namespace Runic2D {
 				if (node["IsSensor"]) cc2d.IsSensor = node["IsSensor"].as<bool>();
 				if (node["EnableContactEvents"]) cc2d.EnableContactEvents = node["EnableContactEvents"].as<bool>();
 				if (node["EnableSensorEvents"]) cc2d.EnableSensorEvents = node["EnableSensorEvents"].as<bool>();
+				if (node["CategoryBits"]) cc2d.CategoryBits = node["CategoryBits"].as<uint32_t>();
+				if (node["MaskBits"]) cc2d.MaskBits = node["MaskBits"].as<uint32_t>();
 			},
 			[](BufferStreamWriter& out, Entity e) {
 				auto& ccc = e.GetComponent<CircleCollider2DComponent>();
@@ -626,7 +685,135 @@ namespace Runic2D {
 				e.AddOrReplaceComponent<CircleCollider2DComponent>(ccc);
 			},
 			true
-		});
+			}
+		);
+
+		Register({
+			"PolygonCollider2DComponent", "Physics",
+			[](Entity e) { if (!e.HasComponent<PolygonCollider2DComponent>()) e.AddComponent<PolygonCollider2DComponent>(); },
+			[](Entity e) { return e.HasComponent<PolygonCollider2DComponent>(); },
+#ifndef R2D_DIST
+			[](Entity e) {
+				auto& component = e.GetComponent<PolygonCollider2DComponent>();
+
+				// Llista de punts desplegable
+				if (ImGui::TreeNode("Polygon Vertices"))
+				{
+					if (ImGui::Button("Add Vertex"))
+						component.Vertices.push_back({ 0.0f, 0.0f });
+					for (size_t i = 0; i < component.Vertices.size(); i++)
+					{
+						ImGui::PushID((int)i);
+						ImGui::DragFloat2("##vertex", glm::value_ptr(component.Vertices[i]), 0.05f);
+						ImGui::SameLine();
+						if (ImGui::Button("-"))
+						{
+							component.Vertices.erase(component.Vertices.begin() + i);
+							i--;
+						}
+						ImGui::PopID();
+					}
+					ImGui::TreePop();
+				}
+				ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
+				ImGui::DragFloat("Density", &component.Density, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f);
+				ImGui::Checkbox("Is Sensor", &component.IsSensor);
+				ImGui::Checkbox("Enable Contact Events", &component.EnableContactEvents);
+				ImGui::Checkbox("Enable Sensor Events", &component.EnableSensorEvents);
+			},
+#else
+			nullptr,
+#endif
+			[](Entity e) { e.RemoveComponent<PolygonCollider2DComponent>(); },
+			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<PolygonCollider2DComponent>(src.GetComponent<PolygonCollider2DComponent>()); },
+			[](YAML::Emitter& out, Entity e) {
+				auto& component = e.GetComponent<PolygonCollider2DComponent>();
+
+				// Guardem el vector de punts 1 per 1
+				out << YAML::Key << "Vertices" << YAML::Value << YAML::BeginSeq;
+				for (const auto& pt : component.Vertices) {
+					out << YAML::Flow << YAML::BeginSeq << pt.x << pt.y << YAML::EndSeq;
+				}
+				out << YAML::EndSeq;
+				out << YAML::Key << "Offset" << YAML::Value << YAML::Flow << YAML::BeginSeq << component.Offset.x << component.Offset.y << YAML::EndSeq;
+				out << YAML::Key << "Density" << YAML::Value << component.Density;
+				out << YAML::Key << "Friction" << YAML::Value << component.Friction;
+				out << YAML::Key << "Restitution" << YAML::Value << component.Restitution;
+				out << YAML::Key << "RestitutionThreshold" << YAML::Value << component.RestitutionThreshold;
+				out << YAML::Key << "IsSensor" << YAML::Value << component.IsSensor;
+				out << YAML::Key << "EnableContactEvents" << YAML::Value << component.EnableContactEvents;
+				out << YAML::Key << "EnableSensorEvents" << YAML::Value << component.EnableSensorEvents;
+			},
+			[](YAML::Node& node, Entity e) {
+				auto& component = e.AddComponent<PolygonCollider2DComponent>();
+
+				// Llegim el vector de punts
+				if (node["Vertices"] && node["Vertices"].IsSequence()) {
+					for (auto ptNode : node["Vertices"]) {
+						if (ptNode.IsSequence() && ptNode.size() >= 2) {
+							component.Vertices.push_back({ ptNode[0].as<float>(), ptNode[1].as<float>() });
+						}
+					}
+				}
+				if (node["Offset"]) { component.Offset.x = node["Offset"][0].as<float>(); component.Offset.y = node["Offset"][1].as<float>(); }
+				if (node["Density"]) component.Density = node["Density"].as<float>();
+				if (node["Friction"]) component.Friction = node["Friction"].as<float>();
+				if (node["Restitution"]) component.Restitution = node["Restitution"].as<float>();
+				if (node["RestitutionThreshold"]) component.RestitutionThreshold = node["RestitutionThreshold"].as<float>();
+				if (node["IsSensor"]) component.IsSensor = node["IsSensor"].as<bool>();
+				if (node["EnableContactEvents"]) component.EnableContactEvents = node["EnableContactEvents"].as<bool>();
+				if (node["EnableSensorEvents"]) component.EnableSensorEvents = node["EnableSensorEvents"].as<bool>();
+			},
+			[](BufferStreamWriter& out, Entity e) {
+				auto& component = e.GetComponent<PolygonCollider2DComponent>();
+
+				// Escriptura segura de std::vector
+				uint32_t vertSize = (uint32_t)component.Vertices.size();
+				out.WriteRaw<uint32_t>(vertSize);
+				for (const auto& pt : component.Vertices) {
+					out.WriteRaw<glm::vec2>(pt);
+				}
+				out.WriteRaw(component.Offset);
+				out.WriteRaw(component.Density);
+				out.WriteRaw(component.Friction);
+				out.WriteRaw(component.Restitution);
+				out.WriteRaw(component.RestitutionThreshold);
+				out.WriteRaw(component.CategoryBits);
+				out.WriteRaw(component.MaskBits);
+				out.WriteRaw(component.GroupIndex);
+				out.WriteRaw(component.IsSensor);
+				out.WriteRaw(component.EnableContactEvents);
+				out.WriteRaw(component.EnableSensorEvents);
+			},
+			[](BufferStreamReader& in, Entity e) {
+				PolygonCollider2DComponent component;
+
+				// Lectura segura de std::vector
+				uint32_t vertSize;
+				in.ReadRaw<uint32_t>(vertSize);
+				component.Vertices.resize(vertSize);
+				for (uint32_t i = 0; i < vertSize; i++) {
+					in.ReadRaw<glm::vec2>(component.Vertices[i]);
+				}
+				in.ReadRaw(component.Offset);
+				in.ReadRaw(component.Density);
+				in.ReadRaw(component.Friction);
+				in.ReadRaw(component.Restitution);
+				in.ReadRaw(component.RestitutionThreshold);
+				in.ReadRaw(component.CategoryBits);
+				in.ReadRaw(component.MaskBits);
+				in.ReadRaw(component.GroupIndex);
+				in.ReadRaw(component.IsSensor);
+				in.ReadRaw(component.EnableContactEvents);
+				in.ReadRaw(component.EnableSensorEvents);
+				e.AddOrReplaceComponent<PolygonCollider2DComponent>(component);
+			},
+			true
+			}
+		);
 
 		Register({
 			"TextComponent", "Renderer",
@@ -1527,133 +1714,6 @@ namespace Runic2D {
 				}
 
 				e.AddOrReplaceComponent<ShadowCaster2DComponent>(c);
-			},
-			true
-			}
-		);
-
-		Register({
-			"PolygonCollider2DComponent", "Physics",
-			[](Entity e) { if (!e.HasComponent<PolygonCollider2DComponent>()) e.AddComponent<PolygonCollider2DComponent>(); },
-			[](Entity e) { return e.HasComponent<PolygonCollider2DComponent>(); },
-#ifndef R2D_DIST
-			[](Entity e) {
-				auto& component = e.GetComponent<PolygonCollider2DComponent>();
-
-				// Llista de punts desplegable
-				if (ImGui::TreeNode("Polygon Vertices"))
-				{
-					if (ImGui::Button("Add Vertex"))
-						component.Vertices.push_back({ 0.0f, 0.0f });
-					for (size_t i = 0; i < component.Vertices.size(); i++)
-					{
-						ImGui::PushID((int)i);
-						ImGui::DragFloat2("##vertex", glm::value_ptr(component.Vertices[i]), 0.05f);
-						ImGui::SameLine();
-						if (ImGui::Button("-"))
-						{
-							component.Vertices.erase(component.Vertices.begin() + i);
-							i--;
-						}
-						ImGui::PopID();
-					}
-					ImGui::TreePop();
-				}
-				ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
-				ImGui::DragFloat("Density", &component.Density, 0.01f, 0.0f, 1.0f);
-				ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
-				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
-				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f);
-				ImGui::Checkbox("Is Sensor", &component.IsSensor);
-				ImGui::Checkbox("Enable Contact Events", &component.EnableContactEvents);
-				ImGui::Checkbox("Enable Sensor Events", &component.EnableSensorEvents);
-			},
-#else
-			nullptr,
-#endif
-			[](Entity e) { e.RemoveComponent<PolygonCollider2DComponent>(); },
-			[](Entity src, Entity dst) { dst.AddOrReplaceComponent<PolygonCollider2DComponent>(src.GetComponent<PolygonCollider2DComponent>()); },
-			[](YAML::Emitter& out, Entity e) {
-				auto& component = e.GetComponent<PolygonCollider2DComponent>();
-
-				// Guardem el vector de punts 1 per 1
-				out << YAML::Key << "Vertices" << YAML::Value << YAML::BeginSeq;
-				for (const auto& pt : component.Vertices) {
-					out << YAML::Flow << YAML::BeginSeq << pt.x << pt.y << YAML::EndSeq;
-				}
-				out << YAML::EndSeq;
-				out << YAML::Key << "Offset" << YAML::Value << YAML::Flow << YAML::BeginSeq << component.Offset.x << component.Offset.y << YAML::EndSeq;
-				out << YAML::Key << "Density" << YAML::Value << component.Density;
-				out << YAML::Key << "Friction" << YAML::Value << component.Friction;
-				out << YAML::Key << "Restitution" << YAML::Value << component.Restitution;
-				out << YAML::Key << "RestitutionThreshold" << YAML::Value << component.RestitutionThreshold;
-				out << YAML::Key << "IsSensor" << YAML::Value << component.IsSensor;
-				out << YAML::Key << "EnableContactEvents" << YAML::Value << component.EnableContactEvents;
-				out << YAML::Key << "EnableSensorEvents" << YAML::Value << component.EnableSensorEvents;
-			},
-			[](YAML::Node& node, Entity e) {
-				auto& component = e.AddComponent<PolygonCollider2DComponent>();
-
-				// Llegim el vector de punts
-				if (node["Vertices"] && node["Vertices"].IsSequence()) {
-					for (auto ptNode : node["Vertices"]) {
-						if (ptNode.IsSequence() && ptNode.size() >= 2) {
-							component.Vertices.push_back({ ptNode[0].as<float>(), ptNode[1].as<float>() });
-						}
-					}
-				}
-				if (node["Offset"]) { component.Offset.x = node["Offset"][0].as<float>(); component.Offset.y = node["Offset"][1].as<float>(); }
-				if (node["Density"]) component.Density = node["Density"].as<float>();
-				if (node["Friction"]) component.Friction = node["Friction"].as<float>();
-				if (node["Restitution"]) component.Restitution = node["Restitution"].as<float>();
-				if (node["RestitutionThreshold"]) component.RestitutionThreshold = node["RestitutionThreshold"].as<float>();
-				if (node["IsSensor"]) component.IsSensor = node["IsSensor"].as<bool>();
-				if (node["EnableContactEvents"]) component.EnableContactEvents = node["EnableContactEvents"].as<bool>();
-				if (node["EnableSensorEvents"]) component.EnableSensorEvents = node["EnableSensorEvents"].as<bool>();
-			},
-			[](BufferStreamWriter& out, Entity e) {
-				auto& component = e.GetComponent<PolygonCollider2DComponent>();
-
-				// Escriptura segura de std::vector
-				uint32_t vertSize = (uint32_t)component.Vertices.size();
-				out.WriteRaw<uint32_t>(vertSize);
-				for (const auto& pt : component.Vertices) {
-					out.WriteRaw<glm::vec2>(pt);
-				}
-				out.WriteRaw(component.Offset);
-				out.WriteRaw(component.Density);
-				out.WriteRaw(component.Friction);
-				out.WriteRaw(component.Restitution);
-				out.WriteRaw(component.RestitutionThreshold);
-				out.WriteRaw(component.CategoryBits);
-				out.WriteRaw(component.MaskBits);
-				out.WriteRaw(component.GroupIndex);
-				out.WriteRaw(component.IsSensor);
-				out.WriteRaw(component.EnableContactEvents);
-				out.WriteRaw(component.EnableSensorEvents);
-			},
-			[](BufferStreamReader& in, Entity e) {
-				PolygonCollider2DComponent component;
-
-				// Lectura segura de std::vector
-				uint32_t vertSize;
-				in.ReadRaw<uint32_t>(vertSize);
-				component.Vertices.resize(vertSize);
-				for (uint32_t i = 0; i < vertSize; i++) {
-					in.ReadRaw<glm::vec2>(component.Vertices[i]);
-				}
-				in.ReadRaw(component.Offset);
-				in.ReadRaw(component.Density);
-				in.ReadRaw(component.Friction);
-				in.ReadRaw(component.Restitution);
-				in.ReadRaw(component.RestitutionThreshold);
-				in.ReadRaw(component.CategoryBits);
-				in.ReadRaw(component.MaskBits);
-				in.ReadRaw(component.GroupIndex);
-				in.ReadRaw(component.IsSensor);
-				in.ReadRaw(component.EnableContactEvents);
-				in.ReadRaw(component.EnableSensorEvents);
-				e.AddOrReplaceComponent<PolygonCollider2DComponent>(component);
 			},
 			true
 			}

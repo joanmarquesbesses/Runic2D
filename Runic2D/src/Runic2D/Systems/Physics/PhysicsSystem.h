@@ -17,8 +17,13 @@ namespace Runic2D {
 		void SetCollisionEnabled(Entity entity, bool enabled);
 		void UpdateEntityColliders(Entity entity);
 
+		static void SetLayerNames(const std::vector<std::string>& names) { s_LayerNames = names; }
+		static const std::vector<std::string>& GetLayerNames() { return s_LayerNames; }
+
 	private:
 		void OnRigidbodyDestroyed(entt::registry& registry, entt::entity entity);
+
+		inline static std::vector<std::string> s_LayerNames;
 	};
 }
 
